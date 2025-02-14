@@ -1,0 +1,106 @@
+<div class="my-10 px-2">
+  <nav id="sidebar" class="lg:min-w-[250px] w-max max-lg:min-w-8">
+    <div
+      id="sidebar-collapse-menu"
+      class="bg-white shadow-lg h-screen fixed top-0 left-0 overflow-auto z-[99] lg:min-w-[250px] lg:w-max max-lg:w-0 max-lg:invisible transition-all duration-500"
+    >
+      <div class="pt-8 pb-2 px-6 sticky top-0 bg-white min-h-[80px] z-[100]">
+        <a href="javascript:void(0)" class="outline-none"
+          ><img
+            src="https://readymadeui.com/readymadeui.svg"
+            alt="logo"
+            class="w-[170px]"
+          />
+        </a>
+      </div>
+
+      <div class="py-6 px-6">
+        <ul class="space-y-2" id="ul-menu">
+          <li *ngFor="let item of menuItems">
+            <a
+              href="javascript:void(0)"
+              class="menu-item text-gray-800 text-sm flex items-center cursor-pointer hover:bg-[#d9f3ea] rounded-md px-3 py-3 transition-all duration-300"
+            >
+              <!--class="menu-item text-green-700 text-sm flex items-center cursor-pointer bg-[#d9f3ea] hover:bg-[#d9f3ea] rounded-md px-3 py-3 transition-all duration-300"-->
+              <img
+                [src]="item.svg"
+                class="w-[20px] h-[20px] mr-4"
+                alt="{{ item.label }}"
+              />
+              <span>{{ item.label }}</span>
+            </a>
+          </li>
+
+          <li>
+            <a
+              href="javascript:void(0)"
+              class="menu-item text-gray-800 text-sm flex items-center cursor-pointer hover:bg-[#d9f3ea] rounded-md px-3 py-3 transition-all duration-300"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                class="w-[18px] h-[18px] mr-4"
+                viewBox="0 0 60.123 60.123"
+              >
+                <path
+                  d="M57.124 51.893H16.92a3 3 0 1 1 0-6h40.203a3 3 0 0 1 .001 6zm0-18.831H16.92a3 3 0 1 1 0-6h40.203a3 3 0 0 1 .001 6zm0-18.831H16.92a3 3 0 1 1 0-6h40.203a3 3 0 0 1 .001 6z"
+                  data-original="#000000"
+                />
+                <circle
+                  cx="4.029"
+                  cy="11.463"
+                  r="4.029"
+                  data-original="#000000"
+                />
+                <circle
+                  cx="4.029"
+                  cy="30.062"
+                  r="4.029"
+                  data-original="#000000"
+                />
+                <circle
+                  cx="4.029"
+                  cy="48.661"
+                  r="4.029"
+                  data-original="#000000"
+                />
+              </svg>
+              <span>Order List</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="mt-8">
+          <div class="bg-[#00b074] p-4 rounded-md shadow-md max-w-[196px]">
+            <p class="text-white text-sm leading-relaxed">
+              Organize your menus using the action button below!
+            </p>
+            <button
+              type="button"
+              class="py-2 px-4 bg-white hover:bg-gray-100 text-gray-800 text-sm border-none outline-none rounded-md mt-4"
+            >
+              Add Menu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <button
+    id="toggle-sidebar"
+    class="lg:hidden w-8 h-8 z-[100] fixed top-[36px] left-[10px] cursor-pointer bg-[#007bff] flex items-center justify-center rounded-full outline-none transition-all duration-500"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="#fff"
+      class="w-3 h-3"
+      viewBox="0 0 55.752 55.752"
+    >
+      <path
+        d="M43.006 23.916a5.36 5.36 0 0 0-.912-.727L20.485 1.581a5.4 5.4 0 0 0-7.637 7.638l18.611 18.609-18.705 18.707a5.398 5.398 0 1 0 7.634 7.635l21.706-21.703a5.35 5.35 0 0 0 .912-.727 5.373 5.373 0 0 0 1.574-3.912 5.363 5.363 0 0 0-1.574-3.912z"
+        data-original="#000000"
+      />
+    </svg>
+  </button>
+</div>
