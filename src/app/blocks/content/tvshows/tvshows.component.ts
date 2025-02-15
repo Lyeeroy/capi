@@ -9,8 +9,8 @@ import { CommonModule } from '@angular/common';
 })
 export class TvshowsComponent {
   API_KEY = '2c6781f841ce2ad1608de96743a62eb9';
-  BASE_URL = 'https://api.themoviedb.org/3';
-  IMG_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+  TMDB_URL = 'https://api.themoviedb.org/3';
+  IMG_TMDB_URL = 'https://image.tmdb.org/t/p/w500';
 
   categories = [
     {
@@ -48,29 +48,20 @@ export class TvshowsComponent {
     { title: 'On TV', endpoint: '/tv/on_the_air', mediaType: 'tv' },
   ];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.callAPI(this.TMDB_URL, '/movie/upcoming', 'movie');
+  }
   names: string[] = [];
-  async ngOnInit(): Promise<void> {
-    console.log('OnInit works ty kundo');
-    interface TVShowData {
-      results: { name: string }[];
-    }
-    try {
-      const data = await this.http
-        .get<TVShowData>(
-          `${this.BASE_URL}${this.categories[1].endpoint}?api_key=${this.API_KEY}`,
-          { responseType: 'json' }
-        )
-        .toPromise();
+  //async ngOnInit(): Promise<void> {}
 
-      if (data) {
-        this.names = data.results.map((element) => element.name);
-        console.log(this.names);
-      } else {
-        console.error('No data');
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  callAPI(baseurl: string, endpoint: string, mediaType: string) {
+    const options = {
+      params: {
+        api_key: this.API_KEY,
+      },
+    };
+    this.http.get<any>(baseurl + endpoint, options).subscribe((response) => {
+      this.names = response.results.map((result: any) => result.title);
+    });
   }
 }
