@@ -15,9 +15,12 @@ export class TvshowsComponent {
   constructor(private http: HttpClient) {
     this.callAPI(this.TMDB_URL, '/movie/upcoming', 'movie');
   }
-  names: string[] = [];
+
   //async ngOnInit(): Promise<void> {}
 
+  names: string[] = [];
+  background: string[] = [];
+  rating: string[] = [];
   callAPI(baseurl: string, endpoint: string, mediaType: string) {
     const options = {
       params: {
@@ -25,7 +28,12 @@ export class TvshowsComponent {
       },
     };
     this.http.get<any>(baseurl + endpoint, options).subscribe((response) => {
+      console.log(response);
       this.names = response.results.map((result: any) => result.title);
+      this.background = response.results.map(
+        (result: any) => result.poster_path
+      );
+      this.rating = response.results.map((result: any) => result.vote_average);
     });
   }
 }

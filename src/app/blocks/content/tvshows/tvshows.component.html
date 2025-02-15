@@ -1,3 +1,22 @@
-<ul>
-  <li *ngFor="let name of names">{{ name }}</li>
-</ul>
+<div class="flex flex-col items-center">
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-4"
+  >
+    <div
+      *ngFor="let item of names; let i = index"
+      class="relative overflow-hidden rounded-xl shadow-md"
+    >
+      <img
+        [src]="IMG_TMDB_URL + background[i]"
+        alt="background image"
+        class="w-full h-48 object-cover"
+      />
+      <div
+        class="absolute bottom-2 left-2 right-2 bg-black/70 rounded-lg p-2 text-white text-xs"
+      >
+        <p class="font-medium">{{ item }}</p>
+        <p class="text-gray-300">⭐ {{ rating[i] }}</p>
+      </div>
+    </div>
+  </div>
+</div>
