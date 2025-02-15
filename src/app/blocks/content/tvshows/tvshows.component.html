@@ -2,7 +2,7 @@
   <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
     <div
       *ngFor="let item of names; let i = index"
-      class="group relative bg-gray-900 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden aspect-[2/3]"
+      class="cursor-pointer group relative bg-gray-900 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden aspect-[2/3]"
     >
       <img
         [src]="IMG_TMDB_URL + background[i]"
