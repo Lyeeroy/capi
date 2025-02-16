@@ -1,3 +1,4 @@
+// src/app/blocks/content/movies/movies.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TmdbService } from '../../../services/tmdb.service';
@@ -43,6 +44,8 @@ export class MoviesComponent implements OnInit {
   }
 
   redirectToPlayer(index: number) {
-    this.router.navigate(['/player', this.ids[index], this.mediaTypes[index]]);
+    this.router.navigate(['/player', this.ids[index], this.mediaTypes[index]], {
+      queryParams: { name: this.names[index] }, // Pass the name in the URL
+    });
   }
 }

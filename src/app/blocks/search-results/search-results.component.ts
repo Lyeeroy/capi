@@ -48,6 +48,8 @@ export class SearchResultsComponent implements OnInit {
   }
 
   redirectToPlayer(item: any) {
-    this.router.navigate(['/player', item.id, item.media_type]);
+    this.router.navigate(['/player', item.id, item.media_type], {
+      queryParams: { name: item.title || item.name },
+    });
   }
 }
