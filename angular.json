@@ -22,10 +22,6 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              },
-              {
-                "glob": "**/*",
-                "input": "src"
               }
             ],
             "styles": ["src/styles.css"],

@@ -7,7 +7,6 @@ import { HeaderComponent } from './blocks/header/header.component';
   selector: 'app-root',
   imports: [RouterOutlet, SideBarComponent, HeaderComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
 })
 export class AppComponent {
   title = 'capi';
