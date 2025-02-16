@@ -1,28 +1,36 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
+  selector: 'app-search-results',
+  templateUrl: './search-results.component.html',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule],
 })
-export class HeaderComponent {
+export class SearchResultsComponent implements OnInit {
   BASE_URL = 'https://api.themoviedb.org/3';
   API_KEY = '2c6781f841ce2ad1608de96743a62eb9';
-  query = '';
   searchResults: any[] = [];
+  query: string = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute,
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
-  searchMovies() {
-    if (!this.query.trim()) {
-      this.searchResults = [];
-      return;
-    }
+  ngOnInit(): void {
+    this.route.paramMap.subscribe((params) => {
+      this.query = params.get('query') || '';
+      if (this.query) {
+        this.fetchResults();
+      }
+    });
+  }
 
+  fetchResults() {
     this.http
       .get<any>(
         `${this.BASE_URL}/search/multi?api_key=${this.API_KEY}&query=${this.query}`
@@ -34,12 +42,9 @@ export class HeaderComponent {
               item.poster_path &&
               (item.media_type === 'movie' || item.media_type === 'tv')
           );
-          console.log(this.searchResults);
         },
         error: (err) => console.error('Error fetching search results:', err),
       });
-
-    this.router.navigate(['/searchResults', this.query]);
   }
 
   redirectToPlayer(item: any) {
