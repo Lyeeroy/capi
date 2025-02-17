@@ -183,8 +183,30 @@
     <div class="w-full h-full md:w-1/4 overflow-y-auto bg-gray-50 shadow-lg">
       <div class="p-6 space-y-4">
         <div class="flex justify-between items-center mb-4">
+          <!-- Playlist Button -->
+          <button
+            class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24"
+              viewBox="0 0 24 24"
+              width="24"
+              focusable="false"
+              aria-hidden="true"
+              style="
+                pointer-events: none;
+                display: inherit;
+                width: 100%;
+                height: 100%;
+              "
+            >
+              <path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"></path>
+            </svg>
+          </button>
           <h2 class="text-lg font-semibold text-gray-800">Playlist</h2>
           <div class="flex items-center gap-2">
+            <!-- Sort by -->
             <button
               class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
             >
@@ -204,7 +226,7 @@
                 <rect width="18" height="12" x="3" y="10" rx="2"></rect>
               </svg>
             </button>
-
+            <!-- Up/Down sort-->
             <button
               class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
             >
