@@ -1,4 +1,5 @@
 // src/app/blocks/player/player.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TmdbService } from '../../services/tmdb.service';
@@ -18,8 +19,10 @@ export class PlayerComponent implements OnInit {
   seasonNumber: number | null = 0;
   episodes: number | null = 0;
   totalSeasons: number[] = [];
-  episodeNames: string[] = [];
-  episodePosters: string[] = [];
+  episodeNames: { [key: number]: string[] } = {};
+  episodePosters: { [key: number]: string[] } = {};
+  currentEpisodes: string[] = [];
+  currentPosters: string[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -60,21 +63,23 @@ export class PlayerComponent implements OnInit {
             'tv'
           )
       );
-
       Promise.all(seasonObservables.map((obs) => obs.toPromise()))
         .then((responses) => {
           responses.forEach((response, index) => {
             if (response && response.episodes) {
               this.totalSeasons.push(index + 1);
-              this.episodes = response.episodes.length;
-              this.episodeNames.push(
-                ...response.episodes.map((episode: any) => episode.name)
+              this.episodeNames[index + 1] = response.episodes.map(
+                (episode: any) => episode.name
               );
-              this.episodePosters.push(
-                ...response.episodes.map((episode: any) => episode.still_path)
+              this.episodePosters[index + 1] = response.episodes.map(
+                (episode: any) =>
+                  episode.still_path
+                    ? 'https://image.tmdb.org/t/p/w500' + episode.still_path
+                    : 'https://miro.medium.com/v2/resize:fit:300/0*E6pTrKTFvvLDOzzj.png'
               );
             }
           });
+          this.updateCurrentEpisodes(1);
           console.log('Season:', this.totalSeasons);
           console.log('Episode Names:', this.episodeNames);
         })
@@ -83,25 +88,14 @@ export class PlayerComponent implements OnInit {
   }
 
   onSeasonChange(event: Event) {
-    const selectedSeason = (event.target as HTMLSelectElement).value;
-    this.nameOfEachEpisode(Number(selectedSeason));
+    const selectedSeason = Number((event.target as HTMLSelectElement).value);
+    this.updateCurrentEpisodes(selectedSeason);
   }
 
-  nameOfEachEpisode(seasonNumber: number) {
-    if (this.id !== null && this.mediaType === 'tv') {
-      this.tmdbService
-        .callAPI(
-          'https://api.themoviedb.org/3',
-          `/tv/${this.id}/season/${seasonNumber}`,
-          'tv'
-        )
-        .subscribe((data) => {
-          this.episodeNames = data.episodes.map((episode: any) => episode.name);
-          this.episodePosters = data.episodes.map(
-            (episode: any) => episode.still_path
-          );
-          console.log('Episode Names:', this.episodeNames);
-        });
+  updateCurrentEpisodes(seasonNumber: number) {
+    if (this.episodeNames[seasonNumber] && this.episodePosters[seasonNumber]) {
+      this.currentEpisodes = this.episodeNames[seasonNumber];
+      this.currentPosters = this.episodePosters[seasonNumber];
     }
   }
 

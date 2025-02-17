@@ -175,10 +175,9 @@
     </div>
 
     <!-- Playlist Section (Bottom on mobile) -->
-    <div class="w-full md:w-1/4 overflow-y-auto shadow-lg">
+    <div class="w-full h-full md:w-1/4 overflow-y-auto shadow-lg">
       <div class="p-4 space-y-4">
         <h2 class="text-lg font-semibold">Playlist</h2>
-
         <!-- Season Selector -->
         <div class="space-y-2">
           <div class="flex items-center justify-between p-2 rounded-lg">
@@ -191,26 +190,27 @@
               </option>
             </select>
           </div>
-
           <!-- Episodes -->
           <div class="space-y-1 pl-4">
             <button
               class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-sm"
-              *ngFor="let episode of episodeNames"
+              *ngFor="let episode of currentEpisodes; let i = index"
             >
               <div class="w-16 h-12 rounded-md overflow-hidden">
                 <img
                   [src]="
-                    episodePosters[episodeNames.indexOf(episode)]
-                      ? 'https://image.tmdb.org/t/p/w500' +
-                        episodePosters[episodeNames.indexOf(episode)]
+                    currentPosters[i]
+                      ? currentPosters[i]
                       : 'https://miro.medium.com/v2/resize:fit:300/0*E6pTrKTFvvLDOzzj.png'
                   "
                   class="w-full h-full object-cover"
                 />
               </div>
               <div class="flex-1">
-                <div class="font-medium">{{ episode }}</div>
+                <div class="flex gap-2">
+                  <div class="font-bold">{{ i + 1 }}.</div>
+                  <div class="font-medium">{{ episode }}</div>
+                </div>
                 <div class="text-gray-500 text-xs">Duration</div>
               </div>
             </button>
