@@ -1,3 +1,4 @@
+// src/app/blocks/player/player.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TmdbService } from '../../services/tmdb.service';

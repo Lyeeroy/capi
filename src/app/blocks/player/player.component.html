@@ -201,8 +201,10 @@
               <div class="w-16 h-12 rounded-md overflow-hidden">
                 <img
                   [src]="
-                    'https://image.tmdb.org/t/p/w500' +
                     episodePosters[episodeNames.indexOf(episode)]
+                      ? 'https://image.tmdb.org/t/p/w500' +
+                        episodePosters[episodeNames.indexOf(episode)]
+                      : 'https://miro.medium.com/v2/resize:fit:300/0*E6pTrKTFvvLDOzzj.png'
                   "
                   class="w-full h-full object-cover"
                 />
