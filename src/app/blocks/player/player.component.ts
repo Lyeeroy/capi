@@ -19,6 +19,10 @@ export class PlayerComponent implements OnInit {
   seasonNumber: number | null = 0;
   episodes: number | null = 0;
 
+  totalSeasons: number[] = [];
+  episodeNames: string[] = [];
+  episodePosters: string[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -38,12 +42,11 @@ export class PlayerComponent implements OnInit {
 
     console.log(this.id, this.mediaType, this.names);
 
-    this.numberOfSeasons();
-    this.numberOfEpisodesInEachSeason();
+    this.DataOfEpisodesInEachSeason();
   }
 
   // Get the number of episodes for each season in parallel
-  async numberOfEpisodesInEachSeason() {
+  async DataOfEpisodesInEachSeason() {
     // Call numberOfSeasons to know the number of season
     await this.numberOfSeasons();
 
@@ -54,10 +57,15 @@ export class PlayerComponent implements OnInit {
     for (let i = 1; i <= this.seasonNumber; i++) {
       await this.numberOfEpisodesInSeason(i);
       //console log the result per 1 season
+      this.totalSeasons.push(i);
+
       console.log(
         `numberOfEpisodesInEachSeason: Episodes for Season ${i}:`,
         this.episodes
       );
+      console.log('Season: ', this.totalSeasons);
+      //episode names for each season
+      this.nameOfEachEpisode(i);
     }
   }
 
@@ -106,6 +114,29 @@ export class PlayerComponent implements OnInit {
     } catch (error) {
       console.error(
         `Error fetching episodes for season ${seasonNumber}:`,
+        error
+      );
+    }
+  }
+
+  nameOfEachEpisode(seasonNumber: number) {
+    try {
+      const response = this.tmdbService
+        .callAPI(
+          'https://api.themoviedb.org/3',
+          `/tv/${this.id}/season/${seasonNumber}`,
+          'tv'
+        )
+        .subscribe((data) => {
+          this.episodeNames = data.episodes.map((episode: any) => episode.name);
+          this.episodePosters = data.episodes.map(
+            (episode: any) => episode.still_path
+          );
+          console.log('Episode Names:', this.episodeNames);
+        });
+    } catch (error) {
+      console.error(
+        `Error fetching episode names for season ${seasonNumber}:`,
         error
       );
     }

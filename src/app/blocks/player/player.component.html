@@ -73,7 +73,7 @@
       <!-- Video Container src="https://www.youtube.com/embed/dQw4w9WgXcQ"-->
       <div class="aspect-video relative">
         <iframe
-          class="w-full h-full rounded-xl"
+          class="w-full h-full rounded-xl bg-gray-100"
           frameborder="0"
           allowfullscreen
           loading="lazy"
@@ -185,12 +185,9 @@
             <select
               class="w-full px-2 py-1 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
-              <option value="" selected disabled hidden>
-                Season {{ seasonNumber }}
+              <option *ngFor="let season of totalSeasons" value="{{ season }}">
+                Season {{ season }} / {{ totalSeasons.length }}
               </option>
-              <option value="1">Season 1</option>
-              <option value="2">Season 2</option>
-              <option value="3">Season 3</option>
             </select>
           </div>
 
@@ -198,15 +195,19 @@
           <div class="space-y-1 pl-4">
             <button
               class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 text-sm"
+              *ngFor="let episode of episodeNames"
             >
               <div class="w-16 h-12 rounded-md overflow-hidden">
                 <img
-                  src="episode-thumbnail-placeholder"
+                  [src]="
+                    'https://image.tmdb.org/t/p/w500' +
+                    episodePosters[episodeNames.indexOf(episode)]
+                  "
                   class="w-full h-full object-cover"
                 />
               </div>
               <div class="flex-1">
-                <div class="font-medium">Episode 1</div>
+                <div class="font-medium">{{ episode }}</div>
                 <div class="text-gray-500 text-xs">Duration</div>
               </div>
             </button>
