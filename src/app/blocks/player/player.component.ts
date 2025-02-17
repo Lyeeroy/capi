@@ -23,6 +23,7 @@ export class PlayerComponent implements OnInit {
   episodePosters: { [key: number]: string[] } = {};
   currentEpisodes: { number: number; name: string }[] = [];
   currentPosters: string[] = [];
+  layoutType: number = 1; // 1: ep number, ep name; 2: ep number, ep name, poster; 3: tiles with only number
 
   constructor(
     private route: ActivatedRoute,
@@ -105,6 +106,10 @@ export class PlayerComponent implements OnInit {
   ascOrDescSort() {
     this.currentEpisodes.reverse();
     this.currentPosters.reverse();
+  }
+
+  changeLayout() {
+    this.layoutType = (this.layoutType % 3) + 1;
   }
 
   cancel() {

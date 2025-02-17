@@ -206,9 +206,10 @@
           </button>
           <h2 class="text-lg font-semibold text-gray-800">Playlist</h2>
           <div class="flex items-center gap-2">
-            <!-- Sort by -->
+            <!-- Modify playlist. 1 ep number, ep name 2 ep number ep name poster 3 tiles small width with only number between each other not flex-1 but flex  -->
             <button
               class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+              (click)="changeLayout()"
             >
               <svg
                 stroke="currentColor"
@@ -251,7 +252,7 @@
           </div>
         </div>
 
-        <div class="space-y-3">
+        <div class="space-y-2">
           <label
             for="seasonSelect"
             class="block text-sm font-medium text-gray-700"
@@ -277,8 +278,15 @@
               >
                 <button
                   class="w-full flex items-center gap-4 p-3 rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out cursor-pointer"
+                  [ngClass]="{
+                    'flex-col': layoutType === 3,
+                    'flex-row': layoutType !== 3
+                  }"
                 >
-                  <div class="w-20 h-14 rounded-md overflow-hidden shadow-sm">
+                  <div
+                    *ngIf="layoutType === 2 || layoutType === 3"
+                    class="w-20 h-14 rounded-md overflow-hidden shadow-sm"
+                  >
                     <img
                       [src]="
                         currentPosters[i]
@@ -297,7 +305,10 @@
                     >
                       {{ episode.number }}. {{ episode.name }}
                     </div>
-                    <div class="text-gray-500 text-xs mt-1">
+                    <div
+                      *ngIf="layoutType === 1 || layoutType === 2"
+                      class="text-gray-500 text-xs mt-1"
+                    >
                       Duration: 45 min
                     </div>
                   </div>
