@@ -104,6 +104,7 @@ export class PlayerComponent implements OnInit {
 
   ascOrDescSort() {
     this.currentEpisodes.reverse();
+    this.currentPosters.reverse();
   }
 
   cancel() {
