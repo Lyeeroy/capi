@@ -82,17 +82,12 @@
 
       <!-- Controls -->
       <div class="p-4 space-y-4 bg-gray-100 border border-gray-200 rounded-xl">
-        <!-- Source Selection (Mobile optimized) -->
-        <div class="flex flex-col sm:flex-row gap-2 items-center">
-          <select
-            class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-2 focus:ring-red-500"
-          >
-            <option>Select Source</option>
-            <option>Source 1</option>
-            <option>Source 2</option>
-          </select>
-
-          <div class="flex gap-2 w-full sm:w-auto">
+        <!-- Combined Source and Episode Navigation -->
+        <div
+          class="flex flex-col sm:flex-row gap-2 items-center justify-between"
+        >
+          <!-- Source Selection and Navigation on the Left -->
+          <div class="flex gap-2 items-center w-full sm:w-auto">
             <button
               class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
             >
@@ -111,6 +106,15 @@
               </svg>
               <span class="hidden sm:inline">Prev</span>
             </button>
+
+            <select
+              class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-2 focus:ring-red-500"
+            >
+              <option>Select Source</option>
+              <option>Source 1</option>
+              <option>Source 2</option>
+            </select>
+
             <button
               class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
             >
@@ -130,46 +134,47 @@
               </svg>
             </button>
           </div>
-        </div>
 
-        <!-- Episode Navigation -->
-        <div class="flex gap-2 justify-between">
-          <button
-            class="flex-1 px-4 py-2 rounded-full bg-gray-300 hover:bg-red-600 text-white text-sm flex items-center justify-center gap-2"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <!-- Episode Navigation on the Right -->
+          <div class="flex gap-2 w-full sm:w-auto justify-center">
+            <button
+              class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Previous
-          </button>
-          <button
-            class="flex-1 px-4 py-2 rounded-full bg-gray-300 hover:bg-red-600 text-white text-sm flex items-center justify-center gap-2"
-          >
-            Next
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+              <span class="hidden sm:inline">Prev</span>
+            </button>
+
+            <button
+              class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
+              <span class="hidden sm:inline">Next</span>
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
