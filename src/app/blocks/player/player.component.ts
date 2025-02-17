@@ -1,10 +1,8 @@
-// src/app/blocks/player/player.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TmdbService } from '../../services/tmdb.service';
 import { Location } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-player',
@@ -18,7 +16,6 @@ export class PlayerComponent implements OnInit {
   names: string | null = null;
   seasonNumber: number | null = 0;
   episodes: number | null = 0;
-
   totalSeasons: number[] = [];
   episodeNames: string[] = [];
   episodePosters: string[] = [];
@@ -30,98 +27,68 @@ export class PlayerComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Update UI with the route parameters
     this.route.paramMap.subscribe((params) => {
       this.id = Number(params.get('id'));
       this.mediaType = params.get('mediaType');
+      this.names = this.route.snapshot.queryParams['name'];
+      this.initializeData();
     });
-
-    this.route.queryParams.subscribe((queryParams) => {
-      this.names = queryParams['name']; // Retrieve the name from the URL
-    });
-
-    console.log(this.id, this.mediaType, this.names);
-
-    this.DataOfEpisodesInEachSeason();
   }
 
-  // Get the number of episodes for each season in parallel
-  async DataOfEpisodesInEachSeason() {
-    // Call numberOfSeasons to know the number of season
-    await this.numberOfSeasons();
-
-    if (this.seasonNumber === null) {
-      return;
+  initializeData() {
+    if (this.mediaType === 'tv' && this.id !== null) {
+      this.tmdbService
+        .callAPI('https://api.themoviedb.org/3', `/tv/${this.id}`, 'tv')
+        .subscribe((response) => {
+          if (response && response.number_of_seasons !== undefined) {
+            this.seasonNumber = response.number_of_seasons;
+            this.getAllSeasonData();
+          }
+        });
     }
-    // For every season, call numberOfEpisodesInSeason
-    for (let i = 1; i <= this.seasonNumber; i++) {
-      await this.numberOfEpisodesInSeason(i);
-      //console log the result per 1 season
-      this.totalSeasons.push(i);
+  }
 
-      console.log(
-        `numberOfEpisodesInEachSeason: Episodes for Season ${i}:`,
-        this.episodes
+  getAllSeasonData() {
+    if (this.seasonNumber) {
+      const seasonObservables = Array.from(
+        { length: this.seasonNumber },
+        (_, i) =>
+          this.tmdbService.callAPI(
+            'https://api.themoviedb.org/3',
+            `/tv/${this.id}/season/${i + 1}`,
+            'tv'
+          )
       );
-      console.log('Season: ', this.totalSeasons);
-      //episode names for each season
-      this.nameOfEachEpisode(i);
+
+      Promise.all(seasonObservables.map((obs) => obs.toPromise()))
+        .then((responses) => {
+          responses.forEach((response, index) => {
+            if (response && response.episodes) {
+              this.totalSeasons.push(index + 1);
+              this.episodes = response.episodes.length;
+              this.episodeNames.push(
+                ...response.episodes.map((episode: any) => episode.name)
+              );
+              this.episodePosters.push(
+                ...response.episodes.map((episode: any) => episode.still_path)
+              );
+            }
+          });
+          console.log('Season:', this.totalSeasons);
+          console.log('Episode Names:', this.episodeNames);
+        })
+        .catch((error) => console.error('Error fetching season data:', error));
     }
   }
 
-  async numberOfSeasons(): Promise<number | null> {
-    if (this.mediaType === 'tv') {
-      try {
-        const response = await this.tmdbService
-          .callAPI('https://api.themoviedb.org/3', `/tv/${this.id}`, 'tv')
-          .toPromise();
-
-        if (response && response.number_of_seasons !== undefined) {
-          this.seasonNumber = response.number_of_seasons;
-          console.log(
-            'numberOfSeasons() This',
-            this.mediaType,
-            'has:',
-            this.seasonNumber,
-            'seasons'
-          );
-
-          //Call numberOfEpisodesInSeason and pass seasonNumber: probably slow as fuck: lets look at it later!
-
-          //await this.numberOfEpisodesInSeason(this.seasonNumber ?? 0);
-        }
-      } catch (error) {
-        console.error('Error fetching number of seasons:', error);
-      }
-    }
-    return null;
-  }
-
-  async numberOfEpisodesInSeason(seasonNumber: number): Promise<void> {
-    try {
-      const response = await this.tmdbService
-        .callAPI(
-          'https://api.themoviedb.org/3',
-          `/tv/${this.id}/season/${seasonNumber}`,
-          'tv'
-        )
-        .toPromise();
-
-      if (response && response.episodes) {
-        this.episodes = response.episodes;
-        //console.log(`Episodes for Season ${seasonNumber}:`, this.episodes);
-      }
-    } catch (error) {
-      console.error(
-        `Error fetching episodes for season ${seasonNumber}:`,
-        error
-      );
-    }
+  onSeasonChange(event: Event) {
+    const selectedSeason = (event.target as HTMLSelectElement).value;
+    this.nameOfEachEpisode(Number(selectedSeason));
   }
 
   nameOfEachEpisode(seasonNumber: number) {
-    try {
-      const response = this.tmdbService
+    if (this.id !== null && this.mediaType === 'tv') {
+      this.tmdbService
         .callAPI(
           'https://api.themoviedb.org/3',
           `/tv/${this.id}/season/${seasonNumber}`,
@@ -134,15 +101,10 @@ export class PlayerComponent implements OnInit {
           );
           console.log('Episode Names:', this.episodeNames);
         });
-    } catch (error) {
-      console.error(
-        `Error fetching episode names for season ${seasonNumber}:`,
-        error
-      );
     }
   }
 
   cancel() {
-    this.location.back(); // Go back to the previous page
+    this.location.back();
   }
 }

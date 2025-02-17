@@ -179,13 +179,14 @@
       <div class="p-4 space-y-4">
         <h2 class="text-lg font-semibold">Playlist</h2>
 
-        <!-- Season Accordion -->
+        <!-- Season Selector -->
         <div class="space-y-2">
           <div class="flex items-center justify-between p-2 rounded-lg">
             <select
               class="w-full px-2 py-1 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              (change)="onSeasonChange($event)"
             >
-              <option *ngFor="let season of totalSeasons" value="{{ season }}">
+              <option *ngFor="let season of totalSeasons" [value]="season">
                 Season {{ season }} / {{ totalSeasons.length }}
               </option>
             </select>
