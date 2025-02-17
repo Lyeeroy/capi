@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TmdbService } from '../../services/tmdb.service';
 import { Location } from '@angular/common';
 import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-player',
@@ -38,41 +39,57 @@ export class PlayerComponent implements OnInit {
     console.log(this.id, this.mediaType, this.names);
 
     this.numberOfSeasons();
-    this.numberOfEpisodesInEachSeason();
   }
 
   // Get the seasons and episodes from API: and fill it into the UI
-  // const { episodes } = await fetchData(`https://api.themoviedb.org/3/tv/${tmdbId}/season/${seasonNumber}?api_key=${apiKey}`
-  // result: this.seasonNumber = single number
-  numberOfSeasons() {
+  async numberOfSeasons(): Promise<number | null> {
     if (this.mediaType === 'tv') {
-      this.tmdbService
-        .callAPI('https://api.themoviedb.org/3', `/tv/${this.id}`, 'tv')
-        .subscribe((response) => {
+      try {
+        const response = await this.tmdbService
+          .callAPI('https://api.themoviedb.org/3', `/tv/${this.id}`, 'tv')
+          .toPromise();
+
+        if (response && response.number_of_seasons !== undefined) {
           this.seasonNumber = response.number_of_seasons;
           console.log(
-            'This',
+            'numberOfSeasons() This',
             this.mediaType,
             'has:',
             this.seasonNumber,
             'seasons'
           );
-        });
+
+          // Call numberOfEpisodesInEachSeason and pass seasonNumber
+          await this.numberOfEpisodesInEachSeason(this.seasonNumber ?? 0);
+
+          return this.seasonNumber;
+        }
+      } catch (error) {
+        console.error('Error fetching number of seasons:', error);
+      }
     }
+    return null;
   }
-  //`https://api.themoviedb.org/3/tv/${tmdbId}/season/${seasonNumber}?api_key=${apiKey}`
-  numberOfEpisodesInEachSeason() {
-    if (this.mediaType === 'tv') {
-      this.tmdbService
+
+  async numberOfEpisodesInEachSeason(seasonNumber: number): Promise<void> {
+    try {
+      const response = await this.tmdbService
         .callAPI(
           'https://api.themoviedb.org/3',
-          `/tv/${this.id}/season/${this.seasonNumber}`,
+          `/tv/${this.id}/season/${seasonNumber}`,
           'tv'
         )
-        .subscribe((response) => {
-          this.episodes = response.number_of_seasons;
-          console.log(response);
-        });
+        .toPromise();
+
+      if (response && response.episodes) {
+        this.episodes = response.episodes;
+        console.log(`Episodes for Season ${seasonNumber}:`, this.episodes);
+      }
+    } catch (error) {
+      console.error(
+        `Error fetching episodes for season ${seasonNumber}:`,
+        error
+      );
     }
   }
 
