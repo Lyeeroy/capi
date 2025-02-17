@@ -39,9 +39,28 @@ export class PlayerComponent implements OnInit {
     console.log(this.id, this.mediaType, this.names);
 
     this.numberOfSeasons();
+    this.numberOfEpisodesInEachSeason();
   }
 
-  // Get the seasons and episodes from API: and fill it into the UI
+  // Get the number of episodes for each season in parallel
+  async numberOfEpisodesInEachSeason() {
+    // Call numberOfSeasons to know the number of season
+    await this.numberOfSeasons();
+
+    if (this.seasonNumber === null) {
+      return;
+    }
+    // For every season, call numberOfEpisodesInSeason
+    for (let i = 1; i <= this.seasonNumber; i++) {
+      await this.numberOfEpisodesInSeason(i);
+      //console log the result per 1 season
+      console.log(
+        `numberOfEpisodesInEachSeason: Episodes for Season ${i}:`,
+        this.episodes
+      );
+    }
+  }
+
   async numberOfSeasons(): Promise<number | null> {
     if (this.mediaType === 'tv') {
       try {
@@ -59,10 +78,9 @@ export class PlayerComponent implements OnInit {
             'seasons'
           );
 
-          // Call numberOfEpisodesInEachSeason and pass seasonNumber
-          await this.numberOfEpisodesInEachSeason(this.seasonNumber ?? 0);
+          //Call numberOfEpisodesInSeason and pass seasonNumber: probably slow as fuck: lets look at it later!
 
-          return this.seasonNumber;
+          //await this.numberOfEpisodesInSeason(this.seasonNumber ?? 0);
         }
       } catch (error) {
         console.error('Error fetching number of seasons:', error);
@@ -71,7 +89,7 @@ export class PlayerComponent implements OnInit {
     return null;
   }
 
-  async numberOfEpisodesInEachSeason(seasonNumber: number): Promise<void> {
+  async numberOfEpisodesInSeason(seasonNumber: number): Promise<void> {
     try {
       const response = await this.tmdbService
         .callAPI(
@@ -83,7 +101,7 @@ export class PlayerComponent implements OnInit {
 
       if (response && response.episodes) {
         this.episodes = response.episodes;
-        console.log(`Episodes for Season ${seasonNumber}:`, this.episodes);
+        //console.log(`Episodes for Season ${seasonNumber}:`, this.episodes);
       }
     } catch (error) {
       console.error(
