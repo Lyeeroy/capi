@@ -19,9 +19,9 @@ export class PlayerComponent implements OnInit {
   seasonNumber: number | null = 0;
   episodes: number | null = 0;
   totalSeasons: number[] = [];
-  episodeNames: { [key: number]: string[] } = {};
+  episodeNames: { [key: number]: { number: number; name: string }[] } = {};
   episodePosters: { [key: number]: string[] } = {};
-  currentEpisodes: string[] = [];
+  currentEpisodes: { number: number; name: string }[] = [];
   currentPosters: string[] = [];
 
   constructor(
@@ -69,7 +69,10 @@ export class PlayerComponent implements OnInit {
             if (response && response.episodes) {
               this.totalSeasons.push(index + 1);
               this.episodeNames[index + 1] = response.episodes.map(
-                (episode: any) => episode.name
+                (episode: any, episodeIndex: number) => ({
+                  number: episodeIndex + 1,
+                  name: episode.name,
+                })
               );
               this.episodePosters[index + 1] = response.episodes.map(
                 (episode: any) =>
@@ -97,6 +100,10 @@ export class PlayerComponent implements OnInit {
       this.currentEpisodes = this.episodeNames[seasonNumber];
       this.currentPosters = this.episodePosters[seasonNumber];
     }
+  }
+
+  ascOrDescSort() {
+    this.currentEpisodes.reverse();
   }
 
   cancel() {

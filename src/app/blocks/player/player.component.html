@@ -226,9 +226,10 @@
                 <rect width="18" height="12" x="3" y="10" rx="2"></rect>
               </svg>
             </button>
-            <!-- Up/Down sort-->
+            <!-- descending/ascending sort-->
             <button
               class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+              (click)="ascOrDescSort()"
             >
               <svg
                 stroke="currentColor"
@@ -290,8 +291,11 @@
                     />
                   </div>
                   <div class="flex-1 flex flex-col text-left">
-                    <div class="font-medium text-gray-800">
-                      {{ i + 1 }}. {{ episode }}
+                    <div
+                      class="font-medium text-gray-800"
+                      [title]="episode.name"
+                    >
+                      {{ episode.number }}. {{ episode.name }}
                     </div>
                     <div class="text-gray-500 text-xs mt-1">
                       Duration: 45 min
