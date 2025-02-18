@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-header',
   templateUrl: './header.component.html',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterModule],
 })
 export class HeaderComponent {
   BASE_URL = 'https://api.themoviedb.org/3';
