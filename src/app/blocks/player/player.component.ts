@@ -3,13 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { TmdbService } from '../../services/tmdb.service';
 import { Location } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { PlaylistComponent } from './playlist-component/playlist.component';
 
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
   standalone: true,
-  imports: [CommonModule, PlaylistComponent], // Add the child component to imports
+  imports: [CommonModule],
 })
 export class PlayerComponent implements OnInit {
   id: number | null = null;
@@ -92,8 +91,9 @@ export class PlayerComponent implements OnInit {
     }
   }
 
-  onSeasonChange(seasonNumber: number) {
-    this.updateCurrentEpisodes(seasonNumber);
+  onSeasonChange(event: Event) {
+    const selectedSeason = Number((event.target as HTMLSelectElement).value);
+    this.updateCurrentEpisodes(selectedSeason);
   }
 
   updateCurrentEpisodes(seasonNumber: number) {
