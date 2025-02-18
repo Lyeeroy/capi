@@ -4,8 +4,5 @@ import { Component } from '@angular/core';
   selector: 'app-table',
   imports: [],
   templateUrl: './table.component.html',
-  styleUrl: './table.component.css'
 })
-export class TableComponent {
-
-}
+export class TableComponent {}

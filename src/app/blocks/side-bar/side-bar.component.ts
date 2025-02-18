@@ -16,17 +16,6 @@ export class SideBarComponent {
     },
     { label: 'Movies', route: '/movies', svg: `assets/side-bar/movie.svg` },
     { label: 'Anime', route: '/anime', svg: `assets/side-bar/anime.svg` },
-    { label: 'History', route: '/history', svg: `assets/side-bar/history.svg` },
-    {
-      label: 'Watchlist',
-      route: '/watchlist',
-      svg: `assets/side-bar/save.svg`,
-    },
-    {
-      label: 'Settings',
-      route: '/settings',
-      svg: `assets/side-bar/settings.svg`,
-    },
   ];
 
   constructor(private highlightSlectedMenuRoute: HighlightSlectedMenuRoute) {}
