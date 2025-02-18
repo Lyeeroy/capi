@@ -1,6 +1,4 @@
-// src/app/blocks/player/player.component.ts
-
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TmdbService } from '../../services/tmdb.service';
 import { Location } from '@angular/common';
@@ -28,7 +26,9 @@ export class PlayerComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private location: Location,
-    private tmdbService: TmdbService
+    private tmdbService: TmdbService,
+    private renderer: Renderer2,
+    private el: ElementRef
   ) {}
 
   ngOnInit() {
@@ -106,10 +106,6 @@ export class PlayerComponent implements OnInit {
   ascOrDescSort() {
     this.currentEpisodes.reverse();
     this.currentPosters.reverse();
-  }
-
-  changeLayout() {
-    this.layoutType = (this.layoutType % 3) + 1;
   }
 
   cancel() {
