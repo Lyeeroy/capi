@@ -21,7 +21,8 @@ export class PlayerComponent implements OnInit {
   episodePosters: { [key: number]: string[] } = {};
   currentEpisodes: { number: number; name: string }[] = [];
   currentPosters: string[] = [];
-  layoutType: number = 1; // 1: ep number, ep name; 2: ep number, ep name, poster; 3: tiles with only number
+
+  layoutType: 'list' | 'grid' | 'poster' = 'list';
 
   constructor(
     private route: ActivatedRoute,
@@ -110,5 +111,22 @@ export class PlayerComponent implements OnInit {
 
   cancel() {
     this.location.back();
+  }
+
+  /**
+   * Toggles the layout type between two predefined values.
+   *
+   * This method switches the `layoutType` property between 1 and 2.
+   * If the current `layoutType` is 1, it will be changed to 2.
+   * If the current `layoutType` is 2, it will be changed to 1.
+   */
+  changeLayout() {
+    if (this.layoutType === 'list') {
+      this.layoutType = 'grid';
+    } else if (this.layoutType === 'grid') {
+      this.layoutType = 'poster';
+    } else {
+      this.layoutType = 'list';
+    }
   }
 }
