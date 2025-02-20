@@ -1,0 +1,24 @@
+<div class="flex flex-col items-center justify-center h-screen space-y-4">
+  <div class="border p-4">
+    <label for="ads">Enable ads:</label>
+    <input
+      type="checkbox"
+      checked
+      id="ads"
+      name="ads"
+      [(ngModel)]="isChecked"
+      (click)="Ads()"
+    />
+  </div>
+  <div class="border p-4">
+    <label for="typedText">Media type pref:</label>
+    <input
+      class="border"
+      type="text"
+      id="typedText"
+      name="typedText"
+      (keyup)="Typed()"
+      [(ngModel)]="typedText"
+    />
+  </div>
+</div>

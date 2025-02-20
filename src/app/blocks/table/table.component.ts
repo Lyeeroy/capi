@@ -21,6 +21,7 @@ export class TableComponent {
   editingSourceId: number | null = null; // Track ID of source being edited
 
   isModalVisible: boolean = false;
+  isSelected: boolean = false;
   isAdding: boolean = true;
   openOrClose: 'open' | 'close' = 'close';
 
@@ -98,5 +99,12 @@ export class TableComponent {
   toggleStatus(source: Source): void {
     source.status = !source.status;
     console.log(`Source ${source.id} status toggled to ${source.status}`);
+  }
+
+  selectAll(): void {
+    console.log('checkboxes should be all checked now');
+    if (this.isSelected === false) {
+      this.isSelected = true;
+    } else this.isSelected = false;
   }
 }
