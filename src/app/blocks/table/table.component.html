@@ -42,7 +42,6 @@
 
     <div class="rounded-lg shadow-sm">
       <table class="w-full bg-white">
-        <!-- Table Header -->
         <thead class="bg-gray-50 hidden md:table-header-group">
           <tr class="align-middle">
             <th class="p-3 w-[5%]"></th>
@@ -76,13 +75,14 @@
           </tr>
         </thead>
 
-        <tbody class="divide-y divide-gray-200">
-          <!-- Add Source Button -->
+        <!-- Add Section -->
+        <tbody>
           <tr>
             <td colspan="6" class="p-1.5 sm:p-2">
-              <button
-                class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg active:bg-blue-50 transition-colors bg-gray-400/10 hover:border-blue-500 touch:min-h-[60px]"
-                (click)="addSource()"
+              <div
+                *ngIf="!isAdding"
+                class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer touch:min-h-[60px]"
+                (click)="startAdd()"
               >
                 <div class="flex items-center justify-center h-full">
                   <svg
@@ -100,14 +100,77 @@
                     />
                   </svg>
                 </div>
-              </button>
+              </div>
+
+              <!-- Add Form -->
+              <div
+                *ngIf="isAdding"
+                class="border-2 border-dashed border-blue-200 rounded-lg bg-blue-50 p-3"
+              >
+                <div class="flex flex-wrap gap-2 items-center">
+                  <input
+                    type="text"
+                    class="border-2 border-gray-300 rounded-md p-2 text-sm w-32 flex-grow bg-white focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Name"
+                    [(ngModel)]="newName"
+                    (keyup.enter)="confirmAdd()"
+                  />
+                  <input
+                    type="text"
+                    class="border-2 border-gray-300 rounded-md p-2 text-sm flex-grow-[3] bg-white focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="https://..."
+                    [(ngModel)]="newUrl"
+                    (keyup.enter)="confirmAdd()"
+                  />
+                  <div class="flex gap-2 ml-auto">
+                    <button
+                      type="button"
+                      class="p-1.5 text-gray-600 rounded-md transition-colors"
+                      (click)="cancelAdd()"
+                      aria-label="Cancel"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      class="p-1.5 text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+                      (click)="confirmAdd()"
+                      aria-label="Add"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </td>
           </tr>
+        </tbody>
 
-          <!-- Source Rows -->
+        <!-- Source List -->
+        <tbody class="divide-y divide-gray-200">
           <tr
             class="hover:bg-gray-50 active:bg-gray-100"
-            *ngFor="let source of sources; let i = index"
+            *ngFor="let source of sources; trackBy: trackById"
           >
             <!-- Drag Handle -->
             <td class="p-3 text-gray-400 hidden md:table-cell align-middle">
@@ -146,14 +209,14 @@
                 />
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2">
-                    <div *ngIf="!shouldShowInput(source)" class="truncate">
-                      {{ source.name }}
+                    <div *ngIf="!source.isEditing" class="truncate">
+                      {{ source.name || "New Source" }}
                     </div>
                     <input
-                      *ngIf="shouldShowInput(source)"
+                      *ngIf="source.isEditing"
                       name="name"
                       type="text"
-                      class="border border-gray-300 rounded-md p-2 w-full text-sm sm:text-base"
+                      class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                       placeholder="Enter name"
                       [(ngModel)]="source.name"
                       (keyup.enter)="editSource(source)"
@@ -163,18 +226,17 @@
                   <!-- Mobile URL & Actions -->
                   <div class="md:hidden space-y-2 mt-2">
                     <div class="flex items-center gap-2">
-                      <a
-                        href="#"
+                      <div
+                        *ngIf="!source.isEditing"
                         class="text-blue-600 text-sm truncate"
-                        *ngIf="!shouldShowInput(source)"
                       >
-                        {{ source.url }}
-                      </a>
+                        {{ source.url || "No URL provided" }}
+                      </div>
                       <input
-                        *ngIf="shouldShowInput(source)"
+                        *ngIf="source.isEditing"
                         name="url"
                         type="text"
-                        class="border border-gray-300 rounded-md p-2 w-full text-sm"
+                        class="border-2 border-gray-300 rounded-md p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter URL"
                         [(ngModel)]="source.url"
                         (keyup.enter)="editSource(source)"
@@ -203,11 +265,11 @@
                             stroke-width="2"
                           >
                             <path
-                              *ngIf="!shouldShowInput(source)"
+                              *ngIf="!source.isEditing"
                               d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                             />
                             <path
-                              *ngIf="shouldShowInput(source)"
+                              *ngIf="source.isEditing"
                               d="M20 6L9 17l-5-5"
                             />
                           </svg>
@@ -239,18 +301,17 @@
             <!-- Desktop URL -->
             <td class="p-3 hidden md:table-cell align-middle">
               <div class="max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw]">
-                <a
-                  href="#"
-                  class="text-blue-600 hover:text-blue-800 text-sm truncate block"
-                  *ngIf="!shouldShowInput(source)"
+                <div
+                  *ngIf="!source.isEditing"
+                  class="text-blue-600 hover:text-blue-800 text-sm truncate"
                 >
-                  {{ source.url }}
-                </a>
+                  {{ source.url || "No URL provided" }}
+                </div>
                 <input
-                  *ngIf="shouldShowInput(source)"
+                  *ngIf="source.isEditing"
                   name="url"
                   type="text"
-                  class="border border-gray-300 rounded-md p-2 w-full text-sm sm:text-base"
+                  class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   placeholder="Enter URL"
                   [(ngModel)]="source.url"
                   (keyup.enter)="editSource(source)"
@@ -284,10 +345,10 @@
                     stroke-width="2"
                   >
                     <path
-                      *ngIf="!shouldShowInput(source)"
+                      *ngIf="!source.isEditing"
                       d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                     />
-                    <path *ngIf="shouldShowInput(source)" d="M20 6L9 17l-5-5" />
+                    <path *ngIf="source.isEditing" d="M20 6L9 17l-5-5" />
                   </svg>
                 </button>
                 <button
@@ -313,7 +374,6 @@
         </tbody>
       </table>
     </div>
-
     <div
       class="flex flex-col md:flex-row justify-between items-center mt-4 gap-4"
     >

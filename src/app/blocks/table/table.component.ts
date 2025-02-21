@@ -1,73 +1,77 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
+import { FormsModule } from '@angular/forms';
 
 interface Source {
   id: number;
   name: string;
   url: string;
-  isEditing: boolean; // Add isEditing property
+  isEditing: boolean;
 }
 
 @Component({
   selector: 'app-table',
+  standalone: true,
   templateUrl: './table.component.html',
-  imports: [CommonModule, FormsModule], // Add FormsModule to imports
+  imports: [CommonModule, FormsModule],
 })
 export class TableComponent {
   sourceIndex: number = 1;
   isSelected: boolean = false;
   sources: Source[] = [];
+  isAdding: boolean = false;
+  newName: string = '';
+  newUrl: string = '';
 
-  addSource(): void {
-    const newSource: Source = {
-      id: this.sourceIndex++,
-      name: '',
-      url: '',
-      isEditing: true, // Set isEditing to true for the new source
-    };
-    this.sources.push(newSource);
-    console.log('Total sources:', this.sourceIndex - 1, ':)');
+  trackById(index: number, source: Source): number {
+    return source.id;
   }
 
-  removeSource(sourceIndex: number): void {
-    const index = this.sources.findIndex((source) => source.id === sourceIndex);
-    console.log(index + 1, 'was removed :(');
-    if (index !== -1) {
-      this.sources.splice(index, 1);
+  startAdd(): void {
+    this.isAdding = true;
+    this.newName = '';
+    this.newUrl = '';
+  }
+
+  cancelAdd(): void {
+    this.isAdding = false;
+  }
+
+  confirmAdd(): void {
+    if (this.newName.trim() || this.newUrl.trim()) {
+      this.sources = [
+        {
+          id: this.sourceIndex++,
+          name: this.newName,
+          url: this.newUrl,
+          isEditing: false,
+        },
+        ...this.sources,
+      ];
     }
-    this.reorganizeSourceIds();
+    this.isAdding = false;
   }
 
-  removeAllSource() {
-    this.sources = [];
-    this.sourceIndex = 1;
-  }
-
-  reorganizeSourceIds(): void {
-    this.sources.forEach((source, index) => {
-      source.id = index + 1;
-    });
-    this.sourceIndex = this.sources.length + 1;
+  removeSource(sourceId: number): void {
+    this.sources = this.sources.filter((source) => source.id !== sourceId);
   }
 
   editSource(source: Source): void {
-    source.isEditing = !source.isEditing; // Toggle isEditing for the specific source
+    source.isEditing = !source.isEditing;
 
     if (!source.isEditing) {
-      // If exiting edit mode, check for empty fields
-      if (!source.name && !source.url) {
-        this.removeSource(source.id); // Remove if name and url are empty
+      if (!source.name.trim() && !source.url.trim()) {
+        this.removeSource(source.id);
       }
     }
   }
 
-  shouldShowInput(source: Source): boolean {
-    return source.isEditing; // Now checks source.isEditing
-  }
-
   selectAll(): void {
     this.isSelected = !this.isSelected;
-    console.log('isSelected:', this.isSelected);
+  }
+
+  removeAllSources(): void {
+    this.sources = [];
+    this.sourceIndex = 1;
   }
 }
