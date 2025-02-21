@@ -6,6 +6,7 @@ interface Source {
   id: number;
   name: string;
   url: string;
+  isEditing: boolean; // Add isEditing property
 }
 
 @Component({
@@ -14,21 +15,18 @@ interface Source {
   imports: [CommonModule, FormsModule], // Add FormsModule to imports
 })
 export class TableComponent {
-  // sourceCounter:
   sourceIndex: number = 1;
-  //isSelected:
   isSelected: boolean = false;
-  //addSource:
   sources: Source[] = [];
 
-  sourcesTotal: number[] = [];
-
   addSource(): void {
-    this.sources.push({
+    const newSource: Source = {
       id: this.sourceIndex++,
-      name: '?',
-      url: 'http://example.com/1',
-    });
+      name: '',
+      url: '',
+      isEditing: true, // Set isEditing to true for the new source
+    };
+    this.sources.push(newSource);
     console.log('Total sources:', this.sourceIndex - 1, ':)');
   }
 
@@ -38,16 +36,34 @@ export class TableComponent {
     if (index !== -1) {
       this.sources.splice(index, 1);
     }
-    //go through an object variable (forEach) and reorganize the id when 1 is removed
-    this.sources.forEach((source, index) => {
-      source.id = index + 1;
-    });
-    this.sourceIndex = this.sources.length + 1; //gotta push +1 because it goes from 0
+    this.reorganizeSourceIds();
   }
 
   removeAllSource() {
     this.sources = [];
     this.sourceIndex = 1;
+  }
+
+  reorganizeSourceIds(): void {
+    this.sources.forEach((source, index) => {
+      source.id = index + 1;
+    });
+    this.sourceIndex = this.sources.length + 1;
+  }
+
+  editSource(source: Source): void {
+    source.isEditing = !source.isEditing; // Toggle isEditing for the specific source
+
+    if (!source.isEditing) {
+      // If exiting edit mode, check for empty fields
+      if (!source.name && !source.url) {
+        this.removeSource(source.id); // Remove if name and url are empty
+      }
+    }
+  }
+
+  shouldShowInput(source: Source): boolean {
+    return source.isEditing; // Now checks source.isEditing
   }
 
   selectAll(): void {
