@@ -210,7 +210,7 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2">
                     <div *ngIf="!source.isEditing" class="truncate">
-                      {{ source.name || "New Source" }}
+                      {{ getDisplayName(source) }}
                     </div>
                     <input
                       *ngIf="source.isEditing"
