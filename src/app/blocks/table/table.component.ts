@@ -8,6 +8,7 @@ interface Source {
   name: string;
   url: string;
   isEditing: boolean;
+  enabled: boolean;
 }
 
 @Component({
@@ -24,7 +25,6 @@ export class TableComponent {
   isAdding: boolean = false;
   newName: string = '';
   newUrl: string = '';
-  sourceNameManual: string = '';
 
   // table.component.ts
   searchInObject(): Source[] {
@@ -65,6 +65,7 @@ export class TableComponent {
           name: this.newName,
           url: this.newUrl,
           isEditing: false,
+          enabled: true,
         },
         ...this.sources,
       ];
@@ -84,6 +85,11 @@ export class TableComponent {
         this.removeSource(source.id);
       }
     }
+  }
+
+  toggleSource(source: Source): void {
+    source.enabled = !source.enabled;
+    console.log('Toggled source:', source.enabled);
   }
 
   selectAll(): void {

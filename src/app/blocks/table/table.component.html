@@ -149,6 +149,7 @@
                       type="button"
                       class="p-1.5 text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
                       (click)="confirmAdd()"
+                      [disabled]="newUrl === ''"
                       aria-label="Add"
                     >
                       <svg
@@ -156,6 +157,7 @@
                         class="h-5 w-5"
                         viewBox="0 0 24 24"
                         fill="none"
+                        stroke="currentColor"
                         stroke="currentColor"
                         stroke-width="2"
                       >
@@ -335,7 +337,12 @@
               <!-- Status -->
               <td class="p-3 hidden md:table-cell align-middle">
                 <label class="relative inline-block w-12 h-6 mx-auto">
-                  <input type="checkbox" class="sr-only peer" />
+                  <input
+                    type="checkbox"
+                    class="sr-only peer"
+                    checked
+                    (change)="toggleSource(source)"
+                  />
                   <div
                     class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
                   ></div>
