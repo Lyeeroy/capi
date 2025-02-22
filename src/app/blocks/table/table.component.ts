@@ -37,14 +37,10 @@ export class TableComponent {
     this.isAdding = false;
   }
 
-  // Function to handle display logic
   getDisplayName(source: Source): string {
-    // Remove protocol and www subdomain
     const cleaned = source.url
       .replace(/^https?:\/\/(?:www\.)?/i, '')
-      .split('/')[0]; // Remove any paths after domain
-
-    // Split domain parts and take first two segments
+      .split('/')[0];
     const domainParts = cleaned.split('.');
     return domainParts.slice(0, 2).join('.');
   }
