@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { findIndex } from 'rxjs';
 
 interface Source {
   id: number;
@@ -16,12 +17,23 @@ interface Source {
   imports: [CommonModule, FormsModule],
 })
 export class TableComponent {
+  searchInput: string = '';
   sourceIndex: number = 1;
   isSelected: boolean = false;
   sources: Source[] = [];
   isAdding: boolean = false;
   newName: string = '';
   newUrl: string = '';
+  sourceNameManual: string = '';
+
+  // table.component.ts
+  searchInObject(): Source[] {
+    return this.sources.filter(
+      (source) =>
+        source.url.includes(this.searchInput) ||
+        source.name.includes(this.searchInput)
+    );
+  }
 
   trackById(index: number, source: Source): number {
     return source.id;

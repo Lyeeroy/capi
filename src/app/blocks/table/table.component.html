@@ -1,5 +1,5 @@
 <div
-  class="font-[sans-serif] h-screen flex flex-col justify-center items-center"
+  class="font-[sans-serif] max-w-full h-screen flex flex-col justify-center items-center"
 >
   <div class="flex-1 overflow-y-auto p-4 w-full lg:w-3/4">
     <div class="flex flex-col md:flex-row gap-4 mb-4 justify-end">
@@ -34,6 +34,9 @@
             id="default-search"
             class="block w-full px-42 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Filter..."
+            [(ngModel)]="searchInput"
+            name="searchInput"
+            (input)="searchInObject()"
             required
           />
         </div>
@@ -168,211 +171,220 @@
 
         <!-- Source List -->
         <tbody class="divide-y divide-gray-200">
-          <tr
-            class="hover:bg-gray-50 active:bg-gray-100"
-            *ngFor="let source of sources; trackBy: trackById"
+          <ng-container
+            *ngFor="let source of searchInObject(); trackBy: trackById"
           >
-            <!-- Drag Handle -->
-            <td class="p-3 text-gray-400 hidden md:table-cell align-middle">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 cursor-move touch:p-1 mx-auto"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
+            <!-- let source of Sources; trackBy: trackById -->
+            <tr
+              class="hover:bg-gray-50 active:bg-gray-100"
+              *ngIf="searchInObject()"
+            >
+              <!-- Drag Handle -->
+              <td class="p-3 text-gray-400 hidden md:table-cell align-middle">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 cursor-move touch:p-1 mx-auto"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </td>
+
+              <!-- Checkbox -->
+              <td class="p-3 align-middle" *ngIf="searchInObject">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected"
+                  class="w-6 h-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch:w-5 touch:h-5 block mx-auto"
                 />
-              </svg>
-            </td>
+              </td>
 
-            <!-- Checkbox -->
-            <td class="p-3 align-middle">
-              <input
-                type="checkbox"
-                [checked]="isSelected"
-                class="w-6 h-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch:w-5 touch:h-5 block mx-auto"
-              />
-            </td>
-
-            <!-- Name Column -->
-            <td class="p-3 align-middle">
-              <div class="flex items-center gap-3">
-                <img
-                  src="https://www.google.com/s2/favicons?sz=64&domain={{
-                    getDisplayName(source)
-                  }}"
-                  class="w-12 h-12 rounded-full sm:w-10 sm:h-10"
-                  alt="Placeholder"
-                />
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2">
-                    <div *ngIf="!source.isEditing" class="truncate">
-                      {{ getDisplayName(source) }}
-                    </div>
-                    <input
-                      *ngIf="source.isEditing"
-                      name="name"
-                      type="text"
-                      class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                      placeholder="Enter name"
-                      [(ngModel)]="source.name"
-                      (keyup.enter)="editSource(source)"
-                    />
-                  </div>
-
-                  <!-- Mobile URL & Actions -->
-                  <div class="md:hidden space-y-2 mt-2">
+              <!-- Name Column -->
+              <td class="p-3 align-middle">
+                <div class="flex items-center gap-3 w-screen md:w-auto">
+                  <img
+                    src="https://www.google.com/s2/favicons?sz=64&domain={{
+                      getDisplayName(source)
+                    }}"
+                    class="w-12 h-12 rounded-full sm:w-10 sm:h-10"
+                    alt="Placeholder"
+                  />
+                  <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
-                      <div
-                        *ngIf="!source.isEditing"
-                        class="text-blue-600 text-sm truncate"
-                      >
-                        {{ source.url || "No URL provided" }}
+                      <div *ngIf="!source.isEditing">
+                        {{
+                          source.name === ""
+                            ? getDisplayName(source)
+                            : source.name
+                        }}
                       </div>
                       <input
                         *ngIf="source.isEditing"
-                        name="url"
+                        name="name"
                         type="text"
-                        class="border-2 border-gray-300 rounded-md p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                        placeholder="Enter URL"
-                        [(ngModel)]="source.url"
+                        class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        placeholder="Enter name"
+                        [(ngModel)]="source.name"
                         (keyup.enter)="editSource(source)"
                       />
                     </div>
 
-                    <div class="flex items-center gap-3 justify-between">
-                      <label class="relative inline-block w-12 h-6">
-                        <input type="checkbox" class="sr-only peer" />
+                    <!-- Mobile URL & Actions -->
+                    <div class="md:hidden space-y-2 mt-2">
+                      <div class="flex items-center gap-2">
                         <div
-                          class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
-                        ></div>
-                      </label>
+                          *ngIf="!source.isEditing"
+                          class="text-blue-600 text-sm"
+                        >
+                          {{ source.url || "No URL provided" }}
+                        </div>
+                        <input
+                          *ngIf="source.isEditing"
+                          name="url"
+                          type="text"
+                          class="border-2 border-gray-300 rounded-md p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          placeholder="Enter URL"
+                          [(ngModel)]="source.url"
+                          (keyup.enter)="editSource(source)"
+                        />
+                      </div>
 
-                      <div class="flex gap-2">
-                        <button
-                          class="p-1.5 text-blue-600 active:bg-blue-100 rounded-full"
-                          (click)="editSource(source)"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
+                      <div class="flex items-center gap-3 justify-between">
+                        <label class="relative inline-block w-12 h-6">
+                          <input type="checkbox" class="sr-only peer" />
+                          <div
+                            class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
+                          ></div>
+                        </label>
+
+                        <div class="flex gap-2">
+                          <button
+                            class="p-1.5 text-blue-600 active:bg-blue-100 rounded-full"
+                            (click)="editSource(source)"
                           >
-                            <path
-                              *ngIf="!source.isEditing"
-                              d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                            <path
-                              *ngIf="source.isEditing"
-                              d="M20 6L9 17l-5-5"
-                            />
-                          </svg>
-                        </button>
-                        <button
-                          class="p-1.5 text-red-600 active:bg-red-100 rounded-full"
-                          (click)="removeSource(source.id)"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-6 w-6"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
+                              <path
+                                *ngIf="!source.isEditing"
+                                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                              <path
+                                *ngIf="source.isEditing"
+                                d="M20 6L9 17l-5-5"
+                              />
+                            </svg>
+                          </button>
+                          <button
+                            class="p-1.5 text-red-600 active:bg-red-100 rounded-full"
+                            (click)="removeSource(source.id)"
                           >
-                            <path
-                              d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                            />
-                          </svg>
-                        </button>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              class="h-6 w-6"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                            >
+                              <path
+                                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                              />
+                            </svg>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </td>
+              </td>
 
-            <!-- Desktop URL -->
-            <td class="p-3 hidden md:table-cell align-middle">
-              <div class="max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw]">
-                <div
-                  *ngIf="!source.isEditing"
-                  class="text-blue-600 hover:text-blue-800 text-sm truncate"
-                >
-                  {{ source.url || "No URL provided" }}
+              <!-- Desktop URL -->
+              <td class="p-3 hidden md:table-cell align-middle">
+                <div class="max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw]">
+                  <div
+                    *ngIf="!source.isEditing"
+                    class="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    {{ source.url || "No URL provided" }}
+                  </div>
+                  <input
+                    *ngIf="source.isEditing"
+                    name="url"
+                    type="text"
+                    class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    placeholder="Enter URL"
+                    [(ngModel)]="source.url"
+                    (keyup.enter)="editSource(source)"
+                  />
                 </div>
-                <input
-                  *ngIf="source.isEditing"
-                  name="url"
-                  type="text"
-                  class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                  placeholder="Enter URL"
-                  [(ngModel)]="source.url"
-                  (keyup.enter)="editSource(source)"
-                />
-              </div>
-            </td>
+              </td>
 
-            <!-- Status -->
-            <td class="p-3 hidden md:table-cell align-middle">
-              <label class="relative inline-block w-12 h-6 mx-auto">
-                <input type="checkbox" class="sr-only peer" />
-                <div
-                  class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
-                ></div>
-              </label>
-            </td>
+              <!-- Status -->
+              <td class="p-3 hidden md:table-cell align-middle">
+                <label class="relative inline-block w-12 h-6 mx-auto">
+                  <input type="checkbox" class="sr-only peer" />
+                  <div
+                    class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
+                  ></div>
+                </label>
+              </td>
 
-            <!-- Desktop Actions -->
-            <td class="p-3 hidden md:table-cell align-middle">
-              <div class="flex items-center justify-end gap-2">
-                <button
-                  class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full"
-                  (click)="editSource(source)"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
+              <!-- Desktop Actions -->
+              <td class="p-3 hidden md:table-cell align-middle">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full"
+                    (click)="editSource(source)"
                   >
-                    <path
-                      *ngIf="!source.isEditing"
-                      d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                    <path *ngIf="source.isEditing" d="M20 6L9 17l-5-5" />
-                  </svg>
-                </button>
-                <button
-                  class="p-1.5 text-red-600 hover:bg-red-100 rounded-full"
-                  (click)="removeSource(source.id)"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-6 w-6"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        *ngIf="!source.isEditing"
+                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                      <path *ngIf="source.isEditing" d="M20 6L9 17l-5-5" />
+                    </svg>
+                  </button>
+                  <button
+                    class="p-1.5 text-red-600 hover:bg-red-100 rounded-full"
+                    (click)="removeSource(source.id)"
                   >
-                    <path
-                      d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-6 w-6"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>
