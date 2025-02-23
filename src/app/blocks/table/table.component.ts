@@ -25,6 +25,7 @@ export class TableComponent {
   isAdding: boolean = false;
   newName: string = '';
   newUrl: string = '';
+  showConfirmation: boolean = false;
 
   //menu:
   isMenuOpen = false;
@@ -120,4 +121,13 @@ export class TableComponent {
   }
 
   closeMenu = () => (this.isMenuOpen = false);
+
+  confirmDelete(): void {
+    this.showConfirmation = false;
+    this.removeAllSources();
+  }
+
+  cancelDelete(): void {
+    this.showConfirmation = false;
+  }
 }

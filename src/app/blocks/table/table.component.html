@@ -10,6 +10,7 @@
         <!-- Delete Button -->
         <button
           class="pl-3 pr-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 transition-colors flex items-center gap-2 border border-red-200"
+          (click)="showConfirmation = true"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -25,6 +26,34 @@
           </svg>
           Delete All
         </button>
+
+        <!--  confirm to delete all -->
+        <div
+          *ngIf="showConfirmation"
+          class="fixed inset-0 z-50 grid place-items-center backdrop-blur-sm bg-black/20 animate-fade-in"
+        >
+          <div
+            class="bg-white/95 backdrop-blur-lg p-6 rounded-xl shadow-xl border border-gray-100/50 transition-all animate-scale-in"
+          >
+            <p class="text-gray-900 font-medium text-xl mb-4 text-center">
+              Are you sure you want to delete all sources?
+            </p>
+            <div class="flex justify-center space-x-3">
+              <button
+                class="px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-all active:scale-95 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                (click)="confirmDelete()"
+              >
+                Delete
+              </button>
+              <button
+                class="px-5 py-2.5 rounded-lg font-medium transition-all bg-transparent hover:bg-gray-100 text-gray-600 hover:text-gray-800 border-2 border-gray-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                (click)="cancelDelete()"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- Save Button -->
         <button
@@ -91,10 +120,14 @@
           >
             <div class="p-2 text-sm text-gray-700">
               <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
-                Edit Selected
+                Delete Selected
+              </div>
+              <!-- spacer -->
+              <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
+                Edit All
               </div>
               <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
-                Bulk Update
+                Import Data
               </div>
               <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
                 Export Data
