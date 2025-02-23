@@ -2,45 +2,157 @@
   class="font-[sans-serif] max-w-full h-screen flex flex-col justify-center items-center"
 >
   <div class="flex-1 overflow-y-auto p-4 w-full lg:w-3/4">
-    <div class="flex flex-col md:flex-row gap-4 mb-4 justify-end">
-      <form class="max-w-md">
-        <label
-          for="default-search "
-          class="mb-2 text-sm font-medium text-gray-900 sr-only"
-          >Search</label
+    <div
+      class="flex flex-col md:flex-row gap-4 mb-4 justify-between items-start"
+    >
+      <!-- Action Buttons Group -->
+      <div class="flex flex-wrap gap-2">
+        <!-- Delete Button -->
+        <button
+          class="pl-3 pr-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 transition-colors flex items-center gap-2 border border-red-200"
         >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+            />
+          </svg>
+          Delete All
+        </button>
+
+        <!-- Save Button -->
+        <button
+          class="pl-3 pr-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors flex items-center gap-2 border border-blue-200"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8"
+            />
+          </svg>
+          Save Data
+        </button>
+
+        <!-- Quick Edit Dropdown -->
         <div class="relative">
-          <div
-            class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
+          <!-- Button (Hover for desktop, Click for mobile) -->
+          <button
+            (mouseenter)="showMenu()"
+            (mouseleave)="hideMenu()"
+            (click)="toggleMenu($event)"
+            class="pl-3 pr-4 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors flex items-center gap-2 border border-emerald-200"
           >
             <svg
-              class="w-4 h-4 text-gray-500"
-              aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
               fill="none"
-              viewBox="0 0 20 20"
+              stroke="currentColor"
+              stroke-width="2"
             >
               <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
               />
             </svg>
+            Quick Actions
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 ml-1"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div
+            *ngIf="isMenuOpen"
+            (mouseenter)="showMenu()"
+            (mouseleave)="hideMenu()"
+            (click)="showMenu($event)"
+            class="absolute mt-1 w-48 bg-white border rounded-lg shadow-lg z-10"
+          >
+            <div class="p-2 text-sm text-gray-700">
+              <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
+                Edit Selected
+              </div>
+              <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
+                Bulk Update
+              </div>
+              <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
+                Export Data
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Filter & Search Group -->
+      <div class="flex gap-2 w-full md:w-auto">
+        <!-- Filter Dropdown -->
+        <!-- <div class="relative">
+          <select
+            class="pl-10 pr-8 py-2 border rounded-lg bg-white text-gray-700 appearance-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+          >
+            <option>All Categories</option>
+            <option>Recent</option>
+            <option>Archived</option>
+          </select>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 absolute left-3 top-3 text-gray-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z"
+            />
+          </svg>
+        </div> -->
+
+        <!-- Search Input -->
+        <div class="relative flex-1 md:w-64">
           <input
             type="search"
-            id="default-search"
-            class="block w-full px-42 p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Filter..."
+            class="w-full px-4 py-2 pl-10 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+            placeholder="Search records..."
             [(ngModel)]="searchInput"
-            name="searchInput"
-            (input)="searchInObject()"
-            required
+            (ngModelChange)="searchInObject()"
           />
+          <svg
+            class="absolute left-3 top-3 w-4 h-4 text-gray-400"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 20 20"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+            />
+          </svg>
         </div>
-      </form>
+      </div>
     </div>
 
     <div class="rounded-lg shadow-sm">
@@ -204,18 +316,18 @@
                 <input
                   type="checkbox"
                   [checked]="isSelected"
-                  class="w-6 h-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch:w-5 touch:h-5 block mx-auto"
+                  class="hidden w-6 h-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch:w-5 touch:h-5 md:block mx-auto"
                 />
               </td>
 
               <!-- Name Column -->
               <td class="p-3 align-middle">
-                <div class="flex items-center gap-3 w-screen md:w-auto">
+                <div class="flex items-center gap-3 md:w-auto">
                   <img
                     src="https://www.google.com/s2/favicons?sz=64&domain={{
                       getDisplayName(source)
                     }}"
-                    class="w-12 h-12 rounded-full sm:w-10 sm:h-10"
+                    class="w-12 h-12 rounded-full sm:w-10 sm:h-10 hidden md:block"
                     alt="Placeholder"
                   />
                   <div class="flex-1 min-w-0">
@@ -260,7 +372,12 @@
 
                       <div class="flex items-center gap-3 justify-between">
                         <label class="relative inline-block w-12 h-6">
-                          <input type="checkbox" class="sr-only peer" />
+                          <input
+                            type="checkbox"
+                            class="sr-only peer"
+                            checked
+                            (click)="toggleSource(source)"
+                          />
                           <div
                             class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
                           ></div>

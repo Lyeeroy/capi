@@ -26,7 +26,10 @@ export class TableComponent {
   newName: string = '';
   newUrl: string = '';
 
-  // table.component.ts
+  //menu:
+  isMenuOpen = false;
+  private timeout: any;
+
   searchInObject(): Source[] {
     return this.sources.filter(
       (source) =>
@@ -100,4 +103,21 @@ export class TableComponent {
     this.sources = [];
     this.sourceIndex = 1;
   }
+
+  showMenu(event?: Event): void {
+    event?.stopPropagation();
+    clearTimeout(this.timeout);
+    this.isMenuOpen = true;
+  }
+
+  hideMenu(): void {
+    this.timeout = setTimeout(() => (this.isMenuOpen = false), 200);
+  }
+
+  toggleMenu(event: Event): void {
+    event.stopPropagation();
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu = () => (this.isMenuOpen = false);
 }
