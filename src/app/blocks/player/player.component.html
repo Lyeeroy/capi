@@ -73,7 +73,8 @@
       <!-- Video Container src="https://www.youtube.com/embed/dQw4w9WgXcQ"-->
       <div class="aspect-video relative">
         <iframe
-          class="w-full h-full rounded-xl bg-gray-100"
+          [src]="iframeUrl"
+          class="w-full h-full rounded-xl"
           frameborder="0"
           allowfullscreen
           loading="lazy"
@@ -109,10 +110,11 @@
 
             <select
               class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-2 focus:ring-red-500"
+              (change)="onSourceChange($event)"
             >
-              <option>Select Source</option>
-              <option>Source 1</option>
-              <option>Source 2</option>
+              <option *ngFor="let source of sources" [value]="source.url">
+                {{ source.name }}
+              </option>
             </select>
 
             <button
@@ -279,6 +281,7 @@
               <li
                 *ngFor="let episode of currentEpisodes; let i = index"
                 class="py-2"
+                (click)="playEpisode(i)"
               >
                 <button
                   class="w-full flex items-center gap-4 p-3 rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out cursor-pointer"
@@ -311,6 +314,7 @@
               <li
                 *ngFor="let episode of currentEpisodes; let i = index"
                 class="py-1"
+                (click)="playEpisode(i)"
               >
                 <button
                   class="w-full flex items-center gap-4 p-3 rounded-md hover:bg-gray-50 transition-colors duration-200 ease-in-out cursor-pointer bg-gray-100 border border-gray-200"
@@ -330,6 +334,7 @@
               <li
                 *ngFor="let episode of currentEpisodes; let i = index"
                 class="py-1"
+                (click)="playEpisode(i)"
               >
                 <button
                   class="items-center gap-4 p-3 rounded-md hover:bg-gray-50 transition-colors duration-200 ease-in-out cursor-pointer bg-gray-100 border border-gray-200"

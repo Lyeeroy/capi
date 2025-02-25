@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { findIndex } from 'rxjs';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 interface Source {
   id: number;
@@ -27,9 +28,15 @@ export class TableComponent {
   newUrl: string = '';
   showConfirmation: boolean = false;
 
+  isSaving: boolean = false;
+
   //menu:
   isMenuOpen = false;
   private timeout: any;
+
+  constructor(private sanitizer: DomSanitizer) {
+    this.loadData();
+  }
 
   searchInObject(): Source[] {
     return this.sources.filter(
@@ -77,6 +84,32 @@ export class TableComponent {
     this.isAdding = false;
   }
 
+  highlightUrl(url: string): SafeHtml {
+    if (!url) {
+      return url;
+    }
+    let highlighted = url;
+    highlighted = highlighted.replace(
+      /(#type)/gi,
+      '<span class="bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-semibold text-xs">$1</span>'
+    );
+    highlighted = highlighted.replace(
+      /(#id)/gi,
+      '<span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-semibold text-xs">$1</span>'
+    );
+    highlighted = highlighted.replace(
+      /(#season)/gi,
+      '<span class="bg-red-100 text-red-600 px-2 py-1 rounded-full font-semibold text-xs">$1</span>'
+    );
+    highlighted = highlighted.replace(
+      /(#episode)/gi,
+      '<span class="bg-green-100 text-green-600 px-2 py-1 rounded-full font-semibold text-xs">$1</span>'
+    );
+
+    // Bypass Angular's security to safely bind the generated HTML.
+    return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+  }
+
   removeSource(sourceId: number): void {
     this.sources = this.sources.filter((source) => source.id !== sourceId);
   }
@@ -103,8 +136,9 @@ export class TableComponent {
   removeAllSources(): void {
     this.sources = [];
     this.sourceIndex = 1;
+    this.saveData();
   }
-
+  // menu
   showMenu(event?: Event): void {
     event?.stopPropagation();
     clearTimeout(this.timeout);
@@ -121,7 +155,7 @@ export class TableComponent {
   }
 
   closeMenu = () => (this.isMenuOpen = false);
-
+  // -----
   confirmDelete(): void {
     this.showConfirmation = false;
     this.removeAllSources();
@@ -129,5 +163,33 @@ export class TableComponent {
 
   cancelDelete(): void {
     this.showConfirmation = false;
+  }
+
+  saveData(): void {
+    this.sources.forEach((source) => {
+      if (!source.name) {
+        source.name = this.getDisplayName(source);
+      }
+    });
+    localStorage.setItem('sources', JSON.stringify(this.sources));
+    console.log('Saving data...');
+
+    this.isSaving = true;
+    this.timeout = setTimeout(
+      () => (this.isSaving = false),
+      Math.floor(Math.random() * (1900 - 500 + 1)) + 500
+    );
+  }
+
+  loadData(): void {
+    const storedData = localStorage.getItem('sources');
+    if (storedData) {
+      this.sources = JSON.parse(storedData);
+      if (this.sources.length > 0) {
+        // Set sourceIndex to the highest existing ID + 1
+        this.sourceIndex = Math.max(...this.sources.map((s) => s.id)) + 1;
+      }
+    }
+    console.log('Loading data...');
   }
 }

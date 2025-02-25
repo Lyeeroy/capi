@@ -1,36 +1,48 @@
+// src/app/blocks/player/player.component.ts
 import { Component, OnInit, Renderer2, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Location, CommonModule } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { forkJoin } from 'rxjs';
+
 import { TmdbService } from '../../services/tmdb.service';
-import { Location } from '@angular/common';
-import { CommonModule } from '@angular/common';
+import { LoadSourcesService } from './player.service';
 
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
   standalone: true,
   imports: [CommonModule],
+  providers: [LoadSourcesService],
 })
 export class PlayerComponent implements OnInit {
   id: number | null = null;
   mediaType: string | null = null;
   names: string | null = null;
   seasonNumber: number | null = 0;
-  episodes: number | null = 0;
   totalSeasons: number[] = [];
   episodeNames: { [key: number]: { number: number; name: string }[] } = {};
   episodePosters: { [key: number]: string[] } = {};
   currentEpisodes: { number: number; name: string }[] = [];
   currentPosters: string[] = [];
-
   layoutType: 'list' | 'grid' | 'poster' = 'list';
+  sources: any = [];
+
+  currentSeason: number = 1;
+  currentEpisode: number = 1;
+  iframeUrl: SafeResourceUrl;
 
   constructor(
     private route: ActivatedRoute,
     private location: Location,
     private tmdbService: TmdbService,
     private renderer: Renderer2,
-    private el: ElementRef
-  ) {}
+    private el: ElementRef,
+    private loadSourcesService: LoadSourcesService,
+    private sanitizer: DomSanitizer
+  ) {
+    this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('');
+  }
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
@@ -38,6 +50,10 @@ export class PlayerComponent implements OnInit {
       this.mediaType = params.get('mediaType');
       this.names = this.route.snapshot.queryParams['name'];
       this.initializeData();
+      this.loadSourcesService.loadSources().then(() => {
+        this.sources = this.loadSourcesService.sources;
+        console.log('component sources: ', this.sources);
+      });
     });
   }
 
@@ -46,7 +62,7 @@ export class PlayerComponent implements OnInit {
       this.tmdbService
         .callAPI('https://api.themoviedb.org/3', `/tv/${this.id}`, 'tv')
         .subscribe((response) => {
-          if (response && response.number_of_seasons !== undefined) {
+          if (response?.number_of_seasons) {
             this.seasonNumber = response.number_of_seasons;
             this.getAllSeasonData();
           }
@@ -65,10 +81,11 @@ export class PlayerComponent implements OnInit {
             'tv'
           )
       );
-      Promise.all(seasonObservables.map((obs) => obs.toPromise()))
-        .then((responses) => {
+
+      forkJoin(seasonObservables).subscribe(
+        (responses) => {
           responses.forEach((response, index) => {
-            if (response && response.episodes) {
+            if (response?.episodes) {
               this.totalSeasons.push(index + 1);
               this.episodeNames[index + 1] = response.episodes.map(
                 (episode: any, episodeIndex: number) => ({
@@ -79,22 +96,56 @@ export class PlayerComponent implements OnInit {
               this.episodePosters[index + 1] = response.episodes.map(
                 (episode: any) =>
                   episode.still_path
-                    ? 'https://image.tmdb.org/t/p/w500' + episode.still_path
+                    ? `https://image.tmdb.org/t/p/w500${episode.still_path}`
                     : 'https://miro.medium.com/v2/resize:fit:300/0*E6pTrKTFvvLDOzzj.png'
               );
             }
           });
           this.updateCurrentEpisodes(1);
-          console.log('Season:', this.totalSeasons);
+          console.log('Seasons:', this.totalSeasons);
           console.log('Episode Names:', this.episodeNames);
-        })
-        .catch((error) => console.error('Error fetching season data:', error));
+        },
+        (error) => console.error('Error fetching season data:', error)
+      );
     }
   }
 
+  playEpisode(index: number) {
+    this.currentEpisode = index + 1;
+    this.updateCurrentEpisodes(this.currentSeason);
+    this.iframeUrl = this.translateIntoIframe(this.sources[0].url);
+    console.log('Current iframe URL:', this.iframeUrl);
+  }
+
   onSeasonChange(event: Event) {
-    const selectedSeason = Number((event.target as HTMLSelectElement).value);
-    this.updateCurrentEpisodes(selectedSeason);
+    this.currentSeason = Number((event.target as HTMLSelectElement).value);
+    this.updateCurrentEpisodes(this.currentSeason);
+    this.iframeUrl = this.translateIntoIframe(this.sources[0].url);
+    console.log('Current iframe URL:', this.iframeUrl);
+  }
+
+  onSourceChange(event: any) {
+    const selectedSource = event.target.value;
+    console.log('Selected source:', selectedSource);
+    this.iframeUrl = this.translateIntoIframe(selectedSource);
+  }
+
+  translateIntoIframe(url: string): SafeResourceUrl {
+    const mediaTypeValue = this.mediaType || 'tv';
+    let newUrl = url
+      .replace(/#type/g, mediaTypeValue)
+      .replace(/#id/g, this.id?.toString() || '');
+
+    if (mediaTypeValue === 'tv') {
+      newUrl = newUrl
+        .replace(/#season/g, this.currentSeason.toString())
+        .replace(/#episode/g, this.currentEpisode.toString());
+    } else {
+      newUrl = newUrl.replace(/#season/g, '').replace(/#episode/g, '');
+    }
+    newUrl = newUrl.replace(/\/+$/, '');
+    console.log('Translated iframe URL:', newUrl);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
   }
 
   updateCurrentEpisodes(seasonNumber: number) {
@@ -113,20 +164,12 @@ export class PlayerComponent implements OnInit {
     this.location.back();
   }
 
-  /**
-   * Toggles the layout type between two predefined values.
-   *
-   * This method switches the `layoutType` property between 1 and 2.
-   * If the current `layoutType` is 1, it will be changed to 2.
-   * If the current `layoutType` is 2, it will be changed to 1.
-   */
   changeLayout() {
-    if (this.layoutType === 'list') {
-      this.layoutType = 'grid';
-    } else if (this.layoutType === 'grid') {
-      this.layoutType = 'poster';
-    } else {
-      this.layoutType = 'list';
-    }
+    this.layoutType =
+      this.layoutType === 'list'
+        ? 'grid'
+        : this.layoutType === 'grid'
+        ? 'poster'
+        : 'list';
   }
 }
