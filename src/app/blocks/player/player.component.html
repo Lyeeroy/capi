@@ -72,13 +72,15 @@
 
       <!-- Video Container src="https://www.youtube.com/embed/dQw4w9WgXcQ"-->
       <div class="aspect-video relative">
-        <iframe
-          [src]="iframeUrl"
-          class="w-full h-full rounded-xl"
-          frameborder="0"
-          allowfullscreen
-          loading="lazy"
-        ></iframe>
+        <ng-container *ngIf="showIframe">
+          <iframe
+            #iframeElement
+            [src]="iframeUrl"
+            class="w-full h-full rounded-xl"
+            frameborder="0"
+            allowfullscreen
+          ></iframe>
+        </ng-container>
       </div>
 
       <!-- Controls -->
@@ -141,6 +143,7 @@
           <div class="flex gap-2 w-full sm:w-auto justify-center">
             <button
               class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+              (click)="prevEpisode(currentEpisode)"
             >
               <svg
                 class="w-4 h-4"
@@ -160,6 +163,7 @@
 
             <button
               class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+              (click)="nextEpisode(currentEpisode)"
             >
               <span class="hidden sm:inline">Next</span>
               <svg

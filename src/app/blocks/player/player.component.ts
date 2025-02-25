@@ -1,5 +1,6 @@
 // src/app/blocks/player/player.component.ts
-import { Component, OnInit, Renderer2, ElementRef } from '@angular/core';
+
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location, CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -16,6 +17,7 @@ import { LoadSourcesService } from './player.service';
   providers: [LoadSourcesService],
 })
 export class PlayerComponent implements OnInit {
+  // Media and TV show properties
   id: number | null = null;
   mediaType: string | null = null;
   names: string | null = null;
@@ -26,37 +28,53 @@ export class PlayerComponent implements OnInit {
   currentEpisodes: { number: number; name: string }[] = [];
   currentPosters: string[] = [];
   layoutType: 'list' | 'grid' | 'poster' = 'list';
-  sources: any = [];
 
+  // Source-related properties
+  sources: any = [];
+  currentSourceUrl: string = ''; // Holds the currently selected source URL
+
+  // Episode and season tracking
   currentSeason: number = 1;
   currentEpisode: number = 1;
+
+  // iFrame properties
   iframeUrl: SafeResourceUrl;
+  showIframe: boolean = true; // Flag to force re-creation of the iframe
 
   constructor(
     private route: ActivatedRoute,
     private location: Location,
     private tmdbService: TmdbService,
-    private renderer: Renderer2,
-    private el: ElementRef,
     private loadSourcesService: LoadSourcesService,
     private sanitizer: DomSanitizer
   ) {
+    // Initialize with an empty safe URL.
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('');
   }
 
   ngOnInit() {
+    // Retrieve route parameters and query parameters.
     this.route.paramMap.subscribe((params) => {
       this.id = Number(params.get('id'));
       this.mediaType = params.get('mediaType');
       this.names = this.route.snapshot.queryParams['name'];
       this.initializeData();
+
+      // Load available sources.
       this.loadSourcesService.loadSources().then(() => {
         this.sources = this.loadSourcesService.sources;
-        console.log('component sources: ', this.sources);
+        if (this.sources && this.sources.length > 0) {
+          // Set the default selected source to the first one.
+          this.currentSourceUrl = this.sources[0].url;
+          this.reloadIframe();
+        }
       });
     });
   }
 
+  /**
+   * Initializes TV show data.
+   */
   initializeData() {
     if (this.mediaType === 'tv' && this.id !== null) {
       this.tmdbService
@@ -70,6 +88,9 @@ export class PlayerComponent implements OnInit {
     }
   }
 
+  /**
+   * Loads data for all seasons.
+   */
   getAllSeasonData() {
     if (this.seasonNumber) {
       const seasonObservables = Array.from(
@@ -81,7 +102,6 @@ export class PlayerComponent implements OnInit {
             'tv'
           )
       );
-
       forkJoin(seasonObservables).subscribe(
         (responses) => {
           responses.forEach((response, index) => {
@@ -101,35 +121,87 @@ export class PlayerComponent implements OnInit {
               );
             }
           });
+          // Set the initial episodes for season 1.
           this.updateCurrentEpisodes(1);
-          console.log('Seasons:', this.totalSeasons);
-          console.log('Episode Names:', this.episodeNames);
         },
         (error) => console.error('Error fetching season data:', error)
       );
     }
   }
 
+  /**
+   * Handles episode selection.
+   */
   playEpisode(index: number) {
     this.currentEpisode = index + 1;
     this.updateCurrentEpisodes(this.currentSeason);
-    this.iframeUrl = this.translateIntoIframe(this.sources[0].url);
-    console.log('Current iframe URL:', this.iframeUrl);
+    this.updateUrl();
+    this.reloadIframe();
   }
 
+  nextEpisode(index: number) {
+    this.currentEpisode = index + 1;
+    this.updateCurrentEpisodes(this.currentSeason);
+    this.updateUrl();
+    this.reloadIframe();
+  }
+
+  prevEpisode(index: number) {
+    this.currentEpisode = index - 1;
+    this.updateCurrentEpisodes(this.currentSeason);
+    this.updateUrl();
+    this.reloadIframe();
+  }
+
+  /**
+   * Handles season changes.
+   */
   onSeasonChange(event: Event) {
     this.currentSeason = Number((event.target as HTMLSelectElement).value);
     this.updateCurrentEpisodes(this.currentSeason);
-    this.iframeUrl = this.translateIntoIframe(this.sources[0].url);
-    console.log('Current iframe URL:', this.iframeUrl);
+    this.updateUrl();
+    this.reloadIframe();
   }
 
+  /**
+   * Handles source changes.
+   */
   onSourceChange(event: any) {
-    const selectedSource = event.target.value;
-    console.log('Selected source:', selectedSource);
-    this.iframeUrl = this.translateIntoIframe(selectedSource);
+    this.currentSourceUrl = event.target.value;
+    this.reloadIframe();
   }
 
+  /**
+   * Forces the iframe to re-render by toggling its container.
+   */
+  reloadIframe() {
+    this.showIframe = false;
+    // A short delay allows the DOM to update.
+    if (this.currentSourceUrl) {
+      this.iframeUrl = this.translateIntoIframe(this.currentSourceUrl);
+    }
+    this.showIframe = true;
+  }
+
+  /**
+   * Writes the current season and episode into the URL as query parameters.
+   */
+  updateUrl() {
+    const queryParams = new URLSearchParams();
+    if (this.names) {
+      queryParams.set('name', this.names);
+    }
+    queryParams.set('season', this.currentSeason.toString());
+    queryParams.set('episode', this.currentEpisode.toString());
+    const queryString = queryParams.toString();
+    // Assumes a route structure like /player/:mediaType/:id.
+    const path = `/player/${this.mediaType}/${this.id}`;
+    this.location.replaceState(path, queryString);
+  }
+
+  /**
+   * Replaces tokens in the source URL and appends a cache-buster.
+   */
   translateIntoIframe(url: string): SafeResourceUrl {
     const mediaTypeValue = this.mediaType || 'tv';
     let newUrl = url
@@ -144,10 +216,14 @@ export class PlayerComponent implements OnInit {
       newUrl = newUrl.replace(/#season/g, '').replace(/#episode/g, '');
     }
     newUrl = newUrl.replace(/\/+$/, '');
-    console.log('Translated iframe URL:', newUrl);
+    const separator = newUrl.includes('?') ? '&' : '?';
+    newUrl = `${newUrl}${separator}cacheBuster=${Date.now()}`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
   }
 
+  /**
+   * Updates the current episodes and posters for the given season.
+   */
   updateCurrentEpisodes(seasonNumber: number) {
     if (this.episodeNames[seasonNumber] && this.episodePosters[seasonNumber]) {
       this.currentEpisodes = this.episodeNames[seasonNumber];
@@ -155,15 +231,24 @@ export class PlayerComponent implements OnInit {
     }
   }
 
+  /**
+   * Reverses the order of episodes and posters.
+   */
   ascOrDescSort() {
     this.currentEpisodes.reverse();
     this.currentPosters.reverse();
   }
 
+  /**
+   * Navigates back to the previous page.
+   */
   cancel() {
     this.location.back();
   }
 
+  /**
+   * Cycles through available layout types.
+   */
   changeLayout() {
     this.layoutType =
       this.layoutType === 'list'
