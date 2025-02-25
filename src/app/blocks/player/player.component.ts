@@ -48,7 +48,7 @@ export class PlayerComponent implements OnInit {
     private loadSourcesService: LoadSourcesService,
     private sanitizer: DomSanitizer
   ) {
-    // Initialize with an empty safe URL.
+    // Initialize with an empty safe URL
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('');
   }
 
@@ -135,21 +135,25 @@ export class PlayerComponent implements OnInit {
   playEpisode(index: number) {
     this.currentEpisode = index + 1;
     this.updateCurrentEpisodes(this.currentSeason);
-    this.updateUrl();
     this.reloadIframe();
   }
 
   nextEpisode(index: number) {
+    // if its last episode disable next button
+    if (this.currentEpisode === this.currentEpisodes.length) {
+      return;
+    }
     this.currentEpisode = index + 1;
     this.updateCurrentEpisodes(this.currentSeason);
-    this.updateUrl();
     this.reloadIframe();
   }
 
   prevEpisode(index: number) {
+    if (this.currentEpisode === 1) {
+      return;
+    }
     this.currentEpisode = index - 1;
     this.updateCurrentEpisodes(this.currentSeason);
-    this.updateUrl();
     this.reloadIframe();
   }
 
@@ -159,7 +163,6 @@ export class PlayerComponent implements OnInit {
   onSeasonChange(event: Event) {
     this.currentSeason = Number((event.target as HTMLSelectElement).value);
     this.updateCurrentEpisodes(this.currentSeason);
-    this.updateUrl();
     this.reloadIframe();
   }
 
@@ -184,40 +187,34 @@ export class PlayerComponent implements OnInit {
   }
 
   /**
-   * Writes the current season and episode into the URL as query parameters.
-   */
-  updateUrl() {
-    const queryParams = new URLSearchParams();
-    if (this.names) {
-      queryParams.set('name', this.names);
-    }
-    queryParams.set('season', this.currentSeason.toString());
-    queryParams.set('episode', this.currentEpisode.toString());
-    const queryString = queryParams.toString();
-    // Assumes a route structure like /player/:mediaType/:id.
-    const path = `/player/${this.mediaType}/${this.id}`;
-    this.location.replaceState(path, queryString);
-  }
-
-  /**
    * Replaces tokens in the source URL and appends a cache-buster.
    */
   translateIntoIframe(url: string): SafeResourceUrl {
-    const mediaTypeValue = this.mediaType || 'tv';
     let newUrl = url
-      .replace(/#type/g, mediaTypeValue)
+      .replace(/#type(&[\w]+=\w+)*/g, this.mediaType || 'tv')
       .replace(/#id/g, this.id?.toString() || '');
 
-    if (mediaTypeValue === 'tv') {
+    if (this.mediaType === 'tv') {
       newUrl = newUrl
-        .replace(/#season/g, this.currentSeason.toString())
-        .replace(/#episode/g, this.currentEpisode.toString());
+        .replace(/#season/g, this.currentSeason?.toString() || '')
+        .replace(/#episode/g, this.currentEpisode?.toString() || '');
     } else {
-      newUrl = newUrl.replace(/#season/g, '').replace(/#episode/g, '');
+      newUrl = newUrl
+        .replace(/([&?])(season|episode)=[^&]*/g, '') // Remove season & episode query params
+        .replace(/\/(season|episode)\/[^/]+/g, '') // Remove season & episode from path
+        .replace(/#season|#episode/g, ''); // Remove remaining placeholders
     }
-    newUrl = newUrl.replace(/\/+$/, '');
-    const separator = newUrl.includes('?') ? '&' : '?';
-    newUrl = `${newUrl}${separator}cacheBuster=${Date.now()}`;
+
+    // Clean up redundant slashes and dashes
+    newUrl = newUrl.replace(/\/{2,}/g, '/').replace(/-{2,}/g, '-');
+
+    // Remove trailing slashes/dashes, but keep query params
+    newUrl = newUrl.replace(
+      /([-\/]+)(\?.*)?$/,
+      (_, match, query) =>
+        (query ? '' : match.replace(/[-\/]+$/, '')) + (query || '')
+    );
+
     return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
   }
 

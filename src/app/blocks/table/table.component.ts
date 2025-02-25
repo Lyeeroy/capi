@@ -175,10 +175,10 @@ export class TableComponent {
     console.log('Saving data...');
 
     this.isSaving = true;
-    this.timeout = setTimeout(
-      () => (this.isSaving = false),
-      Math.floor(Math.random() * (1900 - 500 + 1)) + 500
-    );
+    const timeout = setTimeout(() => {
+      clearTimeout(timeout);
+      this.isSaving = false;
+    }, Math.floor(Math.random() * (1420 - 420 + 1)) + 420);
   }
 
   loadData(): void {
