@@ -1,0 +1,76 @@
+<div
+  *ngIf="isExportModalOpen"
+  class="fixed inset-0 z-50 flex items-center justify-center"
+>
+  <!-- Backdrop with blur effect -->
+  <div
+    class="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
+    (click)="isExportModalOpen = false"
+  ></div>
+
+  <!-- Modal container with enter/exit transitions -->
+  <div class="relative w-full max-w-md transform transition-all">
+    <div class="relative rounded-xl bg-white shadow-2xl dark:bg-slate-800">
+      <!-- Modal header -->
+      <div class="flex items-center justify-between p-6 pb-0">
+        <h3 class="text-2xl font-bold text-slate-700 dark:text-slate-100">
+          Export Data
+        </h3>
+        <button
+          class="-mr-2 rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
+          (click)="isExportModalOpen = false"
+        >
+          <svg
+            class="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal content -->
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label
+              class="mb-2 block text-sm font-medium text-slate-600 dark:text-slate-300"
+            >
+              Export Content
+            </label>
+            <textarea
+              [(ngModel)]="exportDataText"
+              rows="4"
+              class="w-full rounded-lg border border-slate-200 bg-slate-50 p-4 font-mono text-slate-700 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:focus:border-purple-500"
+              placeholder="Export data will appear here..."
+            ></textarea>
+          </div>
+
+          <button
+            class="w-full rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 px-6 py-3 font-semibold text-white transition-all hover:from-purple-600 hover:to-indigo-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+            (click)="copyToClipboard()"
+          >
+            Copy to Clipboard
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Copied feedback toast -->
+<div
+  *ngIf="showCopiedFeedback"
+  class="fixed bottom-4 right-4 animate-fade-in-up"
+>
+  <div class="rounded-lg bg-emerald-500 px-4 py-2 text-white shadow-lg">
+    ✓ Copied to clipboard!
+  </div>
+</div>

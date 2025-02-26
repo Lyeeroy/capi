@@ -82,6 +82,16 @@ export class TableComponent {
     return source.id;
   }
 
+  isExportModalOpen: boolean = false;
+  exportData(): void {
+    this.isExportModalOpen = !this.isExportModalOpen;
+  }
+
+  exportDataText: string = '';
+  decodeExportData(): void {
+    this.isExportModalOpen = !this.isExportModalOpen;
+  }
+
   startAdd(): void {
     this.isAdding = true;
     this.newName = '';
