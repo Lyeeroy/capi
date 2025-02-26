@@ -349,7 +349,11 @@
         </tbody>
 
         <!-- Source List -->
-        <tbody class="divide-y divide-gray-200">
+        <tbody
+          class="divide-y divide-gray-200"
+          cdkDropList
+          (cdkDropListDropped)="onDrop($any($event))"
+        >
           <ng-container
             *ngFor="let source of searchInObject(); trackBy: trackById"
           >
@@ -357,9 +361,13 @@
             <tr
               class="hover:bg-gray-50 active:bg-gray-100"
               *ngIf="searchInObject()"
+              cdkDrag
             >
               <!-- Drag Handle -->
-              <td class="p-3 text-gray-400 hidden md:table-cell align-middle">
+              <td
+                class="p-3 text-gray-400 hidden md:table-cell align-middle"
+                cdkDragHandle
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-6 w-6 cursor-move touch:p-1 mx-auto"

@@ -3,6 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { findIndex } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import {
+  CdkDragDrop,
+  CdkDrag,
+  CdkDragHandle,
+  CdkDropList,
+  moveItemInArray,
+  DragDrop,
+} from '@angular/cdk/drag-drop';
 
 interface Source {
   id: number;
@@ -16,7 +24,7 @@ interface Source {
   selector: 'app-table',
   standalone: true,
   templateUrl: './table.component.html',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CdkDrag, CdkDragHandle, CdkDropList],
 })
 export class TableComponent {
   searchInput: string = '';
@@ -44,6 +52,30 @@ export class TableComponent {
         source.url.includes(this.searchInput) ||
         source.name.includes(this.searchInput)
     );
+  }
+
+  onDrop(event: CdkDragDrop<any[]>) {
+    const filteredSources = this.searchInObject();
+
+    // Get actual items from original sources array
+    const movedItem = filteredSources[event.previousIndex];
+    const targetItem = filteredSources[event.currentIndex];
+
+    // Find their positions in the original array
+    const previousIndex = this.sources.indexOf(movedItem);
+    const currentIndex = this.sources.indexOf(targetItem);
+
+    if (previousIndex !== -1 && currentIndex !== -1) {
+      // Move item in the original sources array
+      moveItemInArray(this.sources, previousIndex, currentIndex);
+
+      // Reassign IDs based on new positions
+      this.sources.forEach((source, index) => {
+        source.id = index + 1;
+      });
+
+      this.sourceIndex = this.sources.length + 1; // Update for new items
+    }
   }
 
   trackById(index: number, source: Source): number {
