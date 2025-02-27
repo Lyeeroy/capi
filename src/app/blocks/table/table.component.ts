@@ -12,6 +12,7 @@ import {
   moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import { ExportComponent } from './export/export.component';
+import { ImportComponent } from './import/import.component';
 
 interface Source {
   id: number;
@@ -32,6 +33,7 @@ interface Source {
     CdkDragHandle,
     CdkDropList,
     ExportComponent,
+    ImportComponent,
   ],
 })
 export class TableComponent {
@@ -47,6 +49,7 @@ export class TableComponent {
   isSaving: boolean = false;
 
   isExportModalOpen: boolean = false;
+  isImportModalOpen: boolean = false;
 
   //menu:
   isMenuOpen = false;
