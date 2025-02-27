@@ -22,30 +22,72 @@ export class ExportComponent {
     this.isExportModalOpenChange.emit(this.isExportModalOpen);
   }
 
+  textAreaValue: string = '';
+  encodedVersion: boolean = false;
+
   exportDataText: string = '';
 
-  exportData() {
-    const dataToExport = this.sources.map((source) => ({
-      name: source.name,
-      url: source.url,
-    }));
-    const dataStr =
-      'data:text/json;charset=utf-8,' +
-      encodeURIComponent(JSON.stringify(dataToExport));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute('href', dataStr);
-    downloadAnchorNode.setAttribute('download', 'sources.json');
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+  encodedVersionChange() {
+    this.encodedVersion = !this.encodedVersion;
   }
 
-  copyToClipboard() {
-    const textArea = document.createElement('textarea');
-    textArea.value = this.exportDataText;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    textArea.remove();
+  textExportData() {
+    const dataToExport = this.sources.map((source) => ({
+      id: source.id,
+      name: source.name,
+      url: source.url,
+      enabled: source.enabled,
+    }));
+    if (this.encodedVersion) {
+      return this.shortenJsonData(dataToExport);
+    } else {
+      return dataToExport;
+    }
+  }
+
+  shortenJsonData(jsonData: any[]) {
+    // Define replacements for common URL patterns and placeholders
+    const urlReplacements: [string, string][] = [
+      ['https://', 'a'], // Protocol
+      ['http://', 'b'], // Unused but defined for completeness
+      ['/embed/', 'c'], // Common path
+      ['embed/', 'd'], // Alternate path format
+      ['#type', 't'], // Placeholders
+      ['#id', 'd'],
+      ['#season', 's'],
+      ['#episode', 'e'],
+      ['?tmdb=', 'f'], // Query parameters
+      ['&season=', 'g'],
+      ['&episode=', 'h'],
+      ['?type=', 'i'], // Additional parameter patterns
+      ['&id=', 'j'],
+      ['/embed', 'k'], // Path variations
+      ['embed', 'l'],
+      ['//', 'm'], // Reduce redundant slashes
+      ['=', 'n'], // Frequently used characters
+      ['&', 'o'],
+      ['/', 'p'],
+      ['-', 'q'],
+    ];
+
+    // Compress each source entry into a minimal string format
+    const compressedString = jsonData
+      .map((source) => {
+        // Apply URL replacements
+        let url = source.url;
+        for (const [search, replace] of urlReplacements) {
+          url = url.split(search).join(replace);
+        }
+
+        // Convert to compact format: id,name,url,enabled
+        return `${source.id},${source.name},${url},${source.enabled ? 1 : 0}`;
+      })
+      .join(';'); // Use ';' to separate entries
+
+    // Base64 encode the compressed string
+    return btoa(compressedString);
+  }
+  copyToClipboard(textArea: HTMLTextAreaElement) {
+    navigator.clipboard.writeText(textArea.value);
   }
 }

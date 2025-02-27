@@ -10,7 +10,6 @@ import {
   CdkDragHandle,
   CdkDropList,
   moveItemInArray,
-  DragDrop,
 } from '@angular/cdk/drag-drop';
 import { ExportComponent } from './export/export.component';
 
@@ -47,7 +46,7 @@ export class TableComponent {
 
   isSaving: boolean = false;
 
-  @Output() isExportModalOpen: boolean = false;
+  isExportModalOpen: boolean = false;
 
   //menu:
   isMenuOpen = false;
@@ -155,6 +154,11 @@ export class TableComponent {
 
   removeSource(sourceId: number): void {
     this.sources = this.sources.filter((source) => source.id !== sourceId);
+  }
+
+  editAllSources(): void {
+    // accept all edits
+    this.sources.forEach((source) => this.editSource(source));
   }
 
   editSource(source: Source): void {
