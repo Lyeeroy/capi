@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+// src/app/blocks/table/table.component.ts
+import { Component, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { findIndex } from 'rxjs';
@@ -11,6 +12,7 @@ import {
   moveItemInArray,
   DragDrop,
 } from '@angular/cdk/drag-drop';
+import { ExportComponent } from './export/export.component';
 
 interface Source {
   id: number;
@@ -24,7 +26,14 @@ interface Source {
   selector: 'app-table',
   standalone: true,
   templateUrl: './table.component.html',
-  imports: [CommonModule, FormsModule, CdkDrag, CdkDragHandle, CdkDropList],
+  imports: [
+    CommonModule,
+    FormsModule,
+    CdkDrag,
+    CdkDragHandle,
+    CdkDropList,
+    ExportComponent,
+  ],
 })
 export class TableComponent {
   searchInput: string = '';
@@ -37,6 +46,8 @@ export class TableComponent {
   showConfirmation: boolean = false;
 
   isSaving: boolean = false;
+
+  @Output() isExportModalOpen: boolean = false;
 
   //menu:
   isMenuOpen = false;

@@ -1,17 +1,27 @@
-import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'selector-name',
+  selector: 'app-export',
   templateUrl: 'export.component.html',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
 })
-export class ExportComponent implements OnInit {
+export class ExportComponent {
   constructor() {}
-  ngOnInit() {}
 
-  isExportModalOpen: boolean = false;
+  @Input() isExportModalOpen: boolean = false;
+  @Input() sources: any[] = [];
+  @Output() isExportModalOpenEvent = new EventEmitter<boolean>();
+  @Output() isExportModalOpenChange = new EventEmitter<boolean>();
+
+  closeExportModal() {
+    this.isExportModalOpen = false;
+    this.isExportModalOpenEvent.emit(this.isExportModalOpen);
+    this.isExportModalOpenChange.emit(this.isExportModalOpen);
+  }
+
   exportDataText: string = '';
 
   exportData() {

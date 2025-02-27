@@ -5,7 +5,7 @@
   <!-- Backdrop with blur effect -->
   <div
     class="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
-    (click)="isExportModalOpen = false"
+    (click)="closeExportModal()"
   ></div>
 
   <!-- Modal container with enter/exit transitions -->
@@ -18,7 +18,7 @@
         </h3>
         <button
           class="-mr-2 rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700"
-          (click)="isExportModalOpen = false"
+          (click)="closeExportModal()"
         >
           <svg
             class="h-6 w-6"
@@ -66,11 +66,8 @@
 </div>
 
 <!-- Copied feedback toast -->
-<div
-  *ngIf="showCopiedFeedback"
-  class="fixed bottom-4 right-4 animate-fade-in-up"
->
+<!-- <div class="fixed bottom-4 right-4 animate-fade-in-up">
   <div class="rounded-lg bg-emerald-500 px-4 py-2 text-white shadow-lg">
     ✓ Copied to clipboard!
   </div>
-</div>
+</div> -->
