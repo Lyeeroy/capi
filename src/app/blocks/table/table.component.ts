@@ -13,6 +13,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { ExportComponent } from './export/export.component';
 import { ImportComponent } from './import/import.component';
+import { YnComponent } from '../../toast/yn.component';
 
 interface Source {
   id: number;
@@ -34,6 +35,7 @@ interface Source {
     CdkDropList,
     ExportComponent,
     ImportComponent,
+    YnComponent,
   ],
 })
 export class TableComponent {
@@ -44,7 +46,7 @@ export class TableComponent {
   isAdding: boolean = false;
   newName: string = '';
   newUrl: string = '';
-  showConfirmation: boolean = false;
+  isYnOpenDelete: boolean = false;
 
   isSaving: boolean = false;
 
@@ -55,8 +57,16 @@ export class TableComponent {
   isMenuOpen = false;
   private timeout: any;
 
+  // delete all sources button (child)
+  YnTitleDelete: string = 'Delete all existing sources?';
+  YnMessageDelete: string = 'Are you sure?';
+
   constructor(private sanitizer: DomSanitizer) {
     this.loadData();
+  }
+
+  handleYnAnswerForDeleteSources(event: any) {
+    event === 'yes' ? this.removeAllSources() : null;
   }
 
   searchInObject(): Source[] {
@@ -206,12 +216,12 @@ export class TableComponent {
   closeMenu = () => (this.isMenuOpen = false);
   // -----
   confirmDelete(): void {
-    this.showConfirmation = false;
+    this.isYnOpenDelete = false;
     this.removeAllSources();
   }
 
   cancelDelete(): void {
-    this.showConfirmation = false;
+    this.isYnOpenDelete = false;
   }
 
   saveData(): void {

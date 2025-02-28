@@ -30,8 +30,6 @@ export class ImportComponent {
     console.log('sources:', this.sources);
   }
 
-  importDataViaModal() {}
-
   closeImportModal() {
     this.isImportModalOpen = false;
     this.isImportModalOpenEvent.emit(this.isImportModalOpen);
