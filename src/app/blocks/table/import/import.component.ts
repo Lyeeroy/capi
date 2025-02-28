@@ -12,6 +12,9 @@ export class ImportComponent {
   @Input() isImportModalOpen: boolean = false;
   @Input() sources: any[] = [];
 
+  @Output() sourcesEvent = new EventEmitter<any[]>();
+  @Output() sourcesChange = new EventEmitter<any[]>();
+
   @Output() isImportModalOpenEvent = new EventEmitter<boolean>();
   @Output() isImportModalOpenChange = new EventEmitter<boolean>();
 
@@ -27,21 +30,7 @@ export class ImportComponent {
     console.log('sources:', this.sources);
   }
 
-  importDataViaModal() {
-    //1. if local storage sources is already filled, ask first if he wants to erase data
-    //2. if local storage sources is empty do not ask and skip to 3.
-
-    if (this.sources.length === 0) {
-      console.log('var is empty');
-    } else {
-      console.log('var is not empty');
-      // TODO: Remove all sources toast window
-      return;
-    }
-    //2. if local storage sources is empty do not ask and skip to 3.
-
-    //3. import data
-  }
+  importDataViaModal() {}
 
   closeImportModal() {
     this.isImportModalOpen = false;
@@ -49,8 +38,41 @@ export class ImportComponent {
     this.isImportModalOpenChange.emit(this.isImportModalOpen);
   }
 
+  // TODO: replace confirm with better solution
   saveImport() {
-    // TODO: implement import logic
+    let parsedImportData;
+    try {
+      parsedImportData = JSON.parse(this.importData);
+    } catch (e) {
+      try {
+        parsedImportData = JSON.parse(atob(this.importData));
+      } catch (e) {
+        console.error(
+          'Failed to parse import data as JSON or decode from base64',
+          e
+        );
+        alert('Import data is not valid JSON or base64 encoded JSON.');
+        return;
+      }
+    }
+
+    if (this.sources.length === 0) {
+      console.log('var is empty');
+      parsedImportData.map((source: any) => this.sources.push(source));
+    } else {
+      console.log('var is not empty');
+      if (
+        confirm(
+          'Existing sources found. Overwrite all? (OK = replace, Cancel = append)'
+        )
+      ) {
+        console.log('overwrite');
+        this.sources.splice(0, this.sources.length, ...parsedImportData);
+      } else {
+        console.log('append');
+        parsedImportData.map((source: any) => this.sources.push(source));
+      }
+    }
     this.closeImportModal();
   }
 }

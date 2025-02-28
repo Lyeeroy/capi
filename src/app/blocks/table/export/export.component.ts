@@ -41,52 +41,15 @@ export class ExportComponent {
     if (this.encodedVersion) {
       return this.shortenJsonData(dataToExport);
     } else {
-      return dataToExport;
+      return JSON.stringify(dataToExport);
     }
   }
 
-  shortenJsonData(jsonData: any[]) {
-    // Define replacements for common URL patterns and placeholders
-    const urlReplacements: [string, string][] = [
-      ['https://', 'a'], // Protocol
-      ['http://', 'b'], // Unused but defined for completeness
-      ['/embed/', 'c'], // Common path
-      ['embed/', 'd'], // Alternate path format
-      ['#type', 't'], // Placeholders
-      ['#id', 'd'],
-      ['#season', 's'],
-      ['#episode', 'e'],
-      ['?tmdb=', 'f'], // Query parameters
-      ['&season=', 'g'],
-      ['&episode=', 'h'],
-      ['?type=', 'i'], // Additional parameter patterns
-      ['&id=', 'j'],
-      ['/embed', 'k'], // Path variations
-      ['embed', 'l'],
-      ['//', 'm'], // Reduce redundant slashes
-      ['=', 'n'], // Frequently used characters
-      ['&', 'o'],
-      ['/', 'p'],
-      ['-', 'q'],
-    ];
-
-    // Compress each source entry into a minimal string format
-    const compressedString = jsonData
-      .map((source) => {
-        // Apply URL replacements
-        let url = source.url;
-        for (const [search, replace] of urlReplacements) {
-          url = url.split(search).join(replace);
-        }
-
-        // Convert to compact format: id,name,url,enabled
-        return `${source.id},${source.name},${url},${source.enabled ? 1 : 0}`;
-      })
-      .join(';'); // Use ';' to separate entries
-
-    // Base64 encode the compressed string
-    return btoa(compressedString);
+  shortenJsonData(jsonData: any[]): string {
+    // TODO: implement this function to compress the data and return the compressed string
+    return btoa(unescape(encodeURIComponent(JSON.stringify(jsonData))));
   }
+
   copyToClipboard(textArea: HTMLTextAreaElement) {
     navigator.clipboard.writeText(textArea.value);
   }

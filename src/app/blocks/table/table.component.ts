@@ -186,7 +186,6 @@ export class TableComponent {
   removeAllSources(): void {
     this.sources = [];
     this.sourceIndex = 1;
-    this.saveData();
   }
   // menu
   showMenu(event?: Event): void {
