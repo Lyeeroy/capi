@@ -1,85 +1,83 @@
-<div class="my-10">
-  <!-- Desktop Navigation (visible on md and larger screens) -->
-  <nav id="sidebar" class="min-w-[90px] w-max hidden md:block">
-    <div
-      id="sidebar-menu"
-      class="bg-white h-screen fixed top-0 left-0 overflow-y-auto z-[99] w-[90px] transition-all duration-300 border-r border-gray-200"
-    >
-      <!-- Logo Section -->
-      <div class="py-4 px-2 sticky top-0 bg-white min-h-[70px] z-[100]">
-        <a href="#" class="outline-none flex flex-col items-center">
-          <img src="capi.ico" class="w-8 h-8 mb-1" alt="Capi Logo" />
-          <span class="text-[9px] font-medium text-gray-700 text-center"
-            >Capi</span
-          >
-        </a>
-      </div>
-
-      <!-- Menu Items -->
-      <div class="py-4">
-        <ul class="space-y-1" id="ul-menu">
-          <li
-            *ngFor="let item of menuItems"
-            id="li-menu-{{ item.route }}"
-            class="relative mx-2"
-            routerLinkActive="selected"
-            [routerLinkActiveOptions]="{ exact: true }"
-          >
-            <a
-              routerLink="{{ item.route }}"
-              class="menu-item block w-full flex flex-col items-center cursor-pointer py-3 transition-colors duration-300 rounded-lg"
-              (click)="handleClick($event)"
-            >
-              <img
-                [src]="item.svg"
-                class="w-6 h-6 mb-1.5 text-gray-600"
-                alt="{{ item.label }}"
-              />
-              <span
-                class="text-[12px] font-medium text-gray-700 text-center leading-tight"
-              >
-                {{ item.label }}
-              </span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Mobile Navigation (visible on screens below md) -->
-  <nav
-    id="mobile-nav"
-    class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[99] md:hidden"
+<!-- Desktop Navigation (visible on md and larger screens) -->
+<nav id="sidebar" class="min-w-[90px] w-max hidden md:block">
+  <div
+    id="sidebar-menu"
+    class="bg-white h-screen fixed top-0 left-0 overflow-y-auto z-[99] w-[90px] transition-all duration-300 border-r border-gray-200"
   >
-    <ul class="flex justify-around items-center" id="ul-menu-mobile">
-      <li
-        *ngFor="let item of menuItems"
-        id="li-menu-mobile-{{ item.route }}"
-        class="relative flex-1"
-        routerLinkActive="selected"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
-        <a
-          routerLink="{{ item.route }}"
-          class="menu-item block flex flex-col items-center py-3 transition-colors duration-300"
-          (click)="handleClick($event)"
+    <!-- Logo Section -->
+    <div class="py-4 px-2 sticky top-0 bg-white min-h-[70px] z-[100]">
+      <a href="#" class="outline-none flex flex-col items-center">
+        <img src="capi.ico" class="w-8 h-8 mb-1" alt="Capi Logo" />
+        <span class="text-[9px] font-medium text-gray-700 text-center"
+          >Capi</span
         >
-          <img
-            [src]="item.svg"
-            class="w-6 h-6 mb-1 text-gray-600"
-            alt="{{ item.label }}"
-          />
-          <span
-            class="text-[12px] font-medium text-gray-700 text-center leading-tight"
+      </a>
+    </div>
+
+    <!-- Menu Items -->
+    <div class="py-4">
+      <ul class="space-y-1" id="ul-menu">
+        <li
+          *ngFor="let item of menuItems"
+          id="li-menu-{{ item.route }}"
+          class="relative mx-2"
+          routerLinkActive="selected"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <a
+            routerLink="{{ item.route }}"
+            class="menu-item block w-full flex flex-col items-center cursor-pointer py-3 transition-colors duration-300 rounded-lg"
+            (click)="handleClick($event)"
           >
-            {{ item.label }}
-          </span>
-        </a>
-      </li>
-    </ul>
-  </nav>
-</div>
+            <img
+              [src]="item.svg"
+              class="w-6 h-6 mb-1.5 text-gray-600"
+              alt="{{ item.label }}"
+            />
+            <span
+              class="text-[12px] font-medium text-gray-700 text-center leading-tight"
+            >
+              {{ item.label }}
+            </span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Navigation (visible on screens below md) -->
+<nav
+  id="mobile-nav"
+  class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[99] md:hidden"
+>
+  <ul class="flex justify-around items-center" id="ul-menu-mobile">
+    <li
+      *ngFor="let item of menuItems"
+      id="li-menu-mobile-{{ item.route }}"
+      class="relative flex-1"
+      routerLinkActive="selected"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      <a
+        routerLink="{{ item.route }}"
+        class="menu-item block flex flex-col items-center py-3 transition-colors duration-300"
+        (click)="handleClick($event)"
+      >
+        <img
+          [src]="item.svg"
+          class="w-6 h-6 mb-1 text-gray-600"
+          alt="{{ item.label }}"
+        />
+        <span
+          class="text-[12px] font-medium text-gray-700 text-center leading-tight"
+        >
+          {{ item.label }}
+        </span>
+      </a>
+    </li>
+  </ul>
+</nav>
 
 <style>
   /* Desktop Styles */
