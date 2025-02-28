@@ -13,7 +13,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { ExportComponent } from './export/export.component';
 import { ImportComponent } from './import/import.component';
-import { YnComponent } from '../../toast/yn.component';
+import { YnComponent } from '../../forms/yn.component';
 
 interface Source {
   id: number;

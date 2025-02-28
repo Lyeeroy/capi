@@ -1,10 +1,11 @@
 <header
-  class="sticky top-0 z-999 border-b border-gray-100 bg-white/80 backdrop-blur-md"
+  class="sticky p-2 top-0 z-999 border-b border-gray-200 bg-white/80 backdrop-blur-md"
 >
-  <div class="container mx-auto">
-    <div class="flex items-center justify-between h-16">
-      <!-- Search Bar -->
-      <div class="flex-1 max-w-2xl mr-4 sm:ml-4 items-center">
+  <div class="container mx-auto px-4">
+    <!-- Mobile: stacked layout -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <!-- Top: Search Bar (full width on mobile) -->
+      <div class="sm:flex-1 w-full mx-auto sm:max-w-2xl mb-2 sm:mb-0">
         <div class="relative flex items-center">
           <input
             id="search"
@@ -30,12 +31,11 @@
           </svg>
         </div>
       </div>
-
-      <!-- Right Section -->
-      <div class="flex items-center gap-6">
+      <!-- Bottom: icons and profile -->
+      <div class="flex items-center justify-between">
         <!-- Action Icons -->
         <div class="flex items-center gap-4">
-          <button
+          <!-- <button
             class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <svg
@@ -53,9 +53,10 @@
             </svg>
             <span
               class="absolute -top-1 -right-1 bg-red-500 text-xs text-white px-1.5 rounded-full"
-              >21</span
             >
-          </button>
+              21
+            </span>
+          </button> -->
 
           <button
             class="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
@@ -65,7 +66,7 @@
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              class="w-6 h-6 text-gray-600"
+              class="w-6 h-6 text-black"
             >
               <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
               <g
@@ -86,8 +87,9 @@
             </svg>
             <span
               class="absolute -top-1 -right-1 bg-blue-500 text-xs text-white px-1.5 rounded-full"
-              >4</span
             >
+              4
+            </span>
           </button>
 
           <button
@@ -95,7 +97,7 @@
             routerLink="/settings"
           >
             <svg
-              class="w-6 h-6 text-gray-600"
+              class="w-6 h-6 text-black"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -115,9 +117,8 @@
             </svg>
           </button>
         </div>
-
         <!-- Profile Section -->
-        <div class="relative group ml-4">
+        <!-- <div class="relative group ml-4">
           <button class="flex items-center gap-3 focus:outline-none">
             <div class="text-right">
               <p class="text-sm font-medium text-gray-700">John Doe</p>
@@ -129,8 +130,7 @@
               class="w-10 h-10 rounded-full border-2 border-white ring-2 ring-blue-500 transition-all group-hover:ring-blue-400"
             />
           </button>
-
-          <!-- Dropdown Menu -->
+          <!-- Dropdown Menu 
           <div
             class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 invisible opacity-0 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100 transition-all duration-200"
           >
@@ -201,7 +201,7 @@
               </a>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
