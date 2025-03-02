@@ -270,9 +270,11 @@ export class PlayerComponent implements OnInit {
   /**
    * Reverses the order of episodes and posters.
    */
+  isSortedAscending = true; // just for 180deg
   ascOrDescSort() {
     this.currentEpisodes.reverse();
     this.currentPosters.reverse();
+    this.isSortedAscending = !this.isSortedAscending;
   }
 
   /**

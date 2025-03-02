@@ -66,9 +66,10 @@
                   </svg>
                 </button>
                 <button
-                  class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                  class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 transform transition-transform duration-300"
                   (click)="ascOrDescSort()"
                   title="Sort order"
+                  [class.rotate-180]="!isSortedAscending"
                 >
                   <svg
                     class="w-5 h-5"

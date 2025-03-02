@@ -19,6 +19,7 @@ export class HeaderComponent {
 
   get sources() {
     const storedData = localStorage.getItem('sources');
+    if (!storedData) return [];
     return storedData ? JSON.parse(storedData) : [];
   }
 
