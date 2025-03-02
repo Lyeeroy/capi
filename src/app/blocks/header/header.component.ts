@@ -17,6 +17,11 @@ export class HeaderComponent {
 
   constructor(private http: HttpClient, private router: Router) {}
 
+  get sources() {
+    const storedData = localStorage.getItem('sources');
+    return storedData ? JSON.parse(storedData) : [];
+  }
+
   searchMovies() {
     if (!this.query.trim()) {
       this.searchResults = [];
