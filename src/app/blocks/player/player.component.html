@@ -3,85 +3,190 @@
   <!-- Main Container -->
   <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
     <!-- Video Section (Top on mobile) -->
-    <div
-      class="w-full md:w-3/4 flex flex-col border-b md:border-r border-gray-200 p-5 space-y-4"
-    >
-      <ul
-        class="flex items-center space-x-5 font-[sans-serif] mt-4 text-sm mx-2"
-      >
-        <li class="text-gray-500 cursor-pointer flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-4 fill-current mr-3"
-            viewBox="0 0 511 511.999"
-          >
-            <path
-              d="M498.7 222.695c-.016-.011-.028-.027-.04-.039L289.805 13.81C280.902 4.902 269.066 0 256.477 0c-12.59 0-24.426 4.902-33.332 13.809L14.398 222.55c-.07.07-.144.144-.21.215-18.282 18.386-18.25 48.218.09 66.558 8.378 8.383 19.44 13.235 31.273 13.746.484.047.969.07 1.457.07h8.32v153.696c0 30.418 24.75 55.164 55.168 55.164h81.711c8.285 0 15-6.719 15-15V376.5c0-13.879 11.293-25.168 25.172-25.168h48.195c13.88 0 25.168 11.29 25.168 25.168V497c0 8.281 6.715 15 15 15h81.711c30.422 0 55.168-24.746 55.168-55.164V303.14h7.719c12.586 0 24.422-4.903 33.332-13.813 18.36-18.367 18.367-48.254.027-66.633zm-21.243 45.422a17.03 17.03 0 0 1-12.117 5.024h-22.72c-8.285 0-15 6.714-15 15v168.695c0 13.875-11.289 25.164-25.168 25.164h-66.71V376.5c0-30.418-24.747-55.168-55.169-55.168H232.38c-30.422 0-55.172 24.75-55.172 55.168V482h-66.71c-13.876 0-25.169-11.29-25.169-25.164V288.14c0-8.286-6.715-15-15-15H48a13.9 13.9 0 0 0-.703-.032c-4.469-.078-8.66-1.851-11.8-4.996-6.68-6.68-6.68-17.55 0-24.234.003 0 .003-.004.007-.008l.012-.012L244.363 35.02A17.003 17.003 0 0 1 256.477 30c4.574 0 8.875 1.781 12.113 5.02l208.8 208.796.098.094c6.645 6.692 6.633 17.54-.031 24.207zm0 0"
-              data-original="#000000"
-            />
-          </svg>
-          Home
-        </li>
-        <li class="text-gray-500">/</li>
-        <li
-          class="text-gray-500 cursor-pointer flex items-center"
-          (click)="cancel()"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-4 fill-current mr-3"
-            viewBox="0 0 512 512"
-          >
-            <path
-              d="M437.02 74.98C388.668 26.63 324.379 0 256 0S123.332 26.629 74.98 74.98C26.63 123.332 0 187.621 0 256s26.629 132.668 74.98 181.02C123.332 485.37 187.621 512 256 512s132.668-26.629 181.02-74.98C485.37 388.668 512 324.379 512 256s-26.629-132.668-74.98-181.02zM111.105 429.297c8.454-72.735 70.989-128.89 144.895-128.89 38.96 0 75.598 15.179 103.156 42.734 23.281 23.285 37.965 53.687 41.742 86.152C361.641 462.172 311.094 482 256 482s-105.637-19.824-144.895-52.703zM256 269.507c-42.871 0-77.754-34.882-77.754-77.753C178.246 148.879 213.13 114 256 114s77.754 34.879 77.754 77.754c0 42.871-34.883 77.754-77.754 77.754zm170.719 134.427a175.9 175.9 0 0 0-46.352-82.004c-18.437-18.438-40.25-32.27-64.039-40.938 28.598-19.394 47.426-52.16 47.426-89.238C363.754 132.34 315.414 84 256 84s-107.754 48.34-107.754 107.754c0 37.098 18.844 69.875 47.465 89.266-21.887 7.976-42.14 20.308-59.566 36.542-25.235 23.5-42.758 53.465-50.883 86.348C50.852 364.242 30 312.512 30 256 30 131.383 131.383 30 256 30s226 101.383 226 226c0 56.523-20.86 108.266-55.281 147.934zm0 0"
-              data-original="#000000"
-            />
-          </svg>
-          {{
-            mediaType === "tv"
-              ? "TV Shows"
-              : mediaType === "movie"
-              ? "Movie"
-              : ""
-          }}
-        </li>
-        <li class="text-gray-500">/</li>
-        <li class="text-[#333] font-bold cursor-pointer flex items-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-4 fill-current mr-3"
-            viewBox="0 0 24 24"
-          >
-            <g fill-rule="evenodd" clip-rule="evenodd">
-              <path
-                d="M7 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6a1 1 0 1 1 2 0v6a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5h6a1 1 0 1 1 0 2z"
-                data-original="#000000"
-              />
-              <path
-                d="M19.197 4a.803.803 0 0 0-.567.235l-7.877 7.877-.379 1.514 1.514-.379 7.877-7.877A.803.803 0 0 0 19.197 4zm-1.981-1.18a2.802 2.802 0 1 1 3.963 3.964l-8.073 8.073a1 1 0 0 1-.464.263l-3.4.85a1 1 0 0 1-1.212-1.213l.85-3.399a1 1 0 0 1 .263-.464z"
-                data-original="#000000"
-              />
-              <path
-                d="M15.293 5.293a1 1 0 0 1 1.414 0l2 2a1 1 0 0 1-1.414 1.414l-2-2a1 1 0 0 1 0-1.414z"
-                data-original="#000000"
-              />
-            </g>
-          </svg>
-          {{ names }}
-        </li>
-      </ul>
-
+    <div class="w-full flex flex-col border-bp-5 space-y-4">
       <!-- Video Container src="https://www.youtube.com/embed/dQw4w9WgXcQ"-->
-      <div class="aspect-video relative">
-        <ng-container *ngIf="showIframe">
-          <iframe
-            #iframeElement
-            [src]="iframeUrl"
-            class="w-full h-full rounded-xl"
-            frameborder="0"
-            allowfullscreen
-          ></iframe>
-        </ng-container>
+      <div class="flex flex-col md:flex-row gap-4 p-4 md:p-6">
+        <!-- Main Video Container -->
+        <div
+          class="w-full md:w-3/4 aspect-video bg-black rounded-xl overflow-hidden"
+        >
+          <ng-container *ngIf="showIframe">
+            <iframe
+              #iframeElement
+              [src]="iframeUrl"
+              class="w-full h-full"
+              frameborder="0"
+              allowfullscreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            ></iframe>
+          </ng-container>
+        </div>
+
+        <!-- Playlist Container (same height as iframe) -->
+        <div
+          class="w-full md:w-1/4 flex flex-col bg-white rounded-xl border border-gray-200 md:h-[calc((100vw_-_2rem)_*_0.75_/_1.7778)]"
+        >
+          <!-- Height calculation explanation: -->
+          <!-- (Total width - padding) * 75% (video width) / 16:9 aspect ratio -->
+          <div class="flex flex-col h-full p-4">
+            <!-- Playlist Header -->
+            <div
+              class="flex-none flex justify-between items-center pb-4 border-b border-gray-200"
+            >
+              <h2 class="text-lg text-gray-900 flex items-center gap-2">
+                <!-- <svg
+                  class="w-5 h-5 text-gray-600"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"
+                  />
+                </svg> -->
+                {{ names }}
+              </h2>
+              <div class="flex gap-2">
+                <button
+                  class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                  (click)="changeLayout()"
+                  title="Change layout"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </button>
+                <button
+                  class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                  (click)="ascOrDescSort()"
+                  title="Sort order"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Season Selector -->
+            <div class="flex-none py-4">
+              <select
+                id="seasonSelect"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                (change)="onSeasonChange($event)"
+              >
+                <option *ngFor="let season of totalSeasons" [value]="season">
+                  Season {{ season }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Scrollable Episodes Area -->
+            <div class="flex-1 overflow-y-auto">
+              <!-- Grid Layout -->
+              <div
+                *ngIf="layoutType === 'grid'"
+                class="grid grid-cols-6 gap-1.5"
+              >
+                <button
+                  *ngFor="let episode of currentEpisodes; let i = index"
+                  (click)="playEpisode(i)"
+                  class="cursor-pointer aspect-[1.8] flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition-colors text-xs font-medium text-gray-600 hover:text-gray-900 px-1"
+                >
+                  {{ episode.number }}
+                </button>
+              </div>
+
+              <!-- List Layout -->
+              <div *ngIf="layoutType === 'list'" class="space-y-1">
+                <div
+                  *ngFor="let episode of currentEpisodes; let i = index"
+                  (click)="playEpisode(i)"
+                  class="flex items-center gap-2 px-2 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  <div
+                    class="text-xs font-medium text-gray-500 w-4 text-center"
+                  >
+                    {{ episode.number }}
+                  </div>
+                  <div class="flex-1 min-w-0 text-xs text-gray-700 truncate">
+                    {{ episode.name }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Poster Layout -->
+              <div
+                *ngIf="layoutType === 'poster'"
+                class="grid gap-4 grid-cols-2"
+              >
+                <div
+                  *ngFor="let episode of currentEpisodes; let i = index"
+                  (click)="playEpisode(i)"
+                  class="group relative cursor-pointer transform hover:scale-[1.02] transition-transform duration-300"
+                >
+                  <div
+                    class="aspect-video bg-gray-100 rounded-lg overflow-hidden shadow-lg relative after:absolute after:inset-0 after:bg-gradient-to-t after:from-black/30 after:to-transparent"
+                  >
+                    <img
+                      [src]="
+                        currentPosters[i] ||
+                        'https://placehold.co/300x200?text=No+Image'
+                      "
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      [alt]="episode.name"
+                      loading="lazy"
+                    />
+                    <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+                      <div class="text-sm font-semibold text-white truncate">
+                        {{ episode.number }}. {{ episode.name }}
+                      </div>
+                      <div class="text-xs text-gray-200 mt-0.5">
+                        Click to play →
+                      </div>
+                    </div>
+                    <div
+                      class="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-sm"
+                    >
+                      <svg
+                        class="w-4 h-4 text-gray-800"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Controls -->
@@ -187,172 +292,5 @@
     </div>
 
     <!-- Playlist Section (Bottom on mobile) -->
-    <div class="w-full h-full md:w-1/4 overflow-y-auto bg-gray-50 shadow-lg">
-      <div class="p-6 space-y-4">
-        <div class="flex justify-between items-center mb-4">
-          <!-- Playlist Button -->
-          <button
-            class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24"
-              viewBox="0 0 24 24"
-              width="24"
-              focusable="false"
-              aria-hidden="true"
-              style="
-                pointer-events: none;
-                display: inherit;
-                width: 100%;
-                height: 100%;
-              "
-            >
-              <path d="M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z"></path>
-            </svg>
-          </button>
-          <h2 class="text-lg font-semibold text-gray-800">Playlist</h2>
-          <div class="flex items-center gap-2">
-            <!-- chaange playlist layout -->
-            <button
-              class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
-              (click)="changeLayout()"
-            >
-              <svg
-                stroke="currentColor"
-                fill="none"
-                stroke-width="1.5"
-                viewBox="0 0 24 24"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                height="24"
-                width="24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M7 2h10"></path>
-                <path d="M5 6h14"></path>
-                <rect width="18" height="12" x="3" y="10" rx="2"></rect>
-              </svg>
-            </button>
-            <!-- asc/desc sort-->
-            <button
-              class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
-              (click)="ascOrDescSort()"
-            >
-              <svg
-                stroke="currentColor"
-                fill="none"
-                stroke-width="1.5"
-                viewBox="0 0 24 24"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                height="24"
-                width="24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="m3 16 4 4 4-4"></path>
-                <path d="M7 20V4"></path>
-                <path d="m21 8-4-4-4 4"></path>
-                <path d="M17 4v16"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <div class="space-y-3">
-          <label
-            for="seasonSelect"
-            class="block text-sm font-medium text-gray-700"
-            >Season</label
-          ><!--  (Total: {{ totalSeasons.length }}) -->
-          <div class="relative">
-            <select
-              id="seasonSelect"
-              class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
-              (change)="onSeasonChange($event)"
-            >
-              <option *ngFor="let season of totalSeasons" [value]="season">
-                Season {{ season }}
-              </option>
-            </select>
-          </div>
-
-          <div
-            class="space-y-2"
-            *ngIf="layoutType === 'poster'"
-            id="list-layout"
-          >
-            <ul class="divide-y divide-gray-200">
-              <li
-                *ngFor="let episode of currentEpisodes; let i = index"
-                class="py-2"
-                (click)="playEpisode(i)"
-              >
-                <button
-                  class="w-full flex items-center gap-4 p-3 rounded-md hover:bg-gray-100 transition-colors duration-200 ease-in-out cursor-pointer"
-                >
-                  <div class="w-20 h-14 rounded-md overflow-hidden shadow-sm">
-                    <img
-                      [src]="
-                        currentPosters[i]
-                          ? currentPosters[i]
-                          : 'https://placehold.co/300x200?text=No+Image'
-                      "
-                      alt="Episode Thumbnail"
-                      class="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div class="flex-1 flex flex-col text-left">
-                    <div class="font-medium text-gray-800">
-                      <span class="font-base">{{ episode.number }}.</span>
-                      {{ episode.name }}
-                    </div>
-                    <div class="text-gray-500 text-xs mt-1">Duration:</div>
-                  </div>
-                </button>
-              </li>
-            </ul>
-          </div>
-          <div class="space-y-2" *ngIf="layoutType === 'list'" id="list-layout">
-            <ul class="divide-gray-200">
-              <li
-                *ngFor="let episode of currentEpisodes; let i = index"
-                class="py-1"
-                (click)="playEpisode(i)"
-              >
-                <button
-                  class="w-full flex items-center gap-4 p-3 rounded-md hover:bg-gray-50 transition-colors duration-200 ease-in-out cursor-pointer bg-gray-100 border border-gray-200"
-                >
-                  <div class="flex text-left">
-                    <div class="font-medium text-gray-800 pl-2">
-                      <span class="font-bold">Ep {{ episode.number }}:</span>
-                      {{ episode.name }}
-                    </div>
-                  </div>
-                </button>
-              </li>
-            </ul>
-          </div>
-          <div class="space-y-2" *ngIf="layoutType === 'grid'" id="list-layout">
-            <ul class="flex divide-gray-200 space-x-2 w-full flex-wrap">
-              <li
-                *ngFor="let episode of currentEpisodes; let i = index"
-                class="py-1"
-                (click)="playEpisode(i)"
-              >
-                <button
-                  class="items-center gap-4 p-3 rounded-md hover:bg-gray-50 transition-colors duration-200 ease-in-out cursor-pointer bg-gray-100 border border-gray-200"
-                >
-                  <div class="flex text-left font-bold px-2">
-                    <div class="w-4 text-center">{{ episode.number }}</div>
-                  </div>
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>

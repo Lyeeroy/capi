@@ -186,34 +186,73 @@ export class PlayerComponent implements OnInit {
     this.showIframe = true;
   }
 
-  /**
-   * Replaces tokens in the source URL and appends a cache-buster.
-   */
   translateIntoIframe(url: string): SafeResourceUrl {
-    let newUrl = url
-      .replace(/#type(&[\w]+=\w+)*/g, this.mediaType || 'tv')
-      .replace(/#id/g, this.id?.toString() || '');
+    // Regular expression to match the mapping URL.
+    // Breakdown:
+    //   Group 1: Base URL (e.g., "https://www.2embed.cc/")
+    //   Group 2: The placeholder in the path (e.g., "#type")
+    //   Group 3: Token for tv (e.g., "embed")
+    //   Group 4: Token for movie (e.g., "embedtv")
+    //   Group 5: The rest of the URL (e.g., "/#id&s=#season&e=#episode")
+    const mappingRegex =
+      /^(https?:\/\/[^\/]+\/)([^\/?]+)\?([^:]+):([^\/]+)(\/.*)$/;
+    const match = url.match(mappingRegex);
+    let newUrl: string;
 
-    if (this.mediaType === 'tv') {
-      newUrl = newUrl
-        .replace(/#season/g, this.currentSeason?.toString() || '')
-        .replace(/#episode/g, this.currentEpisode?.toString() || '');
+    if (match) {
+      const baseUrl = match[1]; // e.g., "https://www.2embed.cc/"
+      const typePlaceholder = match[2]; // e.g., "#type"
+      const tokenTv = match[3]; // e.g., "embed"
+      const tokenMovie = match[4]; // e.g., "embedtv"
+      const restOfUrl = match[5]; // e.g., "/#id&s=#season&e=#episode"
+
+      // Choose replacement based on mediaType:
+      const replacement = this.mediaType === 'movie' ? tokenMovie : tokenTv;
+
+      // Construct the new URL: replace the type placeholder with the chosen token.
+      newUrl = `${baseUrl}${replacement}${restOfUrl}`;
+
+      // Replace the #id placeholder.
+      newUrl = newUrl.replace(/#id/g, this.id?.toString() || '');
+
+      if (this.mediaType === 'tv') {
+        // For TV, replace season and episode placeholders with actual numbers.
+        newUrl = newUrl
+          .replace(/#season/g, this.currentSeason?.toString() || '')
+          .replace(/#episode/g, this.currentEpisode?.toString() || '');
+      } else {
+        // For movies, remove any season/episode data.
+        newUrl = newUrl
+          // Remove query parameters like s, e, season, or episode.
+          .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
+          // Remove season/episode segments from the path.
+          .replace(/\/(season|episode)\/[^/]+/gi, '')
+          // Remove any remaining placeholders.
+          .replace(/#season|#episode/gi, '');
+      }
     } else {
-      newUrl = newUrl
-        .replace(/([&?])(season|episode)=[^&]*/g, '') // Remove season & episode query params
-        .replace(/\/(season|episode)\/[^/]+/g, '') // Remove season & episode from path
-        .replace(/#season|#episode/g, ''); // Remove remaining placeholders
+      // Fallback if the URL does not follow the mapping pattern.
+      newUrl = url
+        .replace(/#type/g, this.mediaType || 'tv')
+        .replace(/#id/g, this.id?.toString() || '');
+      if (this.mediaType === 'tv') {
+        newUrl = newUrl
+          .replace(/#season/g, this.currentSeason?.toString() || '')
+          .replace(/#episode/g, this.currentEpisode?.toString() || '');
+      } else {
+        newUrl = newUrl
+          .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
+          .replace(/\/(season|episode)\/[^/]+/gi, '')
+          .replace(/#season|#episode/gi, '');
+      }
     }
 
-    // Clean up redundant slashes and dashes
-    newUrl = newUrl.replace(/\/{2,}/g, '/').replace(/-{2,}/g, '-');
+    // Cleanup: Remove redundant slashes except in the protocol.
+    // This regex finds multiple slashes not preceded by a colon.
+    newUrl = newUrl.replace(/([^:])\/{2,}/g, '$1/');
 
-    // Remove trailing slashes/dashes, but keep query params
-    newUrl = newUrl.replace(
-      /([-\/]+)(\?.*)?$/,
-      (_, match, query) =>
-        (query ? '' : match.replace(/[-\/]+$/, '')) + (query || '')
-    );
+    // Optionally, remove a trailing slash if it is not needed.
+    newUrl = newUrl.replace(/\/+(\?.*)?$/, '$1');
 
     return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
   }
