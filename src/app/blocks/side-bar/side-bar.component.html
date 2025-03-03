@@ -1,11 +1,11 @@
 <!-- Desktop Navigation (visible on md and larger screens) -->
-<nav id="sidebar" class="min-w-[90px] w-max hidden md:block">
+<nav id="sidebar" class="min-w-[90px] w-max hidden lg:block">
   <div
     id="sidebar-menu"
-    class="bg-white h-screen fixed top-0 left-0 overflow-y-auto z-[99] w-[90px] transition-all duration-300 border-r border-gray-200"
+    class="h-screen fixed top-0 left-0 overflow-y-auto z-[99] w-[90px] transition-all duration-300 border-r border-gray-200 bg-gray-50"
   >
     <!-- Logo Section -->
-    <div class="py-4 px-2 sticky top-0 bg-white min-h-[70px] z-[100]">
+    <div class="py-4 px-2 sticky top-0 min-h-[70px] z-[100]">
       <a href="#" class="outline-none flex flex-col items-center">
         <img src="capi.ico" class="w-8 h-8 mb-1" alt="Capi Logo" />
         <span class="text-[9px] font-medium text-gray-700 text-center"
@@ -49,7 +49,7 @@
 <!-- Mobile Navigation (visible on screens below md) -->
 <nav
   id="mobile-nav"
-  class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-[99] md:hidden"
+  class="fixed bottom-0 left-0 right-0 border-t border-gray-200 z-[99] lg:hidden"
 >
   <ul class="flex justify-around items-center" id="ul-menu-mobile">
     <li

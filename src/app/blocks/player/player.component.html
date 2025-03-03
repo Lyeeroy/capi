@@ -1,30 +1,137 @@
 <!-- src/app/blocks/player/player.component.html -->
-<div class="flex flex-col h-screen bg-white">
+<div class="flex flex-col h-screen bg-white lg:px-20">
   <!-- Main Container -->
-  <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+  <div class="flex-1 flex flex-col md:flex-row">
     <!-- Video Section (Top on mobile) -->
     <div class="w-full flex flex-col border-bp-5 space-y-4">
       <!-- Video Container src="https://www.youtube.com/embed/dQw4w9WgXcQ"-->
       <div class="flex flex-col md:flex-row gap-4 p-4 md:p-6">
         <!-- Main Video Container -->
-        <div
-          class="w-full md:w-3/4 aspect-video bg-black rounded-xl overflow-hidden"
-        >
-          <ng-container *ngIf="showIframe">
-            <iframe
-              #iframeElement
-              [src]="iframeUrl"
-              class="w-full h-full"
-              frameborder="0"
-              allowfullscreen
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            ></iframe>
-          </ng-container>
-        </div>
+        <div class="w-full md:w-3/4 rounded-xl">
+          <div class="w-full h-full">
+            <ng-container *ngIf="showIframe">
+              <iframe
+                #iframeElement
+                [src]="iframeUrl"
+                class="w-full h-full rounded-xl aspect-video bg-gray-100"
+                frameborder="0"
+                allowfullscreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              ></iframe>
+            </ng-container>
 
+            <!--lets make this shit -->
+            <!-- Controls -->
+            <div class="p-4">
+              <!-- Combined Source and Episode Navigation -->
+              <div
+                class="flex flex-col lg:flex-row gap-2 items-center justify-between"
+              >
+                <!-- Source Selection and Navigation on the Left -->
+                <div class="flex gap-2 items-center w-full sm:w-auto">
+                  <button
+                    class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                    <span class="hidden sm:inline">Prev</span>
+                  </button>
+
+                  <select
+                    class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-2 focus:ring-red-500"
+                    (change)="onSourceChange($event)"
+                  >
+                    <option *ngFor="let source of sources" [value]="source.url">
+                      {{ source.name }}
+                    </option>
+                  </select>
+
+                  <button
+                    class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+                  >
+                    <span class="hidden sm:inline">Next</span>
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Episode Navigation on the Right -->
+                <div class="flex gap-2 w-full sm:w-auto justify-center">
+                  <button
+                    class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+                    (click)="prevEpisode(currentEpisode)"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                    <span class="hidden sm:inline">Prev episode</span>
+                  </button>
+
+                  <button
+                    class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+                    (click)="nextEpisode(currentEpisode)"
+                  >
+                    <span class="hidden sm:inline">Next episode</span>
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="p-4 mt-5 bg-gray-100 w-full rounded-xl">
+                description: Learn about the history, usage and variations of
+                Lorem Ipsum, the industry's standard dummy text for over 2000
+                years. Generate your own Lorem Ipsum with a dictionary of over
+                200 Latin words and a random sentence structure.
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Playlist Container (same height as iframe) -->
         <div
-          class="w-full md:w-1/4 flex flex-col bg-white rounded-xl border border-gray-200 md:h-[calc((100vw_-_2rem)_*_0.75_/_1.7778)]"
+          class="w-full md:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 md:h-[calc((100vw_-_2rem)_*_0.75_/_1.7778)]"
         >
           <!-- Height calculation explanation: -->
           <!-- (Total width - padding) * 75% (video width) / 16:9 aspect ratio -->
@@ -122,12 +229,12 @@
                 <div
                   *ngFor="let episode of currentEpisodes; let i = index"
                   (click)="playEpisode(i)"
-                  class="flex items-center gap-2 px-2 py-2 rounded-md bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                  class="flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:border hover:border-gray-300 cursor-pointer active:bg-gray-200 transition duration-300"
                 >
                   <div
-                    class="text-xs font-medium text-gray-500 w-4 text-center"
+                    class="font-semibold text-xs text-gray-500 w-7 text-center"
                   >
-                    {{ episode.number }}
+                    EP{{ episode.number }}:
                   </div>
                   <div class="flex-1 min-w-0 text-xs text-gray-700 truncate">
                     {{ episode.name }}
@@ -189,109 +296,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Controls -->
-      <div class="p-4 space-y-4 bg-gray-100 border border-gray-200 rounded-xl">
-        <!-- Combined Source and Episode Navigation -->
-        <div
-          class="flex flex-col sm:flex-row gap-2 items-center justify-between"
-        >
-          <!-- Source Selection and Navigation on the Left -->
-          <div class="flex gap-2 items-center w-full sm:w-auto">
-            <button
-              class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              <span class="hidden sm:inline">Prev</span>
-            </button>
-
-            <select
-              class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-2 focus:ring-red-500"
-              (change)="onSourceChange($event)"
-            >
-              <option *ngFor="let source of sources" [value]="source.url">
-                {{ source.name }}
-              </option>
-            </select>
-
-            <button
-              class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
-            >
-              <span class="hidden sm:inline">Next</span>
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Episode Navigation on the Right -->
-          <div class="flex gap-2 w-full sm:w-auto justify-center">
-            <button
-              class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
-              (click)="prevEpisode(currentEpisode)"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              <span class="hidden sm:inline">Prev</span>
-            </button>
-
-            <button
-              class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
-              (click)="nextEpisode(currentEpisode)"
-            >
-              <span class="hidden sm:inline">Next</span>
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
-
-    <!-- Playlist Section (Bottom on mobile) -->
   </div>
 </div>
