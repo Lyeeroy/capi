@@ -1,6 +1,6 @@
 // src/app/blocks/player/player.component.ts
 
-import { Component, OnInit } from '@angular/core';
+import { Component, NgModule, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location, CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -8,12 +8,13 @@ import { forkJoin } from 'rxjs';
 
 import { TmdbService } from '../../services/tmdb.service';
 import { LoadSourcesService } from './player.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   providers: [LoadSourcesService],
 })
 export class PlayerComponent implements OnInit {
@@ -53,23 +54,50 @@ export class PlayerComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Retrieve route parameters and query parameters.
     this.route.paramMap.subscribe((params) => {
       this.id = Number(params.get('id'));
       this.mediaType = params.get('mediaType');
       this.names = this.route.snapshot.queryParams['name'];
+
+      // Read season and episode from URL
+      const queryParams = this.route.snapshot.queryParams;
+      this.currentSeason = queryParams['season']
+        ? Number(queryParams['season'])
+        : 1;
+      this.currentEpisode = queryParams['episode']
+        ? Number(queryParams['episode'])
+        : 1;
+
       this.initializeData();
 
-      // Load available sources.
+      // Load sources
       this.loadSourcesService.loadSources().then(() => {
         this.sources = this.loadSourcesService.sources;
         if (this.sources && this.sources.length > 0) {
-          // Set the default selected source to the first one.
           this.currentSourceUrl = this.sources[0].url;
           this.reloadIframe();
         }
       });
     });
+  }
+
+  nextSource() {
+    const currentIndex = this.sources.findIndex(
+      (source: { url: string }) => source.url === this.currentSourceUrl
+    );
+    const nextIndex = (currentIndex + 1) % this.sources.length;
+    this.currentSourceUrl = this.sources[nextIndex].url;
+    this.reloadIframe();
+  }
+
+  prevSource() {
+    const currentIndex = this.sources.findIndex(
+      (source: { url: string }) => source.url === this.currentSourceUrl
+    );
+    const previousIndex =
+      (currentIndex - 1 + this.sources.length) % this.sources.length;
+    this.currentSourceUrl = this.sources[previousIndex].url;
+    this.reloadIframe();
   }
 
   /**
@@ -123,6 +151,7 @@ export class PlayerComponent implements OnInit {
           });
           // Set the initial episodes for season 1.
           this.updateCurrentEpisodes(1);
+          this.updateUrl();
         },
         (error) => console.error('Error fetching season data:', error)
       );
@@ -135,16 +164,48 @@ export class PlayerComponent implements OnInit {
   playEpisode(index: number) {
     this.currentEpisode = index + 1;
     this.updateCurrentEpisodes(this.currentSeason);
+
+    // Update URL
+    this.updateUrl();
+
     this.reloadIframe();
   }
 
+  onSeasonChange(event: Event) {
+    this.currentSeason = Number((event.target as HTMLSelectElement).value);
+    this.updateCurrentEpisodes(this.currentSeason);
+
+    // Update URL
+    this.updateUrl();
+
+    this.reloadIframe();
+  }
+
+  updateUrl() {
+    const url = new URL(window.location.href);
+    const queryParams = new URLSearchParams(url.search);
+
+    if (this.currentSeason) {
+      queryParams.set('season', this.currentSeason.toString());
+    }
+    if (this.currentEpisode) {
+      queryParams.set('episode', this.currentEpisode.toString());
+    }
+
+    const newUrl = `${url.pathname}?${queryParams.toString()}`;
+    this.location.replaceState(newUrl);
+  }
+
   nextEpisode(index: number) {
-    // if its last episode disable next button
     if (this.currentEpisode === this.currentEpisodes.length) {
       return;
     }
     this.currentEpisode = index + 1;
     this.updateCurrentEpisodes(this.currentSeason);
+
+    // Update URL
+    this.updateUrl();
+
     this.reloadIframe();
   }
 
@@ -154,15 +215,10 @@ export class PlayerComponent implements OnInit {
     }
     this.currentEpisode = index - 1;
     this.updateCurrentEpisodes(this.currentSeason);
-    this.reloadIframe();
-  }
 
-  /**
-   * Handles season changes.
-   */
-  onSeasonChange(event: Event) {
-    this.currentSeason = Number((event.target as HTMLSelectElement).value);
-    this.updateCurrentEpisodes(this.currentSeason);
+    // Update URL
+    this.updateUrl();
+
     this.reloadIframe();
   }
 

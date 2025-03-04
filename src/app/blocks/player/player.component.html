@@ -30,6 +30,7 @@
                 <div class="flex gap-2 items-center w-full sm:w-auto">
                   <button
                     class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+                    (click)="prevSource()"
                   >
                     <svg
                       class="w-4 h-4"
@@ -50,6 +51,7 @@
                   <select
                     class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-2 focus:ring-red-500"
                     (change)="onSourceChange($event)"
+                    [(ngModel)]="currentSourceUrl"
                   >
                     <option *ngFor="let source of sources" [value]="source.url">
                       {{ source.name }}
@@ -58,10 +60,12 @@
 
                   <button
                     class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+                    (click)="nextSource()"
                   >
                     <span class="hidden sm:inline">Next</span>
                     <svg
                       class="w-4 h-4"
+                      fill="none"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
