@@ -176,9 +176,9 @@ export class PlayerComponent implements OnInit {
     this.updateCurrentEpisodes(this.currentSeason);
 
     // Update URL
-    this.updateUrl();
+    //this.updateUrl();
 
-    this.reloadIframe();
+    //this.reloadIframe();
   }
 
   updateUrl() {

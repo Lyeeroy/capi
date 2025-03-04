@@ -123,9 +123,17 @@
                   </button>
                 </div>
               </div>
-              <div class="p-4 mt-5 bg-gray-100 w-full rounded-xl">
-                description: Learn about the history, usage and variations of
-                Lorem Ipsum, the industry's stan [Show more..]
+              <div
+                class="p-4 mt-5 bg-gray-100 w-full rounded-xl border border-gray-200 trxt-gray-900"
+              >
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
+                sunt in culpa qui officia deserunt mollit anim id est laborum.
+                [Show more..]
               </div>
             </div>
           </div>
@@ -230,7 +238,7 @@
                 <div
                   *ngFor="let episode of currentEpisodes; let i = index"
                   (click)="playEpisode(i)"
-                  class="flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:border hover:border-gray-300 cursor-pointer active:bg-gray-200 transition duration-300"
+                  class="flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer active:bg-gray-200 transition duration-300"
                 >
                   <div
                     class="font-semibold text-xs text-gray-500 w-7 text-center"
