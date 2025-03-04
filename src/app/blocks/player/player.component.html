@@ -123,17 +123,20 @@
                   </button>
                 </div>
               </div>
+
               <div
                 class="p-4 mt-5 bg-gray-100 w-full rounded-xl border border-gray-200 trxt-gray-900"
               >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
-                [Show more..]
+                <p class="text-gray-900">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
+                  irure dolor in reprehenderit in voluptate velit esse cillum
+                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+                  cupidatat non proident, sunt in culpa qui officia deserunt
+                  mollit anim id est laborum. [Show more..]
+                </p>
               </div>
             </div>
           </div>
@@ -210,6 +213,7 @@
                 id="seasonSelect"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 (change)="onSeasonChange($event)"
+                [(ngModel)]="currentSeason"
               >
                 <option *ngFor="let season of totalSeasons" [value]="season">
                   Season {{ season }}
@@ -238,6 +242,8 @@
                 <div
                   *ngFor="let episode of currentEpisodes; let i = index"
                   (click)="playEpisode(i)"
+                  [class.bg-gray-200]="i === activeEpisodeIndex"
+                  [class.text-gray-900]="i === activeEpisodeIndex"
                   class="flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer active:bg-gray-200 transition duration-300"
                 >
                   <div

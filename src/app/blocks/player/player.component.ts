@@ -30,6 +30,8 @@ export class PlayerComponent implements OnInit {
   currentPosters: string[] = [];
   layoutType: 'list' | 'grid' | 'poster' = 'list';
 
+  activeEpisodeIndex: number = 0;
+
   // Source-related properties
   sources: any = [];
   currentSourceUrl: string = ''; // Holds the currently selected source URL
@@ -149,8 +151,9 @@ export class PlayerComponent implements OnInit {
               );
             }
           });
+
           // Set the initial episodes for season 1.
-          this.updateCurrentEpisodes(1);
+          this.updateCurrentEpisodes(this.currentSeason ?? 1); // Pass the season number from URL, if null, default to 1
           this.updateUrl();
         },
         (error) => console.error('Error fetching season data:', error)
@@ -167,8 +170,11 @@ export class PlayerComponent implements OnInit {
 
     // Update URL
     this.updateUrl();
-
     this.reloadIframe();
+  }
+
+  highlightActiveEpisode(index: number) {
+    this.activeEpisodeIndex = index - 1;
   }
 
   onSeasonChange(event: Event) {
@@ -176,9 +182,8 @@ export class PlayerComponent implements OnInit {
     this.updateCurrentEpisodes(this.currentSeason);
 
     // Update URL
-    //this.updateUrl();
-
-    //this.reloadIframe();
+    // this.updateUrl();
+    // this.reloadIframe();
   }
 
   updateUrl() {
@@ -200,7 +205,7 @@ export class PlayerComponent implements OnInit {
     if (this.currentEpisode === this.currentEpisodes.length) {
       return;
     }
-    this.currentEpisode = index + 1;
+    this.currentEpisode = index + 1; // highlight active episode
     this.updateCurrentEpisodes(this.currentSeason);
 
     // Update URL
@@ -234,6 +239,7 @@ export class PlayerComponent implements OnInit {
    * Forces the iframe to re-render by toggling its container.
    */
   reloadIframe() {
+    this.highlightActiveEpisode(this.currentEpisode); // highlight active episode
     this.showIframe = false;
     // A short delay allows the DOM to update.
     if (this.currentSourceUrl) {
