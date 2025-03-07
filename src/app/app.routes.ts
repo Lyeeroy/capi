@@ -7,6 +7,7 @@ import { SearchResultsComponent } from './blocks/search-results/search-results.c
 import { PlayerComponent } from './blocks/player/player.component';
 import { TableComponent } from './blocks/table/table.component';
 import { SettingsComponent } from './blocks/settings/settings.component';
+import { HomeComponent } from './blocks/home/home.component';
 
 export const routes: Routes = [
   { path: 'tvshows', component: TvshowsComponent },
@@ -16,4 +17,5 @@ export const routes: Routes = [
   { path: 'player/:id/:mediaType', component: PlayerComponent },
   { path: 'table', component: TableComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: '', component: HomeComponent },
 ];
