@@ -1,10 +1,14 @@
 import { Component } from '@angular/core';
 import { CarouselComponent } from './carousel/carousel.component';
+import { ContentTabsComponent } from './content-tabs/content-tabs.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CarouselComponent],
+  imports: [
+    CarouselComponent,
+    ContentTabsComponent
+  ],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
