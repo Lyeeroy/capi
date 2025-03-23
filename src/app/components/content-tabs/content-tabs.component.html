@@ -1,8 +1,17 @@
 <div class="container mx-auto px-4 py-8">
-  <h2 class="text-gray-900  text-2xl font-bold mb-4">{{ type === 'movie' ? 'Popular Movies' : 'Popular TV Shows' }} </h2>
-  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" style="grid-template-rows: repeat(2, 1fr);">
+  <!-- <h2 class="text-gray-900 text-2xl font-bold mb-4">
+    {{ type === "movie" ? "Popular Movies" : "Popular TV Shows" }}
+  </h2> -->
+  <div
+    class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4"
+    style="grid-template-rows: repeat(2, 1fr)"
+  >
     <ng-container *ngFor="let data of trending; let i = index">
-      <div *ngIf="i < 9" class="cursor-pointer group relative bg-gray-900 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden aspect-[2/3]" (click)="redirectToPlayer(i)">
+      <div
+        *ngIf="i < 14"
+        class="cursor-pointer group relative bg-gray-900 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden aspect-[2/3]"
+        (click)="redirectToPlayer(i)"
+      >
         <img
           [src]="'https://image.tmdb.org/t/p/w500' + data.poster_path"
           [alt]="data.title || data.name + ' backdrop'"
@@ -14,7 +23,9 @@
           class="absolute bottom-0 left-0 right-0 p-4 space-y-1 bg-gradient-to-t from-black/90 via-black/60 to-transparent"
         >
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-white truncate">{{ data.title || data.name }}</h3>
+            <h3 class="text-lg font-bold text-white truncate">
+              {{ data.title || data.name }}
+            </h3>
             <span
               class="flex items-center px-2 py-1 bg-white/10 rounded-full backdrop-blur-sm"
             >
@@ -27,24 +38,14 @@
                   d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                 />
               </svg>
-              <span class="text-sm font-medium text-white">{{ data.vote_average }}</span>
+              <span class="text-sm font-medium text-white">{{
+                data.vote_average
+              }}</span>
             </span>
           </div>
           <div class="h-[2px] w-8 bg-amber-400 rounded-full opacity-80"></div>
         </div>
       </div>
     </ng-container>
-    <div
-      *ngIf="trending.length > 9"
-      [routerLink]="['/' + (type === 'movie' ? 'movies' : 'tv')]"
-      class="cursor-pointer group relative bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out overflow-hidden aspect-[2/3]"
-    >
-      <div class="w-full h-full flex items-center justify-center p-6">
-        <span class="text-white font-semibold text-lg">Show More</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white ml-2" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-        </svg>
-      </div>
-    </div>
   </div>
 </div>

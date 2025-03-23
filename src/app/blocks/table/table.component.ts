@@ -146,19 +146,19 @@ export class TableComponent {
     let highlighted = url;
     highlighted = highlighted.replace(
       /(#type)/gi,
-      '<span class="bg-orange-100 text-orange-600 px-2 py-1 rounded-full font-semibold text-xs">$1</span>'
+      '<span class="bg-orange-100 text-orange-600 px-1 py-1 rounded font-semibold text-xs">$1</span>'
     );
     highlighted = highlighted.replace(
       /(#id)/gi,
-      '<span class="bg-blue-100 text-blue-600 px-2 py-1 rounded-full font-semibold text-xs">$1</span>'
+      '<span class="bg-blue-100 text-blue-600 px-1 py-1 rounded font-semibold text-xs">$1</span>'
     );
     highlighted = highlighted.replace(
       /(#season)/gi,
-      '<span class="bg-red-100 text-red-600 px-2 py-1 rounded-full font-semibold text-xs">$1</span>'
+      '<span class="bg-red-100 text-red-600 px-1 py-1 rounded font-semibold text-xs">$1</span>'
     );
     highlighted = highlighted.replace(
       /(#episode)/gi,
-      '<span class="bg-green-100 text-green-600 px-2 py-1 rounded-full font-semibold text-xs">$1</span>'
+      '<span class="bg-green-100 text-green-600 px-1 py-1 rounded font-semibold text-xs">$1</span>'
     );
 
     // Bypass Angular's security to safely bind the generated HTML.
