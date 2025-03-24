@@ -1,0 +1,41 @@
+<div
+  class="md:w-3/4 mx-auto px-4 mt-4 mb-2 border flex items-center overflow-x-auto"
+>
+  <button
+    class="p-1 text-gray-300 hover:text-blue-400 transition"
+    (click)="scrollContent(-50)"
+  >
+    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+      <path
+        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+      />
+    </svg>
+  </button>
+  <div class="overflow-hidden relative flex-1">
+    <div #scrollContainer class="overflow-x-hidden whitespace-nowrap h-10">
+      <div class="flex space-x-1">
+        <button
+          *ngFor="let genre of genres"
+          (click)="toggleActive(genre)"
+          [ngClass]="
+            genre.isActive
+              ? 'px-3 py-1 text-sm font-medium text-blue-600 transition'
+              : 'px-3 py-1 text-sm font-medium text-gray-600 hover:text-blue-500 transition'
+          "
+        >
+          {{ genre.name }}
+        </button>
+      </div>
+    </div>
+  </div>
+  <button
+    class="p-1 text-gray-300 hover:text-blue-400 transition"
+    (click)="scrollContent(50)"
+  >
+    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+      <path
+        d="M7.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L10.586 10 7.293 6.707a1 1 0 010-1.414z"
+      />
+    </svg>
+  </button>
+</div>
