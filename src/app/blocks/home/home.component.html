@@ -1,7 +1,36 @@
-<!-- <app-carousel></app-carousel> -->
 <div class="container mx-auto px-4 py-8">
-  <h2 class="text-gray-900 text-2xl font-bold">Popular Movies</h2>
-  <app-content-tabs [type]="'movie'"></app-content-tabs>
-  <h2 class="text-gray-900 text-2xl font-bold mt-8">Popular TV Shows</h2>
-  <app-content-tabs [type]="'tv'"></app-content-tabs>
+  <!-- Hero Section -->
+  <!-- In your home component template -->
+  <app-carousel [type]="'tv'" [itemsPerPage]="3"></app-carousel>
+
+  <!-- Trending Movies -->
+  <h2 class="text-gray-900 text-2xl font-bold mt-8">Trending Movies</h2>
+  <app-content-tabs
+    [type]="'movie'"
+    [apiEndpoint]="'/trending/movie/week'"
+  ></app-content-tabs>
+
+  <!-- Trending TV Shows -->
+  <h2 class="text-gray-900 text-2xl font-bold mt-8">Trending TV Shows</h2>
+  <app-content-tabs
+    [type]="'tv'"
+    [apiEndpoint]="'/trending/tv/week'"
+  ></app-content-tabs>
+
+  <!-- Popular Sci-Fi TV Shows -->
+  <h2 class="text-gray-900 text-2xl font-bold mt-8">Popular Sci-Fi TV Shows</h2>
+  <app-content-tabs
+    [apiEndpoint]="'/discover/tv'"
+    [genreId]="10765"
+    [sortBy]="'popularity.desc'"
+  ></app-content-tabs>
+
+  <!-- Popular Comedy Movies -->
+  <h2 class="text-gray-900 text-2xl font-bold mt-8">Popular Comedy Movies</h2>
+  <app-content-tabs
+    [type]="'movie'"
+    [apiEndpoint]="'/discover/movie'"
+    [genreId]="35"
+    [sortBy]="'popularity.desc'"
+  ></app-content-tabs>
 </div>

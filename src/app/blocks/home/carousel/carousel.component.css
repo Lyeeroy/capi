@@ -1,0 +1,68 @@
+/* src/app/blocks/home/carousel/carousel.component.css */
+.carousel-inner {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  width: calc(100% * var(--items-per-page, 3));
+}
+
+.slide {
+  flex: 0 0 calc(100% / var(--items-per-page, 3));
+  padding: 0 1rem;
+  box-sizing: border-box;
+  min-width: 250px; /* Minimum width for proper layout */
+}
+
+.slide-image {
+  transition: transform 3s ease;
+}
+
+.slide-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1rem;
+  transition: opacity 0.3s ease;
+}
+
+.slide:hover .slide-overlay {
+  opacity: 0.9;
+}
+
+.pagination .active {
+  background-color: white !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  :root {
+    --items-per-page: 1;
+  }
+  .slide {
+    flex: 0 0 100%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --items-per-page: 2;
+  }
+  .slide {
+    flex: 0 0 calc(50%);
+  }
+}
+
+@media (min-width: 1025px) {
+  :root {
+    --items-per-page: 3;
+  }
+  .slide {
+    flex: 0 0 calc(33.333%);
+  }
+}
+
+/* Added hover effect for dots */
+.pagination .dot {
+  background-color: #ddd;
+  transition: background-color 0.3s ease;
+}
+.pagination .dot:hover {
+  background-color: #999;
+}
