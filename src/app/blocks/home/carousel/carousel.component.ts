@@ -2,6 +2,8 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { TmdbService } from '../../../services/tmdb.service';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-carousel',
@@ -10,11 +12,11 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
 })
 export class CarouselComponent implements OnInit, OnDestroy {
-  @Input() type: 'movie' | 'tv' = 'movie'; // Set default to movie
   @Input() itemsPerPage = 3; // Default slides per view
   items: any[] = [];
   currentSlide = 0;
   slideInterval: any;
+  private fetchSubscription: Subscription | null = null;
 
   constructor(private tmdbService: TmdbService) {}
 
@@ -27,15 +29,30 @@ export class CarouselComponent implements OnInit, OnDestroy {
   }
   ngOnDestroy(): void {
     this.stopAutoplay();
+    this.unsubscribeFetch();
   }
 
   fetchData(): void {
-    const endpoint = this.type === 'movie' ? '/movie/popular' : '/tv/popular';
+    const movieEndpoint = '/trending/movie/week';
+    const tvEndpoint = '/trending/tv/week';
 
-    this.tmdbService.fetchFromTmdb(endpoint, {}).subscribe({
-      next: (data) => (this.items = data.results),
+    this.unsubscribeFetch(); // Ensure any previous subscription is cleared
+    this.fetchSubscription = forkJoin(
+      this.tmdbService.fetchFromTmdb(movieEndpoint, {}),
+      this.tmdbService.fetchFromTmdb(tvEndpoint, {})
+    ).subscribe({
+      next: ([movies, tvShows]) => {
+        this.items = movies.results.concat(tvShows.results);
+      },
       error: (err) => console.error('Carousel error:', err),
     });
+  }
+
+  private unsubscribeFetch(): void {
+    if (this.fetchSubscription) {
+      this.fetchSubscription.unsubscribe();
+      this.fetchSubscription = null;
+    }
   }
 
   startAutoplay(): void {

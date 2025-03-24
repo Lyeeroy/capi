@@ -1,68 +1,148 @@
 /* src/app/blocks/home/carousel/carousel.component.css */
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+  margin: 2rem 0;
+  border-radius: 0.5rem;
+}
+
 .carousel-inner {
   display: flex;
   transition: transform 0.5s ease-in-out;
-  width: calc(100% * var(--items-per-page, 3));
+  width: calc(100% * 3); /* Matches itemsPerPage */
 }
 
 .slide {
-  flex: 0 0 calc(100% / var(--items-per-page, 3));
+  flex: 0 0 calc(100% / 3); /* Matches itemsPerPage */
+  position: relative;
   padding: 0 1rem;
   box-sizing: border-box;
-  min-width: 250px; /* Minimum width for proper layout */
+  border-radius: 18px;
+}
+
+.slide-content {
+  position: relative;
+  height: 400px; /* Adjust as needed */
+  overflow: hidden;
 }
 
 .slide-image {
-  transition: transform 3s ease;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+  border-radius: 18px;
 }
 
 .slide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   padding: 1rem;
-  transition: opacity 0.3s ease;
+  border-radius: 18px;
 }
 
-.slide:hover .slide-overlay {
-  opacity: 0.9;
+.slide-info {
+  color: white;
+}
+
+.slide-info h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.slide-info p {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.slide-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.details-btn,
+.watch-now-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: disabled;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.details-btn {
+  background: #333;
+}
+
+.watch-now-btn {
+  background: #121212;
+  cursor: pointer;
+}
+
+.prev-btn,
+.next-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.prev-btn {
+  left: 1rem;
+}
+.next-btn {
+  right: 1rem;
+}
+
+.pagination {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.pagination span {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ddd;
+  margin: 0 5px;
+  cursor: pointer;
 }
 
 .pagination .active {
-  background-color: white !important;
+  background: white;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  :root {
-    --items-per-page: 1;
-  }
   .slide {
     flex: 0 0 100%;
+  }
+
+  .carousel-inner {
+    width: 100%;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-  :root {
-    --items-per-page: 2;
-  }
   .slide {
-    flex: 0 0 calc(50%);
+    flex: 0 0 calc(100% / 2);
   }
-}
 
-@media (min-width: 1025px) {
-  :root {
-    --items-per-page: 3;
+  .carousel-inner {
+    width: calc(100% * 2);
   }
-  .slide {
-    flex: 0 0 calc(33.333%);
-  }
-}
-
-/* Added hover effect for dots */
-.pagination .dot {
-  background-color: #ddd;
-  transition: background-color 0.3s ease;
-}
-.pagination .dot:hover {
-  background-color: #999;
 }
