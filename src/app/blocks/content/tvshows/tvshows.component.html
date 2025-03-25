@@ -1,6 +1,7 @@
 <app-sort-header></app-sort-header>
 
 <app-content-tabs
+  [type]="'tv'"
   [sortBy]="'popularity.desc'"
   [apiEndpoint]="'/trending/tv/week'"
   [tileLimit]="tileLimit"
