@@ -16,7 +16,7 @@ export class ContentTabsComponent implements OnInit, OnDestroy {
   @Input() apiEndpoint?: string;
   @Input() genreId: number = 0;
   @Input() sortBy?: string;
-  @Input() tileLimit: number = 20;
+  @Input() tileLimit: number = 14;
 
   private subscription: Subscription | null = null;
 
