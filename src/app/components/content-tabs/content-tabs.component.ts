@@ -16,46 +16,41 @@ export class ContentTabsComponent implements OnInit, OnDestroy {
   @Input() apiEndpoint?: string;
   @Input() genreId: number = 0;
   @Input() sortBy?: string;
-  @Input() tileLimit: number = 14;
+
+  private _tileLimit = 14;
+  @Input() set tileLimit(value: number) {
+    this._tileLimit = value;
+    this.fetchData();
+  }
 
   private subscription: Subscription | null = null;
 
   constructor(private tmdbService: TmdbService, private router: Router) {}
 
-  ngOnInit() {
-    if (this.trending.length > 0) return;
+  ngOnInit(): void {}
 
-    const endpoint = this.apiEndpoint || `/discover/${this.type}`;
-    const params: { with_genres?: number; sort_by?: string } = {};
-
-    if (this.genreId !== 0) {
-      params.with_genres = this.genreId;
-    }
-    if (this.sortBy) {
-      params.sort_by = this.sortBy;
-    }
-
-    // Calculate optimal number of pages to fetch
-    const itemsPerPage = 20;
-    const pagesNeeded = Math.max(1, Math.ceil(this.tileLimit / itemsPerPage));
-
-    // Create array of page requests
-    const requests = Array.from({ length: pagesNeeded }, (_, i) => i + 1).map(
-      (page) => this.tmdbService.fetchFromTmdb(endpoint, { ...params, page })
-    );
-
-    this.subscription = forkJoin(requests).subscribe((pagesData) => {
-      // Combine results and apply strict limit
-      this.trending = []
-        .concat(...pagesData.map((data) => data.results))
-        .slice(0, this.tileLimit);
-    });
+  ngOnDestroy(): void {
+    this.subscription?.unsubscribe();
   }
 
-  ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+  private fetchData(): void {
+    this.subscription?.unsubscribe();
+    const endpoint = this.apiEndpoint || `/discover/${this.type}`;
+    const params: { with_genres?: number; sort_by?: string } = {};
+    if (this.genreId !== 0) params.with_genres = this.genreId;
+    if (this.sortBy) params.sort_by = this.sortBy;
+    const itemsPerPage = 20;
+    const pagesNeeded = Math.max(1, Math.ceil(this._tileLimit / itemsPerPage));
+    const requests = Array.from({ length: pagesNeeded }, (_, i) =>
+      this.tmdbService.fetchFromTmdb(endpoint, { ...params, page: i + 1 })
+    );
+    this.subscription = forkJoin(requests).subscribe((pagesData) => {
+      const results = pagesData.reduce(
+        (acc, page) => acc.concat(page.results),
+        []
+      );
+      this.trending = results.slice(0, this._tileLimit);
+    });
   }
 
   redirectToPlayer(index: number): void {
@@ -63,7 +58,6 @@ export class ContentTabsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/player', selectedItem.id, this.type]);
   }
 
-  // TrackBy function for optimized list rendering
   trackByFn(index: number, item: any): number {
     return item.id;
   }

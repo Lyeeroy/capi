@@ -1,61 +1,32 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { ContentTabsComponent } from '../../../components/content-tabs/content-tabs.component';
+import { SortHeaderComponent } from '../sort-header/sort-header.component';
 
 @Component({
-  selector: 'app-movies',
+  selector: 'app-tvshows',
   templateUrl: './tvshows.component.html',
   standalone: true,
-  imports: [ContentTabsComponent],
+  imports: [ContentTabsComponent, SortHeaderComponent],
 })
-export class TvshowsComponent {}
+export class TvshowsComponent {
+  tileLimit = 42; // Initial number of items
+  isLoading = false; // To prevent multiple triggers
+  scrollThreshold = 100; // Number of pixels from bottom to trigger load
 
-// import { Component, OnInit } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { TmdbService } from '../../../services/tmdb.service';
-// import { Router } from '@angular/router';
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    if (this.isLoading) return;
 
-// @Component({
-//   selector: 'app-tvshows',
-//   templateUrl: './tvshows.component.html',
-//   imports: [CommonModule],
-// })
-// export class TvshowsComponent implements OnInit {
-//   names: string[] = [];
-//   background: string[] = [];
-//   rating: string[] = [];
-//   ids: number[] = [];
-//   mediaTypes: string[] = [];
-//   IMG_TMDB_URL = 'https://image.tmdb.org/t/p/w500';
+    const nearBottom =
+      window.innerHeight + window.scrollY >=
+      document.body.offsetHeight - this.scrollThreshold;
 
-//   constructor(private tmdbService: TmdbService, private router: Router) {}
-
-//   ngOnInit(): void {
-//     this.tmdbService
-//       .callAPI('https://api.themoviedb.org/3', '/trending/tv/week', 'tv')
-//       .subscribe((response) => {
-//         this.rating = response.results.map(
-//           (result: any) => result.vote_average
-//         );
-//         this.ids = response.results.map((result: any) => result.id);
-//         this.mediaTypes = response.results.map(
-//           (result: any) => result.media_type || 'tv'
-//         );
-
-//         const mediaType = response.results[0]?.media_type;
-//         if (mediaType === 'tv') {
-//           this.names = response.results.map((result: any) => result.name);
-//         } else {
-//           this.names = response.results.map((result: any) => result.title);
-//         }
-//         this.background = response.results.map(
-//           (result: any) => result.poster_path
-//         );
-//       });
-//   }
-
-//   redirectToPlayer(index: number) {
-//     this.router.navigate(['/player', this.ids[index], this.mediaTypes[index]], {
-//       queryParams: { name: this.names[index] }, // Pass the name in the URL
-//     });
-//   }
-// }
+    if (nearBottom) {
+      this.isLoading = true;
+      this.tileLimit += 14; // Increase by same initial amount
+      console.log('Loading more items... tileLimit:', this.tileLimit); //'); // Debugging log
+      // Simulate an API call with a timeout
+      setTimeout(() => (this.isLoading = false), 500); // Reset after 0.5s
+    }
+  }
+}

@@ -8,6 +8,7 @@
   <app-content-tabs
     [type]="'movie'"
     [apiEndpoint]="'/trending/movie/week'"
+    [tileLimit]="14"
   ></app-content-tabs>
 
   <!-- Trending TV Shows -->
@@ -15,6 +16,7 @@
   <app-content-tabs
     [type]="'tv'"
     [apiEndpoint]="'/trending/tv/week'"
+    [tileLimit]="14"
   ></app-content-tabs>
 
   <!-- Popular Sci-Fi TV Shows -->
@@ -25,6 +27,7 @@
     [apiEndpoint]="'/trending/tv/week'"
     [genreId]="10765"
     [sortBy]="'popularity.desc'"
+    [tileLimit]="14"
   ></app-content-tabs>
 
   <!-- Popular Comedy Movies -->
@@ -34,6 +37,7 @@
     [apiEndpoint]="'/trending/movie/week'"
     [genreId]="35"
     [sortBy]="'popularity.desc'"
+    [tileLimit]="14"
   ></app-content-tabs>
   <!-- Popular Action Movies -->
   <h2 class="text-gray-900 text-2xl font-bold mt-8">Popular Action Movies</h2>
@@ -42,5 +46,6 @@
     [apiEndpoint]="'/discover/movie'"
     [genreId]="28"
     [sortBy]="'popularity.desc'"
+    [tileLimit]="14"
   ></app-content-tabs>
 </div>

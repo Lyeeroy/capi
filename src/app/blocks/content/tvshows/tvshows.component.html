@@ -1,1 +1,7 @@
-<app-content-tabs [type]="'tv'"></app-content-tabs>
+<app-sort-header></app-sort-header>
+
+<app-content-tabs
+  [sortBy]="'popularity.desc'"
+  [apiEndpoint]="'/trending/movie/week'"
+  [tileLimit]="tileLimit"
+></app-content-tabs>

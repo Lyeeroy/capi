@@ -1,8 +1,7 @@
-<!-- src/app/blocks/content/movies/movies.component.html -->
 <app-sort-header></app-sort-header>
 
 <app-content-tabs
   [sortBy]="'popularity.desc'"
   [apiEndpoint]="'/trending/movie/week'"
-  [tileLimit]="42"
+  [tileLimit]="tileLimit"
 ></app-content-tabs>
