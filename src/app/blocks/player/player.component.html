@@ -238,7 +238,7 @@
               </div>
 
               <!-- List Layout -->
-              <div *ngIf="layoutType === 'list'" class="space-y-1">
+              <div *ngIf="layoutType === 'list'" class="space-y-1 !important">
                 <div
                   *ngFor="let episode of currentEpisodes; let i = index"
                   (click)="playEpisode(i)"
