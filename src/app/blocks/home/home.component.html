@@ -13,22 +13,22 @@
     <div class="flex">
       <button
         [ngClass]="{
-          'bg-blue-600 text-white': trendingMediaType === 'movie',
+          'bg-gray-600 text-white': trendingMediaType === 'movie',
           'bg-gradient-to-r from-gray-100 to-gray-300 text-gray-700':
             trendingMediaType !== 'movie'
         }"
-        class="mr-3 text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+        class="mr-3 text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer"
         (click)="trendingMediaType = 'movie'"
       >
         Movies
       </button>
       <button
         [ngClass]="{
-          'bg-blue-600 text-white': trendingMediaType === 'tv',
+          'bg-gray-600 text-white': trendingMediaType === 'tv',
           'bg-gradient-to-r from-gray-100 to-gray-300 text-gray-700':
             trendingMediaType !== 'tv'
         }"
-        class="text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+        class="text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer"
         (click)="trendingMediaType = 'tv'"
       >
         TV Shows
@@ -52,22 +52,22 @@
     <div class="flex">
       <button
         [ngClass]="{
-          'bg-blue-600 text-white': discoverMediaType === 'movie',
+          'bg-gray-600 text-white': discoverMediaType === 'movie',
           'bg-gradient-to-r from-gray-100 to-gray-300 text-gray-700':
             discoverMediaType !== 'movie'
         }"
-        class="mr-3 text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+        class="mr-3 text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer"
         (click)="discoverMediaType = 'movie'"
       >
         Movies
       </button>
       <button
         [ngClass]="{
-          'bg-blue-600 text-white': discoverMediaType === 'tv',
+          'bg-gray-600 text-white': discoverMediaType === 'tv',
           'bg-gradient-to-r from-gray-100 to-gray-300 text-gray-700':
             discoverMediaType !== 'tv'
         }"
-        class="text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+        class="text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer"
         (click)="discoverMediaType = 'tv'"
       >
         TV Shows
