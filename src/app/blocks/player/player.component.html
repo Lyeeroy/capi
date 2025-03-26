@@ -238,13 +238,13 @@
               </div>
 
               <!-- List Layout -->
-              <div *ngIf="layoutType === 'list'" class="space-y-1 !important">
+              <div *ngIf="layoutType === 'list'" class="space-y-1">
                 <div
                   *ngFor="let episode of currentEpisodes; let i = index"
                   (click)="playEpisode(i)"
                   [class.bg-gray-200]="i === activeEpisodeIndex"
                   [class.text-gray-900]="i === activeEpisodeIndex"
-                  class="flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer active:bg-gray-200 transition duration-300"
+                  class="mt-1 flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer active:bg-gray-200 transition duration-300"
                 >
                   <div
                     class="font-semibold text-xs text-gray-500 w-7 text-center"
