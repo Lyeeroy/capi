@@ -11,9 +11,6 @@ import { CommonModule } from '@angular/common';
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
-  mediaTypeToDisplay: string = 'movie'; // Default tab
-
-  changeTab(tab: string) {
-    this.mediaTypeToDisplay = tab;
-  }
+  trendingMediaType: string = 'movie'; // Default tab
+  discoverMediaType: string = 'movie'; // Default tab
 }
