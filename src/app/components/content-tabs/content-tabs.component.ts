@@ -1,4 +1,10 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  OnDestroy,
+} from '@angular/core';
 import { TmdbService } from '../../services/tmdb.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
@@ -10,7 +16,7 @@ import { Subscription, forkJoin } from 'rxjs';
   imports: [CommonModule, RouterModule],
   standalone: true,
 })
-export class ContentTabsComponent implements OnInit, OnDestroy {
+export class ContentTabsComponent implements OnChanges, OnDestroy {
   @Input() trending: any[] = [];
   @Input() type: 'movie' | 'tv' = 'movie';
   @Input() apiEndpoint?: string;
@@ -27,15 +33,24 @@ export class ContentTabsComponent implements OnInit, OnDestroy {
 
   constructor(private tmdbService: TmdbService, private router: Router) {}
 
-  ngOnInit(): void {}
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['apiEndpoint'] && changes['apiEndpoint'].currentValue) {
+      console.log('apiEndpoint changed:', changes['apiEndpoint'].currentValue); // Debugging
+      this.fetchData();
+    }
+  }
 
   ngOnDestroy(): void {
     this.subscription?.unsubscribe();
   }
 
   private fetchData(): void {
+    if (!this.apiEndpoint) {
+      return;
+    }
+
     this.subscription?.unsubscribe();
-    const endpoint = this.apiEndpoint || `/discover/${this.type}`;
+    const endpoint = this.apiEndpoint;
     const params: { with_genres?: number; sort_by?: string } = {};
     if (this.genreId !== 0) params.with_genres = this.genreId;
     if (this.sortBy) params.sort_by = this.sortBy;
