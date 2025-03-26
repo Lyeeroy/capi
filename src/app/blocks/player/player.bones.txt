@@ -1,0 +1,101 @@
+<div class="flex">
+  <div>
+    <iframe
+      #iframeElement
+      [src]="iframeUrl"
+      frameborder="0"
+      allowfullscreen
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    ></iframe>
+  </div>
+  <div>
+    <div>
+      <h2>{{ names }}</h2>
+      <div>
+        <button (click)="changeLayout()" title="Change layout">Change Layout</button>
+        <button
+          (click)="ascOrDescSort()"
+          title="Sort order"
+          [class.rotate-180]="!isSortedAscending"
+        >Sort Order</button>
+      </div>
+    </div>
+    <div>
+      <select
+        id="seasonSelect"
+        (change)="onSeasonChange($event)"
+        [(ngModel)]="currentSeason"
+      >
+        <option *ngFor="let season of totalSeasons" [value]="season">
+          Season {{ season }}
+        </option>
+      </select>
+    </div>
+    <div>
+      <div *ngIf="layoutType === 'grid'">
+        <button
+          *ngFor="let episode of currentEpisodes; let i = index"
+          (click)="playEpisode(i)"
+        >
+          {{ episode.number }}
+        </button>
+      </div>
+
+      <div *ngIf="layoutType === 'list'">
+        <div
+          *ngFor="let episode of currentEpisodes; let i = index"
+          (click)="playEpisode(i)"
+          [class.bg-gray-200]="i === activeEpisodeIndex"
+          [class.text-gray-900]="i === activeEpisodeIndex"
+        >
+          <div>EP{{ episode.number }}:</div>
+          <div>{{ episode.name }}</div>
+        </div>
+      </div>
+
+      <div *ngIf="layoutType === 'poster'">
+        <div
+          *ngFor="let episode of currentEpisodes; let i = index"
+          (click)="playEpisode(i)"
+        >
+          <div>
+            <img
+              [src]="
+                currentPosters[i] ||
+                'https://placehold.co/300x200?text=No+Image'
+              "
+              [alt]="episode.name"
+              loading="lazy"
+            />
+            <div>
+              <div>
+                {{ episode.number }}. {{ episode.name }}
+              </div>
+              <div>Click to play →</div>
+            </div>
+            <div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div>
+  <div>
+    <button (click)="prevSource()">Prev Source</button>
+
+    <select (change)="onSourceChange($event)" [(ngModel)]="currentSourceUrl">
+      <option *ngFor="let source of sources" [value]="source.url">
+        {{ source.name }}
+      </option>
+    </select>
+
+    <button (click)="nextSource()">Next Source</button>
+  </div>
+
+  <div>
+    <button (click)="prevEpisode(currentEpisode)">Prev Episode</button>
+
+    <button (click)="nextEpisode(currentEpisode)">Next Episode</button>
+  </div>
+</div>
