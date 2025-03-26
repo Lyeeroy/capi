@@ -37,7 +37,6 @@
   </div>
 
   <app-content-tabs
-    [type]="trendingMediaType === 'movie' ? 'movie' : 'tv'"
     [apiEndpoint]="'/trending/' + trendingMediaType + '/week'"
     [tileLimit]="14"
   ></app-content-tabs>
@@ -75,7 +74,6 @@
     </div>
   </div>
   <app-content-tabs
-    [type]="discoverMediaType === 'movie' ? 'movie' : 'tv'"
     [apiEndpoint]="'/discover/' + discoverMediaType"
     [sortBy]="'popularity.desc'"
     [tileLimit]="14"
