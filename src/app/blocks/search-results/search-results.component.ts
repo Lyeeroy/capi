@@ -3,12 +3,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ContentTabsComponent } from '../../components/content-tabs/content-tabs.component';
+import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 
 @Component({
   selector: 'app-search-results',
   templateUrl: './search-results.component.html',
   standalone: true,
-  imports: [CommonModule, ContentTabsComponent],
+  imports: [CommonModule, ContentTabsComponent, IconLibComponent],
 })
 export class SearchResultsComponent implements OnInit {
   BASE_URL = 'https://api.themoviedb.org/3';

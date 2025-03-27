@@ -10,11 +10,15 @@ import { TmdbService } from '../../services/tmdb.service';
 import { LoadSourcesService } from './player.service';
 import { FormsModule } from '@angular/forms';
 
+// Import SVG icons
+import { IconLibComponent } from '../../svg-icons/icon-lib.component';
+import { IframeComponent } from './iframe/iframe.component';
+
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, IconLibComponent, IframeComponent],
   providers: [LoadSourcesService],
 })
 export class PlayerComponent implements OnInit {
@@ -110,8 +114,9 @@ export class PlayerComponent implements OnInit {
       this.tmdbService
         .callAPI('https://api.themoviedb.org/3', `/tv/${this.id}`, 'tv')
         .subscribe((response) => {
-          if (response?.number_of_seasons) {
-            this.seasonNumber = response.number_of_seasons;
+          this.seasonNumber = response?.number_of_seasons ?? this.seasonNumber;
+          this.names = response?.name ?? this.names;
+          if (this.seasonNumber) {
             this.getAllSeasonData();
           }
         });

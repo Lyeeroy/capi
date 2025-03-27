@@ -1,50 +1,29 @@
-<!-- src/app/blocks/player/player.component.html -->
 <div class="flex flex-col h-screen bg-white">
-  <!-- Main Container -->
   <div class="flex-1 flex flex-col md:flex-row">
-    <!-- Video Section (Top on mobile) -->
     <div class="w-full flex flex-col border-bp-5 space-y-4">
-      <!-- Video Container src="https://www.youtube.com/embed/dQw4w9WgXcQ"-->
       <div class="flex flex-col lg:flex-row gap-4 p-4 md:p-6">
-        <!-- Main Video Container TODO: Finish mobile -->
         <div class="w-full lg:w-3/4 lg:aspect-video rounded-xl">
           <div class="w-full h-full">
-            <ng-container *ngIf="showIframe">
-              <iframe
-                #iframeElement
-                [src]="iframeUrl"
-                class="w-full h-full aspect-video rounded-2xl"
-                frameborder="0"
-                allowfullscreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              ></iframe>
-            </ng-container>
+            <!-- left side (iframe) -->
+            <app-iframe
+              [iframeUrl]="iframeUrl"
+              [showIframe]="true"
+            ></app-iframe>
 
-            <!-- Controls -->
+            <!-- controlls (bottom) -->
             <div class="p-4">
-              <!-- Combined Source and Episode Navigation -->
               <div
                 class="flex flex-col lg:flex-row gap-2 items-center justify-between"
               >
-                <!-- Source Selection and Navigation on the Left -->
                 <div class="flex gap-2 items-center w-full sm:w-auto">
                   <button
                     class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
                     (click)="prevSource()"
                   >
-                    <svg
+                    <app-icon-lib
+                      ico="arrowLeft"
                       class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 19l-7-7 7-7"
-                      />
-                    </svg>
+                    ></app-icon-lib>
                     <span class="hidden sm:inline">Prev</span>
                   </button>
 
@@ -63,42 +42,22 @@
                     (click)="nextSource()"
                   >
                     <span class="hidden sm:inline">Next</span>
-                    <svg
+                    <app-icon-lib
+                      ico="arrowRight"
                       class="w-4 h-4"
-                      fill="none"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    ></app-icon-lib>
                   </button>
                 </div>
 
-                <!-- Episode Navigation on the Right -->
                 <div class="flex gap-2 w-full sm:w-auto justify-center">
                   <button
                     class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
                     (click)="prevEpisode(currentEpisode)"
                   >
-                    <svg
+                    <app-icon-lib
+                      ico="arrowLeft"
                       class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 19l-7-7 7-7"
-                      />
-                    </svg>
+                    ></app-icon-lib>
                     <span class="hidden sm:inline">Prev episode</span>
                   </button>
 
@@ -107,61 +66,25 @@
                     (click)="nextEpisode(currentEpisode)"
                   >
                     <span class="hidden sm:inline">Next episode</span>
-                    <svg
+                    <app-icon-lib
+                      ico="arrowRight"
                       class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    ></app-icon-lib>
                   </button>
                 </div>
-              </div>
-              <!-- Video Description -->
-              <div
-                class="hidden p-4 mt-5 bg-gray-100 w-full rounded-xl border border-gray-200 trxt-gray-900"
-              >
-                <p class="text-gray-900">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum
-                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                  cupidatat non proident, sunt in culpa qui officia deserunt
-                  mollit anim id est laborum. [Show more..]
-                </p>
               </div>
             </div>
           </div>
         </div>
-        <!-- Playlist Container (same height as iframe) -->
+        <!-- right side (playlist) -->
         <div
           class="w-full lg:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 md:h-[calc((100vw_-_2rem)_*_0.75_/_1.7778)]"
         >
-          <!-- Height calculation explanation: -->
-          <!-- (Total width - padding) * 75% (video width) / 16:9 aspect ratio -->
           <div class="flex flex-col h-full p-4">
-            <!-- Playlist Header -->
             <div
               class="flex-none flex justify-between items-center pb-4 border-b border-gray-200"
             >
               <h2 class="text-lg text-gray-900 flex items-center gap-2">
-                <!-- <svg
-                  class="w-5 h-5 text-gray-600"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"
-                  />
-                </svg> -->
                 {{ names }}
               </h2>
               <div class="flex gap-2">
@@ -170,19 +93,7 @@
                   (click)="changeLayout()"
                   title="Change layout"
                 >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
-                  </svg>
+                  <app-icon-lib ico="menu" class="w-5 h-5"></app-icon-lib>
                 </button>
                 <button
                   class="p-2 rounded-full hover:bg-gray-100 transform transition-transform duration-300"
@@ -190,24 +101,11 @@
                   title="Sort order"
                   [class.rotate-180]="!isSortedAscending"
                 >
-                  <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                    />
-                  </svg>
+                  <app-icon-lib ico="sort" class="w-5 h-5"></app-icon-lib>
                 </button>
               </div>
             </div>
 
-            <!-- Season Selector -->
             <div class="flex-none py-4">
               <select
                 id="seasonSelect"
@@ -221,9 +119,7 @@
               </select>
             </div>
 
-            <!-- Scrollable Episodes Area -->
             <div class="flex-1 overflow-y-auto">
-              <!-- Grid Layout -->
               <div
                 *ngIf="layoutType === 'grid'"
                 class="grid grid-cols-6 gap-1.5"
@@ -237,7 +133,6 @@
                 </button>
               </div>
 
-              <!-- List Layout -->
               <div *ngIf="layoutType === 'list'" class="space-y-1">
                 <div
                   *ngFor="let episode of currentEpisodes; let i = index"
@@ -257,7 +152,6 @@
                 </div>
               </div>
 
-              <!-- Poster Layout -->
               <div
                 *ngIf="layoutType === 'poster'"
                 class="grid gap-4 grid-cols-2"
@@ -290,19 +184,10 @@
                     <div
                       class="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-sm"
                     >
-                      <svg
+                      <app-icon-lib
+                        ico="play"
                         class="w-4 h-4 text-gray-800"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                        />
-                      </svg>
+                      ></app-icon-lib>
                     </div>
                   </div>
                 </div>
