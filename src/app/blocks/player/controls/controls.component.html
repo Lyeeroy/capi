@@ -31,7 +31,7 @@
     <div class="flex gap-2 w-full sm:w-auto justify-center">
       <button
         class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
-        (click)="prevEpisode(currentEpisode)"
+        (click)="prevEpisode()"
       >
         <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
         <span class="hidden sm:inline">Prev episode</span>
@@ -39,7 +39,7 @@
 
       <button
         class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
-        (click)="nextEpisode(currentEpisode)"
+        (click)="nextEpisode()"
       >
         <span class="hidden sm:inline">Next episode</span>
         <app-icon-lib ico="arrowRight" class="w-4 h-4"></app-icon-lib>

@@ -1,56 +1,41 @@
-// controls.component.ts
-import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 
 @Component({
   selector: 'app-controls',
-  templateUrl: 'controls.component.html',
-  imports: [CommonModule, FormsModule, IconLibComponent],
+  standalone: true, // Mark the component as standalone
+  templateUrl: './controls.component.html',
+  imports: [FormsModule, IconLibComponent], // Include FormsModule in the imports array
 })
 export class ControlsComponent {
-  @Input() sources: any[] = [];
-  @Input() currentSourceUrl: string = '';
-  @Input() currentEpisode: number = 1;
+  @Input() currentSourceUrl!: string;
+  @Input() sources: { name: string; url: string }[] = [];
+  @Input() currentEpisode: any; // Replace 'any' with the actual type if known
 
-  @Output() sourceChanged = new EventEmitter<string>();
-  @Output() episodeChanged = new EventEmitter<number>();
+  @Output() sourceChange = new EventEmitter<string>();
+  @Output() prevEpisodeClick = new EventEmitter<void>();
+  @Output() nextEpisodeClick = new EventEmitter<void>();
+  @Output() prevSourceClick = new EventEmitter<void>();
+  @Output() nextSourceClick = new EventEmitter<void>();
+
+  onSourceChange(event: any) {
+    this.sourceChange.emit(event.target.value);
+  }
 
   prevSource() {
-    const currentIndex = this.sources.findIndex(
-      (source) => source.url === this.currentSourceUrl
-    );
-    if (currentIndex > 0) {
-      this.currentSourceUrl = this.sources[currentIndex - 1].url;
-      this.sourceChanged.emit(this.currentSourceUrl);
-    }
+    this.prevSourceClick.emit();
   }
 
   nextSource() {
-    const currentIndex = this.sources.findIndex(
-      (source) => source.url === this.currentSourceUrl
-    );
-    if (currentIndex < this.sources.length - 1) {
-      this.currentSourceUrl = this.sources[currentIndex + 1].url;
-      this.sourceChanged.emit(this.currentSourceUrl);
-    }
-  }
-
-  onSourceChange(event: any) {
-    this.currentSourceUrl = event.target.value;
-    this.sourceChanged.emit(this.currentSourceUrl);
+    this.nextSourceClick.emit();
   }
 
   prevEpisode() {
-    if (this.currentEpisode > 1) {
-      this.currentEpisode--;
-      this.episodeChanged.emit(this.currentEpisode);
-    }
+    this.prevEpisodeClick.emit();
   }
 
   nextEpisode() {
-    this.currentEpisode++;
-    this.episodeChanged.emit(this.currentEpisode);
+    this.nextEpisodeClick.emit();
   }
 }

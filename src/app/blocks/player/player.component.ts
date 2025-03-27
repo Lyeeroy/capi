@@ -13,12 +13,19 @@ import { FormsModule } from '@angular/forms';
 // Import SVG icons
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { IframeComponent } from './iframe/iframe.component';
+import { ControlsComponent } from './controls/controls.component';
 
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconLibComponent, IframeComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    IconLibComponent,
+    IframeComponent,
+    ControlsComponent,
+  ],
   providers: [LoadSourcesService],
 })
 export class PlayerComponent implements OnInit {
