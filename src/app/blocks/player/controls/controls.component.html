@@ -28,7 +28,10 @@
       </button>
     </div>
 
-    <div class="flex gap-2 w-full sm:w-auto justify-center">
+    <div
+      class="flex gap-2 w-full sm:w-auto justify-center"
+      *ngIf="mediaType !== 'movie'"
+    >
       <button
         class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
         (click)="prevEpisode()"
@@ -40,6 +43,7 @@
       <button
         class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
         (click)="nextEpisode()"
+        *ngIf="mediaType !== 'movie'"
       >
         <span class="sm:inline">Next episode</span>
         <app-icon-lib ico="arrowRight" class="w-4 h-4"></app-icon-lib>

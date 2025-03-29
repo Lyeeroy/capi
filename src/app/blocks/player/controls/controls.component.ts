@@ -14,6 +14,7 @@ export class ControlsComponent {
   @Input() currentSourceUrl!: string;
   @Input() sources: { name: string; url: string }[] = [];
   @Input() currentEpisode: any; // Replace 'any' with the actual type if known
+  @Input() mediaType: string = '';
 
   @Output() sourceChange = new EventEmitter<string>();
   @Output() prevEpisodeClick = new EventEmitter<void>();
