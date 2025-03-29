@@ -20,25 +20,22 @@
             ></app-controls>
           </div>
         </div>
-        <div
-          class="w-full lg:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 md:h-[calc((100vw_-_2rem)_*_0.75_/_1.7778)]"
-        >
-          <app-playlist
-            *ngIf="mediaType !== 'movie'"
-            [names]="names || ''"
-            [totalSeasons]="totalSeasons"
-            [currentSeason]="currentSeason"
-            [currentEpisodes]="currentEpisodes"
-            [currentPosters]="currentPosters"
-            [layoutType]="layoutType"
-            [isSortedAscending]="isSortedAscending"
-            [activeEpisodeIndex]="activeEpisodeIndex"
-            (seasonChange)="onSeasonChange($event)"
-            (episodeSelected)="playEpisode($event)"
-            (layoutChange)="changeLayout()"
-            (sortToggle)="ascOrDescSort()"
-          ></app-playlist>
-        </div>
+
+        <app-playlist
+          *ngIf="mediaType !== 'movie'"
+          [names]="names || ''"
+          [totalSeasons]="totalSeasons"
+          [currentSeason]="currentSeason"
+          [currentEpisodes]="currentEpisodes"
+          [currentPosters]="currentPosters"
+          [layoutType]="layoutType"
+          [isSortedAscending]="isSortedAscending"
+          [activeEpisodeIndex]="activeEpisodeIndex"
+          (seasonChange)="onSeasonChange($event)"
+          (episodeSelected)="playEpisode($event)"
+          (layoutChange)="changeLayout()"
+          (sortToggle)="ascOrDescSort()"
+        ></app-playlist>
       </div>
     </div>
   </div>
