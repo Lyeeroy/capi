@@ -47,7 +47,7 @@
     </ng-container> -->
 
     <ng-container *ngIf="layoutType === 'list'">
-      <div class="overflow-y-auto max-h-[calc(100vh_-_20rem)] m-40 sm:m-0">
+      <div class="overflow-y-auto max-h-[calc(100vh_-_20rem)]">
         <div
           *ngFor="let episode of currentEpisodes; let i = index"
           (click)="onEpisodeSelected(i)"
