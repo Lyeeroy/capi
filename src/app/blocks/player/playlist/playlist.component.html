@@ -1,0 +1,99 @@
+<div class="flex flex-col h-full p-4">
+  <div
+    class="flex-none flex justify-between items-center pb-4 border-b border-gray-200"
+  >
+    <h2 class="text-lg text-gray-900 flex items-center gap-2">
+      {{ names }}
+    </h2>
+    <div class="flex gap-2">
+      <button
+        class="p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+        (click)="onLayoutChange()"
+        title="Change layout"
+      >
+        <app-icon-lib ico="menu" class="w-5 h-5"></app-icon-lib>
+      </button>
+      <button
+        class="p-2 rounded-full hover:bg-gray-100 transform transition-transform duration-300"
+        (click)="onSortToggle()"
+        title="Sort order"
+        [class.rotate-180]="!isSortedAscending"
+      >
+        <app-icon-lib ico="sort" class="w-5 h-5"></app-icon-lib>
+      </button>
+    </div>
+  </div>
+  <div class="flex-none py-4">
+    <select
+      id="seasonSelect"
+      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+      (change)="onSeasonChange($event)"
+      [(ngModel)]="currentSeason"
+    >
+      <option *ngFor="let season of totalSeasons" [value]="season">
+        Season {{ season }}
+      </option>
+    </select>
+  </div>
+  <div class="flex-1 overflow-y-auto">
+    <div *ngIf="layoutType === 'grid'" class="grid grid-cols-6 gap-1.5">
+      <button
+        *ngFor="let episode of currentEpisodes; let i = index"
+        (click)="onEpisodeSelected(i)"
+        class="cursor-pointer aspect-[1.8] flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition-colors text-xs font-medium text-gray-600 hover:text-gray-900 px-1"
+      >
+        {{ episode.number }}
+      </button>
+    </div>
+    <div *ngIf="layoutType === 'list'" class="space-y-1">
+      <div
+        *ngFor="let episode of currentEpisodes; let i = index"
+        (click)="onEpisodeSelected(i)"
+        [class.bg-gray-200]="i === activeEpisodeIndex"
+        [class.text-gray-900]="i === activeEpisodeIndex"
+        class="mt-1 flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer active:bg-gray-200 transition duration-300"
+      >
+        <div class="font-semibold text-xs text-gray-500 w-7 text-center">
+          EP{{ episode.number }}:
+        </div>
+        <div class="flex-1 min-w-0 text-xs text-gray-700 truncate">
+          {{ episode.name }}
+        </div>
+      </div>
+    </div>
+    <div *ngIf="layoutType === 'poster'" class="grid gap-4 grid-cols-2">
+      <div
+        *ngFor="let episode of currentEpisodes; let i = index"
+        (click)="onEpisodeSelected(i)"
+        class="group relative cursor-pointer transform hover:scale-[1.02] transition-transform duration-300"
+      >
+        <div
+          class="aspect-video bg-gray-100 rounded-lg overflow-hidden shadow-lg relative after:absolute after:inset-0 after:bg-gradient-to-t after:from-black/30 after:to-transparent"
+        >
+          <img
+            [src]="
+              currentPosters[i] || 'https://placehold.co/300x200?text=No+Image'
+            "
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            [alt]="episode.name"
+            loading="lazy"
+          />
+          <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
+            <div class="text-sm font-semibold text-white truncate">
+              {{ episode.number }}. {{ episode.name }}
+            </div>
+            <div class="text-xs text-gray-200 mt-0.5">Click to play →</div>
+          </div>
+          <div
+            class="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-sm"
+          >
+            <app-icon-lib
+              ico="play"
+              class="w-4 h-4 text-gray-800"
+            ></app-icon-lib>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
