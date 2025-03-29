@@ -14,6 +14,7 @@ import { PlaylistComponent } from './playlist/playlist.component';
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
+
   standalone: true,
   imports: [
     CommonModule,

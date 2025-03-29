@@ -2,7 +2,7 @@
   <div class="flex-1 flex flex-col md:flex-row">
     <div class="w-full flex flex-col border-bp-5 space-y-4">
       <div class="flex flex-col lg:flex-row gap-4 p-4 md:p-6">
-        <div class="w-full lg:w-3/4 lg:aspect-video rounded-xl">
+        <div class="w-full lg:w-3/4 rounded-xl">
           <div class="w-full h-full">
             <app-iframe
               [iframeUrl]="iframeUrl"
@@ -20,7 +20,7 @@
             ></app-controls>
           </div>
         </div>
-        <!-- <div
+        <div
           class="w-full lg:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 md:h-[calc((100vw_-_2rem)_*_0.75_/_1.7778)]"
         >
           <app-playlist
@@ -38,7 +38,7 @@
             (layoutChange)="changeLayout()"
             (sortToggle)="ascOrDescSort()"
           ></app-playlist>
-        </div> -->
+        </div>
       </div>
     </div>
   </div>
