@@ -1,6 +1,6 @@
 // src/app/blocks/player/player.component.ts
 
-import { Component, NgModule, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location, CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -45,7 +45,7 @@ export class PlayerComponent implements OnInit {
 
   // Source-related properties
   sources: any = [];
-  currentSourceUrl: string = ''; // Holds the currently selected source URL
+  currentSourceUrl: string = '';
 
   // Episode and season tracking
   currentSeason: number = 1;
@@ -53,7 +53,11 @@ export class PlayerComponent implements OnInit {
 
   // iFrame properties
   iframeUrl: SafeResourceUrl;
-  showIframe: boolean = true; // Flag to force re-creation of the iframe
+  showIframe: boolean = true;
+
+  // Precompile the mapping regex for translateIntoIframe to avoid re-compilation.
+  private mappingRegex: RegExp =
+    /^(https?:\/\/[^\/]+\/)([^\/?]+)\?([^:]+):([^\/]+)(\/.*)$/;
 
   constructor(
     private route: ActivatedRoute,
@@ -72,7 +76,7 @@ export class PlayerComponent implements OnInit {
       this.mediaType = params.get('mediaType');
       this.names = this.route.snapshot.queryParams['name'];
 
-      // Read season and episode from URL
+      // Read season and episode from URL query params.
       const queryParams = this.route.snapshot.queryParams;
       this.currentSeason = queryParams['season']
         ? Number(queryParams['season'])
@@ -83,7 +87,7 @@ export class PlayerComponent implements OnInit {
 
       this.initializeData();
 
-      // Load sources
+      // Load sources asynchronously
       this.loadSourcesService.loadSources().then(() => {
         this.sources = this.loadSourcesService.sources;
         if (this.sources && this.sources.length > 0) {
@@ -148,14 +152,15 @@ export class PlayerComponent implements OnInit {
         (responses) => {
           responses.forEach((response, index) => {
             if (response?.episodes) {
-              this.totalSeasons.push(index + 1);
-              this.episodeNames[index + 1] = response.episodes.map(
+              const seasonNum = index + 1;
+              this.totalSeasons.push(seasonNum);
+              this.episodeNames[seasonNum] = response.episodes.map(
                 (episode: any, episodeIndex: number) => ({
                   number: episodeIndex + 1,
                   name: episode.name,
                 })
               );
-              this.episodePosters[index + 1] = response.episodes.map(
+              this.episodePosters[seasonNum] = response.episodes.map(
                 (episode: any) =>
                   episode.still_path
                     ? `https://image.tmdb.org/t/p/w500${episode.still_path}`
@@ -164,8 +169,8 @@ export class PlayerComponent implements OnInit {
             }
           });
 
-          // Set the initial episodes for season 1.
-          this.updateCurrentEpisodes(this.currentSeason ?? 1); // Pass the season number from URL, if null, default to 1
+          // Set the initial episodes for the current season.
+          this.updateCurrentEpisodes(this.currentSeason);
           this.updateUrl();
         },
         (error) => console.error('Error fetching season data:', error)
@@ -179,8 +184,6 @@ export class PlayerComponent implements OnInit {
   playEpisode(index: number) {
     this.currentEpisode = index + 1;
     this.updateCurrentEpisodes(this.currentSeason);
-
-    // Update URL
     this.updateUrl();
     this.reloadIframe();
   }
@@ -192,58 +195,41 @@ export class PlayerComponent implements OnInit {
   onSeasonChange(event: Event) {
     this.currentSeason = Number((event.target as HTMLSelectElement).value);
     this.updateCurrentEpisodes(this.currentSeason);
-
-    // Update URL
-    // this.updateUrl();
-    // this.reloadIframe();
+    // Optionally update URL or reload the iframe here if needed.
   }
 
   updateUrl() {
     const url = new URL(window.location.href);
     const queryParams = new URLSearchParams(url.search);
-
-    if (this.currentSeason) {
-      queryParams.set('season', this.currentSeason.toString());
-    }
-    if (this.currentEpisode) {
-      queryParams.set('episode', this.currentEpisode.toString());
-    }
-
+    queryParams.set('season', this.currentSeason.toString());
+    queryParams.set('episode', this.currentEpisode.toString());
     const newUrl = `${url.pathname}?${queryParams.toString()}`;
     this.location.replaceState(newUrl);
   }
 
   nextEpisode(index: number) {
-    if (this.currentEpisode === this.currentEpisodes.length) {
-      return;
+    if (this.currentEpisode < this.currentEpisodes.length) {
+      this.currentEpisode = index + 1;
+      this.updateCurrentEpisodes(this.currentSeason);
+      this.updateUrl();
+      this.reloadIframe();
     }
-    this.currentEpisode = index + 1; // highlight active episode
-    this.updateCurrentEpisodes(this.currentSeason);
-
-    // Update URL
-    this.updateUrl();
-
-    this.reloadIframe();
   }
 
   prevEpisode(index: number) {
-    if (this.currentEpisode === 1) {
-      return;
+    if (this.currentEpisode > 1) {
+      this.currentEpisode = index - 1;
+      this.updateCurrentEpisodes(this.currentSeason);
+      this.updateUrl();
+      this.reloadIframe();
     }
-    this.currentEpisode = index - 1;
-    this.updateCurrentEpisodes(this.currentSeason);
-
-    // Update URL
-    this.updateUrl();
-
-    this.reloadIframe();
   }
 
   /**
    * Handles source changes.
    */
-  onSourceChange(event: any) {
-    this.currentSourceUrl = event.target.value;
+  onSourceChange(newSourceUrl: string) {
+    this.currentSourceUrl = newSourceUrl;
     this.reloadIframe();
   }
 
@@ -251,68 +237,51 @@ export class PlayerComponent implements OnInit {
    * Forces the iframe to re-render by toggling its container.
    */
   reloadIframe() {
-    this.highlightActiveEpisode(this.currentEpisode); // highlight active episode
-    this.showIframe = false;
-    // A short delay allows the DOM to update.
+    this.highlightActiveEpisode(this.currentEpisode);
+    // Update iframe URL using the new source before toggling.
     if (this.currentSourceUrl) {
       this.iframeUrl = this.translateIntoIframe(this.currentSourceUrl);
     }
-    this.showIframe = true;
+    // Toggle iframe display to force re-render.
+    this.showIframe = false;
+    // Using a short timeout ensures the DOM registers the change.
+    setTimeout(() => (this.showIframe = true), 0);
   }
 
+  /**
+   * Translates a given source URL into an iframe-friendly URL.
+   */
   translateIntoIframe(url: string): SafeResourceUrl {
-    // Regular expression to match the mapping URL.
-    // Breakdown:
-    //   Group 1: Base URL (e.g., "https://www.2embed.cc/")
-    //   Group 2: The placeholder in the path (e.g., "#type")
-    //   Group 3: Token for tv (e.g., "embed")
-    //   Group 4: Token for movie (e.g., "embedtv")
-    //   Group 5: The rest of the URL (e.g., "/#id&s=#season&e=#episode")
-    const mappingRegex =
-      /^(https?:\/\/[^\/]+\/)([^\/?]+)\?([^:]+):([^\/]+)(\/.*)$/;
-    const match = url.match(mappingRegex);
     let newUrl: string;
+    const match = url.match(this.mappingRegex);
 
     if (match) {
-      const baseUrl = match[1]; // e.g., "https://www.2embed.cc/"
-      const typePlaceholder = match[2]; // e.g., "#type"
-      const tokenTv = match[3]; // e.g., "embed"
-      const tokenMovie = match[4]; // e.g., "embedtv"
-      const restOfUrl = match[5]; // e.g., "/#id&s=#season&e=#episode"
-
-      // Choose replacement based on mediaType:
+      const baseUrl = match[1];
+      const typePlaceholder = match[2];
+      const tokenTv = match[3];
+      const tokenMovie = match[4];
+      const restOfUrl = match[5];
       const replacement = this.mediaType === 'movie' ? tokenMovie : tokenTv;
-
-      // Construct the new URL: replace the type placeholder with the chosen token.
       newUrl = `${baseUrl}${replacement}${restOfUrl}`;
-
-      // Replace the #id placeholder.
       newUrl = newUrl.replace(/#id/g, this.id?.toString() || '');
-
       if (this.mediaType === 'tv') {
-        // For TV, replace season and episode placeholders with actual numbers.
         newUrl = newUrl
-          .replace(/#season/g, this.currentSeason?.toString() || '')
-          .replace(/#episode/g, this.currentEpisode?.toString() || '');
+          .replace(/#season/g, this.currentSeason.toString())
+          .replace(/#episode/g, this.currentEpisode.toString());
       } else {
-        // For movies, remove any season/episode data.
         newUrl = newUrl
-          // Remove query parameters like s, e, season, or episode.
           .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
-          // Remove season/episode segments from the path.
           .replace(/\/(season|episode)\/[^/]+/gi, '')
-          // Remove any remaining placeholders.
           .replace(/#season|#episode/gi, '');
       }
     } else {
-      // Fallback if the URL does not follow the mapping pattern.
       newUrl = url
         .replace(/#type/g, this.mediaType || 'tv')
         .replace(/#id/g, this.id?.toString() || '');
       if (this.mediaType === 'tv') {
         newUrl = newUrl
-          .replace(/#season/g, this.currentSeason?.toString() || '')
-          .replace(/#episode/g, this.currentEpisode?.toString() || '');
+          .replace(/#season/g, this.currentSeason.toString())
+          .replace(/#episode/g, this.currentEpisode.toString());
       } else {
         newUrl = newUrl
           .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
@@ -320,14 +289,9 @@ export class PlayerComponent implements OnInit {
           .replace(/#season|#episode/gi, '');
       }
     }
-
-    // Cleanup: Remove redundant slashes except in the protocol.
-    // This regex finds multiple slashes not preceded by a colon.
+    // Cleanup redundant slashes.
     newUrl = newUrl.replace(/([^:])\/{2,}/g, '$1/');
-
-    // Optionally, remove a trailing slash if it is not needed.
     newUrl = newUrl.replace(/\/+(\?.*)?$/, '$1');
-
     return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
   }
 
@@ -344,7 +308,7 @@ export class PlayerComponent implements OnInit {
   /**
    * Reverses the order of episodes and posters.
    */
-  isSortedAscending = true; // just for 180deg
+  isSortedAscending = true;
   ascOrDescSort() {
     this.currentEpisodes.reverse();
     this.currentPosters.reverse();

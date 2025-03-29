@@ -1,3 +1,4 @@
+// src/app/blocks/player/controls/controls.component.ts
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
