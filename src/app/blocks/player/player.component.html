@@ -1,27 +1,20 @@
 <div class="flex flex-col lg:flex-row gap-4 p-4 md:p-6">
-  <div class="w-full lg:w-3/4 lg:aspect-video rounded-xl">
-    <div class="w-full h-full">
-      <app-iframe
-        [iframeUrl]="iframeUrl"
-        [showIframe]="showIframe"
-      ></app-iframe>
-      <app-controls
-        [mediaType]="mediaType ?? ''"
-        [currentSourceUrl]="currentSourceUrl"
-        [sources]="sources"
-        [currentEpisode]="currentEpisode"
-        (sourceChange)="onSourceChange($event)"
-        (prevEpisodeClick)="prevEpisode(currentEpisode)"
-        (nextEpisodeClick)="nextEpisode(currentEpisode)"
-        (prevSourceClick)="prevSource()"
-        (nextSourceClick)="nextSource()"
-      ></app-controls>
-    </div>
+  <div class="w-full lg:w-3/4 rounded-xl relative flex flex-col">
+    <app-iframe [iframeUrl]="iframeUrl" [showIframe]="showIframe"></app-iframe>
+    <app-controls
+      [mediaType]="mediaType ?? ''"
+      [currentSourceUrl]="currentSourceUrl"
+      [sources]="sources"
+      [currentEpisode]="currentEpisode"
+      (sourceChange)="onSourceChange($event)"
+      (prevEpisodeClick)="prevEpisode(currentEpisode)"
+      (nextEpisodeClick)="nextEpisode(currentEpisode)"
+      (prevSourceClick)="prevSource()"
+      (nextSourceClick)="nextSource()"
+    ></app-controls>
   </div>
-  <!-- *ngIf="mediaType !== 'movie'" cls: md:h-[calc((100vw_-_2rem)_*_0.75_/_1.7778)] TODO: Idk if this is needed, maybe for movies just remove -->
-  <div
-    class="w-full lg:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 md:h-[calc((100vw_-_2rem)_*_0.75_/_1.7778)]"
-  >
+
+  <div class="w-full lg:w-1/4 flex-1">
     <app-playlist
       [names]="names || ''"
       [totalSeasons]="totalSeasons"
@@ -35,7 +28,7 @@
       (episodeSelected)="playEpisode($event)"
       (layoutChange)="changeLayout()"
       (sortToggle)="ascOrDescSort()"
+      class="h-full"
     ></app-playlist>
   </div>
-  <div class="mb-15 sm:mb-0"></div>
 </div>

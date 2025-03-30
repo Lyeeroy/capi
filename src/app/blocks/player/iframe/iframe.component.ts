@@ -9,7 +9,7 @@ import { SafeResourceUrl } from '@angular/platform-browser';
       <iframe
         #iframeElement
         [src]="iframeUrl"
-        class="w-full h-full aspect-video rounded-2xl"
+        class="w-full aspect-video rounded-2xl"
         frameborder="0"
         allowfullscreen
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

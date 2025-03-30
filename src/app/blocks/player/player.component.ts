@@ -276,11 +276,12 @@ export class PlayerComponent implements OnInit {
   }
 
   changeLayout() {
-    this.layoutType =
-      this.layoutType === 'list'
-        ? 'grid'
-        : this.layoutType === 'grid'
-        ? 'poster'
-        : 'list';
+    this.layoutType = this.layoutType === 'list' ? 'grid' : 'list';
+    // this.layoutType =
+    //   this.layoutType === 'list'
+    //     ? 'grid'
+    //     : this.layoutType === 'grid'
+    //     ? 'poster'
+    //     : 'list';
   }
 }
