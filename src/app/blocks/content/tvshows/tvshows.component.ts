@@ -9,24 +9,38 @@ import { SortHeaderComponent } from '../sort-header/sort-header.component';
   imports: [ContentTabsComponent, SortHeaderComponent],
 })
 export class TvshowsComponent {
-  tileLimit = 42; // Initial number of items
-  isLoading = false; // To prevent multiple triggers
-  scrollThreshold = 100; // Number of pixels from bottom to trigger load
+  tileLimit: number = 42;
+  isLoading: boolean = false;
+  scrollThreshold: number = 100;
+  cooldownPeriod: number = 500;
+  lastLoadTime: number = 0;
 
   @HostListener('window:scroll', [])
-  onWindowScroll() {
-    if (this.isLoading) return;
+  onWindowScroll(): void {
+    this.checkScroll();
+  }
 
-    const nearBottom =
-      window.innerHeight + window.scrollY >=
-      document.body.offsetHeight - this.scrollThreshold;
+  checkScroll(): void {
+    window.requestAnimationFrame(() => {
+      const now: number = Date.now();
+      if (this.isLoading || now - this.lastLoadTime < this.cooldownPeriod)
+        return;
+      const scrollPosition: number = window.innerHeight + window.scrollY;
+      const documentHeight: number = document.documentElement.scrollHeight;
+      if (scrollPosition >= documentHeight - this.scrollThreshold) {
+        this.loadMore();
+      }
+    });
+  }
 
-    if (nearBottom) {
-      this.isLoading = true;
-      this.tileLimit += 14; // Increase by same initial amount
-      console.log('Loading more items... tileLimit:', this.tileLimit); //'); // Debugging log
-      // Simulate an API call with a timeout
-      setTimeout(() => (this.isLoading = false), 500); // Reset after 0.5s
-    }
+  loadMore(): void {
+    this.lastLoadTime = Date.now();
+    this.isLoading = true;
+    this.tileLimit += 14;
+    console.log('Loading more items... tileLimit:', this.tileLimit);
+    setTimeout(() => {
+      this.isLoading = false;
+      this.checkScroll();
+    }, this.cooldownPeriod);
   }
 }

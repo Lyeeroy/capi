@@ -6,7 +6,6 @@ import { forkJoin } from 'rxjs';
 import { TmdbService } from '../../services/tmdb.service';
 import { LoadSourcesService } from './player.service';
 import { FormsModule } from '@angular/forms';
-import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { IframeComponent } from './iframe/iframe.component';
 import { ControlsComponent } from './controls/controls.component';
 import { PlaylistComponent } from './playlist/playlist.component';
@@ -19,7 +18,7 @@ import { PlaylistComponent } from './playlist/playlist.component';
   imports: [
     CommonModule,
     FormsModule,
-    IconLibComponent,
+
     IframeComponent,
     ControlsComponent,
     PlaylistComponent,
@@ -100,16 +99,25 @@ export class PlayerComponent implements OnInit {
   }
 
   initializeData() {
-    if (this.mediaType === 'tv' && this.id !== null) {
-      this.tmdbService
-        .callAPI('https://api.themoviedb.org/3', `/tv/${this.id}`, 'tv')
-        .subscribe((response) => {
-          this.seasonNumber = response?.number_of_seasons ?? this.seasonNumber;
-          this.names = response?.name ?? this.names;
-          if (this.seasonNumber) {
-            this.getAllSeasonData();
-          }
-        });
+    if (this.id !== null) {
+      if (this.mediaType === 'tv') {
+        this.tmdbService
+          .callAPI('https://api.themoviedb.org/3', `/tv/${this.id}`, 'tv')
+          .subscribe((response) => {
+            this.seasonNumber =
+              response?.number_of_seasons ?? this.seasonNumber;
+            this.names = response?.name ?? this.names;
+            if (this.seasonNumber) {
+              this.getAllSeasonData();
+            }
+          });
+      } else if (this.mediaType === 'movie') {
+        this.tmdbService
+          .callAPI('https://api.themoviedb.org/3', `/movie/${this.id}`, 'movie')
+          .subscribe((response) => {
+            this.names = response?.title ?? this.names;
+          });
+      }
     }
   }
 
@@ -213,44 +221,42 @@ export class PlayerComponent implements OnInit {
   translateIntoIframe(url: string): SafeResourceUrl {
     let newUrl: string;
     const match = url.match(this.mappingRegex);
+
     if (match) {
-      const baseUrl = match[1];
-      const tokenTv = match[3];
-      const tokenMovie = match[4];
-      const restOfUrl = match[5];
+      const [_, baseUrl, __, tokenTv, tokenMovie, restOfUrl] = match;
       const replacement = this.mediaType === 'movie' ? tokenMovie : tokenTv;
       newUrl = `${baseUrl}${replacement}${restOfUrl}`;
       newUrl = newUrl.replace(/#id/g, this.id?.toString() || '');
-      if (this.mediaType === 'tv') {
-        newUrl = newUrl
-          .replace(/#season/g, this.currentSeason.toString())
-          .replace(/#episode/g, this.currentEpisode.toString());
-      } else {
-        newUrl = newUrl
-          .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
-          .replace(/\/(season|episode)\/[^/]+/gi, '')
-          .replace(/#season|#episode/gi, '');
-      }
     } else {
       newUrl = url
         .replace(/#type/g, this.mediaType || 'tv')
         .replace(/#id/g, this.id?.toString() || '');
-      if (this.mediaType === 'tv') {
-        newUrl = newUrl
-          .replace(/#season/g, this.currentSeason.toString())
-          .replace(/#episode/g, this.currentEpisode.toString());
-      } else {
-        newUrl = newUrl
-          .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
-          .replace(/\/(season|episode)\/[^/]+/gi, '')
-          .replace(/#season|#episode/gi, '');
-      }
     }
-    newUrl = newUrl.replace(/([^:])\/{2,}/g, '$1/');
-    newUrl = newUrl.replace(/\/+(\?.*)?$/, '$1');
+
+    // Handle TV-specific replacements
+    if (this.mediaType === 'tv') {
+      newUrl = newUrl
+        .replace(/#season/g, this.currentSeason.toString())
+        .replace(/#episode/g, this.currentEpisode.toString());
+    } else {
+      // For movies, remove any season/episode references
+      newUrl = newUrl
+        .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
+        .replace(/\/(season|episode)\/[^/]+/gi, '')
+        .replace(/-*(#season|#episode)-*/gi, '')
+        .replace(/--+/g, '-') // Replace multiple consecutive hyphens with single hyphen
+        .replace(/-+$/g, ''); // Remove trailing hyphens
+    }
+
+    // Clean up the URL
+    newUrl = newUrl
+      .replace(/([^:])\/{2,}/g, '$1/') // Fix double slashes
+      .replace(/\/+(\?.*)?$/, '$1') // Remove trailing slashes before query params
+      .replace(/\?+$/, '') // Remove trailing question marks
+      .replace(/-+$/g, ''); // Remove trailing hyphens again (final cleanup)
+
     return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
   }
-
   updateCurrentEpisodes(seasonNumber: number) {
     if (this.episodeNames[seasonNumber] && this.episodePosters[seasonNumber]) {
       this.currentEpisodes = this.episodeNames[seasonNumber];
