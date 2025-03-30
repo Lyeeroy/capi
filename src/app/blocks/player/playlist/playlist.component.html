@@ -34,13 +34,15 @@
     </select>
 
     <ng-container *ngIf="layoutType === 'grid'">
-      <div class="grid grid-cols-6 gap-1.5 mt-4">
+      <div
+        class="grid grid-cols-6 gap-1 mt-4 md:gap-2.5 md:grid-cols-4 lg:gap-1 lg:grid-cols-4 lg:grid-flow-row-dense"
+      >
         <button
           *ngFor="let episode of currentEpisodes; let i = index"
           (click)="onEpisodeSelected(i)"
           [class.bg-gray-200]="i === activeEpisodeIndex"
           [class.text-gray-900]="i === activeEpisodeIndex"
-          class="cursor-pointer aspect-[1.8] flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition text-xs font-medium text-gray-600"
+          class="cursor-pointer flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition p-2 sm:p-3 md:p-4 lg:p-3 text-xs font-medium text-gray-600 sm:text-sm md:text-base lg:text-sm lg:w-full lg:h-auto lg:aspect-auto lg:flex lg:flex-row lg:items-center"
         >
           {{ episode.number }}
         </button>
