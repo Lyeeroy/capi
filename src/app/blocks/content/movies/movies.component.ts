@@ -12,7 +12,7 @@ export class MoviesComponent {
   tileLimit: number = 42;
   isLoading: boolean = false;
   scrollThreshold: number = 100;
-  cooldownPeriod: number = 500;
+  cooldown: number = 500;
   lastLoadTime: number = 0;
 
   @HostListener('window:scroll', [])
@@ -23,8 +23,7 @@ export class MoviesComponent {
   checkScroll(): void {
     window.requestAnimationFrame(() => {
       const now: number = Date.now();
-      if (this.isLoading || now - this.lastLoadTime < this.cooldownPeriod)
-        return;
+      if (this.isLoading || now - this.lastLoadTime < this.cooldown) return;
       const scrollPosition: number = window.innerHeight + window.scrollY;
       const documentHeight: number = document.documentElement.scrollHeight;
       if (scrollPosition >= documentHeight - this.scrollThreshold) {
@@ -41,6 +40,6 @@ export class MoviesComponent {
     setTimeout(() => {
       this.isLoading = false;
       this.checkScroll();
-    }, this.cooldownPeriod);
+    }, this.cooldown);
   }
 }
