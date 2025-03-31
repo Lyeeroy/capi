@@ -9,6 +9,7 @@ import { HighlightSlectedMenuRoute } from './side-bar.service';
 })
 export class SideBarComponent {
   menuItems = [
+    { label: 'Home', route: '', svg: `assets/side-bar/home.svg` },
     {
       label: 'TV Shows',
       route: '/tvshows',
