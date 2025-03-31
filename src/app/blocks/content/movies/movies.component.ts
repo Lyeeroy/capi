@@ -1,18 +1,19 @@
 import { Component, HostListener } from '@angular/core';
 import { ContentTabsComponent } from '../../../components/content-tabs/content-tabs.component';
 import { SortHeaderComponent } from '../sort-header/sort-header.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-tvshows',
   templateUrl: './movies.component.html',
   standalone: true,
-  imports: [ContentTabsComponent, SortHeaderComponent],
+  imports: [ContentTabsComponent, SortHeaderComponent, CommonModule],
 })
 export class MoviesComponent {
   tileLimit: number = 42;
   isLoading: boolean = false;
   scrollThreshold: number = 100;
-  cooldown: number = 500;
+  cooldown: number = 1000;
   lastLoadTime: number = 0;
 
   @HostListener('window:scroll', [])

@@ -2,7 +2,7 @@
   <div class="flex flex-col lg:flex-row gap-2 items-center justify-between">
     <div class="flex gap-2 items-center w-full sm:w-auto">
       <button
-        class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+        class="border border-gray-200 flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-sm flex items-center justify-center gap-1 cursor-pointer"
         (click)="prevSource()"
       >
         <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
@@ -10,7 +10,7 @@
       </button>
 
       <select
-        class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-2 focus:ring-red-500"
+        class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-1 focus:ring-blue-500"
         (change)="onSourceChange($event)"
         [(ngModel)]="currentSourceUrl"
       >
@@ -20,7 +20,7 @@
       </select>
 
       <button
-        class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+        class="border border-gray-200 flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-sm flex items-center justify-center gap-1 cursor-pointer"
         (click)="nextSource()"
       >
         <span class="sm:inline">Next</span>
@@ -33,7 +33,7 @@
       *ngIf="mediaType !== 'movie'"
     >
       <button
-        class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+        class="border border-gray-200 flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-sm flex items-center justify-center gap-1 cursor-pointer"
         (click)="prevEpisode()"
       >
         <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
@@ -41,7 +41,7 @@
       </button>
 
       <button
-        class="flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-sm flex items-center justify-center gap-1"
+        class="border border-gray-200 flex-1 sm:flex-none px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-sm flex items-center justify-center gap-1 cursor-pointer"
         (click)="nextEpisode()"
         *ngIf="mediaType !== 'movie'"
       >

@@ -8,13 +8,13 @@
       <h2 class="text-lg text-gray-900 truncate">{{ names }}</h2>
       <div class="flex gap-2">
         <button
-          class="p-2 rounded-full hover:bg-gray-100"
+          class="p-2 rounded-full hover:bg-gray-100 cursor-pointer active:bg-gray-200"
           (click)="onLayoutChange()"
         >
           <app-icon-lib ico="menu" class="w-5 h-5"></app-icon-lib>
         </button>
         <button
-          class="p-2 rounded-full hover:bg-gray-100"
+          class="p-2 rounded-full hover:bg-gray-100 cursor-pointer active:bg-gray-200"
           (click)="onSortToggle()"
           [class.rotate-180]="!isSortedAscending"
         >
@@ -54,7 +54,7 @@
           *ngFor="let episode of currentEpisodes; let i = index"
           (click)="onEpisodeSelected(i)"
           [class.bg-gray-200]="i === activeEpisodeIndex"
-          class="mt-1 flex items-center gap-2 px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer"
+          class="mt-1 flex items-center gap-2 px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer active:bg-gray-300 transition"
         >
           <span class="text-xs font-semibold text-gray-600 w-10 text-center"
             >EP{{ episode.number }}:</span
