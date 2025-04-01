@@ -1,28 +1,29 @@
-<div class="flex flex-col md:flex-row gap-4 p-4 md:p-6 rounded-lg">
-  <!-- iframe container adjusted for mobile and larger screens -->
-  <div class="w-full md:w-3/4 flex flex-col rounded-lg overflow-hidden">
-    <app-iframe
-      [iframeUrl]="iframeUrl"
-      [showIframe]="showIframe"
-      class="flex-1"
-    ></app-iframe>
-    <app-controls
-      [mediaType]="mediaType ?? ''"
-      [currentSourceUrl]="currentSourceUrl"
-      [sources]="sources"
-      [currentEpisode]="currentEpisode"
-      (sourceChange)="onSourceChange($event)"
-      (prevEpisodeClick)="prevEpisode(currentEpisode)"
-      (nextEpisodeClick)="nextEpisode(currentEpisode)"
-      (prevSourceClick)="prevSource()"
-      (nextSourceClick)="nextSource()"
-      class="w-full mt-2"
-    ></app-controls>
+<div class="flex flex-col lg:flex-row gap-4 p-4 md:p-6">
+  <div class="w-full lg:w-3/4 lg:aspect-video rounded-xl">
+    <div class="w-full h-full">
+      <app-iframe
+        [iframeUrl]="iframeUrl"
+        [showIframe]="showIframe"
+      ></app-iframe>
+
+      <app-controls
+        [currentSourceUrl]="currentSourceUrl"
+        [sources]="sources"
+        [currentEpisode]="currentEpisode"
+        (sourceChange)="onSourceChange($event)"
+        (prevEpisodeClick)="prevEpisode(currentEpisode)"
+        (nextEpisodeClick)="nextEpisode(currentEpisode)"
+        (prevSourceClick)="prevSource()"
+        (nextSourceClick)="nextSource()"
+      ></app-controls>
+    </div>
   </div>
 
-  <!-- Playlist adjusted for mobile and larger screens -->
-  <div class="w-full md:w-1/4 rounded-lg overflow-hidden">
+  <div
+    class="overflow-y-auto w-full lg:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 md:h-[calc((100vw_-_2rem)_*_0.75_/_1.7778)]"
+  >
     <app-playlist
+      *ngIf="mediaType !== 'movie'"
       [names]="names || ''"
       [totalSeasons]="totalSeasons"
       [currentSeason]="currentSeason"
@@ -35,7 +36,6 @@
       (episodeSelected)="playEpisode($event)"
       (layoutChange)="changeLayout()"
       (sortToggle)="ascOrDescSort()"
-      class="h-full mt-2"
     ></app-playlist>
   </div>
 </div>
