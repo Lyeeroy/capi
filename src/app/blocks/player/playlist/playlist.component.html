@@ -1,5 +1,5 @@
 <div
-  class="flex flex-col bg-gray-50 rounded-xl border border-gray-200 overflow-hidden"
+  class="flex flex-col bg-gray-50 rounded-xl border border-gray-200 max-h-[80vh] overflow-y-auto"
 >
   <div class="flex flex-col h-full p-4">
     <div
@@ -22,7 +22,6 @@
         </button>
       </div>
     </div>
-
     <select
       class="mt-4 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500"
       (change)="onSeasonChange($event)"
@@ -32,38 +31,36 @@
         Season {{ season }}
       </option>
     </select>
-
-    <ng-container *ngIf="layoutType === 'grid'">
+    <div
+      [ngClass]="
+        layoutType === 'grid'
+          ? 'grid grid-cols-6 gap-1 mt-4 md:gap-2.5 md:grid-cols-4 lg:gap-1 lg:grid-cols-4 lg:grid-flow-row-dense'
+          : 'overflow-y-auto max-h-[calc(100vh-20rem)] md:max-h-[calc(100vh-14rem)] lg:max-h-[calc(100vh-20rem)] mt-4'
+      "
+    >
       <div
-        class="grid grid-cols-6 gap-1 mt-4 md:gap-2.5 md:grid-cols-4 lg:gap-1 lg:grid-cols-4 lg:grid-flow-row-dense"
+        *ngFor="let episode of currentEpisodes; let i = index"
+        (click)="onEpisodeSelected(i)"
+        [ngClass]="
+          layoutType === 'grid'
+            ? 'cursor-pointer flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition p-2 sm:p-3 md:p-4 lg:p-3 text-xs font-medium text-gray-600 sm:text-sm md:text-base lg:text-sm lg:w-full lg:h-auto lg:aspect-auto lg:flex lg:flex-row lg:items-center'
+            : 'mt-1 flex items-center gap-2 px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer active:bg-gray-300 transition'
+        "
+        [class.bg-gray-200]="i === activeEpisodeIndex"
+        [class.text-gray-900]="i === activeEpisodeIndex"
       >
-        <button
-          *ngFor="let episode of currentEpisodes; let i = index"
-          (click)="onEpisodeSelected(i)"
-          [class.bg-gray-200]="i === activeEpisodeIndex"
-          [class.text-gray-900]="i === activeEpisodeIndex"
-          class="cursor-pointer flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition p-2 sm:p-3 md:p-4 lg:p-3 text-xs font-medium text-gray-600 sm:text-sm md:text-base lg:text-sm lg:w-full lg:h-auto lg:aspect-auto lg:flex lg:flex-row lg:items-center"
-        >
+        <ng-container *ngIf="layoutType === 'grid'; else listTemplate">
           {{ episode.number }}
-        </button>
-      </div>
-    </ng-container>
-    <ng-container *ngIf="layoutType === 'list'">
-      <div class="overflow-y-auto max-h-[70vh] mt-4">
-        <div
-          *ngFor="let episode of currentEpisodes; let i = index"
-          (click)="onEpisodeSelected(i)"
-          [class.bg-gray-200]="i === activeEpisodeIndex"
-          class="mt-1 flex items-center gap-2 px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer active:bg-gray-300 transition"
-        >
+        </ng-container>
+        <ng-template #listTemplate>
           <span class="text-xs font-semibold text-gray-600 w-10 text-center"
             >EP{{ episode.number }}:</span
           >
           <span class="flex-1 text-xs text-gray-700 truncate">{{
             episode.name
           }}</span>
-        </div>
+        </ng-template>
       </div>
-    </ng-container>
+    </div>
   </div>
 </div>
