@@ -1,9 +1,9 @@
-<div class="p-4 bg-gradient-to-b from-gray-50 to-white rounded-xl shadow-sm">
-  <div class="flex flex-col lg:flex-row gap-3 items-center justify-between">
+<div class="p-4">
+  <div class="flex flex-col lg:flex-row gap-2 items-center justify-between">
     <!-- Source Navigation -->
     <div class="flex gap-2 items-center w-full sm:w-auto">
       <button
-        class="border border-gray-300 flex-1 sm:flex-none px-4 py-2 rounded-full bg-white hover:bg-gray-50 active:bg-gray-100 text-sm font-medium flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 hover:shadow-xs active:scale-[0.98]"
+        class="border border-gray-300 flex-1 sm:flex-none px-4 py-2 rounded-full bg-white hover:bg-gray-50 active:bg-gray-100 text-sm font-medium flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 active:scale-[0.98]"
         (click)="prevSource()"
       >
         <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
@@ -11,7 +11,7 @@
       </button>
 
       <select
-        class="w-full sm:w-48 px-4 py-2 rounded-full border border-gray-300 text-sm font-medium focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-shadow cursor-pointer bg-white shadow-xs hover:shadow-sm"
+        class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-1 focus:ring-blue-500"
         (change)="onSourceChange($event)"
         [(ngModel)]="currentSourceUrl"
       >
@@ -21,7 +21,7 @@
       </select>
 
       <button
-        class="border border-gray-300 flex-1 sm:flex-none px-4 py-2 rounded-full bg-white hover:bg-gray-50 active:bg-gray-100 text-sm font-medium flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 hover:shadow-xs active:scale-[0.98]"
+        class="border border-gray-300 flex-1 sm:flex-none px-4 py-2 rounded-full bg-white hover:bg-gray-50 active:bg-gray-100 text-sm font-medium flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 active:scale-[0.98]"
         (click)="nextSource()"
       >
         <span class="sm:inline hidden">Next</span>
@@ -35,7 +35,7 @@
       *ngIf="mediaType !== 'movie'"
     >
       <button
-        class="border border-blue-400 flex-1 sm:flex-none px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-sm font-medium text-blue-600 flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 hover:shadow-xs active:scale-[0.98]"
+        class="border border-blue-400 flex-1 sm:flex-none px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-sm font-medium text-blue-600 flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 active:scale-[0.98]"
         (click)="prevEpisode()"
       >
         <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
@@ -43,7 +43,7 @@
       </button>
 
       <button
-        class="border border-blue-400 flex-1 sm:flex-none px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-sm font-medium text-blue-600 flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 hover:shadow-xs active:scale-[0.98]"
+        class="border border-blue-400 flex-1 sm:flex-none px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-sm font-medium text-blue-600 flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 active:scale-[0.98]"
         (click)="nextEpisode()"
         *ngIf="mediaType !== 'movie'"
       >
