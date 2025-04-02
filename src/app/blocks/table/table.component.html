@@ -1,148 +1,54 @@
-<div
-  class="font-[sans-serif] max-w-full flex flex-col justify-center items-center"
->
+<div class="font-[sans-serif] max-w-full flex flex-col justify-center items-center">
   <div class="flex-1 p-4 w-full lg:w-3/4">
-    <div
-      class="flex flex-col md:flex-row gap-4 mb-4 justify-between items-start"
-    >
-      <!-- Action Buttons Group -->
+    <div class="flex flex-col md:flex-row gap-4 mb-4 justify-between items-start">
       <div class="flex flex-wrap gap-2">
-        <!-- Delete Button -->
         <button
           class="cursor-pointer pl-3 pr-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 transition-colors flex items-center gap-2 border border-red-200"
           (click)="isYnOpenDelete = true"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
           </svg>
           Delete All
         </button>
-
-        <!--  confirm to delete all -->
-        <!-- <div
-          *ngIf="showConfirmation"
-          class="fixed inset-0 z-50 grid place-items-center backdrop-blur-sm bg-black/20 animate-fade-in"
-        >
-          <div
-            class="bg-white/95 backdrop-blur-lg p-6 rounded-xl shadow-xl border border-gray-100/50 transition-all animate-scale-in"
-          >
-            <p class="text-gray-900 font-medium text-xl mb-4 text-center">
-              Are you sure you want to delete all sources?
-            </p>
-            <div class="flex justify-center space-x-3">
-              <button
-                class="cursor-pointer px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-all active:scale-95 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                (click)="confirmDelete()"
-              >
-                Delete
-              </button>
-              <button
-                class="cursor-pointer px-5 py-2.5 rounded-lg font-medium transition-all bg-transparent hover:bg-gray-100 text-gray-600 hover:text-gray-800 border-2 border-gray-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-                (click)="cancelDelete()"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div> -->
-
-        <!-- Save Button -->
         <button
           class="cursor-pointer pl-3 pr-4 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors flex items-center gap-2 border border-blue-200"
           (click)="saveData()"
         >
-          <!-- steady save button -->
           <span class="flex items-center gap-2" [class.hidden]="isSaving">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-width="2"
-            >
-              <path
-                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8" />
             </svg>
             Save Data
           </span>
-          <!-- fake isSaving button -->
           <span class="flex items-center gap-2" [class.hidden]="!isSaving">
-            <div
-              class="flex items-center justify-center rounded-lg bg-transparent w-5 h-5 ml-2"
-            >
+            <div class="flex items-center justify-center rounded-lg bg-transparent w-5 h-5 ml-2">
               <div role="status">
-                <svg
-                  aria-hidden="true"
-                  class="w-5 h-5 text-transparent animate-spin fill-blue-600"
-                  viewBox="0 0 100 101"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                    fill="currentFill"
-                  />
+                <svg aria-hidden="true" class="w-5 h-5 text-transparent animate-spin fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
+                  <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
                 </svg>
                 <span class="sr-only">Saving...</span>
               </div>
             </div>
-            <p>Saving...</p>
+            Saving...
           </span>
         </button>
-
-        <!-- Quick Edit Dropdown -->
         <div class="relative">
-          <!-- Button (Hover for desktop, Click for mobile) -->
           <button
             (mouseenter)="showMenu()"
             (mouseleave)="hideMenu()"
             (click)="toggleMenu($event)"
             class="cursor-pointer pl-3 pr-4 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors flex items-center gap-2 border border-emerald-200"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
             </svg>
             Quick Actions
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4 ml-1"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
             </svg>
           </button>
-
-          <!-- Dropdown Menu -->
           <div
             *ngIf="isMenuOpen"
             (mouseenter)="showMenu()"
@@ -151,36 +57,14 @@
             class="absolute mt-1 w-48 bg-white border rounded-lg z-10"
           >
             <div class="p-2 text-sm text-gray-700">
-              <!-- <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
-                Delete Selected
-              </div> -->
-              <!-- spacer -->
-              <div
-                class="p-2 hover:bg-gray-50 rounded-md cursor-pointer"
-                (click)="editAllSources()"
-              >
-                Edit All
-              </div>
-              <div
-                class="p-2 hover:bg-gray-50 rounded-md cursor-pointer"
-                (click)="isImportModalOpen = true"
-              >
-                Import Data
-              </div>
-              <div
-                class="p-2 hover:bg-gray-50 rounded-md cursor-pointer"
-                (click)="isExportModalOpen = true"
-              >
-                Export Data
-              </div>
+              <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer" (click)="editAllSources()">Edit All</div>
+              <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer" (click)="isImportModalOpen = true">Import Data</div>
+              <div class="p-2 hover:bg-gray-50 rounded-md cursor-pointer" (click)="isExportModalOpen = true">Export Data</div>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Filter & Search Group -->
       <div class="flex gap-2 w-full md:w-auto">
-        <!-- Search Input -->
         <div class="relative flex-1 md:w-full">
           <input
             type="search"
@@ -189,61 +73,25 @@
             [(ngModel)]="searchInput"
             (ngModelChange)="searchInObject()"
           />
-          <svg
-            class="absolute left-3 top-3 w-4 h-4 text-gray-400"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 20 20"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-            />
+          <svg class="absolute left-3 top-3 w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
           </svg>
         </div>
       </div>
     </div>
-
-    <div class="rounded-lg">
-      <table class="w-full bg-white">
+    <div class="rounded-lg overflow-auto"> <table class="w-full bg-white">
         <thead class="bg-gray-50 hidden md:table-header-group">
           <tr class="align-middle">
             <th class="p-3 w-[5%]"></th>
             <th class="p-3 w-[5%]">
-              <input
-                (click)="selectAll()"
-                type="checkbox"
-                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
+              <input (click)="selectAll()" type="checkbox" class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
             </th>
-            <th
-              class="p-4 text-left text-sm font-semibold text-gray-600 w-[30%] min-w-[200px]"
-            >
-              Name
-            </th>
-            <th
-              class="p-4 text-left text-sm font-semibold text-gray-600 hidden md:table-cell w-[40%]"
-            >
-              URL
-            </th>
-            <th
-              class="p-4 text-left text-sm font-semibold text-gray-600 w-[12%]"
-            >
-              Active
-            </th>
-            <th
-              class="p-4 text-right text-sm font-semibold text-gray-600 w-[8%]"
-            >
-              Actions
-            </th>
+            <th class="p-4 text-left text-sm font-semibold text-gray-600 w-[30%] min-w-[200px]">Name</th>
+            <th class="p-4 text-left text-sm font-semibold text-gray-600 hidden md:table-cell w-[40%]">URL</th>
+            <th class="p-4 text-left text-sm font-semibold text-gray-600 w-[12%]">Active</th>
+            <th class="p-4 text-right text-sm font-semibold text-gray-600 w-[8%]">Actions</th>
           </tr>
         </thead>
-
-        <!-- Add Section -->
         <tbody>
           <tr>
             <td colspan="6" class="p-1.5 sm:p-2">
@@ -253,24 +101,11 @@
                 (click)="startAdd()"
               >
                 <div class="flex items-center justify-center h-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-10 w-10 text-gray-400 hover:text-blue-500 sm:h-8 sm:w-8"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    />
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400 hover:text-blue-500 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
               </div>
-
-              <!-- Add Form -->
               <div
                 *ngIf="isAdding"
                 class="border-2 border-dashed border-blue-200 rounded-lg bg-blue-50 p-3"
@@ -291,23 +126,9 @@
                     (keyup.enter)="confirmAdd()"
                   />
                   <div class="flex gap-2 ml-auto">
-                    <button
-                      type="button"
-                      class="p-1.5 text-gray-600 rounded-md transition-colors"
-                      (click)="cancelAdd()"
-                      aria-label="Cancel"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
-                        <path
-                          d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                        />
+                    <button type="button" class="p-1.5 text-gray-600 rounded-md transition-colors" (click)="cancelAdd()" aria-label="Cancel">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                       </svg>
                     </button>
                     <button
@@ -317,15 +138,7 @@
                       [disabled]="newUrl === ''"
                       aria-label="Add"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke="currentColor"
-                        stroke-width="2"
-                      >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
                     </button>
@@ -335,64 +148,31 @@
             </td>
           </tr>
         </tbody>
-
-        <!-- Source List -->
         <tbody
           class="divide-y divide-gray-200"
           cdkDropList
           (cdkDropListDropped)="onDrop($any($event))"
         >
-          <ng-container
-            *ngFor="let source of searchInObject(); trackBy: trackById"
-          >
-            <tr
-              class="hidden md:table-row hover:bg-gray-50 active:bg-gray-100"
-              cdkDrag
-            >
-              <td
-                class="p-3 text-gray-400 hidden md:table-cell align-middle"
-                cdkDragHandle
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6 cursor-move touch:p-1 mx-auto"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
+          <ng-container *ngFor="let source of searchInObject(); trackBy: trackById">
+            <tr class="hidden md:table-row hover:bg-gray-50 active:bg-gray-100" cdkDrag>
+              <td class="p-3 text-gray-400 hidden md:table-cell align-middle" cdkDragHandle>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-move touch:p-1 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </td>
               <td class="align-middle hidden md:table-cell">
-                <input
-                  type="checkbox"
-                  [checked]="isSelected"
-                  class="hidden w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch:w-5 touch:h-5 md:block mx-auto"
-                />
+                <input type="checkbox" [checked]="isSelected" class="hidden w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch:w-5 touch:h-5 md:block mx-auto" />
               </td>
               <td class="p-3 align-middle">
                 <div class="flex items-center gap-3 md:w-auto">
                   <img
-                    src="https://www.google.com/s2/favicons?sz=64&domain={{
-                      getDisplayName(source)
-                    }}"
+                    src="https://www.google.com/s2/favicons?sz=64&domain={{ getDisplayName(source) }}"
                     class="w-12 h-12 rounded-full sm:w-10 sm:h-10 hidden md:block"
                     alt="Placeholder"
                   />
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
-                      <div *ngIf="!source.isEditing">
-                        {{
-                          source.name === ""
-                            ? getDisplayName(source)
-                            : source.name
-                        }}
-                      </div>
+                      <div *ngIf="!source.isEditing">{{ source.name === "" ? getDisplayName(source) : source.name }}</div>
                       <input
                         *ngIf="source.isEditing"
                         name="name"
@@ -426,12 +206,7 @@
               </td>
               <td class="p-3 hidden md:table-cell align-middle">
                 <label class="relative inline-block w-12 h-6 mx-auto">
-                  <input
-                    type="checkbox"
-                    class="sr-only peer"
-                    [checked]="source.enabled"
-                    (change)="toggleSource(source)"
-                  />
+                  <input type="checkbox" class="sr-only peer" [checked]="source.enabled" (change)="toggleSource(source)" />
                   <div
                     class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
                   ></div>
@@ -439,18 +214,8 @@
               </td>
               <td class="p-3 hidden md:table-cell align-middle">
                 <div class="flex items-center justify-end gap-2">
-                  <button
-                    class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full"
-                    (click)="editSource(source)"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-6 w-6"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
+                  <button class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full" (click)="editSource(source)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path
                         *ngIf="!source.isEditing"
                         d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
@@ -458,21 +223,9 @@
                       <path *ngIf="source.isEditing" d="M20 6L9 17l-5-5" />
                     </svg>
                   </button>
-                  <button
-                    class="p-1.5 text-red-600 hover:bg-red-100 rounded-full"
-                    (click)="removeSource(source.id)"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-6 w-6"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <path
-                        d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                      />
+                  <button class="p-1.5 text-red-600 hover:bg-red-100 rounded-full" (click)="removeSource(source.id)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                     </svg>
                   </button>
                 </div>
@@ -484,39 +237,17 @@
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
                       <div class="flex-shrink-0" cdkDragHandle>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-6 w-6 text-gray-400 cursor-move"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16"
-                          />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 cursor-move" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                       </div>
                       <img
-                        src="https://www.google.com/s2/favicons?sz=64&domain={{
-                          getDisplayName(source)
-                        }}"
+                        src="https://www.google.com/s2/favicons?sz=64&domain={{ getDisplayName(source) }}"
                         class="w-10 h-10 rounded-full flex-shrink-0"
                         alt="Favicon"
                       />
                       <div class="flex-1">
-                        <div
-                          *ngIf="!source.isEditing"
-                          class="text-lg font-medium break-words"
-                        >
-                          {{
-                            source.name === ""
-                              ? getDisplayName(source)
-                              : source.name
-                          }}
-                        </div>
+                        <div *ngIf="!source.isEditing" class="text-lg font-medium break-words">{{ source.name === "" ? getDisplayName(source) : source.name }}</div>
                         <input
                           *ngIf="source.isEditing"
                           name="name"
@@ -529,17 +260,11 @@
                       </div>
                     </div>
                     <div>
-                      <input
-                        type="checkbox"
-                        [checked]="isSelected"
-                        class="w-5 h-5 text-blue-600 border-gray-300 rounded"
-                      />
+                      <input type="checkbox" [checked]="isSelected" class="w-5 h-5 text-blue-600 border-gray-300 rounded" />
                     </div>
                   </div>
                   <div class="flex flex-col gap-3">
-                    <div
-                      class="flex items-center justify-between border-b border-gray-200 pb-2"
-                    >
+                    <div class="flex items-center justify-between border-b border-gray-200 pb-2">
                       <input
                         *ngIf="source.isEditing"
                         name="url"
@@ -552,54 +277,24 @@
                     </div>
                     <div class="flex items-center justify-between">
                       <label class="relative inline-block w-12 h-6">
-                        <input
-                          type="checkbox"
-                          class="sr-only peer"
-                          [checked]="source.enabled"
-                          (click)="toggleSource(source)"
-                        />
+                        <input type="checkbox" class="sr-only peer" [checked]="source.enabled" (click)="toggleSource(source)" />
                         <div
                           class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
                         ></div>
                       </label>
                       <div class="flex gap-2">
-                        <button
-                          class="p-2 text-blue-600 bg-blue-100 rounded-full"
-                          (click)="editSource(source)"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                          >
+                        <button class="p-2 text-blue-600 bg-blue-100 rounded-full" (click)="editSource(source)">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path
                               *ngIf="!source.isEditing"
                               d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7m-1.414-9.414a2 2 0 1 1 2.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                             />
-                            <path
-                              *ngIf="source.isEditing"
-                              d="M20 6L9 17l-5-5"
-                            />
+                            <path *ngIf="source.isEditing" d="M20 6L9 17l-5-5" />
                           </svg>
                         </button>
-                        <button
-                          class="p-2 text-red-600 bg-red-100 rounded-full"
-                          (click)="removeSource(source.id)"
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                          >
-                            <path
-                              d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                            />
+                        <button class="p-2 text-red-600 bg-red-100 rounded-full" (click)="removeSource(source.id)">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                           </svg>
                         </button>
                       </div>
@@ -612,131 +307,25 @@
         </tbody>
       </table>
     </div>
-    <div
-      class="flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm sm:text-base"
-    >
+    <div class="flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm sm:text-base">
       <p class="text-sm text-gray-700">
-        Note: Data are being stored on your browser's local storage. This means
-        that all data will be lost if you clear your browser's local storage or
-        use a different browser.
+        Note: Data are being stored on your browser's local storage. This means that all data will be lost if you clear your browser's local storage or use a different browser.
       </p>
-      <!-- <div class="flex flex-wrap gap-2">
-        <button
-          class="px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-        >
-          1
-        </button>
-        <button class="px-3 py-1 rounded-md hover:bg-gray-100">2</button>
-        <button class="px-3 py-1 rounded-md hover:bg-gray-100">3</button>
-        <button class="px-3 py-1 rounded-md hover:bg-gray-100">Next</button>
-      </div> -->
     </div>
   </div>
-
-  <!-- <div
-    *ngIf="isModalVisible"
-    class="fixed z-10 inset-0 overflow-y-auto"
-    aria-labelledby="modal-title"
-    role="dialog"
-    aria-modal="true"
-  >
-    <div
-      class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
-    >
-      <div
-        class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-        aria-hidden="true"
-      ></div>
-      <span
-        class="hidden sm:inline-block sm:align-middle sm:h-screen"
-        aria-hidden="true"
-        >&#8203;</span
-      >
-      <div
-        class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-      >
-        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-          <div class="sm:flex sm:items-start">
-            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3
-                class="text-lg leading-6 font-medium text-gray-900"
-                id="modal-title"
-              >
-                {{ isAdding ? "Add New Source" : "Edit Source" }}
-              </h3>
-            </div>
-          </div>
-          <div class="mt-2">
-            <form>
-              <div class="mb-4">
-                <label
-                  for="sourceName"
-                  class="block text-gray-700 text-sm font-bold mb-2"
-                  >Name:</label
-                >
-                <input
-                  type="text"
-                  id="sourceName"
-                  [(ngModel)]="newSource.name"
-                  name="sourceName"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Source Name"
-                />
-              </div>
-              <div class="mb-4">
-                <label
-                  for="sourceUrl"
-                  class="block text-gray-700 text-sm font-bold mb-2"
-                  >URL:</label
-                >
-                <input
-                  type="text"
-                  id="sourceUrl"
-                  [(ngModel)]="newSource.url"
-                  name="sourceUrl"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="https://example.com"
-                />
-              </div>
-            </form>
-          </div>
-        </div>
-        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-          <button
-            type="button"
-            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-            (click)="saveSource()"
-          >
-            Save
-          </button>
-          <button
-            type="button"
-            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            (click)="closeModal()"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  </div> -->
 </div>
-
-<!-- delete modal (Yn Child)-->
 <app-yn-modal
   [(isYnOpen)]="isYnOpenDelete"
   [title]="YnTitleDelete"
   [message]="YnMessageDelete"
   (answerEvent)="handleYnAnswerForDeleteSources($event)"
 ></app-yn-modal>
-<!-- export modal -->
 <app-export
   [isExportModalOpen]="isExportModalOpen"
   [sources]="sources"
   (isExportModalOpenEvent)="isExportModalOpen = $event"
   (isExportModalOpenChange)="isExportModalOpen = $event"
 ></app-export>
-<!-- import modal TODO-->
 <app-import
   [isImportModalOpen]="isImportModalOpen"
   [sources]="sources"
