@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { IframeComponent } from './iframe/iframe.component';
 import { ControlsComponent } from './controls/controls.component';
 import { PlaylistComponent } from './playlist/playlist.component';
+import { PlayerHeader } from './player-header/player-header.component';
 
 @Component({
   selector: 'app-player',
@@ -18,7 +19,7 @@ import { PlaylistComponent } from './playlist/playlist.component';
   imports: [
     CommonModule,
     FormsModule,
-
+    PlayerHeader,
     IframeComponent,
     ControlsComponent,
     PlaylistComponent,
