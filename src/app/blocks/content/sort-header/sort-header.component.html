@@ -1,13 +1,39 @@
-<div class="container mx-auto px-3 py-4 mt-3 border border-gray-200 bg-gray-50 rounded-lg">
-  <h3 class="text-gray-700 font-bold mb-2">Genres</h3>
-  <div class="flex flex-wrap gap-2">
-    <!-- Dynamic genre list based on mediaType -->
-    <button
-      (click)="onGenreSelected(genre)"
-      *ngFor="let genre of filteredGenres"
-      class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out cursor-pointer"
-    >
-      {{ genre }}
-    </button>
+<div class="container mx-auto px-4 py-6 border-b border-gray-200 mt-4 mb-4">
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <!-- Genre Filter Section -->
+    <div class="space-y-3">
+      <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Genres</h3>
+      <select 
+        (change)="onGenreSelected(genreSelect.value)"
+        #genreSelect
+        class="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        <option value="" disabled selected>Select a genre</option>
+        <option 
+          *ngFor="let genre of filteredGenres" 
+          [value]="genre"
+          class="bg-white"
+        >
+          {{ genre }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Sort Filter Section -->
+    <div class="space-y-3">
+      <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">Sort By</h3>
+      <select 
+        (change)="onSortSelected(sortSelect.value)"
+        #sortSelect
+        class="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      >
+        <option value="" disabled selected>Sort results</option>
+        <option value="popularity.desc">Popularity (High to Low)</option>
+        <option value="popularity.asc">Popularity (Low to High)</option>
+        <option value="vote_average.desc">Rating (High to Low)</option>
+        <option value="vote_average.asc">Rating (Low to High)</option>
+        <option value="release_date.desc">Release Date (Newest)</option>
+      </select>
+    </div>
   </div>
 </div>

@@ -1,10 +1,11 @@
 <app-sort-header
   [mediaType]="'movie'"
   (genreId)="onGenreId($event)"
+  (sortParam)="onSortBy($event)"
 ></app-sort-header>
 
 <app-content-tabs
-  [sortBy]="'popularity.desc'"
+  [sortBy]="sortValue"
   
   [apiEndpoint]="'/discover/movie'"
   [tileLimit]="tileLimit"

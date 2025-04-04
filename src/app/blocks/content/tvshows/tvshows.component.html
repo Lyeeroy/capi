@@ -2,11 +2,11 @@
 <app-sort-header
   [mediaType]="'tv'"
   (genreId)="onGenreId($event)"
+  (sortParam)="onSortBy($event)"
 ></app-sort-header>
 
 <app-content-tabs
-  [sortBy]="'popularity.desc'"
-  
+  [sortBy]="sortValue"
   [apiEndpoint]="'/discover/tv'"
   [tileLimit]="tileLimit"
   [genreId]="genreId"

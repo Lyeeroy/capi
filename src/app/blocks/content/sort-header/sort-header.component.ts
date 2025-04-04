@@ -1,15 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-sort-header',
   templateUrl: './sort-header.component.html',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   standalone: true
 })
 export class SortHeaderComponent {
   @Input() mediaType: 'movie' | 'tv' = 'movie';
   @Output() genreId = new EventEmitter<number>();
+  @Output() sortParam = new EventEmitter<string>();
+
 
   private readonly movieGenreMap = {
     'Action': 28,
@@ -70,5 +73,12 @@ export class SortHeaderComponent {
     } else {
       console.warn(`Unknown ${this.mediaType} genre: ${genre}`);
     }
+  }
+
+  
+  // New method for sort selection
+  onSortSelected(sortValue: string) {
+    this.sortParam.emit(sortValue);
+    console.log(`Selected sort: ${sortValue}`);
   }
 }

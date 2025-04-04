@@ -17,6 +17,7 @@ export class TvshowsComponent {
   lastLoadTime: number = 0;
 
   genreId: number = 0;
+  sortValue: string = '';
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
@@ -37,6 +38,11 @@ export class TvshowsComponent {
   onGenreId(genreId: number) {
     this.genreId = genreId;
   }
+  
+  onSortBy(sortValue: string) {
+    this.sortValue = sortValue;
+  }
+
   loadMore(): void {
     this.lastLoadTime = Date.now();
     this.isLoading = true;
