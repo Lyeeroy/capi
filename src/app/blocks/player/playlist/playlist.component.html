@@ -42,8 +42,16 @@
     <ng-container *ngIf="layoutType === 'list'">
       <div
         *ngFor="let episode of currentEpisodes; let i = index"
-        (click)="onEpisodeSelected(i)"
-        [class.bg-gray-200]="i === activeEpisodeIndex"
+        (click)="
+          onEpisodeSelected(
+            isSortedAscending ? i : currentEpisodes.length - i - 1
+          )
+        "
+        [class.bg-gray-200]="
+          isSortedAscending
+            ? i === activeEpisodeIndex
+            : currentEpisodes.length - i - 1 === activeEpisodeIndex
+        "
         class="mt-1 flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-300"
       >
         <div class="font-semibold text-xs text-gray-700 w-7 text-center">
