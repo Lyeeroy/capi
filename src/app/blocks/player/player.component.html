@@ -22,6 +22,7 @@
         [currentSourceUrl]="currentSourceUrl"
         [sources]="sources"
         [currentEpisode]="currentEpisode"
+        [mediaType]="mediaType ?? 'tv'"
         (sourceChange)="onSourceChange($event)"
         (prevEpisodeClick)="prevEpisode(currentEpisode)"
         (nextEpisodeClick)="nextEpisode(currentEpisode)"
@@ -33,9 +34,9 @@
 
   <div
     class="w-full lg:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 lg:aspect-video"
-  >
+    *ngIf="mediaType !== 'movie'"
+    >
     <app-playlist
-      *ngIf="mediaType !== 'movie'"
       [names]="names || ''"
       [totalSeasons]="totalSeasons"
       [currentSeason]="currentSeason"
