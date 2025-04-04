@@ -16,6 +16,8 @@ export class TvshowsComponent {
   cooldown: number = 1000;
   lastLoadTime: number = 0;
 
+  genreId: number = 0;
+
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
     this.checkScroll();
@@ -32,7 +34,9 @@ export class TvshowsComponent {
       }
     });
   }
-
+  onGenreId(genreId: number) {
+    this.genreId = genreId;
+  }
   loadMore(): void {
     this.lastLoadTime = Date.now();
     this.isLoading = true;

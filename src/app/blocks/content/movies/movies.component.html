@@ -1,9 +1,14 @@
-<app-sort-header></app-sort-header>
+<app-sort-header
+  [mediaType]="'movie'"
+  (genreId)="onGenreId($event)"
+></app-sort-header>
 
 <app-content-tabs
   [sortBy]="'popularity.desc'"
-  [apiEndpoint]="'/trending/movie/week'"
+  
+  [apiEndpoint]="'/discover/movie'"
   [tileLimit]="tileLimit"
+  [genreId]="genreId"
 ></app-content-tabs>
 
 <div

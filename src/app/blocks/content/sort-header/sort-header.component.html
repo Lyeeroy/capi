@@ -1,11 +1,10 @@
-<div
-  class="hidden container mx-auto px-3 py-4 mt-3 border border-gray-200 bg-gray-50 rounded-lg"
->
+<div class="container mx-auto px-3 py-4 mt-3 border border-gray-200 bg-gray-50 rounded-lg">
   <h3 class="text-gray-700 font-bold mb-2">Genres</h3>
   <div class="flex flex-wrap gap-2">
-    <!-- Genre Buttons -->
+    <!-- Dynamic genre list based on mediaType -->
     <button
-      *ngFor="let genre of genres"
+      (click)="onGenreSelected(genre)"
+      *ngFor="let genre of filteredGenres"
       class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out cursor-pointer"
     >
       {{ genre }}
