@@ -16,9 +16,20 @@ export class MoviesComponent {
   cooldown: number = 1000;
   lastLoadTime: number = 0;
 
+  genreId: number = 0;
+  sortValue: string ='';
+
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
     this.checkScroll();
+  }
+
+  onGenreId(genreId: number) {
+    this.genreId = genreId;
+  }
+  
+  onSortBy(sortValue: string) {
+    this.sortValue = sortValue;
   }
 
   checkScroll(): void {

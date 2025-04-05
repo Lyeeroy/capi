@@ -1,10 +1,18 @@
-<app-sort-header></app-sort-header>
+
+<app-sort-header
+  [mediaType]="'tv'"
+  (genreId)="onGenreId($event)"
+  (sortParam)="onSortBy($event)"
+></app-sort-header>
 
 <app-content-tabs
-  [sortBy]="'popularity.desc'"
-  [apiEndpoint]="'/trending/tv/week'"
+  [sortBy]="sortValue"
+  [apiEndpoint]="'/discover/tv'"
   [tileLimit]="tileLimit"
+  [genreId]="genreId"
 ></app-content-tabs>
+
+
 
 <div
   *ngIf="isLoading"
