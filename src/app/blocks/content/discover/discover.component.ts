@@ -3,12 +3,13 @@ import { ActivatedRoute } from '@angular/router';
 import { ContentTabsComponent } from '../../../components/content-tabs/content-tabs.component';
 import { SortHeaderComponent } from '../sort-header/sort-header.component';
 import { CommonModule } from '@angular/common';
+import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.component.html',
   standalone: true,
-  imports: [ContentTabsComponent, SortHeaderComponent, CommonModule],
+  imports: [ContentTabsComponent, SortHeaderComponent, CommonModule, IconLibComponent],
 })
 export class DiscoverComponent implements OnInit {
   tileLimit: number = 42;
@@ -16,6 +17,8 @@ export class DiscoverComponent implements OnInit {
   scrollThreshold: number = 100;
   cooldown: number = 1000;
   lastLoadTime: number = 0;
+
+  isFilterOpen: boolean = false;
 
   genreId: number = 0;
   sortValue: string = '';
