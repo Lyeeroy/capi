@@ -31,6 +31,7 @@ export class TmdbService {
     Object.entries(params).forEach(([key, value]) => {
       httpParams = httpParams.set(key, value.toString());
     });
+    console.log(httpParams);
 
     return this.http
       .get<any>(`${this.BASE_URL}${endpoint}`, { params: httpParams })

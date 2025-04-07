@@ -23,7 +23,7 @@ export class ContentTabsComponent implements OnInit, OnDestroy, OnChanges {
   @Input() genreId: number = 0;
   @Input() sortBy?: string;
 
-  private _tileLimit = 14;
+  private _tileLimit = 12;
   @Input() set tileLimit(value: number) {
     this._tileLimit = value;
     this.fetchData();
@@ -73,6 +73,7 @@ export class ContentTabsComponent implements OnInit, OnDestroy, OnChanges {
     this.subscription = forkJoin(requests).subscribe((pagesData) => {
       this.trending = pagesData
         .reduce((acc, page) => acc.concat(page.results), [])
+        .filter((item: { poster_path: any }) => item.poster_path) // Filter out items with no poster
         .slice(0, this._tileLimit); // Simplified data concatenation and slicing
     });
   }

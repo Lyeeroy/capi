@@ -13,29 +13,3 @@
     <app-icon-lib ico="chevronDown" class="h-4 w-4"></app-icon-lib>
   </button>
 </div>
-<p
-  class="flex text-sm text-gray-900 justify-center mb-5"
-  *ngIf="tileLimit >= 21 && tileLimit < 35"
->
-  Hey, if you see this, you better make up your mind, I ain't got infinite API
-  calls, you know!
-</p>
-<p
-  class="flex text-sm text-red-500 justify-center mb-5"
-  *ngIf="tileLimit >= 35 && tileLimit < 49"
->
-  Dude, you are hurting me!
-</p>
-<p
-  class="flex text-sm text-red-500 justify-center mb-5"
-  *ngIf="tileLimit >= 49 && tileLimit < 56"
->
-  HOLY COW! <span class="font-bold">&nbsp;You are a monster!</span>&nbsp;One
-  more and I will ban your from this site, I swear!
-</p>
-<p
-  class="flex text-sm text-red-900 justify-center mb-5"
-  *ngIf="tileLimit >= 56"
->
-  That's it! You are <span class="font-bold">&nbsp;banned!</span>
-</p>

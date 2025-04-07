@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ContentTabsComponent, CarouselComponent, CommonModule],
+  imports: [ContentTabsComponent, CommonModule],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
