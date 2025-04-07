@@ -14,6 +14,7 @@ import {
 import { ExportComponent } from './export/export.component';
 import { ImportComponent } from './import/import.component';
 import { YnComponent } from '../../forms/yn.component';
+import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 
 interface Source {
   id: number;
@@ -36,6 +37,7 @@ interface Source {
     ExportComponent,
     ImportComponent,
     YnComponent,
+    IconLibComponent,
   ],
 })
 export class TableComponent {
