@@ -1,43 +1,71 @@
 <div class="container mx-auto px-4 py-6 border-b border-gray-200 mt-4 mb-4">
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-    <!-- Genre Filter Section -->
     <div class="space-y-3">
       <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">
         Genres
       </h3>
-      <select
-        (change)="onGenreSelected(genreSelect.value)"
-        #genreSelect
-        class="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      >
-        <option value="" disabled selected>Select a genre</option>
-        <option
-          *ngFor="let genre of filteredGenres"
-          [value]="genre"
-          class="bg-white"
+      <div class="relative">
+        <select
+          (change)="onGenreSelected(genreSelect.value)"
+          #genreSelect
+          class="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
         >
-          {{ genre }}
-        </option>
-      </select>
+          <option value="" disabled selected>Select a genre</option>
+          <option
+            *ngFor="let genre of filteredGenres"
+            [value]="genre"
+            class="bg-white"
+          >
+            {{ genre }}
+          </option>
+        </select>
+        <div
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700"
+        >
+          <svg
+            class="fill-current h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+            />
+          </svg>
+        </div>
+      </div>
     </div>
 
-    <!-- Sort Filter Section -->
     <div class="space-y-3">
       <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">
         Sort By
       </h3>
-      <select
-        (change)="onSortSelected(sortSelect.value)"
-        #sortSelect
-        class="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      >
-        <option value="" disabled selected>Sort results</option>
-        <option value="popularity.desc">Popularity (High to Low)</option>
-        <option value="popularity.asc">Popularity (Low to High)</option>
-        <option value="vote_average.desc">Rating (High to Low)</option>
-        <option value="vote_average.asc">Rating (Low to High)</option>
-        <option value="release_date.desc">Release Date (Newest)</option>
-      </select>
+      <div class="relative">
+        <select
+          (change)="onSortSelected(sortSelect.value)"
+          #sortSelect
+          class="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+        >
+          <option value="" disabled selected>Sort results</option>
+          <option value="popularity.desc">Popularity (High to Low)</option>
+          <option value="popularity.asc">Popularity (Low to High)</option>
+          <option value="vote_average.desc">Rating (High to Low)</option>
+          <option value="vote_average.asc">Rating (Low to High)</option>
+          <option value="release_date.desc">Release Date (Newest)</option>
+        </select>
+        <div
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700"
+        >
+          <svg
+            class="fill-current h-4 w-4"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+          >
+            <path
+              d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"
+            />
+          </svg>
+        </div>
+      </div>
     </div>
   </div>
 </div>
