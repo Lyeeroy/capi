@@ -19,7 +19,7 @@ export class DiscoverComponent implements OnInit {
 
   genreId: number = 0;
   sortValue: string = '';
-  mediaType: string = 'movie'; // default value
+  mediaType: 'movie' | 'tv' = 'movie';
 
   mergedEndpoint: string = `/discover/${this.mediaType}`;
 
