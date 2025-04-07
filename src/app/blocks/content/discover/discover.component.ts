@@ -1,15 +1,16 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ContentTabsComponent } from '../../../components/content-tabs/content-tabs.component';
 import { SortHeaderComponent } from '../sort-header/sort-header.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-tvshows',
-  templateUrl: './tvshows.component.html',
+  selector: 'app-discover',
+  templateUrl: './discover.component.html',
   standalone: true,
   imports: [ContentTabsComponent, SortHeaderComponent, CommonModule],
 })
-export class TvshowsComponent {
+export class DiscoverComponent implements OnInit {
   tileLimit: number = 42;
   isLoading: boolean = false;
   scrollThreshold: number = 100;
@@ -18,10 +19,32 @@ export class TvshowsComponent {
 
   genreId: number = 0;
   sortValue: string = '';
+  mediaType: string = 'movie'; // default value
+
+  mergedEndpoint: string = `/discover/${this.mediaType}`;
+
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    // Subscribe to route data changes
+    this.route.data.subscribe(data => {
+      this.mediaType = data['mediaType'] || 'movie';
+      // Update the mergedEndpoint whenever mediaType changes
+      this.mergedEndpoint = `/discover/${this.mediaType}`;
+    });
+  }
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
     this.checkScroll();
+  }
+
+  onGenreId(genreId: number): void {
+    this.genreId = genreId;
+  }
+
+  onSortBy(sortValue: string): void {
+    this.sortValue = sortValue;
   }
 
   checkScroll(): void {
@@ -34,13 +57,6 @@ export class TvshowsComponent {
         this.loadMore();
       }
     });
-  }
-  onGenreId(genreId: number) {
-    this.genreId = genreId;
-  }
-
-  onSortBy(sortValue: string) {
-    this.sortValue = sortValue;
   }
 
   loadMore(): void {

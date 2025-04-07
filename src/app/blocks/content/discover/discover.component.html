@@ -1,12 +1,12 @@
 <app-sort-header
-  [mediaType]="'tv'"
+  [mediaType]="'movie'"
   (genreId)="onGenreId($event)"
   (sortParam)="onSortBy($event)"
 ></app-sort-header>
 
 <app-content-tabs
   [sortBy]="sortValue"
-  [apiEndpoint]="'/discover/tv'"
+  [apiEndpoint]="mergedEndpoint"
   [tileLimit]="tileLimit"
   [genreId]="genreId"
 ></app-content-tabs>
@@ -17,6 +17,7 @@
 >
   <div role="status">
     <svg
+      aria-hidden="true"
       class="w-8 h-8 text-gray-200 animate-spin fill-blue-600"
       viewBox="0 0 100 101"
       fill="none"
