@@ -26,10 +26,8 @@ export class DiscoverComponent implements OnInit {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    // Subscribe to route data changes
     this.route.data.subscribe(data => {
       this.mediaType = data['mediaType'] || 'movie';
-      // Update the mergedEndpoint whenever mediaType changes
       this.mergedEndpoint = `/discover/${this.mediaType}`;
     });
   }
