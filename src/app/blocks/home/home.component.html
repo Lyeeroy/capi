@@ -10,29 +10,48 @@
       🔥Trending
     </h2>
 
-    <div class="flex">
-      <button
-        [ngClass]="{
-          'bg-gray-600 text-white': trendingMediaType === 'movie',
-          'bg-gradient-to-r from-gray-100 to-gray-300 text-gray-700':
-            trendingMediaType !== 'movie'
-        }"
-        class="mr-3 text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer"
-        (click)="trendingMediaType = 'movie'"
+    <div
+      class="relative inline-block w-40 h-10 rounded-full bg-gray-100 border border-gray-200 overflow-hidden"
+    >
+      <input
+        type="checkbox"
+        id="mediaTypeSwitch"
+        class="opacity-0 w-0 h-0"
+        [checked]="trendingMediaType === 'tv'"
+        (change)="
+          trendingMediaType = trendingMediaType === 'movie' ? 'tv' : 'movie'
+        "
+      />
+      <label
+        for="mediaTypeSwitch"
+        class="absolute top-0 left-0 w-full h-full rounded-full cursor-pointer"
       >
-        Movies
-      </button>
-      <button
-        [ngClass]="{
-          'bg-gray-600 text-white': trendingMediaType === 'tv',
-          'bg-gradient-to-r from-gray-100 to-gray-300 text-gray-700':
-            trendingMediaType !== 'tv'
-        }"
-        class="text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer"
-        (click)="trendingMediaType = 'tv'"
-      >
-        TV Shows
-      </button>
+        <span
+          class="transition-colors duration-400 absolute top-0 left-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
+          [ngClass]="{
+            'text-white': trendingMediaType === 'movie',
+            'text-blue-400': trendingMediaType !== 'movie'
+          }"
+        >
+          Movie
+        </span>
+        <span
+          class="transition-colors duration-400 absolute top-0 right-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
+          [ngClass]="{
+            'text-white': trendingMediaType === 'tv',
+            'text-gray-400': trendingMediaType !== 'tv'
+          }"
+        >
+          TV
+        </span>
+        <span
+          class="absolute top-0 left-0 w-1/2 h-full rounded-full bg-blue-500 shadow-md transition-transform duration-300"
+          [ngClass]="{
+            'translate-x-full': trendingMediaType === 'tv',
+            'translate-x-0': trendingMediaType === 'movie'
+          }"
+        ></span>
+      </label>
     </div>
   </div>
 
@@ -48,29 +67,48 @@
       🔎Discover
     </h2>
 
-    <div class="flex">
-      <button
-        [ngClass]="{
-          'bg-gray-600 text-white': discoverMediaType === 'movie',
-          'bg-gradient-to-r from-gray-100 to-gray-300 text-gray-700':
-            discoverMediaType !== 'movie'
-        }"
-        class="mr-3 text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer"
-        (click)="discoverMediaType = 'movie'"
+    <div
+      class="relative inline-block w-40 h-10 rounded-full bg-gray-100 border border-gray-200 overflow-hidden"
+    >
+      <input
+        type="checkbox"
+        id="discoverMediaTypeSwitch"
+        class="opacity-0 w-0 h-0"
+        [checked]="discoverMediaType === 'tv'"
+        (change)="
+          discoverMediaType = discoverMediaType === 'movie' ? 'tv' : 'movie'
+        "
+      />
+      <label
+        for="discoverMediaTypeSwitch"
+        class="absolute top-0 left-0 w-full h-full rounded-full cursor-pointer"
       >
-        Movies
-      </button>
-      <button
-        [ngClass]="{
-          'bg-gray-600 text-white': discoverMediaType === 'tv',
-          'bg-gradient-to-r from-gray-100 to-gray-300 text-gray-700':
-            discoverMediaType !== 'tv'
-        }"
-        class="text-sm px-3 py-2 rounded-full transform transition-transform hover:scale-105 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer"
-        (click)="discoverMediaType = 'tv'"
-      >
-        TV Shows
-      </button>
+        <span
+          class="transition-colors duration-400 absolute top-0 left-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
+          [ngClass]="{
+            'text-white': discoverMediaType === 'movie',
+            'text-blue-400': discoverMediaType !== 'movie'
+          }"
+        >
+          Movie
+        </span>
+        <span
+          class="transition-colors duration-400 absolute top-0 right-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
+          [ngClass]="{
+            'text-white': discoverMediaType === 'tv',
+            'text-gray-400': discoverMediaType !== 'tv'
+          }"
+        >
+          TV
+        </span>
+        <span
+          class="absolute top-0 left-0 w-1/2 h-full rounded-full bg-blue-500 shadow-md transition-transform duration-300"
+          [ngClass]="{
+            'translate-x-full': discoverMediaType === 'tv',
+            'translate-x-0': discoverMediaType === 'movie'
+          }"
+        ></span>
+      </label>
     </div>
   </div>
   <app-content-tabs

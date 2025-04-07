@@ -47,7 +47,7 @@ export class MoviesComponent {
   loadMore(): void {
     this.lastLoadTime = Date.now();
     this.isLoading = true;
-    this.tileLimit += 14;
+    this.tileLimit += 12;
     console.log('Loading more items... tileLimit:', this.tileLimit);
     setTimeout(() => {
       this.isLoading = false;

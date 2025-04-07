@@ -17,7 +17,7 @@ export class SearchResultsComponent implements OnInit {
   searchResults: any[] = [];
   query: string = '';
   url: string = '';
-  tileLimit: number = 7; // Default limit for tiles
+  tileLimit: number = 6; // Default limit for tiles
 
   constructor(
     private route: ActivatedRoute,
@@ -44,7 +44,7 @@ export class SearchResultsComponent implements OnInit {
 
   resetResultsOnQueryChange(query: string) {
     this.query = query;
-    this.tileLimit = 7; // Reset tile limit when query changes
+    this.tileLimit = 12; // Reset tile limit when query changes
   }
 
   showMore(number: number) {
