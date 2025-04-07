@@ -1,17 +1,18 @@
 <div class="p-4">
   <div class="flex flex-col lg:flex-row gap-2 items-center justify-between">
     <!-- Source Navigation -->
-    <div class="flex gap-2 items-center w-full sm:w-auto">
+    <div
+      class="flex items-center rounded-full overflow-hidden border border-gray-300 w-auto"
+    >
       <button
-        class="border border-gray-300 flex-1 sm:flex-none px-4 py-2 rounded-full bg-white hover:bg-gray-50 active:bg-gray-100 text-sm font-medium flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 active:scale-[0.98]"
+        class="bg-gray-100 text-gray-700 py-2 px-4 font-medium text-sm transition-colors duration-150 hover:bg-gray-100 active:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 flex items-center gap-1 border-r border-gray-300"
         (click)="prevSource()"
       >
         <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
         <span class="sm:inline hidden">Prev</span>
       </button>
-
       <select
-        class="w-full sm:w-48 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-1 focus:ring-blue-500"
+        class="bg-gray-100 text-gray-700 text-center w-full py-2 px-8 font-medium text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-500 appearance-none bg-chevron-down bg-no-repeat bg-right-3 bg-center"
         (change)="onSourceChange($event)"
         [(ngModel)]="currentSourceUrl"
       >
@@ -19,9 +20,8 @@
           {{ source.name }}
         </option>
       </select>
-
       <button
-        class="border border-gray-300 flex-1 sm:flex-none px-4 py-2 rounded-full bg-white hover:bg-gray-50 active:bg-gray-100 text-sm font-medium flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 active:scale-[0.98]"
+        class="bg-gray-100 text-gray-700 py-2 px-4 font-medium text-sm transition-colors duration-150 hover:bg-gray-100 active:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 flex items-center gap-1 border-l border-gray-300"
         (click)="nextSource()"
       >
         <span class="sm:inline hidden">Next</span>
