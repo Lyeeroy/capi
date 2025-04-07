@@ -33,23 +33,28 @@
 
   <div class="flex-1 overflow-y-auto border-t border-gray-200">
     <ng-container *ngIf="layoutType === 'grid'">
-      <div class="grid grid-cols-6 gap-1.5 mt-1">
-        <button
-          *ngFor="let episode of currentEpisodes; let i = index"
-          (click)="
-            onEpisodeSelected(
-              isSortedAscending ? i : currentEpisodes.length - i - 1
-            )
-          "
-          [class.bg-gray-200]="
-            isSortedAscending
-              ? i === activeEpisodeIndex
-              : currentEpisodes.length - i - 1 === activeEpisodeIndex
-          "
-          class="cursor-pointer aspect-[1.8] flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition text-xs font-medium text-gray-600 hover:text-gray-900 px-1"
+      <div class="mt-1 px-1">
+        <!-- Added padding to container -->
+        <div
+          class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-3 xl:grid-cols-5 gap-1 sm:gap-1.5"
         >
-          {{ episode.number }}
-        </button>
+          <button
+            *ngFor="let episode of currentEpisodes; let i = index"
+            (click)="
+              onEpisodeSelected(
+                isSortedAscending ? i : currentEpisodes.length - i - 1
+              )
+            "
+            [class.bg-gray-200]="
+              isSortedAscending
+                ? i === activeEpisodeIndex
+                : currentEpisodes.length - i - 1 === activeEpisodeIndex
+            "
+            class="cursor-pointer flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition-all duration-200 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 px-1 sm:px-2 py-2 min-w-[44px] flex-shrink-0 aspect-[1.8]"
+          >
+            {{ episode.number }}
+          </button>
+        </div>
       </div>
     </ng-container>
 
