@@ -1,8 +1,19 @@
-<h1 class="justify-between flex md:flex-row flex-col md:justify-start items-center container mx-auto px-4 py-4 sm:px-6 lg:px-8 text-4xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500 ">
-  <div class="md:flex-1"><span>Discover&nbsp;<span class="hidden sm:inline">{{ mediaType === 'movie' ? 'Movies' : 'TV Shows' }}</span></span>
+<h1
+  class="justify-between flex md:flex-row flex-col md:justify-start items-center container mx-auto px-4 py-4 sm:px-6 lg:px-8 text-4xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500"
+>
+  <div class="md:flex-1">
+    <span
+      >Discover&nbsp;<span class="hidden sm:inline">{{
+        mediaType === "movie" ? "Movies" : "TV Shows"
+      }}</span></span
+    >
   </div>
-  <button class="md:mt-0 mt-4 cursor-pointer p-2 rounded-full" (click)="isFilterOpen = !isFilterOpen"><app-icon-lib ico="filter" class="w-8 h-8"></app-icon-lib></button>
-
+  <button
+    class="md:mt-0 mt-4 cursor-pointer p-2 rounded-full"
+    (click)="isFilterOpen = !isFilterOpen"
+  >
+    <app-icon-lib ico="filter" class="w-8 h-8"></app-icon-lib>
+  </button>
 </h1>
 
 <app-sort-header
