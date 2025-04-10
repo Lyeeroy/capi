@@ -9,7 +9,12 @@ import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
   selector: 'app-discover',
   templateUrl: './discover.component.html',
   standalone: true,
-  imports: [ContentTabsComponent, SortHeaderComponent, CommonModule, IconLibComponent],
+  imports: [
+    ContentTabsComponent,
+    SortHeaderComponent,
+    CommonModule,
+    IconLibComponent,
+  ],
 })
 export class DiscoverComponent implements OnInit {
   tileLimit: number = 42;
@@ -29,7 +34,7 @@ export class DiscoverComponent implements OnInit {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.route.data.subscribe(data => {
+    this.route.data.subscribe((data) => {
       this.mediaType = data['mediaType'] || 'movie';
       this.mergedEndpoint = `/discover/${this.mediaType}`;
     });
@@ -63,7 +68,7 @@ export class DiscoverComponent implements OnInit {
   loadMore(): void {
     this.lastLoadTime = Date.now();
     this.isLoading = true;
-    this.tileLimit += 12;
+    this.tileLimit += 14;
     console.log('Loading more items... tileLimit:', this.tileLimit);
     setTimeout(() => {
       this.isLoading = false;
