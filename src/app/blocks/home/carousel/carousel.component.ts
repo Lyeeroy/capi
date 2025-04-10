@@ -4,12 +4,13 @@ import { TmdbService } from '../../../services/tmdb.service';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { forkJoin } from 'rxjs';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-carousel',
   templateUrl: './carousel.component.html',
   styleUrls: ['./carousel.component.css'],
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
 })
 export class CarouselComponent implements OnInit, OnDestroy {
   @Input() itemsPerPage = 3; // Default slides per view
@@ -24,9 +25,11 @@ export class CarouselComponent implements OnInit, OnDestroy {
     this.fetchData();
     this.startAutoplay();
   }
+
   getArrayFromLength(length: number): number[] {
     return Array.from({ length }, (_, i) => i);
   }
+
   ngOnDestroy(): void {
     this.stopAutoplay();
     this.unsubscribeFetch();
@@ -42,7 +45,19 @@ export class CarouselComponent implements OnInit, OnDestroy {
       this.tmdbService.fetchFromTmdb(tvEndpoint, {})
     ).subscribe({
       next: ([movies, tvShows]) => {
-        this.items = movies.results.concat(tvShows.results);
+        const mixedItems = [];
+        const movieItems = movies.results.slice(0, 5);
+        const tvItems = tvShows.results.slice(0, 5);
+
+        for (let i = 0; i < 10; i++) {
+          if (i % 2 === 0) {
+            mixedItems.push(movieItems.pop());
+          } else {
+            mixedItems.push(tvItems.pop());
+          }
+        }
+
+        this.items = mixedItems;
       },
       error: (err) => console.error('Carousel error:', err),
     });
