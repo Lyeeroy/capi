@@ -1,8 +1,7 @@
 <app-player-header> </app-player-header>
 <div class="flex flex-col lg:flex-row gap-4 p-4 md:p-6">
   <div class="w-full lg:w-3/4 lg:aspect-video rounded-xl">
-    <div class="w-full h-full">
-      <!-- <ng-container *ngIf="showIframe">
+    <!-- <ng-container *ngIf="showIframe">
         <iframe
           #iframeElement
           [src]="iframeUrl"
@@ -13,23 +12,19 @@
         ></iframe>
       </ng-container> -->
 
-      <app-iframe
-        [iframeUrl]="iframeUrl"
-        [showIframe]="showIframe"
-      ></app-iframe>
+    <app-iframe [iframeUrl]="iframeUrl" [showIframe]="showIframe"></app-iframe>
 
-      <app-controls
-        [currentSourceUrl]="currentSourceUrl"
-        [sources]="sources"
-        [currentEpisode]="currentEpisode"
-        [mediaType]="mediaType ?? 'tv'"
-        (sourceChange)="onSourceChange($event)"
-        (prevEpisodeClick)="prevEpisode(currentEpisode)"
-        (nextEpisodeClick)="nextEpisode(currentEpisode)"
-        (prevSourceClick)="prevSource()"
-        (nextSourceClick)="nextSource()"
-      ></app-controls>
-    </div>
+    <app-controls
+      [currentSourceUrl]="currentSourceUrl"
+      [sources]="sources"
+      [currentEpisode]="currentEpisode"
+      [mediaType]="mediaType ?? 'tv'"
+      (sourceChange)="onSourceChange($event)"
+      (prevEpisodeClick)="prevEpisode(currentEpisode)"
+      (nextEpisodeClick)="nextEpisode(currentEpisode)"
+      (prevSourceClick)="prevSource()"
+      (nextSourceClick)="nextSource()"
+    ></app-controls>
   </div>
 
   <div

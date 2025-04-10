@@ -3,11 +3,13 @@
 <!-- <app-carousel></app-carousel> -->
 
 <!-- Header of trending Movies -->
-<div class="flex items-center justify-between mb-2">
+<div
+  class="flex items-center justify-between mt-6 mb-2 sm:px-4 md:px-8 lg:px-14"
+>
   <h2
     class="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent text-2xl"
   >
-    🔥Trending
+    Trending
   </h2>
 
   <div
@@ -57,15 +59,17 @@
 
 <app-content-tabs-netflix-like
   [apiEndpoint]="'/trending/' + trendingMediaType + '/week'"
-  [tileLimit]="50"
+  [tileLimit]="20"
   class="overflow-hidden"
 ></app-content-tabs-netflix-like>
 
-<div class="flex items-center justify-between mt-6 mb-2">
+<div
+  class="flex items-center justify-between mt-6 mb-2 sm:px-4 md:px-8 lg:px-14"
+>
   <h2
     class="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent text-2xl"
   >
-    🔎Discover
+    Discover
   </h2>
 
   <div
@@ -112,12 +116,12 @@
     </label>
   </div>
 </div>
-<app-content-tabs
+<app-content-tabs-netflix-like
   [apiEndpoint]="'/discover/' + discoverMediaType"
   [sortBy]="'popularity.desc'"
-  [tileLimit]="12"
+  [tileLimit]="20"
   [genreId]="discoverMediaType === 'movie' ? 28 : 10765"
-></app-content-tabs>
+></app-content-tabs-netflix-like>
 
 <!-- Popular Sci-Fi TV Shows -->
 <!-- <h2 class="text-gray-900 text-2xl font-bold mt-8">

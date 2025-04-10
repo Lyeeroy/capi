@@ -1,16 +1,25 @@
-<div class="mx-auto px-4 py-4 sm:px-4 lg:px-4">
-  <div class="flex justify-between items-center">
+<div class="mx-auto px-4 py-4 lg:px-4">
+  <div class="flex items-center">
     <button
+      type="button"
       (click)="scrollLeft()"
-      class="text-gray-700 rounded-full w-8 h-8 flex items-center justify-center focus:outline-none"
+      aria-label="Scroll left"
+      class="hidden sm:flex text-blue-500 rounded-full w-8 h-8 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 focus-visible:ring-offset-gray-900 mr-2 shrink-0"
     >
       <app-icon-lib
         ico="chevronLeft"
-        class="w-10 h-10 hidden sm:block"
+        class="w-10 h-10 transition-transform duration-300 transform hover:scale-104 cursor-pointer active:scale-95"
+        aria-hidden="true"
       ></app-icon-lib>
     </button>
 
-    <div class="flex space-x-4 overflow-x-auto scrollbar-hide" #scrollContainer>
+    <div
+      #scrollContainer
+      role="group"
+      aria-label="Trending Content"
+      class="flex space-x-4 overflow-x-auto scrollbar-hide flex-grow"
+      style="-ms-overflow-style: none; scrollbar-width: none"
+    >
       <ng-container
         *ngFor="let data of trending; let i = index; trackBy: trackByFn"
       >
@@ -19,6 +28,12 @@
           tabindex="0"
           (click)="redirectToPlayer(i)"
           (keydown.enter)="redirectToPlayer(i)"
+          [attr.aria-label]="
+            (data.title || data.name) +
+            (data.media_type
+              ? ' (' + (data.media_type === 'tv' ? 'TV' : 'Movie') + ')'
+              : '')
+          "
           [title]="
             (data.title || data.name) +
             (data.media_type
@@ -36,9 +51,11 @@
             [alt]="(data.title || data.name) + ' Poster'"
             loading="lazy"
             class="w-full h-full object-cover transition-all duration-300 group-hover:brightness-110"
+            aria-hidden="true"
           />
+
           <div
-            class="absolute inset-0 flex flex-col justify-end p-3 bg-gradient-to-t from-black/60 via-black/35 to-transparent pointer-events-none"
+            class="absolute inset-0 flex flex-col justify-end p-3 bg-gradient-to-t from-black/70 via-black/40 to-transparent pointer-events-none"
             aria-hidden="true"
           >
             <h3
@@ -46,6 +63,7 @@
             >
               {{ data.title || data.name }}
             </h3>
+
             <div
               class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-200"
             >
@@ -63,31 +81,37 @@
                 <span class="font-medium">{{
                   data.vote_average | number : "1.1-1"
                 }}</span>
+                <span class="sr-only">Rating</span>
               </span>
+
               <span
                 class="font-medium text-gray-400"
                 *ngIf="data.release_date || data.first_air_date"
-                >{{
-                  data.release_date || data.first_air_date | date : "yyyy"
-                }}</span
               >
+                {{ data.release_date || data.first_air_date | date : "yyyy" }}
+              </span>
+
               <span
                 *ngIf="data.media_type"
                 class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-500/30 text-gray-300 border border-gray-500/50 capitalize"
-                >{{ data.media_type === "tv" ? "TV" : data.media_type }}</span
               >
+                {{ data.media_type === "tv" ? "TV" : data.media_type }}
+              </span>
             </div>
           </div>
         </div>
       </ng-container>
     </div>
     <button
+      type="button"
       (click)="scrollRight()"
-      class="text-gray-700 rounded-full w-8 h-8 flex items-center justify-center focus:outline-none"
+      aria-label="Scroll right"
+      class="hidden sm:flex text-blue-500 rounded-full w-8 h-8 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 focus-visible:ring-offset-gray-900 ml-2 shrink-0"
     >
       <app-icon-lib
         ico="chevronRight"
-        class="w-10 h-10 hidden sm:block"
+        class="w-10 h-10 transition-transform duration-300 transform hover:scale-104 cursor-pointer active:scale-95"
+        aria-hidden="true"
       ></app-icon-lib>
     </button>
   </div>
