@@ -8,11 +8,7 @@ import { ContentTabsNetflixLikeComponent } from '../../components/content-tabs-n
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [
-    ContentTabsComponent,
-    CommonModule,
-    ContentTabsNetflixLikeComponent,
-  ],
+  imports: [CommonModule, ContentTabsNetflixLikeComponent, CarouselComponent],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {

@@ -1,128 +1,124 @@
-<!-- <div class="container mx-auto px-4 py-8"> -->
-<!-- This carousel sucks dick: TODO -->
-<!-- <app-carousel></app-carousel> -->
+<div class="container mx-auto">
+  <!-- This carousel sucks dick: TODO -->
+  <app-carousel></app-carousel>
 
-<!-- Header of trending Movies -->
-<div
-  class="flex items-center justify-between mt-6 mb-2 sm:px-4 md:px-8 lg:px-14"
->
-  <h2
-    class="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent text-2xl"
-  >
-    Trending
-  </h2>
-
-  <div
-    class="relative inline-block w-40 h-10 rounded-full bg-gray-100 border border-gray-200 overflow-hidden"
-  >
-    <input
-      type="checkbox"
-      id="mediaTypeSwitch"
-      class="opacity-0 w-0 h-0"
-      [checked]="trendingMediaType === 'tv'"
-      (change)="
-        trendingMediaType = trendingMediaType === 'movie' ? 'tv' : 'movie'
-      "
-    />
-    <label
-      for="mediaTypeSwitch"
-      class="absolute top-0 left-0 w-full h-full rounded-full cursor-pointer"
+  <!-- Header of trending Movies -->
+  <div class="flex items-center justify-between mt-6 sm:px-4 md:px-8 lg:px-14">
+    <h2
+      class="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent text-2xl"
     >
-      <span
-        class="transition-colors duration-400 absolute top-0 left-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
-        [ngClass]="{
-          'text-white': trendingMediaType === 'movie',
-          'text-blue-400': trendingMediaType !== 'movie'
-        }"
-      >
-        Movie
-      </span>
-      <span
-        class="transition-colors duration-400 absolute top-0 right-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
-        [ngClass]="{
-          'text-white': trendingMediaType === 'tv',
-          'text-gray-400': trendingMediaType !== 'tv'
-        }"
-      >
-        TV
-      </span>
-      <span
-        class="absolute top-0 left-0 w-1/2 h-full rounded-full bg-blue-500 shadow-md transition-transform duration-300"
-        [ngClass]="{
-          'translate-x-full': trendingMediaType === 'tv',
-          'translate-x-0': trendingMediaType === 'movie'
-        }"
-      ></span>
-    </label>
-  </div>
-</div>
+      Trending
+    </h2>
 
-<app-content-tabs-netflix-like
-  [apiEndpoint]="'/trending/' + trendingMediaType + '/week'"
-  [tileLimit]="20"
-  class="overflow-hidden"
-></app-content-tabs-netflix-like>
-
-<div
-  class="flex items-center justify-between mt-6 mb-2 sm:px-4 md:px-8 lg:px-14"
->
-  <h2
-    class="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent text-2xl"
-  >
-    Discover
-  </h2>
-
-  <div
-    class="relative inline-block w-40 h-10 rounded-full bg-gray-100 border border-gray-200 overflow-hidden"
-  >
-    <input
-      type="checkbox"
-      id="discoverMediaTypeSwitch"
-      class="opacity-0 w-0 h-0"
-      [checked]="discoverMediaType === 'tv'"
-      (change)="
-        discoverMediaType = discoverMediaType === 'movie' ? 'tv' : 'movie'
-      "
-    />
-    <label
-      for="discoverMediaTypeSwitch"
-      class="absolute top-0 left-0 w-full h-full rounded-full cursor-pointer"
+    <div
+      class="relative inline-block w-40 h-10 rounded-full bg-gray-100 border border-gray-200 overflow-hidden"
     >
-      <span
-        class="transition-colors duration-400 absolute top-0 left-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
-        [ngClass]="{
-          'text-white': discoverMediaType === 'movie',
-          'text-blue-400': discoverMediaType !== 'movie'
-        }"
+      <input
+        type="checkbox"
+        id="mediaTypeSwitch"
+        class="opacity-0 w-0 h-0"
+        [checked]="trendingMediaType === 'tv'"
+        (change)="
+          trendingMediaType = trendingMediaType === 'movie' ? 'tv' : 'movie'
+        "
+      />
+      <label
+        for="mediaTypeSwitch"
+        class="absolute top-0 left-0 w-full h-full rounded-full cursor-pointer"
       >
-        Movie
-      </span>
-      <span
-        class="transition-colors duration-400 absolute top-0 right-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
-        [ngClass]="{
-          'text-white': discoverMediaType === 'tv',
-          'text-gray-400': discoverMediaType !== 'tv'
-        }"
-      >
-        TV
-      </span>
-      <span
-        class="absolute top-0 left-0 w-1/2 h-full rounded-full bg-blue-500 shadow-md transition-transform duration-300"
-        [ngClass]="{
-          'translate-x-full': discoverMediaType === 'tv',
-          'translate-x-0': discoverMediaType === 'movie'
-        }"
-      ></span>
-    </label>
+        <span
+          class="transition-colors duration-400 absolute top-0 left-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
+          [ngClass]="{
+            'text-white': trendingMediaType === 'movie',
+            'text-blue-400': trendingMediaType !== 'movie'
+          }"
+        >
+          Movie
+        </span>
+        <span
+          class="transition-colors duration-400 absolute top-0 right-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
+          [ngClass]="{
+            'text-white': trendingMediaType === 'tv',
+            'text-gray-400': trendingMediaType !== 'tv'
+          }"
+        >
+          TV
+        </span>
+        <span
+          class="absolute top-0 left-0 w-1/2 h-full rounded-full bg-blue-500 shadow-md transition-transform duration-300"
+          [ngClass]="{
+            'translate-x-full': trendingMediaType === 'tv',
+            'translate-x-0': trendingMediaType === 'movie'
+          }"
+        ></span>
+      </label>
+    </div>
   </div>
-</div>
-<app-content-tabs-netflix-like
-  [apiEndpoint]="'/discover/' + discoverMediaType"
-  [sortBy]="'popularity.desc'"
-  [tileLimit]="20"
-  [genreId]="discoverMediaType === 'movie' ? 28 : 10765"
-></app-content-tabs-netflix-like>
 
+  <app-content-tabs-netflix-like
+    [apiEndpoint]="'/trending/' + trendingMediaType + '/week'"
+    [tileLimit]="20"
+    class="overflow-hidden"
+  ></app-content-tabs-netflix-like>
+
+  <div class="flex items-center justify-between mt-6 sm:px-4 md:px-8 lg:px-14">
+    <h2
+      class="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent text-2xl"
+    >
+      Discover
+    </h2>
+
+    <div
+      class="relative inline-block w-40 h-10 rounded-full bg-gray-100 border border-gray-200 overflow-hidden"
+    >
+      <input
+        type="checkbox"
+        id="discoverMediaTypeSwitch"
+        class="opacity-0 w-0 h-0"
+        [checked]="discoverMediaType === 'tv'"
+        (change)="
+          discoverMediaType = discoverMediaType === 'movie' ? 'tv' : 'movie'
+        "
+      />
+      <label
+        for="discoverMediaTypeSwitch"
+        class="absolute top-0 left-0 w-full h-full rounded-full cursor-pointer"
+      >
+        <span
+          class="transition-colors duration-400 absolute top-0 left-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
+          [ngClass]="{
+            'text-white': discoverMediaType === 'movie',
+            'text-blue-400': discoverMediaType !== 'movie'
+          }"
+        >
+          Movie
+        </span>
+        <span
+          class="transition-colors duration-400 absolute top-0 right-0 w-1/2 h-full flex items-center justify-center text-sm font-medium text-gray-600 z-10"
+          [ngClass]="{
+            'text-white': discoverMediaType === 'tv',
+            'text-gray-400': discoverMediaType !== 'tv'
+          }"
+        >
+          TV
+        </span>
+        <span
+          class="absolute top-0 left-0 w-1/2 h-full rounded-full bg-blue-500 shadow-md transition-transform duration-300"
+          [ngClass]="{
+            'translate-x-full': discoverMediaType === 'tv',
+            'translate-x-0': discoverMediaType === 'movie'
+          }"
+        ></span>
+      </label>
+    </div>
+  </div>
+  <app-content-tabs-netflix-like
+    [apiEndpoint]="'/discover/' + discoverMediaType"
+    [sortBy]="'popularity.desc'"
+    [tileLimit]="20"
+    [genreId]="discoverMediaType === 'movie' ? 28 : 10765"
+  ></app-content-tabs-netflix-like>
+</div>
 <!-- Popular Sci-Fi TV Shows -->
 <!-- <h2 class="text-gray-900 text-2xl font-bold mt-8">
     Trending Sci-Fi TV Shows
