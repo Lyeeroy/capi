@@ -45,13 +45,13 @@ export class ControlsComponent {
 
   currentSeason = 1;
 
-scrollSources(amount: number) {
-  const scroller = document.querySelector('.scrollbar-hide');
-  scroller?.scrollBy({ left: amount, behavior: 'smooth' });
-}
+  scrollSources(amount: number) {
+    const scroller = document.querySelector('.scrollbar-hide');
+    scroller?.scrollBy({ left: amount, behavior: 'smooth' });
+  }
 
-onSourceChangeManual(url: string) {
-  this.currentSourceUrl = url;
-  // Your existing source change logic here
-}
+  onSourceChangeManual(url: string) {
+    this.currentSourceUrl = url;
+    // Your existing source change logic here
+  }
 }

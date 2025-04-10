@@ -194,13 +194,12 @@
             *ngFor="let source of searchInObject(); trackBy: trackById"
           >
             <tr
-              class="hidden xl:table-row hover:bg-gray-50 active:bg-gray-100"
+              class="hidden xl:table-row hover:bg-gray-50 active:bg-gray-100 cursor-pointer"
+              [ngClass]="{ 'bg-gray-50': source.isEditing }"
               cdkDrag
+              cdkDragHandle
             >
-              <td
-                class="p-3 text-gray-400 hidden md:table-cell align-middle"
-                cdkDragHandle
-              >
+              <td class="p-3 text-gray-400 hidden md:table-cell align-middle">
                 <app-icon-lib
                   ico="menu"
                   class="h-6 w-6 cursor-move touch:p-1 mx-auto"
@@ -298,12 +297,12 @@
               </td>
             </tr>
 
-            <tr class="xl:hidden hover:bg-gray-50 active:bg-gray-100" cdkDrag>
+            <tr class="xl:hidden hover:bg-gray-50 active:bg-gray-100">
               <td colspan="6" class="p-4">
                 <div class="flex flex-col gap-3 w-full overflow-hidden">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                      <div class="flex-shrink-0" cdkDragHandle>
+                      <div class="flex-shrink-0">
                         <app-icon-lib
                           ico="menu"
                           class="h-6 w-6 text-gray-400 cursor-move"

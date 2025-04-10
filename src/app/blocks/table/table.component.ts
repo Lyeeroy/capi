@@ -253,4 +253,6 @@ export class TableComponent {
     }
     console.log('Loading data...');
   }
+
+  // look into localStorage for isNewcomer and set it to false while loading data
 }
