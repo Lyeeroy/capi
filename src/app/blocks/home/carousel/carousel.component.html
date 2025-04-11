@@ -1,4 +1,4 @@
-<div class="relative w-full overflow-hidden rounded-2xl" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
+<div class="relative w-full overflow-hidden rounded-2xl mt-4" (mouseenter)="onMouseEnter()" (mouseleave)="onMouseLeave()">
   <div class="flex transition-transform duration-500 ease-in-out" [ngStyle]="{ transform: 'translateX(-' + (currentSlide * (100 / itemsPerPage)) + '%)' }" role="region" aria-label="Image Carousel">
     <div *ngFor="let item of items; trackBy: trackByFn" class="flex-shrink-0 w-full">
       <div class="relative w-full h-64 md:h-80 lg:h-[50vh] rounded-2xl">
@@ -22,7 +22,7 @@
               {{ item.media_type === "tv" ? "TV" : item.media_type }}
             </span>
           </div>
-          <button class="w-fit mt-2 bg-gray-400/20 border border-gray-400 text-white px-4 py-2 rounded">Play</button>
+          <button [routerLink]="['/player', item.id, item.media_type]" class="w-fit mt-2 bg-gray-400/20 border border-gray-400 text-white px-4 py-2 rounded cursor-pointer">Play</button>
         </div>
         <img [src]="'https://image.tmdb.org/t/p/w1280' + item.poster_path" alt="{{ item.title || item.name }}" class="object-cover w-full h-full rounded-t-2xl rounded-b-lg" loading="lazy">
 
@@ -30,11 +30,11 @@
     </div>
   </div>
   <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-400/20 border border-gray-400 bg-opacity-20 text-white px-4 py-2 rounded-full flex items-center space-x-2">
-    <button (click)="prevSlide()" class="text-lg" aria-label="Previous Slide">
+    <button (click)="prevSlide()" class="text-lg cursor-pointer" aria-label="Previous Slide">
       <
     </button>
     <span>{{ currentSlide + 1 }}/{{ items.length }}</span>
-    <button (click)="nextSlide()" class="text-lg" aria-label="Next Slide">
+    <button (click)="nextSlide()" class="text-lg cursor-pointer" aria-label="Next Slide">
       >
     </button>
   </div>
