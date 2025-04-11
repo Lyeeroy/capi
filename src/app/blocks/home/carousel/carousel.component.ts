@@ -10,12 +10,13 @@ import { TmdbService } from '../../../services/tmdb.service';
 import { CommonModule } from '@angular/common';
 import { Subscription, forkJoin } from 'rxjs';
 import { RouterLink } from '@angular/router';
+import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 
 @Component({
   selector: 'app-carousel',
   templateUrl: './carousel.component.html',
   styleUrls: ['./carousel.component.css'],
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, IconLibComponent],
   standalone: true,
 })
 export class CarouselComponent implements OnInit, OnDestroy {

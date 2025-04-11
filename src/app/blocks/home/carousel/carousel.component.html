@@ -40,9 +40,12 @@
           </div>
           <button
             [routerLink]="['/player', item.id, item.media_type]"
-            class="w-fit mt-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer transition-colors"
+            class="flex items-center gap-2 w-fit mt-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer transition-colors"
           >
-            Details & Play </button>
+            
+          <app-icon-lib ico="play" class="w-4 h-4 text-white "></app-icon-lib>
+          Play 
+          </button>
         </div>
         </div>
     </div>
