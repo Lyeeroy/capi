@@ -15,12 +15,11 @@ import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 @Component({
   selector: 'app-carousel',
   templateUrl: './carousel.component.html',
-  styleUrls: ['./carousel.component.css'],
   imports: [CommonModule, RouterLink, IconLibComponent],
   standalone: true,
 })
 export class CarouselComponent implements OnInit, OnDestroy {
-  @Input() autoplayInterval = 3000; // Optional
+  @Input() autoplayInterval = 4000;
   items: any[] = [];
   currentSlide = 0;
   slideInterval: any;
