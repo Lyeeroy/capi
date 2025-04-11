@@ -1,5 +1,12 @@
 // src/app/blocks/home/carousel/carousel.component.ts
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnDestroy,
+  HostListener,
+  ElementRef,
+} from '@angular/core';
 import { TmdbService } from '../../../services/tmdb.service';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -19,11 +26,28 @@ export class CarouselComponent implements OnInit, OnDestroy {
   slideInterval: any;
   private fetchSubscription: Subscription | null = null;
 
-  constructor(private tmdbService: TmdbService) {}
+  constructor(private tmdbService: TmdbService, private el: ElementRef) {}
 
   ngOnInit(): void {
     this.fetchData();
     this.startAutoplay();
+    this.adjustItemsPerPage();
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.adjustItemsPerPage();
+  }
+
+  adjustItemsPerPage(): void {
+    const width = this.el.nativeElement.offsetWidth;
+    if (width < 768) {
+      this.itemsPerPage = 1;
+    } else if (width < 1024) {
+      this.itemsPerPage = 2;
+    } else {
+      this.itemsPerPage = 3;
+    }
   }
 
   getArrayFromLength(length: number): number[] {

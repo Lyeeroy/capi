@@ -1,4 +1,3 @@
-<!-- src/app/blocks/home/carousel/carousel.component.html -->
 <div
   class="carousel-container"
   (mouseenter)="stopAutoplay()"
@@ -10,7 +9,6 @@
       'translateX(-' + currentSlide * (100 / itemsPerPage) + '%)'
     "
   >
-    <!-- Slides -->
     <div class="slide" *ngFor="let item of items; trackBy: trackByFn">
       <div class="slide-content">
         <img
@@ -23,10 +21,10 @@
           <div class="slide-info">
             <h2>{{ item.title || item.name }}</h2>
 
-            <p>{{ item.overview | slice : 0 : 200 }}...</p>
+            <p>{{ item.overview | slice : 0 : 180 }}...</p>
 
-            <div class="meta-info items-center">
-              <div class="flex items-center gap-2">
+            <div class="meta-info items-center flex flex-wrap gap-2">
+              <div class="flex items-center">
                 <svg
                   class="w-4 h-4 text-amber-400 shrink-0"
                   fill="currentColor"
@@ -40,8 +38,7 @@
                 <span>{{ item.vote_average | number : "1.1-1" }} / 10</span>
               </div>
               <span>{{ item.media_type === "movie" ? "Movie" : "TV" }}</span>
-
-              <span>{{ item.release_date | date : "MMM d, yyyy" }}</span>
+              <span>{{ item.release_date | date : "MMM d, y" }}</span>
               <span>{{ item.vote_count }}K votes</span>
             </div>
 
@@ -49,7 +46,7 @@
               <a
                 class="watch-now-btn"
                 [routerLink]="['/player', item.id, item.media_type]"
-                >Watch now</a
+                >Watch</a
               >
               <a
                 class="details-btn"
@@ -70,28 +67,55 @@
             <img
               [src]="'https://image.tmdb.org/t/p/w342' + item.poster_path"
               alt="{{ item.title || item.name }} Poster"
-              class="slide-poster"
+              class="slide-poster hidden sm:block"
             />
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Navigation buttons -->
-    <button class="prev-btn" (click)="prevSlide()">
-      <i class="fas fa-chevron-left"></i>
-    </button>
-    <button class="next-btn" (click)="nextSlide()">
-      <i class="fas fa-chevron-right"></i>
-    </button>
   </div>
 
-  <!-- Pagination dots -->
-  <div class="pagination">
-    <span
-      *ngFor="let i of getArrayFromLength(items.length)"
-      [class.active]="i === currentSlide"
-      (click)="currentSlide = i"
-    ></span>
+  <div class="navigation-controls">
+    <button class="nav-btn prev-btn" (click)="prevSlide()">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        class="w-6 h-6"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 19l-7-7 7-7"
+        />
+      </svg>
+    </button>
+
+    <div class="pagination">
+      <span
+        *ngFor="let i of getArrayFromLength(items.length)"
+        [class.active]="i === currentSlide"
+        (click)="currentSlide = i"
+      ></span>
+    </div>
+
+    <button class="nav-btn next-btn" (click)="nextSlide()">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        class="w-6 h-6"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        />
+      </svg>
+    </button>
   </div>
 </div>

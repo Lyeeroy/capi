@@ -200,3 +200,17 @@
     max-width: 60%;
   }
 }
+
+@media (max-width: 425px) {
+  .slide {
+    flex: 0 0 calc(100% / 1);
+  }
+
+  .carousel-inner {
+    width: calc(100% * 1);
+  }
+
+  .slide-info {
+    max-width: 100%;
+  }
+}
