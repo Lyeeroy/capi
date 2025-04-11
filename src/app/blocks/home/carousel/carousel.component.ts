@@ -8,8 +8,7 @@ import {
 } from '@angular/core';
 import { TmdbService } from '../../../services/tmdb.service';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { forkJoin } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -17,41 +16,20 @@ import { RouterLink } from '@angular/router';
   templateUrl: './carousel.component.html',
   styleUrls: ['./carousel.component.css'],
   imports: [CommonModule, RouterLink],
-  standalone: true, // If you're using Angular 14+ and standalone components
+  standalone: true,
 })
 export class CarouselComponent implements OnInit, OnDestroy {
-  @Input() itemsPerPage = 3; // Default slides per view
+  @Input() autoplayInterval = 3000; // Optional
   items: any[] = [];
   currentSlide = 0;
   slideInterval: any;
   private fetchSubscription: Subscription | null = null;
 
-  constructor(private tmdbService: TmdbService, private el: ElementRef) {}
+  constructor(private tmdbService: TmdbService) {}
 
   ngOnInit(): void {
     this.fetchData();
     this.startAutoplay();
-    this.adjustItemsPerPage();
-  }
-
-  @HostListener('window:resize', ['$event'])
-  onResize() {
-    this.adjustItemsPerPage();
-  }
-
-  adjustItemsPerPage(): void {
-    const width = this.el.nativeElement.offsetWidth;
-    if (width < 768) {
-      this.itemsPerPage = 1;
-    } else if (width < 1024) {
-      this.itemsPerPage = 2;
-    } else {
-      this.itemsPerPage = 3;
-    }
-  }
-
-  getArrayFromLength(length: number): number[] {
-    return Array.from({ length }, (_, i) => i);
   }
 
   ngOnDestroy(): void {
@@ -63,31 +41,32 @@ export class CarouselComponent implements OnInit, OnDestroy {
     const movieEndpoint = '/trending/movie/week';
     const tvEndpoint = '/trending/tv/week';
 
-    this.unsubscribeFetch(); // Ensure any previous subscription is cleared
-    this.fetchSubscription = forkJoin(
+    this.unsubscribeFetch();
+    this.fetchSubscription = forkJoin([
       this.tmdbService.fetchFromTmdb(movieEndpoint, {}),
-      this.tmdbService.fetchFromTmdb(tvEndpoint, {})
-    ).subscribe({
+      this.tmdbService.fetchFromTmdb(tvEndpoint, {}),
+    ]).subscribe({
       next: ([movies, tvShows]) => {
-        const mixedItems = [];
         const movieItems = movies.results.slice(0, 5);
         const tvItems = tvShows.results.slice(0, 5);
+        const mixedItems = [];
 
         for (let i = 0; i < 10; i++) {
-          if (i % 2 === 0) {
-            mixedItems.push(movieItems.pop());
-          } else {
-            mixedItems.push(tvItems.pop());
+          if (i % 2 === 0 && movieItems.length) {
+            mixedItems.push(movieItems.shift());
+          } else if (tvItems.length) {
+            mixedItems.push(tvItems.shift());
           }
         }
 
         this.items = mixedItems;
+        this.currentSlide = 0;
       },
       error: (err) => console.error('Carousel error:', err),
     });
   }
 
-  private unsubscribeFetch(): void {
+  unsubscribeFetch(): void {
     if (this.fetchSubscription) {
       this.fetchSubscription.unsubscribe();
       this.fetchSubscription = null;
@@ -95,7 +74,7 @@ export class CarouselComponent implements OnInit, OnDestroy {
   }
 
   startAutoplay(): void {
-    this.slideInterval = setInterval(() => this.nextSlide(), 3000);
+    this.slideInterval = setInterval(() => this.nextSlide(), this.autoplayInterval);
   }
 
   stopAutoplay(): void {
@@ -103,15 +82,13 @@ export class CarouselComponent implements OnInit, OnDestroy {
   }
 
   nextSlide(): void {
+    if (this.items.length === 0) return;
     this.currentSlide = (this.currentSlide + 1) % this.items.length;
   }
 
   prevSlide(): void {
+    if (this.items.length === 0) return;
     this.currentSlide = (this.currentSlide - 1 + this.items.length) % this.items.length;
-  }
-
-  trackByFn(index: number, item: any): number {
-    return item.id;
   }
 
   onMouseEnter(): void {
@@ -120,5 +97,9 @@ export class CarouselComponent implements OnInit, OnDestroy {
 
   onMouseLeave(): void {
     this.startAutoplay();
+  }
+
+  trackByFn(index: number, item: any): number {
+    return item.id;
   }
 }
