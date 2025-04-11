@@ -1,4 +1,3 @@
-// src/app/blocks/home/carousel/carousel.component.ts
 import {
   Component,
   Input,
@@ -18,6 +17,7 @@ import { RouterLink } from '@angular/router';
   templateUrl: './carousel.component.html',
   styleUrls: ['./carousel.component.css'],
   imports: [CommonModule, RouterLink],
+  standalone: true, // If you're using Angular 14+ and standalone components
 })
 export class CarouselComponent implements OnInit, OnDestroy {
   @Input() itemsPerPage = 3; // Default slides per view
@@ -107,11 +107,18 @@ export class CarouselComponent implements OnInit, OnDestroy {
   }
 
   prevSlide(): void {
-    this.currentSlide =
-      (this.currentSlide - 1 + this.items.length) % this.items.length;
+    this.currentSlide = (this.currentSlide - 1 + this.items.length) % this.items.length;
   }
 
   trackByFn(index: number, item: any): number {
     return item.id;
+  }
+
+  onMouseEnter(): void {
+    this.stopAutoplay();
+  }
+
+  onMouseLeave(): void {
+    this.startAutoplay();
   }
 }
