@@ -1,18 +1,23 @@
-<div class="p-4">
-  <div class="flex flex-col lg:flex-row gap-2 items-center justify-between">
+<div class="p-3 sm:p-4 bg-white">
+  <div
+    class="flex flex-col gap-3 sm:gap-4 items-center justify-between lg:flex-row"
+  >
     <!-- Source Navigation -->
     <div
-      class="flex items-center rounded-full overflow-hidden border border-gray-300 w-auto"
+      class="flex items-center rounded-lg border border-gray-200 bg-white w-full lg:w-auto"
     >
       <button
-        class="bg-gray-100 text-gray-700 py-2 px-4 font-medium text-sm transition-colors duration-150 hover:bg-gray-100 active:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 flex items-center gap-1 border-r border-gray-300"
+        class="text-gray-700 py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm transition-colors duration-150 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 flex items-center gap-1 group w-full md:w-auto justify-center"
         (click)="prevSource()"
       >
-        <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
-        <span class="sm:inline hidden">Prev</span>
+        <app-icon-lib
+          ico="arrowLeft"
+          class="w-3 h-3 sm:w-3.5 sm:h-3.5 transform transition-transform duration-150 group-hover:-translate-x-0.5"
+        ></app-icon-lib>
+        <span class="hidden sm:inline">Prev</span>
       </button>
       <select
-        class="bg-gray-100 text-gray-700 text-center w-full py-2 px-8 font-medium text-sm focus:outline-none focus-visible:ring focus-visible:ring-blue-500 appearance-none bg-chevron-down bg-no-repeat bg-right-3 bg-center"
+        class="bg-white text-gray-700 text-center w-full py-2 px-4 sm:px-6 font-medium text-xs sm:text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 appearance-none bg-chevron-down bg-no-repeat bg-right-1 sm:bg-right-2 bg-center"
         (change)="onSourceChange($event)"
         [(ngModel)]="currentSourceUrl"
       >
@@ -21,34 +26,43 @@
         </option>
       </select>
       <button
-        class="bg-gray-100 text-gray-700 py-2 px-4 font-medium text-sm transition-colors duration-150 hover:bg-gray-100 active:bg-gray-200 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 flex items-center gap-1 border-l border-gray-300"
+        class="text-gray-700 py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm transition-colors duration-150 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 flex items-center gap-1 group w-full md:w-auto justify-center"
         (click)="nextSource()"
       >
-        <span class="sm:inline hidden">Next</span>
-        <app-icon-lib ico="arrowRight" class="w-4 h-4"></app-icon-lib>
+        <span class="hidden sm:inline">Next</span>
+        <app-icon-lib
+          ico="arrowRight"
+          class="w-3 h-3 sm:w-3.5 sm:h-3.5 transform transition-transform duration-150 group-hover:translate-x-0.5"
+        ></app-icon-lib>
       </button>
     </div>
 
     <!-- Episode Navigation -->
     <div
-      class="flex gap-2 w-full sm:w-auto justify-center"
+      class="flex gap-2 w-full lg:w-auto justify-center"
       *ngIf="mediaType !== 'movie'"
     >
       <button
-        class="border border-blue-400 flex-1 sm:flex-none px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-sm font-medium text-blue-600 flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 active:scale-[0.98]"
+        class="border border-blue-300 flex-1 px-3 py-2 sm:px-4 rounded-lg bg-white hover:bg-blue-50 active:bg-blue-100 text-xs sm:text-sm font-medium text-blue-600 flex items-center justify-center gap-1 transition-all duration-150 active:scale-[0.98] group"
         (click)="prevEpisode()"
       >
-        <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
-        <span class="sm:inline hidden">Prev episode</span>
+        <app-icon-lib
+          ico="arrowLeft"
+          class="w-3 h-3 sm:w-3.5 sm:h-3.5 transform transition-transform duration-150 group-hover:-translate-x-0.5"
+        ></app-icon-lib>
+        <span class="hidden sm:inline">Prev Episode</span>
       </button>
 
       <button
-        class="border border-blue-400 flex-1 sm:flex-none px-4 py-2 rounded-full bg-blue-50 hover:bg-blue-100 active:bg-blue-200 text-sm font-medium text-blue-600 flex items-center justify-center gap-1 cursor-pointer transition-all duration-150 active:scale-[0.98]"
+        class="border border-blue-300 flex-1 px-3 py-2 sm:px-4 rounded-lg bg-white hover:bg-blue-50 active:bg-blue-100 text-xs sm:text-sm font-medium text-blue-600 flex items-center justify-center gap-1 transition-all duration-150 active:scale-[0.98] group"
         (click)="nextEpisode()"
         *ngIf="mediaType !== 'movie'"
       >
-        <span class="sm:inline hidden">Next episode</span>
-        <app-icon-lib ico="arrowRight" class="w-4 h-4"></app-icon-lib>
+        <span class="hidden sm:inline">Next Episode</span>
+        <app-icon-lib
+          ico="arrowRight"
+          class="w-3 h-3 sm:w-3.5 sm:h-3.5 transform transition-transform duration-150 group-hover:translate-x-0.5"
+        ></app-icon-lib>
       </button>
     </div>
   </div>

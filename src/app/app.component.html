@@ -1,9 +1,12 @@
-<div class="relative h-full min-h-screen font-[sans-serif]">
+<div class="h-full min-h-screen font-[sans-serif] container mx-auto">
+  <app-nav-bar></app-nav-bar>
   <div class="flex items-start">
-    <app-side-bar></app-side-bar>
+    <!-- <app-side-bar></app-side-bar> -->
 
-    <section class="main-content flex-1 overflow-hidden">
-      <app-header></app-header>
+    <section
+      class="main-content flex-1 overflow-hidden px-4 sm:px-6 lg:px-8 xl:px-12"
+    >
+      <!-- <app-header></app-header> -->
       <router-outlet />
     </section>
   </div>
