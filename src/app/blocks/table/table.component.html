@@ -93,12 +93,12 @@
         </div>
       </div>
     </div>
-    <div class="rounded-lg overflow-auto">
-      <table class="w-full bg-white">
+    <div class="rounded-lg overflow-x-hidden">
+      <table class="w-full bg-white table-auto">
         <thead class="bg-gray-50 hidden md:table-header-group">
           <tr class="align-middle">
-            <th class="p-3 w-[5%]"></th>
-            <th class="p-3 w-[5%]">
+            <th class="p-3 min-w-[40px] max-w-[60px]"></th>
+            <th class="p-3 min-w-[40px] max-w-[60px]">
               <input
                 (click)="selectAll()"
                 type="checkbox"
@@ -106,22 +106,22 @@
               />
             </th>
             <th
-              class="p-4 text-left text-sm font-semibold text-gray-600 w-[30%] min-w-[200px]"
+              class="p-4 text-left text-sm font-semibold text-gray-600 min-w-[150px]"
             >
               Name
             </th>
             <th
-              class="p-4 text-left text-sm font-semibold text-gray-600 hidden md:table-cell w-[40%]"
+              class="p-4 text-left text-sm font-semibold text-gray-600 hidden xl:table-cell min-w-[200px]"
             >
               URL
             </th>
             <th
-              class="p-4 text-left text-sm font-semibold text-gray-600 w-[12%]"
+              class="p-4 text-left text-sm font-semibold text-gray-600 min-w-[80px] max-w-[100px]"
             >
               Active
             </th>
             <th
-              class="p-4 text-right text-sm font-semibold text-gray-600 w-[8%]"
+              class="p-4 text-right text-sm font-semibold text-gray-600 min-w-[80px] max-w-[120px]"
             >
               Actions
             </th>
@@ -129,16 +129,16 @@
         </thead>
         <tbody>
           <tr>
-            <td colspan="6" class="p-1.5 sm:p-2">
+            <td colspan="6" class="p-2 sm:p-3">
               <div
                 *ngIf="!isAdding"
-                class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer touch:min-h-[60px]"
+                class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer min-h-[60px]"
                 (click)="startAdd()"
               >
                 <div class="flex items-center justify-center h-full">
                   <app-icon-lib
                     ico="plus"
-                    class="h-10 w-10 text-gray-400 hover:text-blue-500 sm:h-8 sm:w-8"
+                    class="h-8 w-8 sm:h-10 sm:w-10 text-gray-400 hover:text-blue-500"
                   ></app-icon-lib>
                 </div>
               </div>
@@ -156,7 +156,7 @@
                   />
                   <input
                     type="text"
-                    class="border-2 border-gray-300 rounded-md p-2 text-sm flex-grow-[3] bg-white focus:border-blue-500 focus:ring-blue-500"
+                    class="border-2 border-gray-300 rounded-md p-2 text-sm flex-grow-[3] bg-white focus:border-blue-500 focus:ring-blue-500 max-w-full"
                     placeholder="https://..."
                     [(ngModel)]="newUrl"
                     (keyup.enter)="confirmAdd()"
@@ -198,7 +198,9 @@
               [ngClass]="{ 'bg-gray-50': source.isEditing }"
               cdkDrag
             >
-              <td class="p-3 text-gray-400 align-middle hidden md:table-cell">
+              <td
+                class="p-2 sm:p-3 text-gray-400 align-middle hidden md:table-cell"
+              >
                 <div cdkDragHandle class="cursor-move">
                   <app-icon-lib
                     ico="menu"
@@ -206,18 +208,18 @@
                   ></app-icon-lib>
                 </div>
               </td>
-              <td class="align-middle hidden md:table-cell">
+              <td class="align-middle hidden md:table-cell p-2 sm:p-3">
                 <input
                   type="checkbox"
                   [checked]="isSelected"
                   class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mx-auto"
                 />
               </td>
-              <td class="p-3 align-middle">
+              <td class="p-2 sm:p-3 align-middle">
                 <div
-                  class="flex items-center gap-3 md:w-auto xl:flex-row flex-col"
+                  class="flex items-start gap-2 md:gap-3 flex-col xl:flex-row max-w-full"
                 >
-                  <div class="flex items-center gap-2 w-full">
+                  <div class="flex items-center gap-2 w-full flex-wrap">
                     <div class="flex-shrink-0 xl:hidden" cdkDragHandle>
                       <app-icon-lib
                         ico="menu"
@@ -228,13 +230,13 @@
                       src="https://www.google.com/s2/favicons?sz=64&domain={{
                         getDisplayName(source)
                       }}"
-                      class="w-10 h-10 rounded-full flex-shrink-0"
+                      class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0"
                       alt="Favicon"
                     />
-                    <div class="flex-1 min-w-0">
+                    <div class="flex-1 min-w-0 max-w-full">
                       <div
                         *ngIf="!source.isEditing"
-                        class="text-lg xl:text-base font-medium break-words"
+                        class="text-base sm:text-lg xl:text-base font-medium break-words"
                       >
                         {{
                           source.name === ""
@@ -246,20 +248,15 @@
                         *ngIf="source.isEditing"
                         name="name"
                         type="text"
-                        class="border-2 border-gray-300 rounded-md p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        class="border-2 border-gray-300 rounded-md p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 max-w-full"
                         placeholder="Enter name"
                         [(ngModel)]="source.name"
                         (keyup.enter)="editSource(source)"
                       />
                     </div>
-                    <input
-                      type="checkbox"
-                      [checked]="isSelected"
-                      class="w-5 h-5 text-blue-600 border-gray-300 rounded xl:hidden hidden"
-                    />
                   </div>
                   <div
-                    class="w-full break-words text-sm text-gray-600 xl:hidden"
+                    class="w-full break-words text-sm text-gray-600 xl:hidden max-w-full"
                   >
                     <div class="hidden sm:block">
                       <span
@@ -267,13 +264,14 @@
                         [innerHTML]="
                           highlightUrl(source.url || 'No URL provided')
                         "
+                        class="break-words"
                       ></span>
                     </div>
                     <input
                       *ngIf="source.isEditing"
                       name="url"
                       type="text"
-                      class="mt-1 border border-gray-300 rounded p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      class="mt-1 border border-gray-300 rounded p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 max-w-full"
                       placeholder="Enter URL"
                       [(ngModel)]="source.url"
                       (keyup.enter)="editSource(source)"
@@ -281,8 +279,8 @@
                   </div>
                 </div>
               </td>
-              <td class="p-3 hidden xl:table-cell align-middle">
-                <div class="max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw]">
+              <td class="p-2 sm:p-3 hidden xl:table-cell align-middle">
+                <div class="max-w-full">
                   <div
                     *ngIf="!source.isEditing"
                     class="text-sm sm:text-base text-gray-800 break-words"
@@ -292,17 +290,15 @@
                     *ngIf="source.isEditing"
                     name="url"
                     type="text"
-                    class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 max-w-full"
                     placeholder="Enter URL"
                     [(ngModel)]="source.url"
                     (keyup.enter)="editSource(source)"
                   />
                 </div>
               </td>
-              <td class="p-3 align-middle hidden">
-                <label
-                  class="relative inline-block w-0 h-0 sm:w-12 sm:h-6 mx-auto"
-                >
+              <td class="p-2 sm:p-3 align-middle">
+                <label class="relative inline-block w-12 h-6 mx-auto">
                   <input
                     type="checkbox"
                     class="sr-only peer"
@@ -314,7 +310,7 @@
                   ></div>
                 </label>
               </td>
-              <td class="p-3 align-middle">
+              <td class="p-2 sm:p-3 align-middle">
                 <div class="flex items-center justify-end gap-2">
                   <button
                     class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full"
