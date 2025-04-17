@@ -194,36 +194,48 @@
             *ngFor="let source of searchInObject(); trackBy: trackById"
           >
             <tr
-              class="hidden xl:table-row hover:bg-gray-50 active:bg-gray-100 cursor-pointer"
+              class="hover:bg-gray-50 active:bg-gray-100 cursor-pointer"
               [ngClass]="{ 'bg-gray-50': source.isEditing }"
               cdkDrag
-              cdkDragHandle
             >
-              <td class="p-3 text-gray-400 hidden md:table-cell align-middle">
-                <app-icon-lib
-                  ico="menu"
-                  class="h-6 w-6 cursor-move touch:p-1 mx-auto"
-                ></app-icon-lib>
+              <td class="p-3 text-gray-400 align-middle hidden md:table-cell">
+                <div cdkDragHandle class="cursor-move">
+                  <app-icon-lib
+                    ico="menu"
+                    class="h-6 w-6 touch:p-1 mx-auto"
+                  ></app-icon-lib>
+                </div>
               </td>
               <td class="align-middle hidden md:table-cell">
                 <input
                   type="checkbox"
                   [checked]="isSelected"
-                  class="hidden w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 touch:w-5 touch:h-5 md:block mx-auto"
+                  class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mx-auto"
                 />
               </td>
               <td class="p-3 align-middle">
-                <div class="flex items-center gap-3 md:w-auto">
-                  <img
-                    src="https://www.google.com/s2/favicons?sz=64&domain={{
-                      getDisplayName(source)
-                    }}"
-                    class="w-12 h-12 rounded-full sm:w-10 sm:h-10 hidden md:block"
-                    alt="Favicon"
-                  />
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2">
-                      <div *ngIf="!source.isEditing">
+                <div
+                  class="flex items-center gap-3 md:w-auto xl:flex-row flex-col"
+                >
+                  <div class="flex items-center gap-2 w-full">
+                    <div class="flex-shrink-0 xl:hidden" cdkDragHandle>
+                      <app-icon-lib
+                        ico="menu"
+                        class="h-6 w-6 text-gray-400 cursor-move"
+                      ></app-icon-lib>
+                    </div>
+                    <img
+                      src="https://www.google.com/s2/favicons?sz=64&domain={{
+                        getDisplayName(source)
+                      }}"
+                      class="w-10 h-10 rounded-full flex-shrink-0"
+                      alt="Favicon"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <div
+                        *ngIf="!source.isEditing"
+                        class="text-lg xl:text-base font-medium break-words"
+                      >
                         {{
                           source.name === ""
                             ? getDisplayName(source)
@@ -234,16 +246,42 @@
                         *ngIf="source.isEditing"
                         name="name"
                         type="text"
-                        class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        class="border-2 border-gray-300 rounded-md p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter name"
                         [(ngModel)]="source.name"
                         (keyup.enter)="editSource(source)"
                       />
                     </div>
+                    <input
+                      type="checkbox"
+                      [checked]="isSelected"
+                      class="w-5 h-5 text-blue-600 border-gray-300 rounded xl:hidden hidden"
+                    />
+                  </div>
+                  <div
+                    class="w-full break-words text-sm text-gray-600 xl:hidden"
+                  >
+                    <div class="hidden sm:block">
+                      <span
+                        *ngIf="!source.isEditing"
+                        [innerHTML]="
+                          highlightUrl(source.url || 'No URL provided')
+                        "
+                      ></span>
+                    </div>
+                    <input
+                      *ngIf="source.isEditing"
+                      name="url"
+                      type="text"
+                      class="mt-1 border border-gray-300 rounded p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                      placeholder="Enter URL"
+                      [(ngModel)]="source.url"
+                      (keyup.enter)="editSource(source)"
+                    />
                   </div>
                 </div>
               </td>
-              <td class="p-3 hidden md:table-cell align-middle">
+              <td class="p-3 hidden xl:table-cell align-middle">
                 <div class="max-w-[60vw] lg:max-w-[50vw] xl:max-w-[40vw]">
                   <div
                     *ngIf="!source.isEditing"
@@ -261,8 +299,10 @@
                   />
                 </div>
               </td>
-              <td class="p-3 hidden md:table-cell align-middle">
-                <label class="relative inline-block w-12 h-6 mx-auto">
+              <td class="p-3 align-middle hidden">
+                <label
+                  class="relative inline-block w-0 h-0 sm:w-12 sm:h-6 mx-auto"
+                >
                   <input
                     type="checkbox"
                     class="sr-only peer"
@@ -274,7 +314,7 @@
                   ></div>
                 </label>
               </td>
-              <td class="p-3 hidden md:table-cell align-middle">
+              <td class="p-3 align-middle">
                 <div class="flex items-center justify-end gap-2">
                   <button
                     class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full"
@@ -293,121 +333,6 @@
                   >
                     <app-icon-lib ico="trash" class="h-6 w-6"></app-icon-lib>
                   </button>
-                </div>
-              </td>
-            </tr>
-
-            <tr class="xl:hidden hover:bg-gray-50 active:bg-gray-100">
-              <td colspan="6" class="p-4">
-                <div class="flex flex-col gap-3 w-full overflow-hidden">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                      <div class="flex-shrink-0">
-                        <app-icon-lib
-                          ico="menu"
-                          class="h-6 w-6 text-gray-400 cursor-move"
-                        ></app-icon-lib>
-                      </div>
-                      <img
-                        src="https://www.google.com/s2/favicons?sz=64&domain={{
-                          getDisplayName(source)
-                        }}"
-                        class="w-10 h-10 rounded-full flex-shrink-0"
-                        alt="Favicon"
-                      />
-                      <div class="flex-1 min-w-0">
-                        <div
-                          *ngIf="!source.isEditing"
-                          class="text-lg font-medium break-words"
-                        >
-                          {{
-                            source.name === ""
-                              ? getDisplayName(source)
-                              : source.name
-                          }}
-                        </div>
-                        <input
-                          *ngIf="source.isEditing"
-                          name="name"
-                          type="text"
-                          class="border border-gray-300 rounded p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                          placeholder="Enter name"
-                          [(ngModel)]="source.name"
-                          (keyup.enter)="editSource(source)"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <input
-                        type="checkbox"
-                        [checked]="isSelected"
-                        class="w-5 h-5 text-blue-600 border-gray-300 rounded"
-                      />
-                    </div>
-                  </div>
-                  <div class="flex flex-col gap-3 pl-8">
-                    <div class="w-full break-words text-sm text-gray-600">
-                      <div class="hidden sm:block">
-                        <!-- <span class="font-semibold">URL:</span> -->
-                        <span
-                          *ngIf="!source.isEditing"
-                          [innerHTML]="
-                            highlightUrl(source.url || 'No URL provided')
-                          "
-                        ></span>
-                      </div>
-                      <input
-                        *ngIf="source.isEditing"
-                        name="url"
-                        type="text"
-                        class="mt-1 border border-gray-300 rounded p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                        placeholder="Enter URL"
-                        [(ngModel)]="source.url"
-                        (keyup.enter)="editSource(source)"
-                      />
-                    </div>
-                    <div class="flex items-center justify-between mt-2">
-                      <label class="relative inline-block w-12 h-6">
-                        <input
-                          type="checkbox"
-                          class="sr-only peer"
-                          [checked]="source.enabled"
-                          (click)="toggleSource(source)"
-                        />
-                        <div
-                          class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
-                        ></div>
-                      </label>
-                      <div class="flex gap-2">
-                        <button
-                          class="p-2 text-blue-600 bg-blue-100 rounded-full"
-                          (click)="editSource(source)"
-                        >
-                          <ng-container *ngIf="!source.isEditing">
-                            <app-icon-lib
-                              ico="edit"
-                              class="h-6 w-6"
-                            ></app-icon-lib>
-                          </ng-container>
-                          <ng-container *ngIf="source.isEditing">
-                            <app-icon-lib
-                              ico="check"
-                              class="h-6 w-6"
-                            ></app-icon-lib>
-                          </ng-container>
-                        </button>
-                        <button
-                          class="p-2 text-red-600 bg-red-100 rounded-full"
-                          (click)="removeSource(source.id)"
-                        >
-                          <app-icon-lib
-                            ico="trash"
-                            class="h-6 w-6"
-                          ></app-icon-lib>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </td>
             </tr>
