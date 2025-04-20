@@ -39,7 +39,7 @@
             >
               <img
                 *ngIf="item.poster_path"
-                [src]="'https://image.tmdb.org/t/p/w300' + item.poster_path"
+                [src]="'https://image.tmdb.org/t/p/w1280' + item.poster_path"
                 [alt]="(item.title || item.name) + ' Poster'"
                 class="w-full h-full object-cover"
                 loading="lazy"
