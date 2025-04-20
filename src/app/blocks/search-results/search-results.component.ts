@@ -1,9 +1,11 @@
+// src/app/blocks/search-results/search-results.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ContentTabsComponent } from '../../components/content-tabs/content-tabs.component';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
+import { TmdbService } from '../../services/tmdb.service'; // Import TmdbService
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-search-results',
@@ -12,28 +14,44 @@ import { IconLibComponent } from '../../svg-icons/icon-lib.component';
   imports: [CommonModule, ContentTabsComponent, IconLibComponent],
 })
 export class SearchResultsComponent implements OnInit {
-  BASE_URL = 'https://api.themoviedb.org/3';
-  API_KEY = '2c6781f841ce2ad1608de96743a62eb9';
   searchResults: any[] = [];
   query: string = '';
-  url: string = '';
+  url: string = ''; // Still needed for app-content-tabs
   tileLimit: number = 6; // Default limit for tiles
 
   constructor(
     private route: ActivatedRoute,
-    private http: HttpClient,
+    private tmdbService: TmdbService, // Replace HttpClient with TmdbService
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
-      this.resetResultsOnQueryChange(params.get('query') || '');
       const query = params.get('query') || '';
-      this.url = query
-        ? `/search/multi?api_key=${this.API_KEY}&query=${query}`
-        : '';
-      console.log('Constructed URL:', this.url); // Debugging the URL
+      this.resetResultsOnQueryChange(query);
+      this.url = query ? `/search/multi?query=${query}` : ''; // Construct URL for app-content-tabs
+      if (query) {
+        this.fetchResults(query); // Fetch results when query exists
+      } else {
+        this.searchResults = []; // Clear results if no query
+      }
     });
+  }
+
+  fetchResults(query: string) {
+    this.tmdbService
+      .fetchFromTmdb('/search/multi', { query }) // Use fetchFromTmdb
+      .subscribe({
+        next: (data) => {
+          // Filter results with poster_path and valid media_type
+          this.searchResults = data.results.filter(
+            (item: any) =>
+              item.poster_path &&
+              (item.media_type === 'movie' || item.media_type === 'tv')
+          );
+        },
+        error: (err) => console.error('Error fetching search results:', err),
+      });
   }
 
   tileLimitOnResultLength() {
@@ -51,30 +69,6 @@ export class SearchResultsComponent implements OnInit {
     this.tileLimit
       ? (this.tileLimit += number)
       : (this.tileLimit = this.searchResults.length);
-    console.log('Tile limit:', this.tileLimit); // Debugging the tile limit
+    console.log('Tile limit:', this.tileLimit);
   }
 }
-
-//   fetchResults() {
-//     this.http
-//       .get<any>(
-//         `${this.BASE_URL}/search/multi?api_key=${this.API_KEY}&query=${this.query}`
-//       )
-//       .subscribe({
-//         next: (data) => {
-//           this.searchResults = data.results.filter(
-//             (item: any) =>
-//               item.poster_path &&
-//               (item.media_type === 'movie' || item.media_type === 'tv')
-//           );
-//         },
-//         error: (err) => console.error('Error fetching search results:', err),
-//       });
-//   }
-
-//   redirectToPlayer(item: any) {
-//     this.router.navigate(['/player', item.id, item.media_type], {
-//       queryParams: { name: item.title || item.name },
-//     });
-//   }
-// }

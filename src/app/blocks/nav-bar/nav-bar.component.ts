@@ -5,17 +5,16 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HighlightSlectedMenuRoute } from '../side-bar/side-bar.service';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
+import { TmdbService } from '../../services/tmdb.service'; // Import TmdbService
 
 @Component({
   selector: 'app-nav-bar',
   templateUrl: './nav-bar.component.html',
   standalone: true,
   imports: [FormsModule, RouterModule, CommonModule, IconLibComponent],
-  providers: [HighlightSlectedMenuRoute],
+  providers: [HighlightSlectedMenuRoute, TmdbService], // Add TmdbService to providers
 })
 export class NavBarComponent implements AfterViewInit {
-  BASE_URL = 'https://api.themoviedb.org/3';
-  API_KEY = '2c6781f841ce2ad1608de96743a62eb9';
   query = '';
   searchResults: any[] = [];
 
@@ -29,7 +28,8 @@ export class NavBarComponent implements AfterViewInit {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private highlightSlectedMenuRoute: HighlightSlectedMenuRoute
+    private highlightSlectedMenuRoute: HighlightSlectedMenuRoute,
+    private tmdbService: TmdbService // Inject TmdbService
   ) {}
 
   ngAfterViewInit() {
@@ -47,10 +47,9 @@ export class NavBarComponent implements AfterViewInit {
       return;
     }
 
-    this.http
-      .get<any>(
-        `${this.BASE_URL}/search/multi?api_key=${this.API_KEY}&query=${this.query}`
-      )
+    // Use TmdbService's fetchFromTmdb instead of hardcoded fetch
+    this.tmdbService
+      .fetchFromTmdb('/search/multi', { query: this.query })
       .subscribe({
         next: (data) => {
           this.searchResults = data.results.filter(
@@ -68,6 +67,18 @@ export class NavBarComponent implements AfterViewInit {
 
   redirectToPlayer(item: any) {
     this.router.navigate(['/player', item.id, item.media_type]);
+  }
+
+  clearSearch() {
+    this.query = ''; // Clear query
+    this.searchResults = []; // Clear results
+  }
+
+  focusSearchInput() {
+    const searchInput = document.getElementById('search') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.focus();
+    }
   }
 
   handleClick(event: Event) {

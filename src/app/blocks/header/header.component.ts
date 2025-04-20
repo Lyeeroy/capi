@@ -1,7 +1,8 @@
+// src/app/blocks/header/header.component.ts
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { TmdbService } from '../../services/tmdb.service'; // Adjust path as needed
 
 @Component({
   selector: 'app-header',
@@ -10,16 +11,13 @@ import { FormsModule } from '@angular/forms';
   imports: [FormsModule, RouterModule],
 })
 export class HeaderComponent {
-  BASE_URL = 'https://api.themoviedb.org/3';
-  API_KEY = '2c6781f841ce2ad1608de96743a62eb9';
   query = '';
   searchResults: any[] = [];
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private tmdbService: TmdbService, private router: Router) {}
 
   get sources() {
     const storedData = localStorage.getItem('sources');
-    if (!storedData) return [];
     return storedData ? JSON.parse(storedData) : [];
   }
 
@@ -29,10 +27,8 @@ export class HeaderComponent {
       return;
     }
 
-    this.http
-      .get<any>(
-        `${this.BASE_URL}/search/multi?api_key=${this.API_KEY}&query=${this.query}`
-      )
+    this.tmdbService
+      .fetchFromTmdb('/search/multi', { query: this.query })
       .subscribe({
         next: (data) => {
           this.searchResults = data.results.filter(

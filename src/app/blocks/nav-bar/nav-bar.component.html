@@ -70,8 +70,14 @@
                 />
                 <app-icon-lib
                   ico="search"
-                  class="h-4 w-4 sm:h-5 sm:w-5 absolute right-3 text-gray-500 cursor-pointer"
+                  class="h-4 w-4 sm:h-5 sm:w-5 absolute right-1 text-gray-500 cursor-pointer"
                   (click)="searchMovies()"
+                ></app-icon-lib>
+                <app-icon-lib
+                  ico="clear"
+                  class="h-5 w-5 sm:h-5 sm:w-5 absolute right-4 text-gray-500 cursor-pointer"
+                  (click)="clearSearch(); focusSearchInput()"
+                  *ngIf="query.length > 0"
                 ></app-icon-lib>
               </div>
             </div>
