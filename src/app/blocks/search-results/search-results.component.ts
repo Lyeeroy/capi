@@ -44,7 +44,7 @@ export class SearchResultsComponent implements OnInit {
 
   resetResultsOnQueryChange(query: string) {
     this.query = query;
-    this.tileLimit = 12; // Reset tile limit when query changes
+    this.tileLimit = 14; // Reset tile limit when query changes
   }
 
   showMore(number: number) {
