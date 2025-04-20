@@ -21,7 +21,11 @@
         (change)="onSourceChange($event)"
         [(ngModel)]="currentSourceUrl"
       >
-        <option *ngFor="let source of sources" [value]="source.url">
+        <option
+          *ngFor="let source of sources; let i = index"
+          [value]="source.url"
+          [hidden]="source.enabled === false"
+        >
           {{ source.name }}
         </option>
       </select>
