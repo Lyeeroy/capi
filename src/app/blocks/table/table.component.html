@@ -194,7 +194,7 @@
             *ngFor="let source of searchInObject(); trackBy: trackById"
           >
             <tr
-              class="hover:bg-gray-50 active:bg-gray-100 cursor-pointer"
+              class="hover:bg-gray-50 active:bg-gray-100"
               [ngClass]="{ 'bg-gray-50': source.isEditing }"
               cdkDrag
             >
@@ -298,7 +298,9 @@
                 </div>
               </td>
               <td class="p-2 sm:p-3 align-middle">
-                <label class="relative inline-block w-12 h-6 mx-auto">
+                <label
+                  class="relative inline-block w-12 h-6 mx-auto cursor-pointer"
+                >
                   <input
                     type="checkbox"
                     class="sr-only peer"
@@ -313,7 +315,7 @@
               <td class="p-2 sm:p-3 align-middle">
                 <div class="flex items-center justify-end gap-2">
                   <button
-                    class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full"
+                    class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full cursor-pointer"
                     (click)="editSource(source)"
                   >
                     <ng-container *ngIf="!source.isEditing">
@@ -324,7 +326,7 @@
                     </ng-container>
                   </button>
                   <button
-                    class="p-1.5 text-red-600 hover:bg-red-100 rounded-full"
+                    class="p-1.5 text-red-600 hover:bg-red-100 rounded-full cursor-pointer"
                     (click)="removeSource(source.id)"
                   >
                     <app-icon-lib ico="trash" class="h-6 w-6"></app-icon-lib>
