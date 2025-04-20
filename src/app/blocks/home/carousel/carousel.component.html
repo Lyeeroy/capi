@@ -5,10 +5,13 @@
     (mouseleave)="onMouseLeave()"
   >
     <div
-      class="flex transition-transform duration-500 ease-in-out"
+      class="flex transition-transform duration-500 ease-in-out slide-container"
       [ngStyle]="{ transform: 'translateX(-' + currentSlide * 100 + '%)' }"
+      [class.grabbing]="isDragging"
       role="region"
       aria-label="Image Carousel"
+      (mousedown)="onDragStart($event)"
+      (touchstart)="onDragStart($event)"
     >
       <div
         *ngFor="let item of items; let i = index; trackBy: trackByFn"
@@ -28,8 +31,9 @@
           <img
             [src]="'https://image.tmdb.org/t/p/w1280' + item.backdrop_path"
             [alt]="item.title || item.name"
-            class="object-cover w-full h-64 md:h-80 lg:h-[50vh] rounded-2xl"
+            class="object-cover w-full h-64 md:h-80 lg:h-[50vh] rounded-2xl pointer-events-none select-none"
             loading="lazy"
+            draggable="false"
           />
           <div
             class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end rounded-2xl"
@@ -41,8 +45,9 @@
                 *ngIf="item.poster_path"
                 [src]="'https://image.tmdb.org/t/p/w1280' + item.poster_path"
                 [alt]="(item.title || item.name) + ' Poster'"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover pointer-events-none select-none"
                 loading="lazy"
+                draggable="false"
               />
               <div
                 *ngIf="!item.poster_path"
@@ -63,11 +68,12 @@
                 </svg>
               </div>
             </div>
-
-            <h3 class="text-white text-lg font-bold mb-1">
+            <h3 class="text-white text-lg font-bold mb-1 select-none">
               {{ item.title || item.name }}
             </h3>
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <div
+              class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm select-none"
+            >
               <span
                 class="flex items-center text-gray-300"
                 *ngIf="item.vote_average > 0"
@@ -102,6 +108,7 @@
             <button
               [routerLink]="['/player', item.id, item.media_type]"
               class="flex items-center gap-2 w-fit mt-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer transition-colors"
+              (click)="$event.stopPropagation()"
             >
               <app-icon-lib
                 ico="play"
