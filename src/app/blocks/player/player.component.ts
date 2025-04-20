@@ -81,20 +81,29 @@ export class PlayerComponent implements OnInit {
   }
 
   nextSource() {
-    const currentIndex = this.sources.findIndex(
-      (source: { url: string }) => source.url === this.currentSourceUrl
+    let currentIndex = this.sources.findIndex(
+      (source: { url: string; enabled: boolean }) =>
+        source.url === this.currentSourceUrl && source.enabled
     );
-    const nextIndex = (currentIndex + 1) % this.sources.length;
+    let nextIndex = (currentIndex + 1) % this.sources.length;
+    while (!this.sources[nextIndex].enabled) {
+      nextIndex = (nextIndex + 1) % this.sources.length;
+    }
     this.currentSourceUrl = this.sources[nextIndex].url;
     this.reloadIframe();
   }
 
   prevSource() {
-    const currentIndex = this.sources.findIndex(
-      (source: { url: string }) => source.url === this.currentSourceUrl
+    let currentIndex = this.sources.findIndex(
+      (source: { url: string; enabled: boolean }) =>
+        source.url === this.currentSourceUrl && source.enabled
     );
-    const previousIndex =
+    let previousIndex =
       (currentIndex - 1 + this.sources.length) % this.sources.length;
+    while (!this.sources[previousIndex].enabled) {
+      previousIndex =
+        (previousIndex - 1 + this.sources.length) % this.sources.length;
+    }
     this.currentSourceUrl = this.sources[previousIndex].url;
     this.reloadIframe();
   }
