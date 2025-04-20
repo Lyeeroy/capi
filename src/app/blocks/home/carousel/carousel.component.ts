@@ -3,8 +3,8 @@ import {
   Input,
   OnInit,
   OnDestroy,
-  HostListener,
-  ElementRef,
+  HostListener, // Keep if used elsewhere, not strictly needed for this layout
+  ElementRef, // Keep if used elsewhere, not strictly needed for this layout
 } from '@angular/core';
 import { TmdbService } from '../../../services/tmdb.service';
 import { CommonModule } from '@angular/common';
@@ -47,19 +47,23 @@ export class CarouselComponent implements OnInit, OnDestroy {
       this.tmdbService.fetchFromTmdb(tvEndpoint, {}),
     ]).subscribe({
       next: ([movies, tvShows]) => {
-        const movieItems = movies.results.slice(0, 5);
-        const tvItems = tvShows.results.slice(0, 5);
+        // Ensure backdrop_path and poster_path are available if needed
+        const movieItems = movies.results
+          .slice(0, 5)
+          .map((item: any) => ({ ...item, media_type: 'movie' })); // Add media_type explicitly
+        const tvItems = tvShows.results
+          .slice(0, 5)
+          .map((item: any) => ({ ...item, media_type: 'tv' })); // Add media_type explicitly
         const mixedItems = [];
 
-        for (let i = 0; i < 10; i++) {
-          if (i % 2 === 0 && movieItems.length) {
-            mixedItems.push(movieItems.shift());
-          } else if (tvItems.length) {
-            mixedItems.push(tvItems.shift());
-          }
+        // Interleave movies and TV shows
+        const maxLength = Math.max(movieItems.length, tvItems.length);
+        for (let i = 0; i < maxLength; i++) {
+          if (i < movieItems.length) mixedItems.push(movieItems[i]);
+          if (i < tvItems.length) mixedItems.push(tvItems[i]);
         }
 
-        this.items = mixedItems;
+        this.items = mixedItems.slice(0, 10); // Limit to 10 items total
         this.currentSlide = 0;
       },
       error: (err) => console.error('Carousel error:', err),
@@ -74,7 +78,12 @@ export class CarouselComponent implements OnInit, OnDestroy {
   }
 
   startAutoplay(): void {
-    this.slideInterval = setInterval(() => this.nextSlide(), this.autoplayInterval);
+    // Ensure interval is cleared before starting a new one
+    clearInterval(this.slideInterval);
+    this.slideInterval = setInterval(
+      () => this.nextSlide(),
+      this.autoplayInterval
+    );
   }
 
   stopAutoplay(): void {
@@ -88,7 +97,8 @@ export class CarouselComponent implements OnInit, OnDestroy {
 
   prevSlide(): void {
     if (this.items.length === 0) return;
-    this.currentSlide = (this.currentSlide - 1 + this.items.length) % this.items.length;
+    this.currentSlide =
+      (this.currentSlide - 1 + this.items.length) % this.items.length;
   }
 
   onMouseEnter(): void {
