@@ -10,6 +10,7 @@ import { IframeComponent } from './iframe/iframe.component';
 import { ControlsComponent } from './controls/controls.component';
 import { PlaylistComponent } from './playlist/playlist.component';
 import { PlayerHeader } from './player-header/player-header.component';
+import { InfoComponent } from './info/info.component';
 
 @Component({
   selector: 'app-player',
@@ -23,6 +24,7 @@ import { PlayerHeader } from './player-header/player-header.component';
     IframeComponent,
     ControlsComponent,
     PlaylistComponent,
+    InfoComponent,
   ],
   providers: [LoadSourcesService],
 })
@@ -44,6 +46,7 @@ export class PlayerComponent implements OnInit {
   currentEpisode: number = 1;
   iframeUrl: SafeResourceUrl;
   showIframe: boolean = true;
+  responseData: any = null;
   private mappingRegex: RegExp =
     /^(https?:\/\/[^\/]+\/)([^\/?]+)\?([^:]+):([^\/]+)(\/.*)$/;
 
@@ -117,6 +120,8 @@ export class PlayerComponent implements OnInit {
             this.seasonNumber =
               response?.number_of_seasons ?? this.seasonNumber;
             this.names = response?.name ?? this.names;
+            this.responseData = response;
+            console.log('Response:', this.responseData);
             if (this.seasonNumber) {
               this.getAllSeasonData();
             }
@@ -125,7 +130,9 @@ export class PlayerComponent implements OnInit {
         this.tmdbService
           .callAPI('https://api.themoviedb.org/3', `/movie/${this.id}`, 'movie')
           .subscribe((response) => {
-            this.names = response?.title ?? this.names;
+            //this.names = response?.title ?? this.names;
+            this.responseData = response;
+            console.log('Response:', this.responseData);
           });
       }
     }

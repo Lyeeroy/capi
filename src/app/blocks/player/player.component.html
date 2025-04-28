@@ -29,9 +29,9 @@
 
   <div
     class="w-full lg:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 lg:aspect-video"
-    *ngIf="mediaType !== 'movie'"
   >
     <app-playlist
+      *ngIf="mediaType !== 'movie'"
       [names]="names || ''"
       [totalSeasons]="totalSeasons"
       [currentSeason]="currentSeason"
@@ -46,5 +46,14 @@
       (sortToggle)="ascOrDescSort()"
       class="flex-1 overflow-hidden"
     ></app-playlist>
+    <app-info
+      *ngIf="mediaType !== 'tv'"
+      class="flex-1 overflow-auto"
+      [names]="names || ''"
+      [currentSeason]="currentSeason"
+      [currentEpisodes]="currentEpisodes"
+      [currentPosters]="currentPosters"
+      [responseData]="responseData"
+    ></app-info>
   </div>
 </div>

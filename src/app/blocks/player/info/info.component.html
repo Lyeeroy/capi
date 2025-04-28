@@ -1,0 +1,232 @@
+<div class="w-full h-full p-4 space-y-4 rounded-lg">
+  <section
+    class="flex items-start justify-between pb-4 mb-4 border-b border-gray-200"
+  >
+    <div class="flex-1 mr-4">
+      <h2 class="text-2xl font-bold text-gray-900">
+        {{ responseData?.name || responseData?.title || "Loading..." }}
+      </h2>
+      <p class="mt-1 text-base text-gray-600">
+        {{ responseData?.tagline }}
+      </p>
+    </div>
+    <div class="flex-shrink-0">
+      <img
+        class="object-cover border border-gray-300 rounded-md shadow-md w-28 h-42 sm:w-32 sm:h-48"
+        [src]="
+          responseData?.poster_path
+            ? 'https://image.tmdb.org/t/p/w300/' + responseData.poster_path
+            : './assets/placeholder.png'
+        "
+        [alt]="
+          'Poster for ' + (responseData?.name || responseData?.title || 'Media')
+        "
+      />
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+    <dl
+      class="grid grid-cols-1 col-span-full sm:grid-cols-2 lg:grid-cols-3 gap-4"
+    >
+      <ng-container
+        *ngIf="responseData?.first_air_date || responseData?.release_date"
+      >
+        <div class="p-3 space-y-1 bg-gray-100 rounded-md">
+          <dt class="font-semibold text-gray-700">
+            {{
+              responseData?.first_air_date ? "First Air Date" : "Release Date"
+            }}
+          </dt>
+          <dd class="text-gray-800">
+            {{
+              responseData?.first_air_date || responseData?.release_date
+                | date : "longDate"
+            }}
+          </dd>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="responseData?.number_of_seasons">
+        <div class="p-3 space-y-1 bg-gray-100 rounded-md">
+          <dt class="font-semibold text-gray-700">Seasons</dt>
+          <dd class="text-gray-800">{{ responseData.number_of_seasons }}</dd>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="responseData?.number_of_episodes">
+        <div class="p-3 space-y-1 bg-gray-100 rounded-md">
+          <dt class="font-semibold text-gray-700">Episodes</dt>
+          <dd class="text-gray-800">{{ responseData.number_of_episodes }}</dd>
+        </div>
+      </ng-container>
+
+      <ng-container
+        *ngIf="responseData?.runtime || responseData?.episode_run_time?.length"
+      >
+        <div class="p-3 space-y-1 bg-gray-100 rounded-md">
+          <dt class="font-semibold text-gray-700">Runtime</dt>
+          <dd class="text-gray-800">
+            {{ responseData?.runtime || (responseData?.episode_run_time?.[0] || 'N/A') }}
+            min
+          </dd>
+        </div>
+      </ng-container>
+    </dl>
+    <div class="p-3 border border-gray-200 rounded-md col-span-full">
+      <h3 class="mb-1 text-sm font-semibold text-gray-700">Genres</h3>
+      <div class="text-xs text-gray-800">
+        <ng-container *ngIf="responseData?.genres?.length; else noGenres">
+          <ng-container
+            *ngFor="let genre of responseData.genres; let isLast = last"
+          >
+            {{ genre.name }}<span *ngIf="!isLast">, </span>
+          </ng-container>
+        </ng-container>
+        <ng-template #noGenres>
+          <span class="text-gray-500">No genres listed.</span>
+        </ng-template>
+      </div>
+    </div>
+  </section>
+
+  <ng-container *ngIf="responseData?.status || responseData?.networks?.length">
+    <section class="p-4 space-y-3 bg-gray-50 rounded-md border border-gray-200">
+      <div
+        *ngIf="responseData?.status"
+        class="flex items-center justify-between"
+      >
+        <span class="text-sm font-semibold text-gray-700">Status</span>
+        <span
+          class="px-3 py-0.5 text-xs font-medium rounded-full
+            {{
+            responseData.status === 'Ended' ||
+            responseData.status === 'Canceled'
+              ? 'bg-red-100 text-red-700'
+              : 'bg-green-100 text-green-700'
+          }}"
+        >
+          {{ responseData.status }}
+        </span>
+      </div>
+      <div *ngIf="responseData?.networks?.length" class="flex items-center">
+        <span class="mr-2 text-sm font-semibold text-gray-700">Network</span>
+        <span class="text-sm text-gray-800">
+          {{ responseData.networks[0].name }}
+          <span *ngIf="responseData.origin_country?.length"
+            >({{ responseData.origin_country[0] }})</span
+          >
+        </span>
+      </div>
+    </section>
+  </ng-container>
+
+  <section
+    *ngIf="responseData?.vote_average"
+    class="p-3 border border-gray-200 rounded-md"
+  >
+    <div class="flex items-center gap-2 text-sm">
+      <svg
+        class="w-5 h-5 text-yellow-500"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        aria-hidden="true"
+      >
+        <path
+          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+        />
+      </svg>
+      <span class="font-semibold text-gray-900"
+        >{{ responseData.vote_average.toFixed(1) }}/10</span
+      >
+      <span class="text-gray-600"
+        >({{ responseData.vote_count | number }} votes)</span
+      >
+    </div>
+  </section>
+
+  <ng-container *ngIf="responseData?.last_episode_to_air">
+    <section class="p-3 border border-gray-200 rounded-md">
+      <h3 class="mb-2 text-sm font-semibold text-gray-700">Latest Episode</h3>
+      <div class="flex items-center gap-3">
+        <span
+          class="px-2 py-1 text-xs font-medium text-gray-700 bg-gray-200 rounded"
+        >
+          S{{
+            responseData.last_episode_to_air.season_number | number : "2.0-0"
+          }}
+          E{{
+            responseData.last_episode_to_air.episode_number | number : "2.0-0"
+          }}
+        </span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-gray-900 truncate">
+            {{ responseData.last_episode_to_air.name }}
+          </p>
+          <p class="text-xs text-gray-600">
+            {{
+              responseData.last_episode_to_air.air_date | date : "mediumDate"
+            }}
+            <span *ngIf="responseData.last_episode_to_air.runtime">
+              • {{ responseData.last_episode_to_air.runtime }} min
+            </span>
+          </p>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+
+  <section
+    *ngIf="responseData?.overview"
+    class="p-3 border border-gray-200 rounded-md"
+  >
+    <h3 class="mb-1 text-sm font-semibold text-gray-700">Overview</h3>
+    <p class="text-sm text-gray-800 leading-relaxed">
+      {{ responseData.overview }}
+    </p>
+  </section>
+
+  <section class="p-3 border border-gray-200 rounded-md">
+    <h3 class="mb-2 text-sm font-semibold text-gray-700">Additional Info</h3>
+    <div class="space-y-2 text-sm text-gray-700">
+      <div *ngIf="responseData?.created_by?.length">
+        <span class="font-medium text-gray-900">Created By:</span>
+        <span class="ml-1 text-gray-800">
+          <ng-container
+            *ngFor="let creator of responseData.created_by; let isLast = last"
+          >
+            {{ creator.name }}<span *ngIf="!isLast">, </span>
+          </ng-container>
+        </span>
+      </div>
+
+      <div *ngIf="responseData?.spoken_languages?.length">
+        <span class="font-medium text-gray-900">Languages:</span>
+        <span class="ml-1 text-gray-800">
+          <ng-container
+            *ngFor="
+              let language of responseData.spoken_languages;
+              let isLast = last
+            "
+          >
+            {{ language.english_name || language.name
+            }}<span *ngIf="!isLast">, </span>
+          </ng-container>
+        </span>
+      </div>
+
+      <div *ngIf="responseData?.homepage">
+        <span class="font-medium text-gray-900">Homepage:</span>
+        <a
+          [href]="responseData.homepage"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="ml-1 text-blue-600 hover:underline break-all"
+        >
+          {{ responseData.homepage }}
+        </a>
+      </div>
+    </div>
+  </section>
+  <div class="p-1"></div>
+</div>
