@@ -1,4 +1,4 @@
-<div class="w-full h-full p-4 space-y-4 rounded-lg">
+<div class="w-full h-full p-4 rounded-lg flex flex-col gap-y-4">
   <section
     class="flex items-start justify-between pb-4 mb-4 border-b border-gray-200"
   >
@@ -32,7 +32,7 @@
       <ng-container
         *ngIf="responseData?.first_air_date || responseData?.release_date"
       >
-        <div class="p-3 space-y-1 bg-gray-100 rounded-md">
+        <div class="p-3 bg-gray-100 rounded-md flex flex-col gap-y-1">
           <dt class="font-semibold text-gray-700">
             {{
               responseData?.first_air_date ? "First Air Date" : "Release Date"
@@ -48,14 +48,14 @@
       </ng-container>
 
       <ng-container *ngIf="responseData?.number_of_seasons">
-        <div class="p-3 space-y-1 bg-gray-100 rounded-md">
+        <div class="p-3 bg-gray-100 rounded-md flex flex-col gap-y-1">
           <dt class="font-semibold text-gray-700">Seasons</dt>
           <dd class="text-gray-800">{{ responseData.number_of_seasons }}</dd>
         </div>
       </ng-container>
 
       <ng-container *ngIf="responseData?.number_of_episodes">
-        <div class="p-3 space-y-1 bg-gray-100 rounded-md">
+        <div class="p-3 bg-gray-100 rounded-md flex flex-col gap-y-1">
           <dt class="font-semibold text-gray-700">Episodes</dt>
           <dd class="text-gray-800">{{ responseData.number_of_episodes }}</dd>
         </div>
@@ -64,7 +64,7 @@
       <ng-container
         *ngIf="responseData?.runtime || responseData?.episode_run_time?.length"
       >
-        <div class="p-3 space-y-1 bg-gray-100 rounded-md">
+        <div class="p-3 bg-gray-100 rounded-md flex flex-col gap-y-1">
           <dt class="font-semibold text-gray-700">Runtime</dt>
           <dd class="text-gray-800">
             {{ responseData?.runtime || (responseData?.episode_run_time?.[0] || 'N/A') }}
@@ -91,7 +91,9 @@
   </section>
 
   <ng-container *ngIf="responseData?.status || responseData?.networks?.length">
-    <section class="p-4 space-y-3 bg-gray-50 rounded-md border border-gray-200">
+    <section
+      class="p-4 bg-gray-50 rounded-md border border-gray-200 flex flex-col gap-y-3"
+    >
       <div
         *ngIf="responseData?.status"
         class="flex items-center justify-between"
@@ -188,7 +190,7 @@
 
   <section class="p-3 border border-gray-200 rounded-md">
     <h3 class="mb-2 text-sm font-semibold text-gray-700">Additional Info</h3>
-    <div class="space-y-2 text-sm text-gray-700">
+    <div class="flex flex-col gap-y-2 text-sm text-gray-700">
       <div *ngIf="responseData?.created_by?.length">
         <span class="font-medium text-gray-900">Created By:</span>
         <span class="ml-1 text-gray-800">
