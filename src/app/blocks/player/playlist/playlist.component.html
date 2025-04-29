@@ -1,11 +1,11 @@
 <div class="h-full p-4 flex flex-col">
   <div class="flex items-center justify-between mb-4">
-    <h2 class="text-lg text-gray-900">{{ names }}</h2>
+    <h2 class="text-lg text-gray-900 truncate px-1">{{ names }}</h2>
     <div class="flex gap-2">
       <button
         title="Change layout"
         (click)="onLayoutChange()"
-        class="bg-gray-200 p-1.5 rounded-full cursor-pointer"
+        class="bg-gray-200 transform duration-200 hover:text-gray-600 active:bg-gray-100 p-1.5 rounded-full cursor-pointer"
       >
         <app-icon-lib ico="menu" class="w-5 h-5"></app-icon-lib>
       </button>
@@ -13,9 +13,16 @@
         title="Sort order"
         (click)="onSortToggle()"
         [class.rotate-180]="!isSortedAscending"
-        class="bg-gray-200 p-1.5 rounded-full cursor-pointer"
+        class="bg-gray-200 transform duration-200 hover:text-gray-600 active:bg-gray-100 p-1.5 rounded-full cursor-pointer"
       >
         <app-icon-lib ico="sort" class="w-5 h-5"></app-icon-lib>
+      </button>
+      <button
+        title="Close"
+        (click)="onClose()"
+        class="bg-gray-200 transform duration-200 hover:text-gray-600 active:bg-gray-100 p-1.5 rounded-full cursor-pointer"
+      >
+        <app-icon-lib ico="close" class="w-5 h-5"></app-icon-lib>
       </button>
     </div>
   </div>

@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 export class ControlsComponent {
   @Input() currentSourceUrl!: string;
   @Input() sources: { name: string; url: string; enabled: boolean }[] = [];
-  @Input() currentEpisode: any; // Replace 'any' with the actual type if known
+  @Input() currentEpisode: any;
   @Input() mediaType: string = '';
 
   @Output() sourceChange = new EventEmitter<string>();

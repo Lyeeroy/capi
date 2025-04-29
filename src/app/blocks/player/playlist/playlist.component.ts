@@ -28,6 +28,7 @@ export class PlaylistComponent {
   @Output() episodeSelected = new EventEmitter<number>();
   @Output() layoutChange = new EventEmitter<void>();
   @Output() sortToggle = new EventEmitter<void>();
+  @Output() close = new EventEmitter<void>();
 
   onSeasonChange(event: Event) {
     const newSeason = Number((event.target as HTMLSelectElement).value);
@@ -44,5 +45,9 @@ export class PlaylistComponent {
 
   onSortToggle() {
     this.sortToggle.emit();
+  }
+
+  onClose() {
+    this.close.emit();
   }
 }

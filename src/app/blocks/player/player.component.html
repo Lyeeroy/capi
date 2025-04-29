@@ -1,4 +1,5 @@
-<app-player-header> </app-player-header>
+<app-player-header [responseData]="responseData" class="hidden">
+</app-player-header>
 <div class="flex flex-col lg:flex-row gap-4 p-4 md:p-4">
   <div class="w-full lg:w-3/4 lg:aspect-video rounded-xl">
     <!-- <ng-container *ngIf="showIframe">
@@ -31,7 +32,7 @@
     class="w-full lg:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 lg:aspect-video"
   >
     <app-playlist
-      *ngIf="mediaType !== 'movie'"
+      *ngIf="mediaType == 'tv' && onClosePlaylist === false"
       [names]="names || ''"
       [totalSeasons]="totalSeasons"
       [currentSeason]="currentSeason"
@@ -44,16 +45,21 @@
       (episodeSelected)="playEpisode($event)"
       (layoutChange)="changeLayout()"
       (sortToggle)="ascOrDescSort()"
+      (close)="closePlaylist()"
       class="flex-1 overflow-hidden"
     ></app-playlist>
     <app-info
-      *ngIf="mediaType !== 'tv'"
+      *ngIf="
+        mediaType == 'tv' ? onClosePlaylist == true : onClosePlaylist == false
+      "
       class="flex-1 overflow-auto"
       [names]="names || ''"
       [currentSeason]="currentSeason"
       [currentEpisodes]="currentEpisodes"
       [currentPosters]="currentPosters"
       [responseData]="responseData"
+      (close)="closePlaylist()"
+      [mediaType]="mediaType ?? 'tv'"
     ></app-info>
   </div>
 </div>

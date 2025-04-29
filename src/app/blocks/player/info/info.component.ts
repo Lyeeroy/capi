@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 
 @Component({
   selector: 'app-info',
   templateUrl: 'info.component.html',
-  imports: [CommonModule],
+  imports: [CommonModule, IconLibComponent],
 })
 export class InfoComponent implements OnInit {
   constructor() {}
@@ -16,6 +17,13 @@ export class InfoComponent implements OnInit {
   @Input() currentPosters: string[] = [];
   @Input() episodeData: any[] = [];
   @Input() responseData: any = null;
+  @Input() mediaType: string = '';
+
+  @Output() close = new EventEmitter<void>();
 
   ngOnInit() {}
+
+  closeInfo() {
+    this.close.emit();
+  }
 }
