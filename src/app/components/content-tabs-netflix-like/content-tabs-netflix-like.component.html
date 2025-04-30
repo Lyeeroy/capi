@@ -1,16 +1,26 @@
-<div class="mx-auto px-4 py-4 lg:px-4">
+<div class="mx-auto">
   <div class="flex items-center">
     <button
       type="button"
       (click)="scrollLeft()"
       aria-label="Scroll left"
-      class="hidden sm:flex text-gray-400 rounded-full w-8 h-8 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 focus-visible:ring-offset-gray-900 mr-2 shrink-0"
+      class="hidden md:flex text-gray-400 rounded-full w-10 h-10 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 focus-visible:ring-offset-gray-900 mr-2"
     >
-      <app-icon-lib
-        ico="chevronLeft"
-        class="w-10 h-10 transition-transform duration-300 transform hover:scale-104 cursor-pointer active:scale-95"
+      <svg
+        class="w-6 h-6 transition-transform duration-300 transform hover:scale-110 active:scale-95"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-      ></app-icon-lib>
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 19l-7-7 7-7"
+        ></path>
+      </svg>
     </button>
 
     <div
@@ -102,17 +112,28 @@
         </div>
       </ng-container>
     </div>
+
     <button
       type="button"
       (click)="scrollRight()"
       aria-label="Scroll right"
-      class="hidden sm:flex text-gray-400 rounded-full w-8 h-8 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 focus-visible:ring-offset-gray-900 ml-2 shrink-0"
+      class="hidden md:flex text-gray-400 rounded-full w-10 h-10 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 focus-visible:ring-offset-gray-900 ml-2"
     >
-      <app-icon-lib
-        ico="chevronRight"
-        class="w-10 h-10 transition-transform duration-300 transform hover:scale-104 cursor-pointer active:scale-95"
+      <svg
+        class="w-6 h-6 transition-transform duration-300 transform hover:scale-110 active:scale-95"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-      ></app-icon-lib>
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        ></path>
+      </svg>
     </button>
   </div>
 </div>
