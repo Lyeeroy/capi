@@ -20,7 +20,7 @@ import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
               (click)="onGoBack()"
               class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 cursor-pointer whitespace-nowrap"
             >
-              Back
+              Go Back
             </button>
           </li>
 
