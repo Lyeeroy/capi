@@ -13,14 +13,14 @@ import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
         aria-label="Breadcrumb"
       >
         <ol
-          class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse min-w-0"
+          class="inline-flex items-center gap-1 md:gap-2 rtl:gap-x-reverse min-w-0"
         >
           <li class="inline-flex items-center flex-shrink-0">
             <button
               (click)="onGoBack()"
               class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 cursor-pointer whitespace-nowrap"
             >
-              Go back
+              Back
             </button>
           </li>
 
