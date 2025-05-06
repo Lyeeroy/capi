@@ -1,5 +1,22 @@
-<app-player-header [responseData]="responseData"> </app-player-header>
-<div class="flex flex-col lg:flex-row gap-4">
+<app-player-header
+  class="hidden lg:block"
+  [responseData]="responseData"
+  [showName]="true"
+  [showDetailsAndPlaylist]="true"
+  [mediaType]="mediaType ?? 'tv'"
+  (showPlaylist)="showPlaylist()"
+  (showDetails)="showDetails()"
+>
+</app-player-header>
+<app-player-header
+  class="lg:hidden"
+  [responseData]="responseData"
+  [showName]="true"
+  [showDetailsAndPlaylist]="false"
+  (showPlaylist)="showPlaylist()"
+  (showDetails)="showDetails()"
+></app-player-header>
+<div class="flex flex-col lg:flex-row gap-0 lg:gap-4">
   <div class="w-full lg:w-3/4 lg:aspect-video rounded-xl">
     <!-- <ng-container *ngIf="showIframe">
         <iframe
@@ -27,11 +44,19 @@
     ></app-controls>
   </div>
 
+  <app-player-header
+    class="lg:hidden"
+    [responseData]="responseData"
+    [showName]="false"
+    [showDetailsAndPlaylist]="true"
+    (showPlaylist)="showPlaylist()"
+    (showDetails)="showDetails()"
+  ></app-player-header>
   <div
     class="w-full lg:w-1/4 flex flex-col bg-gray-50 rounded-xl border border-gray-200 lg:aspect-video"
   >
     <app-playlist
-      *ngIf="mediaType == 'tv' && onClosePlaylist === false"
+      *ngIf="mediaType == 'tv' && onShowPlaylist === true"
       [names]="names || ''"
       [totalSeasons]="totalSeasons"
       [currentSeason]="currentSeason"
@@ -44,12 +69,11 @@
       (episodeSelected)="playEpisode($event)"
       (layoutChange)="changeLayout()"
       (sortToggle)="ascOrDescSort()"
-      (close)="closePlaylist()"
       class="flex-1 overflow-hidden"
     ></app-playlist>
     <app-info
       *ngIf="
-        mediaType == 'tv' ? onClosePlaylist == true : onClosePlaylist == false
+        mediaType == 'tv' ? onShowPlaylist == false : onShowPlaylist == true
       "
       class="flex-1 overflow-auto"
       [names]="names || ''"
@@ -57,7 +81,6 @@
       [currentEpisodes]="currentEpisodes"
       [currentPosters]="currentPosters"
       [responseData]="responseData"
-      (close)="closePlaylist()"
       [mediaType]="mediaType ?? 'tv'"
     ></app-info>
   </div>

@@ -47,7 +47,10 @@ export class PlayerComponent implements OnInit {
   iframeUrl: SafeResourceUrl;
   showIframe: boolean = true;
   responseData: any = null;
-  onClosePlaylist: boolean = false;
+
+  onShowPlaylist: boolean = true;
+  onShowDetails: boolean = false;
+
   private mappingRegex: RegExp =
     /^(https?:\/\/[^\/]+\/)([^\/?]+)\?([^:]+):([^\/]+)(\/.*)$/;
 
@@ -97,8 +100,13 @@ export class PlayerComponent implements OnInit {
     this.reloadIframe();
   }
 
-  closePlaylist() {
-    this.onClosePlaylist = !this.onClosePlaylist;
+  showPlaylist() {
+    this.onShowDetails = false;
+    this.onShowPlaylist = true;
+  }
+  showDetails() {
+    this.onShowPlaylist = false;
+    this.onShowDetails = true;
   }
 
   prevSource() {
