@@ -94,6 +94,11 @@ export class TableComponent implements OnInit, OnDestroy {
     clearTimeout(this.menuTimeout);
   }
 
+  removeIsNewcomerFromLocalStorage() {
+    localStorage.removeItem('isNewcomer');
+    window.location.reload();
+  }
+
   // --- Data Loading, Saving, and Change Tracking ---
   private _deepCloneSourcesForComparison(sources: Source[]): OriginalSource[] {
     return JSON.parse(
@@ -536,30 +541,17 @@ export class TableComponent implements OnInit, OnDestroy {
   onImportModalChange(isOpen: boolean): void {
     this.isImportModalOpen = isOpen;
     if (!isOpen) {
-      // Modal has just closed
-      // The ImportComponent should have updated this.sources directly.
-      // Now, we need to process these potentially new/modified sources.
-
-      // 1. Ensure imported items are not in edit/selected state by default
       this.sources.forEach((s) => {
         s.isEditing = false;
-        s.selected = false; // Or keep selection if desired, but generally reset for fresh import
+        s.selected = false;
       });
 
-      // 2. Re-index to ensure IDs are consistent and sourceIndex is correct
       this._reIndexSources();
-
-      // 3. Check for changes against the PREVIOUSLY saved state (originalSources)
-      // This is crucial: _checkForChanges compares the current this.sources
-      // (which now contains imported data) against this.originalSources
-      // (which still holds the state *before* import).
-      // If they are different, hasUnsavedChanges will become true.
       this._checkForChanges();
 
-      // 4. Update UI elements like the master checkbox
       this.updateMasterCheckboxState();
-      this.isBulkEditingSelected = false; // Reset bulk edit state after import
-      this.cdr.detectChanges(); // Ensure UI reflects changes
+      this.isBulkEditingSelected = false;
+      this.cdr.detectChanges();
     }
   }
 
