@@ -186,9 +186,10 @@
     </div>
 
     <!-- Table Container -->
-    <div class="rounded-lg border border-gray-200 overflow-hidden">
+    <div class="rounded-lg border border-gray-200 overflow-x-auto">
+      <!-- Added overflow-x-auto for safety on very small screens if table content still too wide -->
       <table class="w-full bg-white table-auto">
-        <thead class="bg-gray-100 text-gray-600 hidden md:table-header-group">
+        <thead class="bg-gray-100 text-gray-600 hidden lg:table-header-group">
           <tr class="align-middle">
             <th scope="col" class="p-3 w-10"></th>
             <th scope="col" class="p-3 w-12 text-center">
@@ -209,7 +210,7 @@
             </th>
             <th
               scope="col"
-              class="p-3 text-left text-sm font-semibold hidden xl:table-cell min-w-[200px]"
+              class="p-3 text-left text-sm font-semibold hidden lg:table-cell min-w-[200px]"
             >
               URL
             </th>
@@ -224,7 +225,7 @@
         <tbody
           cdkDropList
           (cdkDropListDropped)="onDrop($event)"
-          class="md:divide-y md:divide-gray-200"
+          class="lg:divide-y lg:divide-gray-200"
         >
           <ng-container
             *ngIf="searchInObject().length > 0; else noResultsOrEmpty"
@@ -233,7 +234,7 @@
               *ngFor="let source of searchInObject(); trackBy: trackById"
               cdkDrag
               [cdkDragData]="source"
-              class="hover:bg-gray-50 border-b md:border-b-0 border-gray-200"
+              class="hover:bg-gray-50 border-b lg:border-b-0 border-gray-200"
               [class.bg-blue-50]="source.selected"
               [class.opacity-75]="source.isEditing && !isBulkEditingSelected"
               [class.bg-yellow-50]="
@@ -241,7 +242,7 @@
               "
             >
               <!-- Mobile View: Single TD card-like layout -->
-              <td class="p-2 md:hidden">
+              <td class="p-2 lg:hidden">
                 <div class="flex gap-2 w-full">
                   <div
                     class="flex flex-col items-center gap-2 pt-1 flex-shrink-0"
@@ -385,7 +386,7 @@
 
               <!-- Desktop View Cells -->
               <td
-                class="hidden md:table-cell p-1 sm:p-2 w-10 text-gray-400 align-middle text-center"
+                class="hidden lg:table-cell p-1 sm:p-2 w-10 text-gray-400 align-middle text-center"
               >
                 <div
                   cdkDragHandle
@@ -395,7 +396,7 @@
                 </div>
               </td>
               <td
-                class="hidden md:table-cell p-3 w-12 text-center align-middle"
+                class="hidden lg:table-cell p-3 w-12 text-center align-middle"
               >
                 <input
                   type="checkbox"
@@ -408,7 +409,7 @@
                   (click)="$event.stopPropagation()"
                 />
               </td>
-              <td class="hidden md:table-cell p-3 align-middle min-w-[150px]">
+              <td class="hidden lg:table-cell p-3 align-middle min-w-[150px]">
                 <div class="flex items-center gap-3">
                   <img
                     src="https://www.google.com/s2/favicons?sz=32&domain_url={{
@@ -438,7 +439,7 @@
                   </div>
                 </div>
               </td>
-              <td class="hidden xl:table-cell p-3 align-middle min-w-[200px]">
+              <td class="hidden lg:table-cell p-3 align-middle min-w-[200px]">
                 <div class="max-w-full">
                   <div
                     *ngIf="!source.isEditing"
@@ -458,7 +459,7 @@
                 </div>
               </td>
               <td
-                class="hidden md:table-cell p-3 text-center align-middle w-24"
+                class="hidden lg:table-cell p-3 text-center align-middle w-24"
               >
                 <label class="relative inline-flex items-center cursor-pointer">
                   <input
@@ -472,7 +473,7 @@
                   ></div>
                 </label>
               </td>
-              <td class="hidden md:table-cell p-3 text-right align-middle w-32">
+              <td class="hidden lg:table-cell p-3 text-right align-middle w-32">
                 <div class="flex items-center justify-end gap-1">
                   <button
                     *ngIf="!source.isEditing"
