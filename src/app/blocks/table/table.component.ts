@@ -1,8 +1,6 @@
-// src/app/blocks/table/table.component.ts
-import { Component, Output } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { findIndex } from 'rxjs';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
   CdkDragDrop,
@@ -22,7 +20,11 @@ interface Source {
   url: string;
   isEditing: boolean;
   enabled: boolean;
+  selected: boolean;
 }
+
+// To store the clean, saved state
+type OriginalSource = Omit<Source, 'isEditing' | 'selected'>;
 
 @Component({
   selector: 'app-table',
@@ -40,66 +42,205 @@ interface Source {
     IconLibComponent,
   ],
 })
-export class TableComponent {
+export class TableComponent implements OnInit, OnDestroy {
   searchInput: string = '';
   sourceIndex: number = 1;
-  isSelected: boolean = false;
   sources: Source[] = [];
+  private originalSources: OriginalSource[] = []; // For tracking unsaved changes (persistent part only)
+
   isAdding: boolean = false;
   newName: string = '';
   newUrl: string = '';
+
   isYnOpenDelete: boolean = false;
+  YnTitleDelete: string = 'Delete all existing sources?';
+  YnMessageDelete: string =
+    'Are you sure you want to delete all sources? This action cannot be undone.';
+
+  isYnOpenDiscard: boolean = false; // For discard confirmation
+  YnTitleDiscard: string = 'Discard Unsaved Changes?';
+  YnMessageDiscard: string =
+    'Are you sure you want to discard all changes made since the last save? This action cannot be undone.';
 
   isSaving: boolean = false;
+  hasUnsavedChanges: boolean = false;
 
   isExportModalOpen: boolean = false;
   isImportModalOpen: boolean = false;
 
-  //menu:
   isMenuOpen = false;
-  private timeout: any;
+  private menuTimeout: any;
 
-  // delete all sources button (child)
-  YnTitleDelete: string = 'Delete all existing sources?';
-  YnMessageDelete: string = 'Are you sure?';
+  isAllSelected: boolean = false;
+  isBulkEditingSelected: boolean = false; // For "Edit Selected" / "Done Editing Selected" button state
 
-  constructor(private sanitizer: DomSanitizer) {
+  private editCache = new Map<
+    number,
+    { name: string; url: string; enabled: boolean }
+  >();
+
+  constructor(
+    private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
     this.loadData();
+    document.addEventListener('click', this.closeMenuOutside);
   }
 
-  handleYnAnswerForDeleteSources(event: any) {
-    event === 'yes' ? this.removeAllSources() : null;
+  ngOnDestroy(): void {
+    document.removeEventListener('click', this.closeMenuOutside);
+    clearTimeout(this.menuTimeout);
   }
 
-  searchInObject(): Source[] {
-    return this.sources.filter(
-      (source) =>
-        source.url.includes(this.searchInput) ||
-        source.name.includes(this.searchInput)
+  // --- Data Loading, Saving, and Change Tracking ---
+  private _deepCloneSourcesForComparison(sources: Source[]): OriginalSource[] {
+    return JSON.parse(
+      JSON.stringify(
+        sources.map((s) => ({
+          id: s.id,
+          name: s.name,
+          url: s.url,
+          enabled: s.enabled,
+        }))
+      )
     );
   }
 
-  onDrop(event: CdkDragDrop<any[]>) {
-    const filteredSources = this.searchInObject();
+  private _checkForChanges(): void {
+    const currentPersistentSources = this._deepCloneSourcesForComparison(
+      this.sources
+    );
+    this.hasUnsavedChanges =
+      JSON.stringify(currentPersistentSources) !==
+      JSON.stringify(this.originalSources);
+    this.cdr.detectChanges();
+  }
 
-    // Get actual items from original sources array
+  loadData(): void {
+    const storedData = localStorage.getItem('sources');
+    if (storedData) {
+      const parsedOriginalSources: OriginalSource[] = JSON.parse(storedData);
+      this.sources = parsedOriginalSources.map((s, index) => ({
+        ...s,
+        id: s.id || index + 1, // Ensure ID exists
+        isEditing: false,
+        selected: false,
+      }));
+      this.originalSources = this._deepCloneSourcesForComparison(this.sources); // Store clean state
+    } else {
+      this.sources = [];
+      this.originalSources = [];
+    }
+    this._reIndexSources(); // Ensures IDs are consistent and sourceIndex is updated
+    this.hasUnsavedChanges = false;
+    this.isBulkEditingSelected = false;
+    this.updateMasterCheckboxState();
+    this.editCache.clear();
+    this.isAdding = false;
+  }
+
+  saveData(): void {
+    this.isSaving = true;
+    this.sources.forEach((source) => {
+      if (!source.name && source.url) {
+        source.name = this.getDisplayName(source);
+      }
+      source.isEditing = false; // Ensure all editing states are cleared on save
+      // source.selected remains as is, user might want to continue working with selection
+    });
+    this._reIndexSources();
+
+    const dataToSave = this.sources.map((s) => ({
+      id: s.id,
+      name: s.name,
+      url: s.url,
+      enabled: s.enabled,
+    }));
+    localStorage.setItem('sources', JSON.stringify(dataToSave));
+    this.originalSources = this._deepCloneSourcesForComparison(this.sources); // Update baseline
+
+    this.hasUnsavedChanges = false;
+    this.isBulkEditingSelected = false; // Reset bulk edit state
+    this.editCache.clear(); // Clear any pending individual edit caches
+
+    setTimeout(() => {
+      this.isSaving = false;
+      this.cdr.detectChanges();
+    }, Math.floor(Math.random() * (1000 - 400 + 1)) + 400);
+  }
+
+  discardChanges(): void {
+    // Revert sources to the last saved state using originalSources
+    this.sources = this.originalSources.map((original) => ({
+      ...original,
+      isEditing: false,
+      selected: false,
+    }));
+
+    this._reIndexSources();
+
+    // Reset transient UI states
+    this.isAdding = false;
+    this.newName = '';
+    this.newUrl = '';
+    this.editCache.clear();
+    this.hasUnsavedChanges = false;
+    this.isBulkEditingSelected = false;
+
+    this.updateMasterCheckboxState();
+    this.isYnOpenDiscard = false; // Close confirmation modal
+    this.cdr.detectChanges();
+  }
+
+  handleYnAnswerForDiscard(answer: 'yes' | 'no'): void {
+    if (answer === 'yes') {
+      this.discardChanges();
+    }
+    this.isYnOpenDiscard = false;
+  }
+
+  // --- Source Manipulation ---
+  private _reIndexSources(): void {
+    this.sources.forEach((source, index) => {
+      source.id = index + 1;
+    });
+    this.sourceIndex = this.sources.length + 1;
+  }
+
+  searchInObject(): Source[] {
+    if (!this.searchInput.trim()) {
+      return this.sources;
+    }
+    const searchTerm = this.searchInput.toLowerCase();
+    return this.sources.filter(
+      (source) =>
+        source.url.toLowerCase().includes(searchTerm) ||
+        source.name.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  onDrop(event: CdkDragDrop<Source[]>) {
+    const filteredSources = this.searchInObject();
     const movedItem = filteredSources[event.previousIndex];
     const targetItem = filteredSources[event.currentIndex];
 
-    // Find their positions in the original array
-    const previousIndex = this.sources.indexOf(movedItem);
-    const currentIndex = this.sources.indexOf(targetItem);
+    const originalPreviousIndex = this.sources.findIndex(
+      (s) => s.id === movedItem.id
+    );
+    const originalCurrentIndex = this.sources.findIndex(
+      (s) => s.id === targetItem.id
+    );
 
-    if (previousIndex !== -1 && currentIndex !== -1) {
-      // Move item in the original sources array
-      moveItemInArray(this.sources, previousIndex, currentIndex);
-
-      // Reassign IDs based on new positions
-      this.sources.forEach((source, index) => {
-        source.id = index + 1;
-      });
-
-      this.sourceIndex = this.sources.length + 1; // Update for new items
+    if (originalPreviousIndex !== -1 && originalCurrentIndex !== -1) {
+      moveItemInArray(
+        this.sources,
+        originalPreviousIndex,
+        originalCurrentIndex
+      );
+      this._reIndexSources();
+      this._checkForChanges();
     }
   }
 
@@ -117,97 +258,256 @@ export class TableComponent {
     this.isAdding = false;
   }
 
-  getDisplayName(source: Source): string {
-    const cleaned = source.url
-      .replace(/^https?:\/\/(?:www\.)?/i, '')
-      .split('/')[0];
-    const domainParts = cleaned.split('.');
-    return domainParts.slice(0, 2).join('.');
-  }
-
   confirmAdd(): void {
-    if (this.newName.trim() || this.newUrl.trim()) {
-      this.sources = [
-        {
-          id: this.sourceIndex++,
-          name: this.newName,
-          url: this.newUrl,
-          isEditing: false,
-          enabled: true,
-        },
-        ...this.sources,
-      ];
+    const trimmedName = this.newName.trim();
+    const trimmedUrl = this.newUrl.trim();
+
+    if (trimmedUrl) {
+      // URL is mandatory for a new source
+      const newSource: Source = {
+        id: 0,
+        name: trimmedName || this.getDisplayName({ url: trimmedUrl } as Source),
+        url: trimmedUrl,
+        isEditing: false,
+        enabled: true,
+        selected: false,
+      };
+      this.sources = [newSource, ...this.sources];
+      this._reIndexSources();
+      this._checkForChanges();
     }
     this.isAdding = false;
   }
 
-  highlightUrl(url: string): SafeHtml {
-    if (!url) {
-      return url;
+  getDisplayName(source: Partial<Source>): string {
+    if (!source.url) return 'Unknown';
+    try {
+      const url = new URL(source.url);
+      let hostname = url.hostname;
+      if (hostname.startsWith('www.')) {
+        hostname = hostname.substring(4);
+      }
+      const parts = hostname.split('.');
+      if (parts.length > 2) {
+        if (
+          parts[parts.length - 2].length <= 3 &&
+          parts[parts.length - 1].length <= 3 &&
+          parts.length > 2
+        ) {
+          return parts.slice(-3).join('.');
+        }
+        return parts.slice(-2).join('.');
+      }
+      return hostname;
+    } catch (e) {
+      const cleaned = source.url
+        .replace(/^https?:\/\/(?:www\.)?/i, '')
+        .split('/')[0];
+      const domainParts = cleaned.split('.');
+      return domainParts.length > 1
+        ? domainParts.slice(0, 2).join('.')
+        : cleaned;
     }
-    let highlighted = url;
-    highlighted = highlighted.replace(
-      /(#type)/gi,
-      '<span class="bg-orange-100 text-orange-600 px-1 py-1 rounded font-semibold text-xs">$1</span>'
-    );
-    highlighted = highlighted.replace(
-      /(#id)/gi,
-      '<span class="bg-blue-100 text-blue-600 px-1 py-1 rounded font-semibold text-xs">$1</span>'
-    );
-    highlighted = highlighted.replace(
-      /(#season)/gi,
-      '<span class="bg-red-100 text-red-600 px-1 py-1 rounded font-semibold text-xs">$1</span>'
-    );
-    highlighted = highlighted.replace(
-      /(#episode)/gi,
-      '<span class="bg-green-100 text-green-600 px-1 py-1 rounded font-semibold text-xs">$1</span>'
-    );
+  }
 
-    // Bypass Angular's security to safely bind the generated HTML.
+  highlightUrl(url: string): SafeHtml {
+    if (!url) return 'No URL provided';
+    let highlighted = url;
+    const replacements = [
+      { regex: /(#type)/gi, class: 'bg-orange-100 text-orange-600' },
+      { regex: /(#id)/gi, class: 'bg-blue-100 text-blue-600' },
+      { regex: /(#season)/gi, class: 'bg-red-100 text-red-600' },
+      { regex: /(#episode)/gi, class: 'bg-green-100 text-green-600' },
+    ];
+    replacements.forEach((rep) => {
+      highlighted = highlighted.replace(
+        rep.regex,
+        `<span class="${rep.class} px-1 py-0.5 rounded font-semibold text-xs">$1</span>`
+      );
+    });
     return this.sanitizer.bypassSecurityTrustHtml(highlighted);
   }
 
   removeSource(sourceId: number): void {
     this.sources = this.sources.filter((source) => source.id !== sourceId);
-  }
-
-  editAllSources(): void {
-    // accept all edits
-    this.sources.forEach((source) => this.editSource(source));
+    this._reIndexSources();
+    this.updateMasterCheckboxState();
+    this._checkForChanges();
   }
 
   editSource(source: Source): void {
-    source.isEditing = !source.isEditing;
-
-    if (!source.isEditing) {
-      if (!source.name.trim() && !source.url.trim()) {
-        this.removeSource(source.id);
+    // Saves an individual edit
+    source.isEditing = false;
+    this.editCache.delete(source.id);
+    if (!source.name.trim() && !source.url.trim()) {
+      this.removeSource(source.id); // This calls _checkForChanges
+    } else {
+      if (!source.name.trim() && source.url.trim()) {
+        source.name = this.getDisplayName(source);
       }
+      this._checkForChanges();
+    }
+  }
+
+  toggleEditMode(source: Source): void {
+    // Initiates or saves an individual edit
+    if (!source.isEditing) {
+      this.editCache.set(source.id, {
+        name: source.name,
+        url: source.url,
+        enabled: source.enabled,
+      });
+      source.isEditing = true;
+    } else {
+      this.editSource(source); // Effectively "save"
+    }
+  }
+
+  cancelSourceEdit(source: Source): void {
+    if (source.isEditing) {
+      const cached = this.editCache.get(source.id);
+      if (cached) {
+        source.name = cached.name;
+        source.url = cached.url;
+        source.enabled = cached.enabled;
+      }
+      source.isEditing = false;
+      this.editCache.delete(source.id);
+      this._checkForChanges();
     }
   }
 
   toggleSource(source: Source): void {
     source.enabled = !source.enabled;
-    console.log('Toggled source:', source.enabled);
+    this._checkForChanges();
   }
 
-  selectAll(): void {
-    this.isSelected = !this.isSelected;
+  // --- Selection Logic ---
+  updateMasterCheckboxState(): void {
+    const filteredSources = this.searchInObject();
+    if (filteredSources.length === 0) {
+      this.isAllSelected = false;
+      return;
+    }
+    this.isAllSelected = filteredSources.every((s) => s.selected);
+  }
+
+  toggleSelectAll(): void {
+    const filteredSources = this.searchInObject();
+    filteredSources.forEach((s) => (s.selected = this.isAllSelected));
+    this.onRowSelectionChange(); // To update bulk edit state if needed
+  }
+
+  onRowSelectionChange(): void {
+    this.updateMasterCheckboxState();
+    if (!this.anyRowsSelected() && this.isBulkEditingSelected) {
+      this.isBulkEditingSelected = false;
+    }
+  }
+
+  anyRowsSelected(): boolean {
+    return this.sources.some((s) => s.selected);
+  }
+
+  // --- Bulk Actions ---
+  isEditingAllVisible: boolean = false;
+  editAllSources(): void {
+    this.isEditingAllVisible = !this.isEditingAllVisible;
+    this.searchInObject().forEach((source) => {
+      if (this.isEditingAllVisible) {
+        if (!source.isEditing) {
+          this.editCache.set(source.id, {
+            name: source.name,
+            url: source.url,
+            enabled: source.enabled,
+          });
+          source.isEditing = true;
+        }
+      } else {
+        if (source.isEditing) {
+          this.editSource(source);
+        }
+      }
+    });
+    this._checkForChanges();
+  }
+
+  toggleBulkEditSelected(): void {
+    if (!this.anyRowsSelected()) return; // Should be disabled, but as a safeguard
+
+    if (!this.isBulkEditingSelected) {
+      // Action: "Edit Selected"
+      let itemsPutToEdit = 0;
+      this.searchInObject()
+        .filter((s) => s.selected)
+        .forEach((s) => {
+          if (!s.isEditing) {
+            this.editCache.set(s.id, {
+              name: s.name,
+              url: s.url,
+              enabled: s.enabled,
+            });
+            s.isEditing = true;
+            itemsPutToEdit++;
+          }
+        });
+      if (itemsPutToEdit > 0) {
+        this.isBulkEditingSelected = true;
+        this._checkForChanges(); // isEditing state changed
+      }
+    } else {
+      // Action: "Done Editing Selected"
+      this.searchInObject()
+        .filter((s) => s.selected && s.isEditing)
+        .forEach((s) => {
+          this.editSource(s); // This saves individual edit, sets isEditing = false, and calls _checkForChanges
+        });
+      this.isBulkEditingSelected = false;
+      // _checkForChanges is handled by editSource calls.
+    }
+  }
+
+  deleteSelectedSources(): void {
+    this.sources = this.sources.filter((s) => !s.selected);
+    this._reIndexSources();
+    this.isAllSelected = false; // Master checkbox should be unchecked
+    if (this.isBulkEditingSelected) {
+      // If we were bulk editing, and deleted all, reset state
+      this.isBulkEditingSelected = false;
+    }
+    this.updateMasterCheckboxState();
+    this._checkForChanges();
   }
 
   removeAllSources(): void {
     this.sources = [];
-    this.sourceIndex = 1;
+    this._reIndexSources();
+    this.isAllSelected = false;
+    this.isBulkEditingSelected = false;
+    this.updateMasterCheckboxState();
+    this._checkForChanges();
+    this.isYnOpenDelete = false;
   }
-  // menu
+
+  handleYnAnswerForDeleteSources(answer: 'yes' | 'no'): void {
+    if (answer === 'yes') {
+      this.removeAllSources();
+    }
+    this.isYnOpenDelete = false;
+  }
+
+  // --- Menu Logic ---
   showMenu(event?: Event): void {
     event?.stopPropagation();
-    clearTimeout(this.timeout);
+    clearTimeout(this.menuTimeout);
     this.isMenuOpen = true;
   }
 
   hideMenu(): void {
-    this.timeout = setTimeout(() => (this.isMenuOpen = false), 200);
+    this.menuTimeout = setTimeout(() => {
+      this.isMenuOpen = false;
+      this.cdr.detectChanges();
+    }, 200);
   }
 
   toggleMenu(event: Event): void {
@@ -215,44 +515,55 @@ export class TableComponent {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  closeMenu = () => (this.isMenuOpen = false);
-  // -----
-  confirmDelete(): void {
-    this.isYnOpenDelete = false;
-    this.removeAllSources();
-  }
-
-  cancelDelete(): void {
-    this.isYnOpenDelete = false;
-  }
-
-  saveData(): void {
-    this.sources.forEach((source) => {
-      if (!source.name) {
-        source.name = this.getDisplayName(source);
+  closeMenuOutside = (event?: MouseEvent): void => {
+    // Make event optional for programmatic close
+    // Basic check for menu open. More complex logic to check if click is outside menu can be added if needed.
+    if (this.isMenuOpen) {
+      // If event is provided, check if click was outside specific menu elements
+      if (event) {
+        const target = event.target as HTMLElement;
+        const menuButton = document.getElementById('quickActionsButton'); // Add ID to button
+        const menuDropdown = document.getElementById('quickActionsMenu'); // Add ID to menu
+        if (menuButton && menuButton.contains(target)) return; // Click on button, let toggleMenu handle
+        if (menuDropdown && menuDropdown.contains(target)) return; // Click inside menu
       }
-    });
-    localStorage.setItem('sources', JSON.stringify(this.sources));
-    console.log('Saving data...');
-
-    this.isSaving = true;
-    const timeout = setTimeout(() => {
-      clearTimeout(timeout);
-      this.isSaving = false;
-    }, Math.floor(Math.random() * (1420 - 420 + 1)) + 420);
-  }
-
-  loadData(): void {
-    const storedData = localStorage.getItem('sources');
-    if (storedData) {
-      this.sources = JSON.parse(storedData);
-      if (this.sources.length > 0) {
-        // Set sourceIndex to the highest existing ID + 1
-        this.sourceIndex = Math.max(...this.sources.map((s) => s.id)) + 1;
-      }
+      this.isMenuOpen = false;
+      this.cdr.detectChanges();
     }
-    console.log('Loading data...');
+  };
+
+  // --- Import/Export Modal Handling ---
+  onImportModalChange(isOpen: boolean): void {
+    this.isImportModalOpen = isOpen;
+    if (!isOpen) {
+      // Modal has just closed
+      // The ImportComponent should have updated this.sources directly.
+      // Now, we need to process these potentially new/modified sources.
+
+      // 1. Ensure imported items are not in edit/selected state by default
+      this.sources.forEach((s) => {
+        s.isEditing = false;
+        s.selected = false; // Or keep selection if desired, but generally reset for fresh import
+      });
+
+      // 2. Re-index to ensure IDs are consistent and sourceIndex is correct
+      this._reIndexSources();
+
+      // 3. Check for changes against the PREVIOUSLY saved state (originalSources)
+      // This is crucial: _checkForChanges compares the current this.sources
+      // (which now contains imported data) against this.originalSources
+      // (which still holds the state *before* import).
+      // If they are different, hasUnsavedChanges will become true.
+      this._checkForChanges();
+
+      // 4. Update UI elements like the master checkbox
+      this.updateMasterCheckboxState();
+      this.isBulkEditingSelected = false; // Reset bulk edit state after import
+      this.cdr.detectChanges(); // Ensure UI reflects changes
+    }
   }
 
-  // look into localStorage for isNewcomer and set it to false while loading data
+  onExportModalChange(isOpen: boolean): void {
+    this.isExportModalOpen = isOpen;
+  }
 }

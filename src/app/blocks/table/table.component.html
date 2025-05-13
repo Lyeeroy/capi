@@ -1,369 +1,605 @@
-<div
-  class="font-[sans-serif] max-w-full flex flex-col justify-center items-center"
->
-  <div class="flex-1 p-4 w-full xl:w-3/4">
-    <div
-      class="flex flex-col md:flex-row gap-4 mb-4 justify-between items-start"
-    >
-      <div class="flex flex-wrap gap-2">
-        <button
-          class="cursor-pointer pl-3 pr-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 transition-colors flex items-center gap-2 border border-red-200"
-          (click)="isYnOpenDelete = true"
-        >
-          <app-icon-lib ico="trash" class="h-5 w-5"></app-icon-lib>
-          Delete All
-        </button>
-        <button
-          class="cursor-pointer pl-3 pr-4 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors flex items-center gap-2 border border-blue-200"
-          (click)="saveData()"
-        >
-          <span class="flex items-center gap-2" [class.hidden]="isSaving">
-            <app-icon-lib ico="save" class="h-5 w-5"></app-icon-lib>
-            Save Data
-          </span>
-          <span class="flex items-center gap-2" [class.hidden]="!isSaving">
-            <div
-              class="flex items-center justify-center rounded-lg bg-transparent w-5 h-5 ml-2"
-            >
-              <div role="status">
-                <app-icon-lib
-                  ico="spinner"
-                  class="w-5 h-5 text-transparent animate-spin fill-blue-600"
-                ></app-icon-lib>
-                <span class="sr-only">Saving...</span>
-              </div>
-            </div>
-            Saving...
-          </span>
-        </button>
-        <div class="relative">
+<div class="font-[sans-serif] flex flex-col min-h-screen">
+  <div class="flex-1 p-3 sm:p-4 w-full max-w-7xl mx-auto pb-24">
+    <!-- pb-24 for save bar -->
+    <!-- Top Action Bar -->
+    <div class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+      >
+        <!-- Left Actions -->
+        <div class="flex flex-wrap gap-2">
           <button
-            (mouseenter)="showMenu()"
-            (mouseleave)="hideMenu()"
-            (click)="toggleMenu($event)"
-            class="cursor-pointer pl-3 pr-4 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors flex items-center gap-2 border border-emerald-200"
+            type="button"
+            (click)="startAdd()"
+            class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-blue-500 text-white hover:bg-blue-600 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
           >
-            <app-icon-lib ico="quickActions" class="h-5 w-5"></app-icon-lib>
-            Quick Actions
-            <app-icon-lib ico="chevronDown" class="h-4 w-4 ml-1"></app-icon-lib>
+            <app-icon-lib ico="plus" class="h-5 w-5"></app-icon-lib>
+            Add New
           </button>
-          <div
-            *ngIf="isMenuOpen"
-            (mouseenter)="showMenu()"
-            (mouseleave)="hideMenu()"
-            (click)="showMenu($event)"
-            class="absolute mt-1 w-48 bg-white border rounded-lg z-10"
+          <button
+            type="button"
+            (click)="toggleBulkEditSelected()"
+            [disabled]="!anyRowsSelected()"
+            class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors focus:outline-none focus:ring-2"
+            [ngClass]="{
+              'bg-white text-gray-700 hover:bg-gray-100 border-gray-300 focus:ring-gray-300':
+                !isBulkEditingSelected,
+              'bg-green-50 text-green-700 hover:bg-green-100 border-green-300 focus:ring-green-300':
+                isBulkEditingSelected,
+              'opacity-50 cursor-not-allowed': !anyRowsSelected()
+            }"
           >
-            <div class="p-2 text-sm text-gray-700">
-              <div
-                class="p-2 hover:bg-gray-50 rounded-md cursor-pointer"
-                (click)="editAllSources()"
-              >
-                Edit All
-              </div>
-              <div
-                class="p-2 hover:bg-gray-50 rounded-md cursor-pointer"
-                (click)="isImportModalOpen = true"
-              >
-                Import Data
-              </div>
-              <div
-                class="p-2 hover:bg-gray-50 rounded-md cursor-pointer"
-                (click)="isExportModalOpen = true"
-              >
-                Export Data
+            <app-icon-lib
+              [ico]="isBulkEditingSelected ? 'check' : 'edit'"
+              class="h-5 w-5"
+            ></app-icon-lib>
+            {{
+              isBulkEditingSelected ? "Done Editing Selected" : "Edit Selected"
+            }}
+          </button>
+          <button
+            type="button"
+            (click)="deleteSelectedSources()"
+            [disabled]="!anyRowsSelected()"
+            class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-red-50 text-red-700 hover:bg-red-100 border-red-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-red-300"
+          >
+            <app-icon-lib ico="trash" class="h-5 w-5"></app-icon-lib>
+            Delete Selected
+          </button>
+        </div>
+
+        <!-- Right Actions (Search & Menu) -->
+        <div
+          class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center"
+        >
+          <div class="relative flex-grow sm:flex-grow-0 sm:w-64">
+            <input
+              type="search"
+              class="w-full px-4 py-2 pl-10 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all text-sm"
+              placeholder="Filter sources..."
+              [(ngModel)]="searchInput"
+            />
+            <app-icon-lib
+              ico="search"
+              class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            ></app-icon-lib>
+          </div>
+          <div class="relative">
+            <button
+              id="quickActionsButton"
+              type="button"
+              (mouseenter)="showMenu()"
+              (mouseleave)="hideMenu()"
+              (click)="toggleMenu($event)"
+              class="w-full sm:w-auto px-4 py-2 text-sm font-medium rounded-lg border flex items-center justify-center gap-2 transition-colors bg-white text-gray-700 hover:bg-gray-100 border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            >
+              <app-icon-lib ico="quickActions" class="h-5 w-5"></app-icon-lib>
+              <span>Quick Actions</span>
+              <app-icon-lib
+                ico="chevronDown"
+                class="h-4 w-4 ml-1"
+              ></app-icon-lib>
+            </button>
+            <div
+              id="quickActionsMenu"
+              *ngIf="isMenuOpen"
+              (mouseenter)="showMenu()"
+              (mouseleave)="hideMenu()"
+              class="absolute mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 right-0 sm:right-auto sm:left-0"
+            >
+              <div class="p-1">
+                <a
+                  (click)="editAllSources(); closeMenuOutside()"
+                  class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                >
+                  {{
+                    isEditingAllVisible
+                      ? "Done Editing All Visible"
+                      : "Edit All Visible"
+                  }}
+                </a>
+                <a
+                  (click)="isImportModalOpen = true; closeMenuOutside()"
+                  class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  >Import Data</a
+                >
+                <a
+                  (click)="isExportModalOpen = true; closeMenuOutside()"
+                  class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
+                  >Export Data</a
+                >
+                <div class="my-1 border-t border-gray-100"></div>
+                <a
+                  (click)="isYnOpenDelete = true; closeMenuOutside()"
+                  class="block px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
+                  >Delete All Sources</a
+                >
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="flex gap-2 w-full md:w-auto">
-        <div class="relative flex-1 md:w-full">
-          <input
-            type="search"
-            class="w-full px-4 py-2 pl-10 border border-gray-200 bg-white rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
-            placeholder="Filter sources..."
-            [(ngModel)]="searchInput"
-            (ngModelChange)="searchInObject()"
-          />
+    </div>
+
+    <!-- Add New Source Form (Inline) -->
+    <div class="mb-4 p-0">
+      <div
+        *ngIf="!isAdding"
+        class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer min-h-[60px] group"
+        (click)="startAdd()"
+        role="button"
+        tabindex="0"
+        aria-label="Add new source"
+      >
+        <div class="flex items-center justify-center h-full">
           <app-icon-lib
-            ico="search"
-            class="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            ico="plus"
+            class="h-6 w-6 text-gray-400 group-hover:text-blue-500"
           ></app-icon-lib>
+          <span class="ml-2 text-gray-500 group-hover:text-blue-500"
+            >Add a new source</span
+          >
+        </div>
+      </div>
+
+      <div
+        *ngIf="isAdding"
+        class="p-4 border-2 border-dashed border-blue-200 rounded-lg bg-blue-50/50"
+      >
+        <h3 class="text-lg font-medium text-gray-800 mb-3">Add New Source</h3>
+        <div class="flex flex-col sm:flex-row gap-3 items-start">
+          <input
+            type="text"
+            class="border border-gray-300 rounded-md p-2 text-sm w-full sm:w-1/3 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            placeholder="Name (optional)"
+            [(ngModel)]="newName"
+            (keyup.enter)="confirmAdd()"
+          />
+          <input
+            type="text"
+            class="border border-gray-300 rounded-md p-2 text-sm w-full sm:flex-grow bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            placeholder="URL (e.g., https://example.com)"
+            [(ngModel)]="newUrl"
+            (keyup.enter)="confirmAdd()"
+          />
+          <div class="flex gap-2 self-stretch sm:self-auto">
+            <button
+              type="button"
+              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
+              (click)="cancelAdd()"
+              aria-label="Cancel adding source"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60"
+              (click)="confirmAdd()"
+              [disabled]="!newUrl.trim()"
+              aria-label="Confirm add source"
+            >
+              Add
+            </button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="rounded-lg overflow-x-hidden">
+
+    <!-- Table Container -->
+    <div class="rounded-lg shadow overflow-hidden">
       <table class="w-full bg-white table-auto">
-        <thead class="bg-gray-50 hidden md:table-header-group">
+        <thead class="bg-gray-100 text-gray-600 hidden md:table-header-group">
           <tr class="align-middle">
-            <th class="p-3 min-w-[40px] max-w-[60px]"></th>
-            <th class="p-3 min-w-[40px] max-w-[60px]">
+            <th scope="col" class="p-3 w-10"></th>
+            <th scope="col" class="p-3 w-12 text-center">
               <input
-                (click)="selectAll()"
                 type="checkbox"
-                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-offset-0 focus:ring-2 focus:ring-blue-400"
+                aria-label="Select all sources"
+                [(ngModel)]="isAllSelected"
+                (ngModelChange)="toggleSelectAll()"
+                [disabled]="searchInObject().length === 0"
               />
             </th>
             <th
-              class="p-4 text-left text-sm font-semibold text-gray-600 min-w-[150px]"
+              scope="col"
+              class="p-3 text-left text-sm font-semibold min-w-[150px]"
             >
               Name
             </th>
             <th
-              class="p-4 text-left text-sm font-semibold text-gray-600 hidden xl:table-cell min-w-[200px]"
+              scope="col"
+              class="p-3 text-left text-sm font-semibold hidden xl:table-cell min-w-[200px]"
             >
               URL
             </th>
-            <th
-              class="p-4 text-left text-sm font-semibold text-gray-600 min-w-[80px] max-w-[100px]"
-            >
+            <th scope="col" class="p-3 text-center text-sm font-semibold w-24">
               Active
             </th>
-            <th
-              class="p-4 text-right text-sm font-semibold text-gray-600 min-w-[80px] max-w-[120px]"
-            >
+            <th scope="col" class="p-3 text-right text-sm font-semibold w-32">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td colspan="6" class="p-2 sm:p-3">
-              <div
-                *ngIf="!isAdding"
-                class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer min-h-[60px]"
-                (click)="startAdd()"
-              >
-                <div class="flex items-center justify-center h-full">
-                  <app-icon-lib
-                    ico="plus"
-                    class="h-8 w-8 sm:h-10 sm:w-10 text-gray-400 hover:text-blue-500"
-                  ></app-icon-lib>
-                </div>
-              </div>
-              <div
-                *ngIf="isAdding"
-                class="border-2 border-dashed border-blue-200 rounded-lg bg-blue-50 p-3"
-              >
-                <div class="flex flex-wrap gap-2 items-center">
-                  <input
-                    type="text"
-                    class="border-2 border-gray-300 rounded-md p-2 text-sm w-32 flex-grow bg-white focus:border-blue-500 focus:ring-blue-500"
-                    placeholder="Name"
-                    [(ngModel)]="newName"
-                    (keyup.enter)="confirmAdd()"
-                  />
-                  <input
-                    type="text"
-                    class="border-2 border-gray-300 rounded-md p-2 text-sm flex-grow-[3] bg-white focus:border-blue-500 focus:ring-blue-500 max-w-full"
-                    placeholder="https://..."
-                    [(ngModel)]="newUrl"
-                    (keyup.enter)="confirmAdd()"
-                  />
-                  <div class="flex gap-2 ml-auto">
-                    <button
-                      type="button"
-                      class="p-1.5 text-gray-600 rounded-md transition-colors"
-                      (click)="cancelAdd()"
-                      aria-label="Cancel"
-                    >
-                      <app-icon-lib ico="trash" class="h-5 w-5"></app-icon-lib>
-                    </button>
-                    <button
-                      type="button"
-                      class="p-1.5 text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
-                      (click)="confirmAdd()"
-                      [disabled]="newUrl === ''"
-                      aria-label="Add"
-                    >
-                      <app-icon-lib ico="check" class="h-5 w-5"></app-icon-lib>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tbody>
         <tbody
-          class="divide-y divide-gray-200"
           cdkDropList
-          (cdkDropListDropped)="onDrop($any($event))"
+          (cdkDropListDropped)="onDrop($event)"
+          class="md:divide-y md:divide-gray-200"
         >
           <ng-container
-            *ngFor="let source of searchInObject(); trackBy: trackById"
+            *ngIf="searchInObject().length > 0; else noResultsOrEmpty"
           >
             <tr
-              class="hover:bg-gray-50 active:bg-gray-100"
-              [ngClass]="{ 'bg-gray-50': source.isEditing }"
+              *ngFor="let source of searchInObject(); trackBy: trackById"
               cdkDrag
+              [cdkDragData]="source"
+              class="hover:bg-gray-50 border-b md:border-b-0 border-gray-200"
+              [class.bg-blue-50]="source.selected"
+              [class.opacity-75]="source.isEditing && !isBulkEditingSelected"
+              [class.bg-yellow-50]="
+                source.isEditing && isBulkEditingSelected && source.selected
+              "
             >
-              <td
-                class="p-2 sm:p-3 text-gray-400 align-middle hidden md:table-cell"
-              >
-                <div cdkDragHandle class="cursor-move">
-                  <app-icon-lib
-                    ico="menu"
-                    class="h-6 w-6 touch:p-1 mx-auto"
-                  ></app-icon-lib>
-                </div>
-              </td>
-              <td class="align-middle hidden md:table-cell p-2 sm:p-3">
-                <input
-                  type="checkbox"
-                  [checked]="isSelected"
-                  class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 mx-auto"
-                />
-              </td>
-              <td class="p-2 sm:p-3 align-middle">
-                <div
-                  class="flex items-start gap-2 md:gap-3 flex-col xl:flex-row max-w-full"
-                >
-                  <div class="flex items-center gap-2 w-full flex-wrap">
-                    <div class="flex-shrink-0 md:hidden" cdkDragHandle>
-                      <app-icon-lib
-                        ico="menu"
-                        class="h-6 w-6 text-gray-400 cursor-move"
-                      ></app-icon-lib>
-                    </div>
-                    <img
-                      src="https://www.google.com/s2/favicons?sz=64&domain={{
-                        getDisplayName(source)
-                      }}"
-                      class="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0"
-                      alt="Favicon"
+              <!-- Mobile View: Single TD card-like layout -->
+              <td class="p-2 md:hidden">
+                <div class="flex gap-2 w-full">
+                  <div
+                    class="flex flex-col items-center gap-2 pt-1 flex-shrink-0"
+                  >
+                    <input
+                      type="checkbox"
+                      class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-offset-0 focus:ring-1 focus:ring-blue-400"
+                      [attr.aria-label]="
+                        'Select source ' +
+                        (source.name || getDisplayName(source))
+                      "
+                      [(ngModel)]="source.selected"
+                      (ngModelChange)="onRowSelectionChange()"
+                      (click)="$event.stopPropagation()"
                     />
-                    <div class="flex-1 min-w-0 max-w-full">
+                    <div
+                      cdkDragHandle
+                      class="cursor-move p-1 text-gray-400 hover:text-gray-500 rounded-md"
+                    >
+                      <app-icon-lib ico="menu" class="h-5 w-5"></app-icon-lib>
+                    </div>
+                  </div>
+                  <div class="flex flex-col gap-1.5 flex-1 min-w-0">
+                    <div class="flex items-start gap-2">
+                      <img
+                        src="https://www.google.com/s2/favicons?sz=32&domain_url={{
+                          getDisplayName(source)
+                        }}"
+                        class="w-6 h-6 mt-0.5 rounded-full flex-shrink-0 object-contain border border-gray-100"
+                        alt="Favicon"
+                        loading="lazy"
+                      />
+                      <div class="flex-1 min-w-0">
+                        <div
+                          *ngIf="!source.isEditing"
+                          class="text-sm font-medium text-gray-800 break-words"
+                        >
+                          {{ source.name || getDisplayName(source) }}
+                        </div>
+                        <input
+                          *ngIf="source.isEditing"
+                          type="text"
+                          class="border border-gray-300 rounded-md px-2 py-1 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                          placeholder="Name"
+                          [(ngModel)]="source.name"
+                          (keyup.enter)="editSource(source)"
+                          (click)="$event.stopPropagation()"
+                        />
+                      </div>
+                    </div>
+                    <div class="min-w-0">
                       <div
                         *ngIf="!source.isEditing"
-                        class="text-base sm:text-lg xl:text-base font-medium break-words"
+                        class="text-xs text-gray-600 break-all"
                       >
-                        {{
-                          source.name === ""
-                            ? getDisplayName(source)
-                            : source.name
-                        }}
+                        <span [innerHTML]="highlightUrl(source.url)"></span>
                       </div>
                       <input
                         *ngIf="source.isEditing"
-                        name="name"
                         type="text"
-                        class="border-2 border-gray-300 rounded-md p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 max-w-full"
-                        placeholder="Enter name"
-                        [(ngModel)]="source.name"
+                        class="border border-gray-300 rounded-md px-2 py-1 w-full text-xs bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        placeholder="URL"
+                        [(ngModel)]="source.url"
                         (keyup.enter)="editSource(source)"
+                        (click)="$event.stopPropagation()"
                       />
                     </div>
+                    <div class="flex items-center justify-between mt-1">
+                      <label
+                        class="relative inline-flex items-center cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          class="sr-only peer"
+                          [checked]="source.enabled"
+                          (change)="
+                            toggleSource(source); $event.stopPropagation()
+                          "
+                        />
+                        <div
+                          class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-1 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"
+                        ></div>
+                      </label>
+                      <div class="flex items-center gap-0.5">
+                        <button
+                          *ngIf="!source.isEditing"
+                          (click)="
+                            toggleEditMode(source); $event.stopPropagation()
+                          "
+                          title="Edit Source"
+                          class="p-1 text-gray-500 hover:text-blue-600 hover:bg-blue-100/50 rounded-full"
+                        >
+                          <app-icon-lib
+                            ico="edit"
+                            class="h-4 w-4"
+                          ></app-icon-lib>
+                        </button>
+                        <ng-container *ngIf="source.isEditing">
+                          <button
+                            (click)="
+                              editSource(source); $event.stopPropagation()
+                            "
+                            title="Save Changes"
+                            class="p-1 text-green-500 hover:text-green-700 hover:bg-green-100/50 rounded-full"
+                          >
+                            <app-icon-lib
+                              ico="check"
+                              class="h-4 w-4"
+                            ></app-icon-lib>
+                          </button>
+                          <button
+                            (click)="
+                              cancelSourceEdit(source); $event.stopPropagation()
+                            "
+                            title="Cancel Edit"
+                            class="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 rounded-full"
+                          >
+                            <app-icon-lib
+                              ico="xMark"
+                              class="h-4 w-4"
+                            ></app-icon-lib>
+                          </button>
+                        </ng-container>
+                        <button
+                          (click)="
+                            removeSource(source.id); $event.stopPropagation()
+                          "
+                          title="Delete Source"
+                          class="p-1 text-gray-500 hover:text-red-600 hover:bg-red-100/50 rounded-full"
+                        >
+                          <app-icon-lib
+                            ico="trash"
+                            class="h-4 w-4"
+                          ></app-icon-lib>
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div
-                    class="w-full break-words text-sm text-gray-600 xl:hidden max-w-full"
-                  >
-                    <div class="hidden sm:block">
-                      <span
-                        *ngIf="!source.isEditing"
-                        [innerHTML]="
-                          highlightUrl(source.url || 'No URL provided')
-                        "
-                        class="break-words"
-                      ></span>
+                </div>
+              </td>
+
+              <!-- Desktop View Cells -->
+              <td
+                class="hidden md:table-cell p-1 sm:p-2 w-10 text-gray-400 align-middle text-center"
+              >
+                <div
+                  cdkDragHandle
+                  class="cursor-move p-2 hover:bg-gray-200 rounded-md inline-block"
+                >
+                  <app-icon-lib ico="menu" class="h-5 w-5"></app-icon-lib>
+                </div>
+              </td>
+              <td
+                class="hidden md:table-cell p-3 w-12 text-center align-middle"
+              >
+                <input
+                  type="checkbox"
+                  class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-offset-0 focus:ring-2 focus:ring-blue-400"
+                  [attr.aria-label]="
+                    'Select source ' + (source.name || getDisplayName(source))
+                  "
+                  [(ngModel)]="source.selected"
+                  (ngModelChange)="onRowSelectionChange()"
+                  (click)="$event.stopPropagation()"
+                />
+              </td>
+              <td class="hidden md:table-cell p-3 align-middle min-w-[150px]">
+                <div class="flex items-center gap-3">
+                  <img
+                    src="https://www.google.com/s2/favicons?sz=32&domain_url={{
+                      getDisplayName(source)
+                    }}"
+                    class="w-8 h-8 rounded-full flex-shrink-0 object-contain border border-gray-200"
+                    alt="Favicon"
+                    loading="lazy"
+                  />
+                  <div class="flex-1 min-w-0">
+                    <div
+                      *ngIf="!source.isEditing"
+                      class="text-sm font-medium text-gray-800 break-words"
+                    >
+                      {{ source.name || getDisplayName(source) }}
                     </div>
                     <input
                       *ngIf="source.isEditing"
-                      name="url"
+                      name="name"
                       type="text"
-                      class="mt-1 border border-gray-300 rounded p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 max-w-full"
-                      placeholder="Enter URL"
-                      [(ngModel)]="source.url"
+                      class="border-2 border-gray-300 rounded-md p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 max-w-full"
+                      placeholder="Enter name"
+                      [(ngModel)]="source.name"
                       (keyup.enter)="editSource(source)"
+                      (click)="$event.stopPropagation()"
                     />
                   </div>
                 </div>
               </td>
-              <td class="p-2 sm:p-3 hidden xl:table-cell align-middle">
+              <td class="hidden xl:table-cell p-3 align-middle min-w-[200px]">
                 <div class="max-w-full">
                   <div
                     *ngIf="!source.isEditing"
-                    class="text-sm sm:text-base text-gray-800 break-words"
+                    class="text-sm text-gray-800 break-words"
                     [innerHTML]="highlightUrl(source.url || 'No URL provided')"
                   ></div>
                   <input
                     *ngIf="source.isEditing"
                     name="url"
                     type="text"
-                    class="border-2 border-gray-300 rounded-md p-2 w-full text-sm sm:text-base bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 max-w-full"
+                    class="border-2 border-gray-300 rounded-md p-2 w-full text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 max-w-full"
                     placeholder="Enter URL"
                     [(ngModel)]="source.url"
                     (keyup.enter)="editSource(source)"
+                    (click)="$event.stopPropagation()"
                   />
                 </div>
               </td>
-              <td class="p-2 sm:p-3 align-middle">
-                <label
-                  class="relative inline-block w-12 h-6 mx-auto cursor-pointer"
-                >
+              <td
+                class="hidden md:table-cell p-3 text-center align-middle w-24"
+              >
+                <label class="relative inline-flex items-center cursor-pointer">
                   <input
                     type="checkbox"
                     class="sr-only peer"
                     [checked]="source.enabled"
-                    (change)="toggleSource(source)"
+                    (change)="toggleSource(source); $event.stopPropagation()"
                   />
                   <div
-                    class="w-12 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition-colors after:w-5 after:h-5 after:absolute after:top-0.5 after:left-[3px] after:bg-white after:rounded-full after:transition-transform peer-checked:after:translate-x-6"
+                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
                   ></div>
                 </label>
               </td>
-              <td class="p-2 sm:p-3 align-middle">
-                <div class="flex items-center justify-end gap-2">
+              <td class="hidden md:table-cell p-3 text-right align-middle w-32">
+                <div class="flex items-center justify-end gap-1">
                   <button
-                    class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-full cursor-pointer"
-                    (click)="editSource(source)"
+                    *ngIf="!source.isEditing"
+                    (click)="toggleEditMode(source); $event.stopPropagation()"
+                    title="Edit Source"
+                    class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-100 rounded-full"
                   >
-                    <ng-container *ngIf="!source.isEditing">
-                      <app-icon-lib ico="edit" class="h-6 w-6"></app-icon-lib>
-                    </ng-container>
-                    <ng-container *ngIf="source.isEditing">
-                      <app-icon-lib ico="check" class="h-6 w-6"></app-icon-lib>
-                    </ng-container>
+                    <app-icon-lib ico="edit" class="h-5 w-5"></app-icon-lib>
                   </button>
+                  <ng-container *ngIf="source.isEditing">
+                    <button
+                      (click)="editSource(source); $event.stopPropagation()"
+                      title="Save Changes"
+                      class="p-1.5 text-green-500 hover:text-green-700 hover:bg-green-100 rounded-full"
+                    >
+                      <app-icon-lib ico="check" class="h-5 w-5"></app-icon-lib>
+                    </button>
+                    <button
+                      (click)="
+                        cancelSourceEdit(source); $event.stopPropagation()
+                      "
+                      title="Cancel Edit"
+                      class="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full"
+                    >
+                      <app-icon-lib ico="close" class="h-5 w-5"></app-icon-lib>
+                    </button>
+                  </ng-container>
                   <button
-                    class="p-1.5 text-red-600 hover:bg-red-100 rounded-full cursor-pointer"
-                    (click)="removeSource(source.id)"
+                    (click)="removeSource(source.id); $event.stopPropagation()"
+                    title="Delete Source"
+                    class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-100 rounded-full"
                   >
-                    <app-icon-lib ico="trash" class="h-6 w-6"></app-icon-lib>
+                    <app-icon-lib ico="trash" class="h-5 w-5"></app-icon-lib>
                   </button>
                 </div>
               </td>
             </tr>
           </ng-container>
+          <ng-template #noResultsOrEmpty>
+            <tr>
+              <td colspan="6" class="text-center p-8 text-gray-500">
+                <div *ngIf="sources.length === 0 && !searchInput.trim()">
+                  No sources yet. Click "Add New" to get started!
+                </div>
+                <div *ngIf="sources.length > 0 && searchInput.trim()">
+                  No sources match your filter "{{ searchInput }}".
+                </div>
+              </td>
+            </tr>
+          </ng-template>
         </tbody>
       </table>
     </div>
-    <div
-      class="flex flex-col md:flex-row justify-between items-center mt-4 gap-4 text-sm sm:text-base"
-    >
-      <p class="text-sm text-gray-700">
+
+    <div class="mt-6 text-center text-xs text-gray-500">
+      <p>
         Note: Data are being stored on your browser's local storage. This means
         that all data will be lost if you clear your browser's local storage or
         use a different browser.
       </p>
     </div>
   </div>
+
+  <!-- Floating Save/Discard Bar -->
+  <div
+    *ngIf="hasUnsavedChanges"
+    class="fixed bottom-0 left-0 right-0 bg-white p-3 sm:p-4 border-t border-gray-200 z-50"
+  >
+    <div
+      class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4"
+    >
+      <p class="text-sm text-gray-700 flex-grow">You have unsaved changes.</p>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <button
+          (click)="isYnOpenDiscard = true"
+          [disabled]="isSaving"
+          class="px-4 py-2 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-60 w-1/2 sm:w-auto"
+        >
+          <app-icon-lib ico="xMark" class="h-5 w-5"></app-icon-lib>
+          <!-- Assuming you have an xMark or similar icon -->
+          Discard
+        </button>
+        <button
+          (click)="saveData()"
+          [disabled]="isSaving"
+          class="px-4 py-2 text-sm font-medium rounded-lg flex items-center justify-center gap-2 transition-colors bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-60 w-1/2 sm:w-auto"
+        >
+          <app-icon-lib
+            *ngIf="!isSaving"
+            ico="save"
+            class="h-5 w-5"
+          ></app-icon-lib>
+          <app-icon-lib
+            *ngIf="isSaving"
+            ico="spinner"
+            class="w-5 h-5 animate-spin"
+          ></app-icon-lib>
+          {{ isSaving ? "Saving..." : "Save Changes" }}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Modals -->
 <app-yn-modal
   [(isYnOpen)]="isYnOpenDelete"
   [title]="YnTitleDelete"
   [message]="YnMessageDelete"
   (answerEvent)="handleYnAnswerForDeleteSources($event)"
 ></app-yn-modal>
+
+<app-yn-modal
+  [(isYnOpen)]="isYnOpenDiscard"
+  [title]="YnTitleDiscard"
+  [message]="YnMessageDiscard"
+  (answerEvent)="handleYnAnswerForDiscard($event)"
+></app-yn-modal>
+
 <app-export
   [isExportModalOpen]="isExportModalOpen"
   [sources]="sources"
-  (isExportModalOpenEvent)="isExportModalOpen = $event"
-  (isExportModalOpenChange)="isExportModalOpen = $event"
+  (isExportModalOpenChange)="onExportModalChange($event)"
 ></app-export>
+
 <app-import
   [isImportModalOpen]="isImportModalOpen"
   [sources]="sources"
-  (isImportModalOpenEvent)="isImportModalOpen = $event"
-  (isImportModalOpenChange)="isImportModalOpen = $event"
+  (isImportModalOpenChange)="onImportModalChange($event)"
 ></app-import>

@@ -1,3 +1,4 @@
+// src/app/forms/yn.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
@@ -7,62 +8,73 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   template: `
     <div
       *ngIf="isYnOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      aria-labelledby="yn-modal-title"
+      role="dialog"
+      aria-modal="true"
     >
       <!-- Backdrop with blur effect -->
       <div
-        class="fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity"
-        (click)="closeYnModal()"
+        class="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
+        (click)="closeYnModal('backdrop')"
+        aria-hidden="true"
       ></div>
 
-      <!-- Modal container with enter/exit transitions -->
+      <!-- Modal container -->
       <div
-        class="relative w-full max-w-md lg:max-w-2xl transform transition-all"
+        class="relative w-full max-w-md transform transition-all bg-white rounded-xl shadow-2xl overflow-hidden"
       >
-        <div class="relative rounded-xl bg-white shadow-2xl">
-          <!-- Modal header -->
-          <div class="flex items-center justify-between p-6 pb-0">
-            <h3 class="text-2xl font-bold text-slate-700">{{ title }}</h3>
-            <button
-              class="-mr-2 rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-              (click)="closeYnModal()"
+        <!-- Modal header -->
+        <div
+          class="flex items-start justify-between p-5 border-b border-gray-200"
+        >
+          <h3 class="text-xl font-semibold text-gray-800" id="yn-modal-title">
+            {{ title }}
+          </h3>
+          <button
+            type="button"
+            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+            (click)="closeYnModal('close-button')"
+            aria-label="Close modal"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <svg
-                class="h-6 w-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
+              <path
+                fill-rule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+          </button>
+        </div>
 
-          <!-- Modal content -->
-          <div class="p-6">
-            <div class="space-y-4">
-              <p class="text-sm text-slate-600">{{ message }}</p>
-              <div class="flex items-center justify-center gap-4">
-                <button
-                  class="cursor-pointer w-full rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-3 font-semibold text-white transition-all hover:from-green-600 hover:to-emerald-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                  (click)="onYesClick()"
-                >
-                  Yes
-                </button>
-                <button
-                  class="cursor-pointer w-full rounded-lg bg-gradient-to-r from-red-500 to-rose-600 px-6 py-3 font-semibold text-white transition-all hover:from-red-600 hover:to-rose-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                  (click)="onNoClick()"
-                >
-                  No
-                </button>
-              </div>
-            </div>
-          </div>
+        <!-- Modal content -->
+        <div class="p-6 space-y-6">
+          <p class="text-base leading-relaxed text-gray-600">{{ message }}</p>
+        </div>
+
+        <!-- Modal footer -->
+        <div
+          class="flex items-center justify-end p-4 space-x-2 border-t border-gray-200 rounded-b"
+        >
+          <button
+            (click)="onNoClick()"
+            type="button"
+            class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors"
+          >
+            No
+          </button>
+          <button
+            (click)="onYesClick()"
+            type="button"
+            class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-colors"
+          >
+            Yes
+          </button>
         </div>
       </div>
     </div>
@@ -70,38 +82,54 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   imports: [CommonModule],
 })
 export class YnComponent {
-  @Input() title: string = '';
-  @Input() message: string = '';
+  @Input() title: string = 'Confirmation'; // Default title
+  @Input() message: string = 'Are you sure?'; // Default message
   @Input() isYnOpen: boolean = false;
 
-  @Output() answerEvent = new EventEmitter<string>();
-
+  // Use specific type for better clarity in parent component
+  @Output() answerEvent = new EventEmitter<'yes' | 'no'>();
+  // Needed for the [(isYnOpen)] two-way binding syntax sugar
   @Output() isYnOpenChange = new EventEmitter<boolean>();
-  @Output() isYnOpenEvent = new EventEmitter<boolean>();
 
-  closeYnModal() {
+  closeYnModal(source: 'backdrop' | 'close-button' | 'action') {
+    // Optionally handle different close sources if needed
     this.isYnOpen = false;
     this.isYnOpenChange.emit(this.isYnOpen);
-    this.isYnOpenEvent.emit(this.isYnOpen);
+    // We don't emit 'no' on backdrop/close button click unless explicitly desired
   }
 
   onYesClick() {
     this.answerEvent.emit('yes');
-    this.closeYnModal();
+    this.closeYnModal('action');
   }
 
   onNoClick() {
     this.answerEvent.emit('no');
-    this.closeYnModal();
+    this.closeYnModal('action');
   }
 }
 
-/* usage:
+/* --- Usage Example Update ---
 
+Make sure the parent component handles the event with the correct type:
 
+// parent.component.ts
+isYnOpen = false;
+YnTitle = 'Proceed?';
+YnMessage = 'Do you really want to do this?';
 
-html:
-<!-- app.component.html -->
+handleYnAnswer(answer: 'yes' | 'no') { // <-- Use specific type here
+  console.log('Yn answer:', answer);
+  if (answer === 'yes') {
+    // Perform action
+  } else {
+    // Handle 'no' or cancellation
+  }
+}
+
+// parent.component.html
+<button (click)="isYnOpen = true">Show Modal</button>
+
 <app-yn-modal
   [title]="YnTitle"
   [message]="YnMessage"
@@ -109,13 +137,4 @@ html:
   [(isYnOpen)]="isYnOpen"
 ></app-yn-modal>
 
-ts:
-
- YnMessage: string = 'Do you like hot moms?';
-  YnTitle: string = 'Are you sure?';
-  handleYnAnswer(event: any) {
-    // Handle the answer event here
-    console.log('Yn answer:', event);
-  }
-
-    */
+*/
