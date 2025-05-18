@@ -10,6 +10,7 @@ import { ContentTabsComponent } from '../../../components/content-tabs/content-t
 import { SortHeaderComponent } from '../sort-header/sort-header.component';
 import { CommonModule } from '@angular/common';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
+import { LibHeaderComponent } from '../../home/lib-header/lib-header.component';
 
 // Define constants for tile limits and increments for easier management
 const INITIAL_TILE_LIMIT = 42;
@@ -24,6 +25,7 @@ const TILE_LIMIT_INCREMENT = 14;
     SortHeaderComponent,
     CommonModule,
     IconLibComponent,
+    LibHeaderComponent,
   ],
 })
 export class DiscoverComponent implements OnInit, AfterViewInit {

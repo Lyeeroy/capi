@@ -4,14 +4,21 @@ import { ContentTabsComponent } from '../../components/content-tabs/content-tabs
 import { CarouselComponent } from './carousel/carousel.component';
 import { CommonModule } from '@angular/common';
 import { ContentTabsNetflixLikeComponent } from '../../components/content-tabs-netflix-like/content-tabs-netflix-like.component';
+import { LibHeaderComponent } from './lib-header/lib-header.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, ContentTabsNetflixLikeComponent, CarouselComponent],
+  imports: [
+    CommonModule,
+    ContentTabsNetflixLikeComponent,
+    CarouselComponent,
+    LibHeaderComponent,
+    ContentTabsComponent,
+  ],
   templateUrl: './home.component.html',
 })
 export class HomeComponent {
-  trendingMediaType: string = 'movie'; // Default tab
-  discoverMediaType: string = 'movie'; // Default tab
+  trendingMediaType: string = 'movie';
+  discoverMediaType: string = 'movie';
 }
