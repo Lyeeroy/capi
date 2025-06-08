@@ -14,6 +14,7 @@ import { Subscription, firstValueFrom } from 'rxjs';
 
 const INITIAL_SEARCH_TILE_LIMIT = 14;
 const SEARCH_TILE_INCREMENT = 7;
+const DEBOUNCE_INTERVAL = 500; // 500 milliseconds
 
 @Component({
   selector: 'app-search-results',
@@ -30,7 +31,7 @@ export class SearchResultsComponent
   totalResults: number = 0;
   isLoadingQuery: boolean = false;
   isLoadingMore: boolean = false;
-  private lastLoadTime: number = 0;
+  private debounceTimeout: any;
   private readonly scrollLoadCooldown: number = 1000;
   private readonly initialFillLoadCooldown: number = 300;
   private readonly initialFillMaxAttempts: number = 5;
@@ -38,6 +39,7 @@ export class SearchResultsComponent
   public initialSetupDoneForQuery: boolean = false;
   private paramMapSubscription: Subscription | undefined;
   searchResults: any[] = [];
+  private lastLoadTime: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -52,7 +54,7 @@ export class SearchResultsComponent
         if (this.query !== newQuery || (newQuery && !this.url)) {
           this.query = newQuery;
           this.initialSetupDoneForQuery = false;
-          await this.performSearch(this.query);
+          this.debouncedPerformSearch(newQuery);
         } else if (!newQuery) {
           this.query = '';
           this.url = '';
@@ -66,6 +68,15 @@ export class SearchResultsComponent
         }
       }
     );
+  }
+
+  debouncedPerformSearch(query: string): void {
+    if (this.debounceTimeout) {
+      clearTimeout(this.debounceTimeout);
+    }
+    this.debounceTimeout = setTimeout(async () => {
+      await this.performSearch(query);
+    }, DEBOUNCE_INTERVAL);
   }
 
   async performSearch(currentQuery: string): Promise<void> {
@@ -253,6 +264,9 @@ export class SearchResultsComponent
   ngOnDestroy(): void {
     if (this.paramMapSubscription) {
       this.paramMapSubscription.unsubscribe();
+    }
+    if (this.debounceTimeout) {
+      clearTimeout(this.debounceTimeout);
     }
   }
 }
