@@ -74,6 +74,9 @@ export class SearchResultsComponent
     if (this.debounceTimeout) {
       clearTimeout(this.debounceTimeout);
     }
+    this.isLoadingQuery = true; // Show loading indicator immediately
+    this.cdr.detectChanges();
+
     this.debounceTimeout = setTimeout(async () => {
       await this.performSearch(query);
     }, DEBOUNCE_INTERVAL);
