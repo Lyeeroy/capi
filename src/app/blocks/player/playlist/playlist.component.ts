@@ -37,7 +37,8 @@ export class PlaylistComponent implements OnInit, OnChanges {
   @Input() layoutType: 'list' | 'grid' | 'poster' = 'list';
   @Input() isSortedAscending: boolean = true;
   @Input() seriesId: string = '';
-
+  @Input() activeEpisodeIndex: number = 0;
+  @Input() currentEpisode: number = 1;
   @Output() seasonChange = new EventEmitter<number>();
   @Output() episodeSelected = new EventEmitter<number>();
   @Output() layoutChange = new EventEmitter<void>();
