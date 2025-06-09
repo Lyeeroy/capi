@@ -13,6 +13,7 @@ import { ExportComponent } from './export/export.component';
 import { ImportComponent } from './import/import.component';
 import { YnComponent } from '../../forms/yn.component';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
+import { SourceSubscriptionService } from '../../services/source-subscription.service';
 
 interface Source {
   id: number;
@@ -81,7 +82,8 @@ export class TableComponent implements OnInit, OnDestroy {
 
   constructor(
     private sanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public sourceSub: SourceSubscriptionService // <-- inject service
   ) {}
 
   ngOnInit(): void {
@@ -92,11 +94,6 @@ export class TableComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     document.removeEventListener('click', this.closeMenuOutside);
     clearTimeout(this.menuTimeout);
-  }
-
-  removeIsNewcomerFromLocalStorage() {
-    localStorage.removeItem('isNewcomer');
-    window.location.reload();
   }
 
   // --- Data Loading, Saving, and Change Tracking ---
@@ -227,6 +224,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   onDrop(event: CdkDragDrop<Source[]>) {
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     const filteredSources = this.searchInObject();
     const movedItem = filteredSources[event.previousIndex];
     const targetItem = filteredSources[event.currentIndex];
@@ -277,6 +275,7 @@ export class TableComponent implements OnInit, OnDestroy {
         enabled: true,
         selected: false,
       };
+      this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
       this.sources = [newSource, ...this.sources];
       this._reIndexSources();
       this._checkForChanges();
@@ -334,6 +333,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   removeSource(sourceId: number): void {
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     this.sources = this.sources.filter((source) => source.id !== sourceId);
     this._reIndexSources();
     this.updateMasterCheckboxState();
@@ -341,7 +341,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   editSource(source: Source): void {
-    // Saves an individual edit
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     source.isEditing = false;
     this.editCache.delete(source.id);
     if (!source.name.trim() && !source.url.trim()) {
@@ -355,7 +355,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   toggleEditMode(source: Source): void {
-    // Initiates or saves an individual edit
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     if (!source.isEditing) {
       this.editCache.set(source.id, {
         name: source.name,
@@ -369,6 +369,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   cancelSourceEdit(source: Source): void {
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     if (source.isEditing) {
       const cached = this.editCache.get(source.id);
       if (cached) {
@@ -383,6 +384,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   toggleSource(source: Source): void {
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     source.enabled = !source.enabled;
     this._checkForChanges();
   }
@@ -417,6 +419,7 @@ export class TableComponent implements OnInit, OnDestroy {
   // --- Bulk Actions ---
   isEditingAllVisible: boolean = false;
   editAllSources(): void {
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     this.isEditingAllVisible = !this.isEditingAllVisible;
     this.searchInObject().forEach((source) => {
       if (this.isEditingAllVisible) {
@@ -438,6 +441,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   toggleBulkEditSelected(): void {
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     if (!this.anyRowsSelected()) return; // Should be disabled, but as a safeguard
 
     if (!this.isBulkEditingSelected) {
@@ -473,6 +477,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   deleteSelectedSources(): void {
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     this.sources = this.sources.filter((s) => !s.selected);
     this._reIndexSources();
     this.isAllSelected = false; // Master checkbox should be unchecked
@@ -485,6 +490,7 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   removeAllSources(): void {
+    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
     this.sources = [];
     this._reIndexSources();
     this.isAllSelected = false;
@@ -557,5 +563,27 @@ export class TableComponent implements OnInit, OnDestroy {
 
   onExportModalChange(isOpen: boolean): void {
     this.isExportModalOpen = isOpen;
+  }
+
+  // --- Subscription Logic ---
+  subscribeToDefaultSources(): void {
+    this.sourceSub.subscribeToDefaults();
+    this.loadData();
+    this.cdr.detectChanges();
+  }
+
+  unsubscribeFromDefaultSources(): void {
+    this.sourceSub.unsubscribeFromDefaults();
+    this.loadData();
+    this.cdr.detectChanges();
+  }
+
+  get isSubscribed(): boolean {
+    return this.sourceSub.isSubscribed();
+  }
+
+  // RemoveIsNewcomerFromLocalStorage is now handled by subscribeToDefaultSources
+  removeIsNewcomerFromLocalStorage() {
+    this.subscribeToDefaultSources();
   }
 }
