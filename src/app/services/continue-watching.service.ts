@@ -76,8 +76,32 @@ export class ContinueWatchingService {
 
   removeEntry(index: number) {
     const list = this.getList();
+    const entry = list[index];
+    if (entry && entry.tmdbID) {
+      try {
+        localStorage.removeItem(`playlist_last_played_${entry.tmdbID}`);
+      } catch (e) {
+        // Optionally log error or ignore
+      }
+    }
     list.splice(index, 1);
     localStorage.setItem(this.key, JSON.stringify(list));
+  }
+
+  remove(tmdbID: string, mediaType: string) {
+    // Remove from continue watching list
+    let list = this.getList();
+    list = list.filter(
+      (e) => !(e.tmdbID === tmdbID && e.mediaType === mediaType)
+    );
+    localStorage.setItem(this.key, JSON.stringify(list));
+
+    // Also remove playlist_last_played_{tmdbID} from localStorage
+    try {
+      localStorage.removeItem(`playlist_last_played_${tmdbID}`);
+    } catch (e) {
+      // Optionally log error or ignore
+    }
   }
 
   clearAll() {

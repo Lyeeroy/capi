@@ -84,6 +84,29 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.currentEpisode = queryParams['episode']
         ? Number(queryParams['episode'])
         : 1;
+
+      // --- Highlight fix: load last played from localStorage if available ---
+      if (this.id && this.mediaType === 'tv') {
+        const lastPlayedKey = `playlist_last_played_${this.id}`;
+        const stored = localStorage.getItem(lastPlayedKey);
+        if (stored) {
+          try {
+            const lastPlayed = JSON.parse(stored);
+            if (
+              lastPlayed &&
+              typeof lastPlayed.season === 'number' &&
+              typeof lastPlayed.episode === 'number'
+            ) {
+              this.currentSeason = lastPlayed.season;
+              this.currentEpisode = lastPlayed.episode;
+            }
+          } catch {
+            // ignore corrupted data
+          }
+        }
+      }
+      // --- End highlight fix ---
+
       this.initializeData();
       this.loadSourcesService.loadSources().then(() => {
         this.sources = this.loadSourcesService.sources;
@@ -279,6 +302,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
             }
           });
           this.updateCurrentEpisodes(this.currentSeason);
+          // --- Always update localStorage for highlight ---
+          if (this.id && this.mediaType === 'tv') {
+            localStorage.setItem(
+              `playlist_last_played_${this.id}`,
+              JSON.stringify({
+                season: this.currentSeason,
+                episode: this.currentEpisode,
+              })
+            );
+          }
+          // --- End highlight fix ---
           this.updateUrl();
         },
         (error) => console.error('Error fetching season data:', error)
@@ -287,7 +321,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   playEpisode(index: number) {
-    this.currentEpisode = index + 1;
+    this.currentEpisode = this.isSortedAscending
+      ? this.currentEpisodes[index]?.number || index + 1
+      : this.currentEpisodes[index]?.number ||
+        this.currentEpisodes.length - index;
     this.updateCurrentEpisodes(this.currentSeason);
     this.videoCurrentTime = 0;
     this.videoDuration = this.HARDCODED_DURATION;
@@ -305,6 +342,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
         })
       );
     }
+    // --- Highlight fix: update activeEpisodeIndex ---
+    const idx = this.currentEpisodes.findIndex(
+      (ep) => ep.number === this.currentEpisode
+    );
+    this.activeEpisodeIndex = idx !== -1 ? idx : 0;
+    // --- End highlight fix ---
     this.updateUrl();
     this.reloadIframe();
   }
@@ -329,6 +372,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
       );
       if (!found) {
         localStorage.removeItem(`playlist_last_played_${this.id}`);
+        // --- Highlight fix: reset activeEpisodeIndex if not found ---
+        this.activeEpisodeIndex = 0;
+      } else {
+        // --- Highlight fix: update activeEpisodeIndex if found ---
+        const idx = this.currentEpisodes.findIndex(
+          (ep) => ep.number === this.currentEpisode
+        );
+        this.activeEpisodeIndex = idx !== -1 ? idx : 0;
       }
     }
     this.updateUrl();
@@ -430,6 +481,27 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (this.episodeNames[seasonNumber] && this.episodePosters[seasonNumber]) {
       this.currentEpisodes = this.episodeNames[seasonNumber];
       this.currentPosters = this.episodePosters[seasonNumber];
+      // --- Always update localStorage for highlight ---
+      if (this.id && this.mediaType === 'tv') {
+        localStorage.setItem(
+          `playlist_last_played_${this.id}`,
+          JSON.stringify({
+            season: this.currentSeason,
+            episode: this.currentEpisode,
+          })
+        );
+      }
+      // --- End highlight fix ---
+      const idx = this.currentEpisodes.findIndex(
+        (ep) => ep.number === this.currentEpisode
+      );
+      this.activeEpisodeIndex = idx !== -1 ? idx : 0;
+      // --- Highlight fix: keep currentEpisode in sync with activeEpisodeIndex ---
+      if (this.currentEpisodes[this.activeEpisodeIndex]) {
+        this.currentEpisode =
+          this.currentEpisodes[this.activeEpisodeIndex].number;
+      }
+      // --- End highlight fix ---
     }
   }
 

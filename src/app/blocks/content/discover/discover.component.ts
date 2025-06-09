@@ -10,7 +10,6 @@ import { ContentTabsComponent } from '../../../components/content-tabs/content-t
 import { SortHeaderComponent } from '../sort-header/sort-header.component';
 import { CommonModule } from '@angular/common';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
-import { LibHeaderComponent } from '../../home/lib-header/lib-header.component';
 
 // Define constants for tile limits and increments for easier management
 const INITIAL_TILE_LIMIT = 42;
@@ -25,7 +24,6 @@ const TILE_LIMIT_INCREMENT = 14;
     SortHeaderComponent,
     CommonModule,
     IconLibComponent,
-    LibHeaderComponent,
   ],
 })
 export class DiscoverComponent implements OnInit, AfterViewInit {
@@ -44,6 +42,17 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
   genreId: number = 0;
   sortValue: string = '';
   mediaType: 'movie' | 'tv' = 'movie';
+
+  // New: Sorting mode (discover, trending, topRated, nowPlaying, etc.)
+  sortMode:
+    | 'discover'
+    | 'trending'
+    | 'topRated'
+    | 'nowPlaying'
+    | 'upcoming'
+    | 'airingToday'
+    | 'onTheAir' = 'discover';
+
   mergedEndpoint: string = ''; // Will be initialized in ngOnInit
 
   // --- New properties for initial screen fill logic ---
@@ -53,17 +62,41 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
 
   constructor(private route: ActivatedRoute, private cdr: ChangeDetectorRef) {}
 
+  // New: Map sortMode to endpoint
+  private getEndpoint(): string {
+    switch (this.sortMode) {
+      case 'discover':
+        return `/discover/${this.mediaType}`;
+      case 'trending':
+        return `/trending/${this.mediaType}/week`;
+      case 'topRated':
+        return `/${this.mediaType}/top_rated`;
+      case 'nowPlaying':
+        return this.mediaType === 'movie'
+          ? '/movie/now_playing'
+          : '/tv/on_the_air';
+      case 'upcoming':
+        return this.mediaType === 'movie'
+          ? '/movie/upcoming'
+          : '/tv/airing_today';
+      case 'airingToday':
+        return '/tv/airing_today';
+      case 'onTheAir':
+        return '/tv/on_the_air';
+      default:
+        return `/discover/${this.mediaType}`;
+    }
+  }
+
   ngOnInit(): void {
     this.route.data.subscribe((data) => {
       const newMediaType = data['mediaType'] || 'movie';
       const previousMediaType = this.mediaType;
 
       this.mediaType = newMediaType;
-      this.mergedEndpoint = `/discover/${this.mediaType}`;
+      this.updateEndpoint();
 
-      // If initial setup is done and mediaType changes (e.g., navigating /discover/movie to /discover/tv)
       if (this.initialSetupDone && previousMediaType !== newMediaType) {
-        console.log('MediaType changed, resetting state and refilling.');
         this.resetStateAndRefill();
       } else if (!this.initialSetupDone) {
         // For the very first component initialization, mergedEndpoint is set.
@@ -92,6 +125,18 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
     this.checkScroll();
   }
 
+  // New: Update endpoint when sortMode or mediaType changes
+  updateEndpoint() {
+    this.mergedEndpoint = this.getEndpoint();
+  }
+
+  // New: Handle sort mode change from UI
+  onSortModeChange(mode: string) {
+    this.sortMode = mode as any;
+    this.updateEndpoint();
+    this.resetStateAndRefill();
+  }
+
   onGenreId(genreId: number): void {
     if (this.genreId === genreId) return; // No change
     console.log('Genre ID changed, resetting state and refilling.');
@@ -111,6 +156,7 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
     this.initialFillAttempts = 0; // Reset attempts for the new filter set
     this.lastLoadTime = 0; // Allow immediate load after reset
     this.isLoading = false; // Ensure not stuck in a loading state
+    this.updateEndpoint(); // Ensure endpoint is up to date
 
     this.cdr.detectChanges(); // Apply changes immediately (e.g., hide spinner, update child inputs)
 

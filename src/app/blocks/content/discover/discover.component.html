@@ -30,18 +30,103 @@
     </button>
   </div>
 
+  <!-- New: Sorting Mode Tabs -->
+  <div class="flex flex-wrap gap-2 mb-4 px-4">
+    <button
+      class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
+      [ngClass]="{
+        'bg-blue-500 text-white border-blue-500': sortMode === 'discover',
+        'bg-white text-gray-700 border-gray-300 hover:bg-gray-100':
+          sortMode !== 'discover'
+      }"
+      (click)="onSortModeChange('discover')"
+    >
+      Discover
+    </button>
+    <button
+      class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
+      [ngClass]="{
+        'bg-blue-500 text-white border-blue-500': sortMode === 'trending',
+        'bg-white text-gray-700 border-gray-300 hover:bg-gray-100':
+          sortMode !== 'trending'
+      }"
+      (click)="onSortModeChange('trending')"
+    >
+      Trending
+    </button>
+    <button
+      class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
+      [ngClass]="{
+        'bg-blue-500 text-white border-blue-500': sortMode === 'topRated',
+        'bg-white text-gray-700 border-gray-300 hover:bg-gray-100':
+          sortMode !== 'topRated'
+      }"
+      (click)="onSortModeChange('topRated')"
+    >
+      Top Rated
+    </button>
+    <button
+      *ngIf="mediaType === 'movie'"
+      class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
+      [ngClass]="{
+        'bg-blue-500 text-white border-blue-500': sortMode === 'nowPlaying',
+        'bg-white text-gray-700 border-gray-300 hover:bg-gray-100':
+          sortMode !== 'nowPlaying'
+      }"
+      (click)="onSortModeChange('nowPlaying')"
+    >
+      Now Playing
+    </button>
+    <button
+      *ngIf="mediaType === 'movie'"
+      class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
+      [ngClass]="{
+        'bg-blue-500 text-white border-blue-500': sortMode === 'upcoming',
+        'bg-white text-gray-700 border-gray-300 hover:bg-gray-100':
+          sortMode !== 'upcoming'
+      }"
+      (click)="onSortModeChange('upcoming')"
+    >
+      Upcoming
+    </button>
+    <button
+      *ngIf="mediaType === 'tv'"
+      class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
+      [ngClass]="{
+        'bg-blue-500 text-white border-blue-500': sortMode === 'airingToday',
+        'bg-white text-gray-700 border-gray-300 hover:bg-gray-100':
+          sortMode !== 'airingToday'
+      }"
+      (click)="onSortModeChange('airingToday')"
+    >
+      Airing Today
+    </button>
+    <button
+      *ngIf="mediaType === 'tv'"
+      class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
+      [ngClass]="{
+        'bg-blue-500 text-white border-blue-500': sortMode === 'onTheAir',
+        'bg-white text-gray-700 border-gray-300 hover:bg-gray-100':
+          sortMode !== 'onTheAir'
+      }"
+      (click)="onSortModeChange('onTheAir')"
+    >
+      On The Air
+    </button>
+  </div>
+
   <app-sort-header
-    *ngIf="isFilterOpen"
+    *ngIf="isFilterOpen && sortMode === 'discover'"
     [mediaType]="mediaType"
     (genreId)="onGenreId($event)"
     (sortParam)="onSortBy($event)"
   ></app-sort-header>
 
   <app-content-tabs
-    [sortBy]="sortValue"
+    [sortBy]="sortMode === 'discover' ? sortValue : undefined"
     [apiEndpoint]="mergedEndpoint"
     [tileLimit]="tileLimit"
-    [genreId]="genreId"
+    [genreId]="sortMode === 'discover' ? genreId : 0"
   ></app-content-tabs>
 
   <div

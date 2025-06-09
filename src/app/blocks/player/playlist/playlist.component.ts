@@ -6,6 +6,10 @@ import {
   OnChanges,
   SimpleChanges,
   OnInit,
+  AfterViewInit,
+  ViewChildren,
+  QueryList,
+  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,7 +20,6 @@ export interface Episode {
   name: string;
 }
 
-// A simple type for what we store as the "playing" episode
 type LastPlayed = {
   season: number;
   episode: number;
@@ -28,10 +31,10 @@ type LastPlayed = {
   imports: [CommonModule, FormsModule, IconLibComponent],
   templateUrl: './playlist.component.html',
 })
-export class PlaylistComponent implements OnInit, OnChanges {
+export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() names: string = '';
   @Input() totalSeasons: number[] = [];
-  @Input() currentSeason: number = 1; // This is the season being VIEWED
+  @Input() currentSeason: number = 1;
   @Input() currentEpisodes: Episode[] = [];
   @Input() currentPosters: string[] = [];
   @Input() layoutType: 'list' | 'grid' | 'poster' = 'list';
@@ -44,26 +47,39 @@ export class PlaylistComponent implements OnInit, OnChanges {
   @Output() layoutChange = new EventEmitter<void>();
   @Output() sortToggle = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
-
   private lastPlayedKey = '';
-  // This is our single source of truth for what is "playing"
   lastPlayed: LastPlayed | null = null;
+  private lastPlayedIndex: number = -1;
+  @ViewChildren('episodeBtn, episodeList')
+  episodeElements!: QueryList<ElementRef>;
+  private initialScrollDone = false;
 
   ngOnInit() {
-    // Initialize the lastPlayed state when the component is first created.
     this.loadLastPlayed();
+    this.cacheLastPlayedIndex();
+  }
+
+  ngAfterViewInit() {
+    this.scrollToActiveEpisode(true);
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // If the seriesId changes, we need to reload the state for the new series.
     if (changes['seriesId'] && !changes['seriesId'].firstChange) {
       this.loadLastPlayed();
+      this.cacheLastPlayedIndex();
+    }
+
+    if (changes['currentSeason'] || changes['currentEpisodes']) {
+      this.loadLastPlayed();
+      this.cacheLastPlayedIndex();
+      setTimeout(() => this.scrollToActiveEpisode(), 0);
     }
   }
 
   private loadLastPlayed(): void {
     if (!this.seriesId) {
       this.lastPlayed = null;
+      this.lastPlayedIndex = -1;
       return;
     }
     this.lastPlayedKey = `playlist_last_played_${this.seriesId}`;
@@ -73,64 +89,78 @@ export class PlaylistComponent implements OnInit, OnChanges {
         this.lastPlayed = JSON.parse(stored) as LastPlayed;
       } catch {
         this.lastPlayed = null;
-        localStorage.removeItem(this.lastPlayedKey); // Clean up corrupted data
+        localStorage.removeItem(this.lastPlayedKey);
       }
     } else {
       this.lastPlayed = null;
     }
   }
 
+  private cacheLastPlayedIndex(): void {
+    // Cache the index of the last played episode for the current season
+    if (this.lastPlayed && this.lastPlayed.season === this.currentSeason) {
+      this.lastPlayedIndex = this.currentEpisodes.findIndex(
+        (ep) => ep.number === this.lastPlayed!.episode
+      );
+    } else {
+      this.lastPlayedIndex = -1;
+    }
+  }
+
+  private scrollToActiveEpisode(initial = false) {
+    if (this.lastPlayedIndex < 0) return;
+    if (this.lastPlayed && this.currentSeason !== this.lastPlayed.season)
+      return;
+    if (this.initialScrollDone && !initial) return;
+    const el =
+      document.getElementById('episode-btn-' + this.lastPlayedIndex) ||
+      document.getElementById('episode-list-' + this.lastPlayedIndex);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      this.initialScrollDone = true;
+    }
+  }
+
   onSeasonChange(event: Event) {
     const newSeason = Number((event.target as HTMLSelectElement).value);
     this.seasonChange.emit(newSeason);
+    // No need to reload or recalculate here, handled by ngOnChanges
   }
 
   onEpisodeSelected(logicalIndex: number, actualIndex: number) {
     const selectedEpisode = this.currentEpisodes[actualIndex];
-
     if (selectedEpisode) {
-      // Update our source of truth for what is now "playing".
       this.lastPlayed = {
         season: this.currentSeason,
         episode: selectedEpisode.number,
       };
-      // Persist this state to localStorage if a seriesId is available.
       if (this.seriesId) {
         localStorage.setItem(
           this.lastPlayedKey,
           JSON.stringify(this.lastPlayed)
         );
       }
+      this.lastPlayedIndex = actualIndex;
+    } else {
+      this.lastPlayedIndex = -1;
     }
-
-    // Notify the parent component with the logical index, preserving the original contract.
-    this.episodeSelected.emit(logicalIndex);
+    this.episodeSelected.emit(actualIndex);
+    this.initialScrollDone = true;
   }
 
-  /**
-   * Checks if a given episode is the one currently marked as playing.
-   * This is the definitive check used for highlighting in the template.
-   * @param episode The episode object from the ngFor loop.
-   * @returns True if the episode should be highlighted, otherwise false.
-   */
-  isEpisodeActive(episode: Episode): boolean {
-    if (!this.lastPlayed) {
-      return false;
-    }
-    // An episode is active ONLY if the season being viewed matches the played season
-    // AND the episode number matches the played episode number.
-    return (
-      this.currentSeason === this.lastPlayed.season &&
-      episode.number === this.lastPlayed.episode
-    );
+  isEpisodeActiveByIndex(index: number): boolean {
+    // Use cached index for efficiency
+    return index === this.lastPlayedIndex && this.lastPlayedIndex >= 0;
   }
 
   onLayoutChange() {
     this.layoutChange.emit();
   }
+
   onSortToggle() {
     this.sortToggle.emit();
   }
+
   onClose() {
     this.close.emit();
   }
