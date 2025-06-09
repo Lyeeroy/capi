@@ -57,7 +57,7 @@
     </ng-container>
 
     <ng-container *ngIf="layoutType === 'list'">
-      <div class="space-y-1 mt-1">
+      <div class="">
         <div
           *ngFor="let episode of currentEpisodes; let i = index"
           (click)="onEpisodeSelected(i, i)"
@@ -68,7 +68,7 @@
           [class.bg-gray-100]="!isEpisodeActiveByIndex(i)"
           [class.hover:bg-blue-600]="isEpisodeActiveByIndex(i)"
           [class.hover:bg-gray-200]="!isEpisodeActiveByIndex(i)"
-          class="flex items-center gap-2 px-2 py-3 rounded-md cursor-pointer transition duration-300"
+          class="flex items-center mt-1 gap-2 px-2 py-3 rounded-md cursor-pointer transition duration-300"
         >
           <div
             class="font-semibold text-xs w-7 text-center"
