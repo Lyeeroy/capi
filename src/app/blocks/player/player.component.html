@@ -66,6 +66,8 @@
       [layoutType]="layoutType"
       [isSortedAscending]="isSortedAscending"
       [activeEpisodeIndex]="activeEpisodeIndex"
+      [seriesId]="id?.toString() || ''"
+      [currentEpisode]="currentEpisode"
       (seasonChange)="onSeasonChange($event)"
       (episodeSelected)="playEpisode($event)"
       (layoutChange)="changeLayout()"

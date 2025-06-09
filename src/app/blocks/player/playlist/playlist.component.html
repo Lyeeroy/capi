@@ -1,4 +1,5 @@
 <div class="h-full p-4 flex flex-col">
+  <!-- ... (header and select dropdown are unchanged) ... -->
   <div class="flex items-center justify-between mb-4">
     <h2 class="text-lg text-gray-900 truncate px-1">{{ names }}</h2>
     <div class="flex gap-2">
@@ -34,23 +35,25 @@
   <div class="flex-1 overflow-y-auto border-t border-gray-200">
     <ng-container *ngIf="layoutType === 'grid'">
       <div class="mt-1 px-1">
-        <!-- Added padding to container -->
         <div
           class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 lg:grid-cols-3 xl:grid-cols-5 gap-1 sm:gap-1.5"
         >
+          <!-- FIX APPLIED HERE for Grid Layout -->
           <button
             *ngFor="let episode of currentEpisodes; let i = index"
             (click)="
               onEpisodeSelected(
-                isSortedAscending ? i : currentEpisodes.length - i - 1
+                isSortedAscending ? i : currentEpisodes.length - 1 - i,
+                i
               )
             "
-            [class.bg-gray-200]="
-              isSortedAscending
-                ? i === activeEpisodeIndex
-                : currentEpisodes.length - i - 1 === activeEpisodeIndex
-            "
-            class="cursor-pointer flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition-all duration-200 text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 px-1 sm:px-2 py-2 min-w-[44px] flex-shrink-0 aspect-[1.8]"
+            [class.bg-blue-600]="isEpisodeActive(episode)"
+            [class.text-white]="isEpisodeActive(episode)"
+            [class.bg-gray-100]="!isEpisodeActive(episode)"
+            [class.text-gray-600]="!isEpisodeActive(episode)"
+            [class.hover:bg-blue-700]="isEpisodeActive(episode)"
+            [class.hover:bg-gray-200]="!isEpisodeActive(episode)"
+            class="cursor-pointer flex items-center justify-center rounded-sm transition-all duration-200 text-xs sm:text-sm font-medium hover:text-gray-900 px-1 sm:px-2 py-2 min-w-[44px] flex-shrink-0 aspect-[1.8]"
           >
             {{ episode.number }}
           </button>
@@ -59,38 +62,53 @@
     </ng-container>
 
     <ng-container *ngIf="layoutType === 'list'">
+      <!-- FIX APPLIED HERE for List Layout -->
       <div
         *ngFor="let episode of currentEpisodes; let i = index"
         (click)="
           onEpisodeSelected(
-            isSortedAscending ? i : currentEpisodes.length - i - 1
+            isSortedAscending ? i : currentEpisodes.length - 1 - i,
+            i
           )
         "
-        [class.bg-gray-200]="
-          isSortedAscending
-            ? i === activeEpisodeIndex
-            : currentEpisodes.length - i - 1 === activeEpisodeIndex
-        "
-        class="mt-1 flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-300"
+        [class.bg-blue-500]="isEpisodeActive(episode)"
+        [class.text-white]="isEpisodeActive(episode)"
+        [class.bg-gray-100]="!isEpisodeActive(episode)"
+        [class.hover:bg-blue-600]="isEpisodeActive(episode)"
+        [class.hover:bg-gray-200]="!isEpisodeActive(episode)"
+        class="mt-1 flex items-center gap-2 px-2 py-3 rounded-md cursor-pointer transition duration-300"
       >
-        <div class="font-semibold text-xs text-gray-700 w-7 text-center">
+        <div
+          class="font-semibold text-xs w-7 text-center"
+          [class.text-white]="isEpisodeActive(episode)"
+          [class.text-gray-700]="!isEpisodeActive(episode)"
+        >
           EP{{ episode.number }}:
         </div>
-        <div class="flex-1 min-w-0 text-xs text-gray-700 truncate">
+        <div
+          class="flex-1 min-w-0 text-xs truncate"
+          [class.text-blue-100]="isEpisodeActive(episode)"
+          [class.text-gray-700]="!isEpisodeActive(episode)"
+        >
           {{ episode.name }}
         </div>
       </div>
     </ng-container>
 
+    <!-- ... (poster layout is unchanged) ... -->
     <ng-container *ngIf="layoutType === 'poster'">
       <div class="grid gap-4 grid-cols-2">
         <div
           *ngFor="let episode of currentEpisodes; let i = index"
-          (click)="onEpisodeSelected(i)"
+          (click)="onEpisodeSelected(i, i)"
           class="group relative cursor-pointer transform hover:scale-[1.02] transition-transform duration-300"
         >
           <div
-            class="aspect-video bg-gray-100 rounded-lg overflow-hidden shadow-lg relative"
+            class="aspect-video bg-gray-100 rounded-lg overflow-hidden shadow-lg relative transition-all"
+            [class.ring-4]="isEpisodeActive(episode)"
+            [class.ring-blue-500]="isEpisodeActive(episode)"
+            [class.ring-offset-2]="isEpisodeActive(episode)"
+            [class.ring-offset-white]="isEpisodeActive(episode)"
           >
             <img
               [src]="
@@ -101,6 +119,9 @@
               [alt]="episode.name"
               loading="lazy"
             />
+            <div
+              class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300"
+            ></div>
             <div class="absolute bottom-0 left-0 right-0 p-3 z-10">
               <div class="text-sm font-semibold text-white truncate">
                 {{ episode.number }}. {{ episode.name }}

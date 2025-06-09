@@ -1,0 +1,83 @@
+<div *ngIf="list.length === 0" class="text-gray-500 p-4">
+  No videos to continue watching.
+</div>
+<div *ngIf="list.length > 0" class="mx-auto px-4 sm:px-4 lg:px-4">
+  <div
+    class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-7 gap-3 md:gap-4"
+  >
+    <ng-container *ngFor="let entry of list; let i = index">
+      <div
+        role="button"
+        tabindex="0"
+        (click)="resume(entry)"
+        (keydown.enter)="resume(entry)"
+        [title]="
+          (entry.title || entry.name) +
+          (entry.mediaType === 'tv' ? ' (TV)' : ' (Movie)')
+        "
+        class="cursor-pointer group relative bg-slate-800 rounded-xl md:rounded-2xl shadow-lg transition-all duration-300 ease-in-out overflow-hidden aspect-[2/3] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500 focus-visible:ring-offset-gray-900 hover:brightness-110"
+        [attr.aria-label]="'Resume ' + (entry.title || entry.name)"
+      >
+        <img
+          [src]="
+            entry.poster_path
+              ? 'https://image.tmdb.org/t/p/w500' + entry.poster_path
+              : './assets/placeholder.png'
+          "
+          [alt]="(entry.title || entry.name) + ' Poster'"
+          loading="lazy"
+          class="w-full h-full object-cover transition-all duration-300 group-hover:brightness-110"
+        />
+
+        <!-- Remove (X) icon in top-right corner -->
+        <button
+          type="button"
+          (click)="remove(i); $event.stopPropagation()"
+          class="absolute top-2 right-2 z-10 bg-black/60 hover:bg-black/80 text-white rounded-full w-7 h-7 flex items-center justify-center opacity-80 hover:opacity-100 transition"
+          title="Remove"
+          tabindex="-1"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-4 h-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
+        <div
+          class="absolute inset-0 flex flex-col justify-end p-3 md:p-4 bg-gradient-to-t from-black/60 via-black/35 to-transparent pointer-events-none"
+          aria-hidden="true"
+        >
+          <h3
+            class="text-base md:text-lg font-semibold text-white mb-1 truncate group-hover:whitespace-normal group-hover:text-amber-400 transition-colors duration-300"
+          >
+            {{ entry.title || entry.name }}
+          </h3>
+          <div
+            class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs md:text-sm text-gray-200"
+          >
+            <span *ngIf="entry.mediaType === 'tv'">
+              S{{ entry.season }} • E{{ entry.episode }}
+            </span>
+            <span *ngIf="entry.mediaType === 'movie'">Movie</span>
+
+            <span
+              class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-500/30 text-gray-300 border border-gray-500/50 capitalize"
+            >
+              {{ entry.mediaType === "tv" ? "TV" : entry.mediaType }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

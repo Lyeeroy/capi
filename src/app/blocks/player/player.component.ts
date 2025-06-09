@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Location, CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { forkJoin } from 'rxjs';
@@ -11,6 +11,7 @@ import { ControlsComponent } from './controls/controls.component';
 import { PlaylistComponent } from './playlist/playlist.component';
 import { PlayerHeader } from './player-header/player-header.component';
 import { InfoComponent } from './info/info.component';
+import { ContinueWatchingService } from '../../services/continue-watching.service';
 
 @Component({
   selector: 'app-player',
@@ -28,7 +29,7 @@ import { InfoComponent } from './info/info.component';
   ],
   providers: [LoadSourcesService],
 })
-export class PlayerComponent implements OnInit {
+export class PlayerComponent implements OnInit, OnDestroy {
   id: number | null = null;
   mediaType: string | null = null;
   names: string | null = null;
@@ -53,13 +54,20 @@ export class PlayerComponent implements OnInit {
 
   private mappingRegex: RegExp =
     /^(https?:\/\/[^\/]+\/)([^\/?]+)\?([^:]+):([^\/]+)(\/.*)$/;
+  private videoCurrentTime: number = 0;
+  private videoDuration: number = 0;
+  private progressInterval: any;
+  private episodeFinished = false;
+  private readonly HARDCODED_DURATION = 600;
 
   constructor(
     private route: ActivatedRoute,
     private location: Location,
     private tmdbService: TmdbService,
     private loadSourcesService: LoadSourcesService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private continueWatchingService: ContinueWatchingService,
+    private router: Router
   ) {
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('');
   }
@@ -85,6 +93,94 @@ export class PlayerComponent implements OnInit {
         }
       });
     });
+    // Optionally, listen for pause or beforeunload to save progress
+    window.addEventListener('beforeunload', this.saveProgress);
+    // Periodically save progress (simulate, replace with real player integration)
+    this.progressInterval = setInterval(() => this.saveProgress(), 5000);
+  }
+
+  ngOnDestroy() {
+    this.saveProgress();
+    window.removeEventListener('beforeunload', this.saveProgress);
+    clearInterval(this.progressInterval);
+  }
+
+  // Simulate getting currentTime and duration from player (hardcoded only)
+  getCurrentTimeAndDuration(): { currentTime: number; duration: number } {
+    if (!this.videoDuration) this.videoDuration = this.HARDCODED_DURATION;
+    if (typeof this.videoCurrentTime !== 'number' || this.videoCurrentTime < 0)
+      this.videoCurrentTime = 0;
+
+    if (!this.episodeFinished && this.videoCurrentTime < this.videoDuration) {
+      this.videoCurrentTime = Math.min(
+        this.videoCurrentTime + 5,
+        this.videoDuration
+      );
+    } else if (
+      this.videoCurrentTime >= this.videoDuration &&
+      !this.episodeFinished
+    ) {
+      this.videoCurrentTime = this.videoDuration;
+      this.episodeFinished = true;
+      if (this.progressInterval) {
+        clearInterval(this.progressInterval);
+        this.progressInterval = null;
+      }
+      if (
+        this.mediaType === 'tv' &&
+        this.currentEpisodes &&
+        this.currentEpisode < this.currentEpisodes.length
+      ) {
+        this.currentEpisode++;
+      }
+    }
+    return {
+      currentTime: this.videoCurrentTime,
+      duration: this.videoDuration,
+    };
+  }
+
+  // No TMDB duration fetch, always use hardcoded
+  getDurationFromResponse(): number {
+    return 0;
+  }
+
+  // Call this when video pauses or component is destroyed
+  saveProgress = () => {
+    if (!this.id || !this.mediaType) return;
+    const { currentTime, duration } = this.getCurrentTimeAndDuration();
+
+    let totalEpisodesInSeason = undefined;
+    if (this.mediaType === 'tv' && this.currentEpisodes) {
+      totalEpisodesInSeason = this.currentEpisodes.length;
+    }
+
+    this.continueWatchingService.saveOrAdvance(
+      {
+        tmdbID: String(this.id),
+        mediaType: this.mediaType as 'movie' | 'tv',
+        season: this.mediaType === 'tv' ? this.currentSeason : undefined,
+        episode: this.mediaType === 'tv' ? this.currentEpisode : undefined,
+        currentTime,
+        duration,
+        poster_path: this.responseData?.poster_path,
+        title: this.responseData?.title,
+        name: this.responseData?.name,
+      },
+      totalEpisodesInSeason
+    );
+  };
+
+  findContinueWatchingIndex(): number {
+    const list = this.continueWatchingService.getList();
+    return list.findIndex(
+      (e) =>
+        e.tmdbID === String(this.id) &&
+        e.mediaType === this.mediaType &&
+        (this.mediaType === 'movie' ||
+          (e.season === this.currentSeason &&
+            e.episode === this.currentEpisode))
+    );
   }
 
   nextSource() {
@@ -193,6 +289,22 @@ export class PlayerComponent implements OnInit {
   playEpisode(index: number) {
     this.currentEpisode = index + 1;
     this.updateCurrentEpisodes(this.currentSeason);
+    this.videoCurrentTime = 0;
+    this.videoDuration = this.HARDCODED_DURATION;
+    this.episodeFinished = false;
+    if (!this.progressInterval) {
+      this.progressInterval = setInterval(() => this.saveProgress(), 5000);
+    }
+    // Store last played in localStorage for highlight
+    if (this.id) {
+      localStorage.setItem(
+        `playlist_last_played_${this.id}`,
+        JSON.stringify({
+          season: this.currentSeason,
+          episode: this.currentEpisode,
+        })
+      );
+    }
     this.updateUrl();
     this.reloadIframe();
   }
@@ -204,6 +316,21 @@ export class PlayerComponent implements OnInit {
   onSeasonChange(newSeason: number) {
     this.currentSeason = newSeason;
     this.updateCurrentEpisodes(this.currentSeason);
+    this.videoCurrentTime = 0;
+    this.videoDuration = this.HARDCODED_DURATION;
+    this.episodeFinished = false;
+    if (!this.progressInterval) {
+      this.progressInterval = setInterval(() => this.saveProgress(), 5000);
+    }
+    // Remove highlight if current episode is not in this season
+    if (this.id) {
+      const found = this.currentEpisodes.find(
+        (ep) => ep.number === this.currentEpisode
+      );
+      if (!found) {
+        localStorage.removeItem(`playlist_last_played_${this.id}`);
+      }
+    }
     this.updateUrl();
   }
 
@@ -220,6 +347,12 @@ export class PlayerComponent implements OnInit {
     if (this.currentEpisode < this.currentEpisodes.length) {
       this.currentEpisode = index + 1;
       this.updateCurrentEpisodes(this.currentSeason);
+      this.videoCurrentTime = 0;
+      this.videoDuration = this.HARDCODED_DURATION;
+      this.episodeFinished = false;
+      if (!this.progressInterval) {
+        this.progressInterval = setInterval(() => this.saveProgress(), 5000);
+      }
       this.updateUrl();
       this.reloadIframe();
     }
@@ -229,6 +362,12 @@ export class PlayerComponent implements OnInit {
     if (this.currentEpisode > 1) {
       this.currentEpisode = index - 1;
       this.updateCurrentEpisodes(this.currentSeason);
+      this.videoCurrentTime = 0;
+      this.videoDuration = this.HARDCODED_DURATION;
+      this.episodeFinished = false;
+      if (!this.progressInterval) {
+        this.progressInterval = setInterval(() => this.saveProgress(), 5000);
+      }
       this.updateUrl();
       this.reloadIframe();
     }
@@ -313,5 +452,18 @@ export class PlayerComponent implements OnInit {
     //     : this.layoutType === 'grid'
     //     ? 'poster'
     //     : 'list';
+  }
+
+  // Remove time from URL when resuming
+  resumeFromContinueWatching(entry: any) {
+    const queryParams: any = {};
+    if (entry.mediaType === 'tv') {
+      queryParams.season = entry.season;
+      queryParams.episode = entry.episode;
+    }
+    // Do NOT add time to queryParams
+    this.router.navigate(['/player', entry.tmdbID, entry.mediaType], {
+      queryParams,
+    });
   }
 }

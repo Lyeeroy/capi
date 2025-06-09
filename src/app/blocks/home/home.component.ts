@@ -5,6 +5,8 @@ import { CarouselComponent } from './carousel/carousel.component';
 import { CommonModule } from '@angular/common';
 import { ContentTabsNetflixLikeComponent } from '../../components/content-tabs-netflix-like/content-tabs-netflix-like.component';
 import { LibHeaderComponent } from './lib-header/lib-header.component';
+import { ContinueWatchingListComponent } from './continue-watching-list.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +17,7 @@ import { LibHeaderComponent } from './lib-header/lib-header.component';
     CarouselComponent,
     LibHeaderComponent,
     ContentTabsComponent,
+    ContinueWatchingListComponent,
   ],
   templateUrl: './home.component.html',
 })
