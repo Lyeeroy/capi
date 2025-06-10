@@ -49,14 +49,12 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   @Output() close = new EventEmitter<void>();
   private lastPlayedKey = '';
   lastPlayed: LastPlayed | null = null;
-  private lastPlayedIndex: number = -1;
   @ViewChildren('episodeBtn, episodeList')
   episodeElements!: QueryList<ElementRef>;
   private initialScrollDone = false;
 
   ngOnInit() {
     this.loadLastPlayed();
-    this.cacheLastPlayedIndex();
   }
 
   ngAfterViewInit() {
@@ -66,12 +64,14 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['seriesId'] && !changes['seriesId'].firstChange) {
       this.loadLastPlayed();
-      this.cacheLastPlayedIndex();
     }
 
-    if (changes['currentSeason'] || changes['currentEpisodes']) {
+    if (
+      changes['currentSeason'] ||
+      changes['currentEpisodes'] || // Listen for episode list changes too
+      changes['activeEpisodeIndex']
+    ) {
       this.loadLastPlayed();
-      this.cacheLastPlayedIndex();
       setTimeout(() => this.scrollToActiveEpisode(), 0);
     }
   }
@@ -79,7 +79,6 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   private loadLastPlayed(): void {
     if (!this.seriesId) {
       this.lastPlayed = null;
-      this.lastPlayedIndex = -1;
       return;
     }
     this.lastPlayedKey = `playlist_last_played_${this.seriesId}`;
@@ -96,35 +95,29 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     }
   }
 
-  private cacheLastPlayedIndex(): void {
-    // Cache the index of the last played episode for the current season
-    if (this.lastPlayed && this.lastPlayed.season === this.currentSeason) {
-      this.lastPlayedIndex = this.currentEpisodes.findIndex(
-        (ep) => ep.number === this.lastPlayed!.episode
-      );
-    } else {
-      this.lastPlayedIndex = -1;
-    }
-  }
-
   private scrollToActiveEpisode(initial = false) {
-    if (this.lastPlayedIndex < 0) return;
-    if (this.lastPlayed && this.currentSeason !== this.lastPlayed.season)
+    // Scroll only if we are viewing the season that is currently playing
+    if (this.lastPlayed && this.currentSeason !== this.lastPlayed.season) {
       return;
+    }
     if (this.initialScrollDone && !initial) return;
+    if (typeof this.activeEpisodeIndex !== 'number') return;
     const el =
-      document.getElementById('episode-btn-' + this.lastPlayedIndex) ||
-      document.getElementById('episode-list-' + this.lastPlayedIndex);
+      document.getElementById('episode-btn-' + this.activeEpisodeIndex) ||
+      document.getElementById('episode-list-' + this.activeEpisodeIndex);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       this.initialScrollDone = true;
     }
   }
 
+  // FIX: Simplified the method to only emit the change.
   onSeasonChange(event: Event) {
     const newSeason = Number((event.target as HTMLSelectElement).value);
     this.seasonChange.emit(newSeason);
-    // No need to reload or recalculate here, handled by ngOnChanges
+    // All other logic is removed. The component will react to the new
+    // inputs from the parent, and `isEpisodeActiveByIndex` will correctly
+    // determine the highlight state during the re-render.
   }
 
   onEpisodeSelected(logicalIndex: number, actualIndex: number) {
@@ -140,17 +133,21 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
           JSON.stringify(this.lastPlayed)
         );
       }
-      this.lastPlayedIndex = actualIndex;
-    } else {
-      this.lastPlayedIndex = -1;
     }
     this.episodeSelected.emit(actualIndex);
     this.initialScrollDone = true;
   }
 
   isEpisodeActiveByIndex(index: number): boolean {
-    // Use cached index for efficiency
-    return index === this.lastPlayedIndex && this.lastPlayedIndex >= 0;
+    if (!this.lastPlayed) return false;
+    // This logic is correct. It ensures an episode is only highlighted if
+    // we are viewing the correct season.
+    if (this.currentSeason !== this.lastPlayed.season) return false;
+
+    const activeIndexInCurrentList = this.currentEpisodes.findIndex(
+      (ep) => ep.number === this.lastPlayed!.episode
+    );
+    return index === activeIndexInCurrentList;
   }
 
   onLayoutChange() {
@@ -163,5 +160,10 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
 
   onClose() {
     this.close.emit();
+  }
+
+  // This method is not used and can be safely removed.
+  private clearHighlights() {
+    /* ... */
   }
 }
