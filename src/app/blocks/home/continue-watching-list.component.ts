@@ -26,7 +26,13 @@ export class ContinueWatchingListComponent implements OnInit {
   }
 
   loadList() {
-    this.list = this.continueWatchingService.getList();
+    this.list = this.continueWatchingService
+      .getList()
+      .filter(
+        (entry) =>
+          (entry.mediaType === 'tv' && entry.duration >= 900) ||
+          (entry.mediaType === 'movie' && entry.duration >= 4200)
+      );
   }
 
   resume(entry: ContinueWatchingEntry) {

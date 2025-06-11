@@ -82,7 +82,9 @@ export class ContinueWatchingService {
   }
 
   shouldRemove(entry: ContinueWatchingEntry): boolean {
-    if (!entry.duration || entry.duration < 60) return false;
+    // Use 900s for TV, 4200s for movies
+    const minDuration = entry.mediaType === 'tv' ? 900 : 4200;
+    if (!entry.duration || entry.duration < minDuration) return false;
     const percent = entry.currentTime / entry.duration;
     return percent >= 0.7 || entry.currentTime >= entry.duration;
   }

@@ -37,13 +37,21 @@ export class HomeComponent implements OnInit {
     } catch {
       this.enableContinueWatching = true;
     }
-    // Check if continueWatching exists and is non-empty
+    // Check if continueWatching exists and is non-empty and has valid duration
     try {
       const cwRaw = localStorage.getItem('continueWatching');
-      this.hasContinueWatching =
-        !!cwRaw &&
-        Array.isArray(JSON.parse(cwRaw)) &&
-        JSON.parse(cwRaw).length > 0;
+      if (cwRaw) {
+        const arr = JSON.parse(cwRaw);
+        this.hasContinueWatching =
+          Array.isArray(arr) &&
+          arr.some(
+            (entry: any) =>
+              (entry.mediaType === 'tv' && entry.duration >= 900) ||
+              (entry.mediaType === 'movie' && entry.duration >= 4200)
+          );
+      } else {
+        this.hasContinueWatching = false;
+      }
     } catch {
       this.hasContinueWatching = false;
     }

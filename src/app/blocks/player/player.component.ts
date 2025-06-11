@@ -59,7 +59,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   private videoDuration: number = 0;
   private progressInterval: any;
   private episodeFinished = false;
-  private readonly HARDCODED_DURATION = 600;
+  private HARDCODED_DURATION = 900; // default, will be set in ngOnInit
 
   constructor(
     private route: ActivatedRoute,
@@ -93,6 +93,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
           this.reloadIframe();
         }
       });
+      // Set HARDCODED_DURATION based on mediaType
+      if (this.mediaType === 'movie') {
+        this.HARDCODED_DURATION = 4200;
+      } else {
+        this.HARDCODED_DURATION = 900;
+      }
     });
     window.addEventListener('beforeunload', this.saveProgress);
     this.progressInterval = setInterval(() => this.saveProgress(), 5000);
@@ -105,7 +111,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   getCurrentTimeAndDuration(): { currentTime: number; duration: number } {
-    if (!this.videoDuration) this.videoDuration = this.HARDCODED_DURATION;
+    if (!this.videoDuration) {
+      this.videoDuration = this.HARDCODED_DURATION;
+    }
     if (typeof this.videoCurrentTime !== 'number' || this.videoCurrentTime < 0)
       this.videoCurrentTime = 0;
 
