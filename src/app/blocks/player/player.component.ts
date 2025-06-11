@@ -41,6 +41,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   currentPosters: string[] = [];
   layoutType: 'list' | 'grid' | 'poster' = 'list';
   activeEpisodeIndex: number = -1;
+  activeEpisodeSeason: number = 1; // NEW: track the season of the playing episode
   sources: any = [];
   currentSourceUrl: string = '';
   currentSeason: number = 1;
@@ -283,6 +284,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (this.currentEpisodes[index]) {
       this.currentEpisode = this.currentEpisodes[index].number;
       this.activeEpisodeIndex = index;
+      this.activeEpisodeSeason = this.currentSeason; // NEW: set season of playing episode
     } else {
       this.activeEpisodeIndex = -1;
     }
@@ -303,6 +305,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       (ep) => ep.number === this.currentEpisode
     );
     this.activeEpisodeIndex = idx !== -1 ? idx : -1;
+    // Do NOT update activeEpisodeSeason here; it should only change when playEpisode is called
     this.videoCurrentTime = 0;
     this.videoDuration = this.HARDCODED_DURATION;
     this.episodeFinished = false;
@@ -320,6 +323,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         (ep) => ep.number === this.currentEpisode
       );
       this.activeEpisodeIndex = idx !== -1 ? idx : -1;
+      // Do NOT update activeEpisodeSeason here
     } else {
       this.currentEpisodes = [];
       this.currentPosters = [];

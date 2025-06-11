@@ -37,6 +37,7 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() seriesId: string = '';
   @Input() activeEpisodeIndex: number = -1;
   @Input() currentEpisode: number = 1;
+  @Input() activeEpisodeSeason: number = 1; // NEW: season of the currently playing episode
   @Output() seasonChange = new EventEmitter<number>();
   @Output() episodeSelected = new EventEmitter<number>();
   @Output() layoutChange = new EventEmitter<void>();
@@ -56,13 +57,16 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     if (
       changes['currentSeason'] ||
       changes['currentEpisodes'] ||
-      changes['activeEpisodeIndex']
+      changes['activeEpisodeIndex'] ||
+      changes['activeEpisodeSeason']
     ) {
       setTimeout(() => this.scrollToActiveEpisode(), 0);
     }
   }
 
   private scrollToActiveEpisode(initial = false) {
+    // Only scroll if the active episode is in the currently viewed season
+    if (this.activeEpisodeSeason !== this.currentSeason) return;
     if (this.initialScrollDone && !initial) return;
     if (
       typeof this.activeEpisodeIndex !== 'number' ||
@@ -89,7 +93,11 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   isEpisodeActiveByIndex(index: number): boolean {
-    return index === this.activeEpisodeIndex;
+    // Only highlight if both season and index match
+    return (
+      this.currentSeason === this.activeEpisodeSeason &&
+      index === this.activeEpisodeIndex
+    );
   }
 
   onLayoutChange() {

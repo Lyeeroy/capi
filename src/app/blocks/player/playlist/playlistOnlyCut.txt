@@ -4,6 +4,7 @@
       <button
         *ngFor="let episode of currentEpisodes; let i = index"
         (click)="onEpisodeSelected(i)"
+        [class.bg-gray-200]="activeEpisodeSeason === currentSeason && i === activeEpisodeIndex"
         class="cursor-pointer aspect-[1.8] flex items-center justify-center rounded-sm bg-gray-100 hover:bg-gray-200 transition text-xs font-medium text-gray-600 hover:text-gray-900 px-1"
       >
         {{ episode.number }}
@@ -16,7 +17,7 @@
       <div
         *ngFor="let episode of currentEpisodes; let i = index"
         (click)="onEpisodeSelected(i)"
-        [class.bg-gray-200]="i === activeEpisodeIndex"
+        [class.bg-gray-200]="activeEpisodeSeason === currentSeason && i === activeEpisodeIndex"
         class="flex items-center gap-2 px-2 py-3 rounded-md bg-gray-100 hover:bg-gray-200 cursor-pointer transition duration-300"
       >
         <div class="font-semibold text-xs text-gray-500 w-7 text-center">
