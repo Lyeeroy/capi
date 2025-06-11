@@ -75,6 +75,34 @@
   </div>
 </div>
 <div class="w-full max-w-3xl mx-auto bg-white rounded-3xl p-10">
+  <!-- Clear Continue Watching Section -->
+  <div class="border border-amber-200 rounded-xl p-6 mb-8 bg-amber-50">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex-1">
+        <div
+          class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+        >
+          <app-icon-lib
+            ico="play"
+            class="w-6 h-6 text-amber-500"
+          ></app-icon-lib>
+          Clear Continue Watching
+        </div>
+        <div class="text-sm text-gray-500 mt-2 max-w-xl">
+          This will
+          <span class="font-semibold text-amber-600">permanently delete</span>
+          your Continue Watching list.
+        </div>
+      </div>
+      <button
+        type="button"
+        class="cursor-pointer w-full md:w-56 text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:outline-none focus:ring-amber-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
+        (click)="isYnOpenCW = true"
+      >
+        Clear Continue Watching
+      </button>
+    </div>
+  </div>
   <!-- Clear Cache Section -->
   <div class="border border-red-200 rounded-xl p-6 mb-8 bg-red-50">
     <div class="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -110,4 +138,14 @@
     'Are you sure you want to clear all local data? This cannot be undone.'
   "
   (answerEvent)="handleYnAnswer($event)"
+></app-yn-modal>
+
+<!-- Clear Continue Watching Modal -->
+<app-yn-modal
+  [(isYnOpen)]="isYnOpenCW"
+  [title]="'Clear Continue Watching?'"
+  [message]="
+    'Are you sure you want to clear your Continue Watching list? This cannot be undone.'
+  "
+  (answerEvent)="handleYnAnswerCW($event)"
 ></app-yn-modal>

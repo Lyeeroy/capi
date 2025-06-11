@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { YnComponent } from '../../forms/yn.component';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
+import { ContinueWatchingService } from '../../services/continue-watching.service';
 
 // Settings interface for future extensibility
 interface AppSettings {
@@ -19,6 +20,7 @@ const SETTINGS_KEY = 'appSettings';
 })
 export class SettingsComponent implements OnInit {
   isYnOpen = false;
+  isYnOpenCW = false;
 
   // Settings state
   settings: AppSettings = {
@@ -27,7 +29,7 @@ export class SettingsComponent implements OnInit {
     // Add more defaults here
   };
 
-  constructor() {
+  constructor(private continueWatchingService: ContinueWatchingService) {
     this.loadSettings();
   }
 
@@ -85,5 +87,12 @@ export class SettingsComponent implements OnInit {
       }
       window.location.reload();
     }
+  }
+
+  handleYnAnswerCW(answer: string) {
+    if (answer === 'true' || answer === 'yes') {
+      localStorage.removeItem('continueWatching');
+    }
+    this.isYnOpenCW = false;
   }
 }
