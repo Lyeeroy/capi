@@ -22,7 +22,7 @@ export class NavBarComponent implements AfterViewInit {
     { label: 'Home', route: '', svg: 'home' },
     { label: 'TV Shows', route: '/tvshows', svg: 'tvshow' },
     { label: 'Movies', route: '/movies', svg: 'movie' },
-    { label: 'Anime', route: '/anime', svg: 'anime' },
+    { label: 'Anime', route: '/discover/anime', svg: 'anime' }, // changed route
   ];
 
   constructor(
@@ -86,9 +86,11 @@ export class NavBarComponent implements AfterViewInit {
   }
 
   isActive(route: string): boolean {
-    return this.router.isActive(route, {
+    // Use Angular's router.isActive for robust matching
+    const normalizedRoute = route.startsWith('/') ? route : '/' + route;
+    return this.router.isActive(normalizedRoute, {
       paths: 'exact',
-      queryParams: 'exact',
+      queryParams: 'ignored',
       fragment: 'ignored',
       matrixParams: 'ignored',
     });

@@ -1,28 +1,89 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { YnComponent } from '../../forms/yn.component';
+import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 
-type Source = {
-  id: number;
-  name: string;
-  url: string;
-  status: boolean;
-};
+// Settings interface for future extensibility
+interface AppSettings {
+  playlistLayout: 'list' | 'grid';
+  enableContinueWatching: boolean;
+  // Add more settings here (e.g., darkMode: boolean)
+}
+
+const SETTINGS_KEY = 'appSettings';
 
 @Component({
   selector: 'app-settings',
-  imports: [FormsModule],
+  imports: [FormsModule, YnComponent, IconLibComponent],
   templateUrl: './settings.component.html',
 })
-export class SettingsComponent {
-  isChecked: boolean = true;
-  typedText: string | null = null;
+export class SettingsComponent implements OnInit {
+  isYnOpen = false;
 
-  Ads() {
-    if (this.isChecked === true) {
-      console.log('is Not Checked ');
-    } else console.log('is Checked ');
+  // Settings state
+  settings: AppSettings = {
+    playlistLayout: 'list',
+    enableContinueWatching: true,
+    // Add more defaults here
+  };
+
+  constructor() {
+    this.loadSettings();
   }
-  Typed() {
-    console.log('Typed text: ', this.typedText);
+
+  ngOnInit() {
+    // Load settings from localStorage on init
+    try {
+      const raw = localStorage.getItem('appSettings');
+      if (raw) {
+        const loaded = JSON.parse(raw);
+        this.settings = {
+          ...this.settings,
+          ...loaded,
+        };
+      }
+    } catch {}
+  }
+
+  // Load settings from localStorage
+  loadSettings() {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        this.settings = { ...this.settings, ...parsed };
+      }
+    } catch {
+      // Ignore errors, use defaults
+    }
+  }
+
+  // Save settings to localStorage
+  saveSettings() {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+  }
+
+  // Handler for playlist layout change
+  onPlaylistLayoutChange(layout: 'list' | 'grid') {
+    this.settings.playlistLayout = layout;
+    this.saveSettings();
+  }
+
+  onEnableContinueWatchingChange(value: boolean) {
+    this.settings.enableContinueWatching = value;
+    localStorage.setItem('appSettings', JSON.stringify(this.settings));
+  }
+
+  handleYnAnswer(answer: 'yes' | 'no') {
+    if (answer === 'yes') {
+      // Remove all items from localStorage
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key) {
+          localStorage.removeItem(key);
+        }
+      }
+      window.location.reload();
+    }
   }
 }

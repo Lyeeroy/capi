@@ -47,7 +47,23 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   episodeElements!: QueryList<ElementRef>;
   private initialScrollDone = false;
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Load default layout from localStorage if available
+    try {
+      const raw = localStorage.getItem('appSettings');
+      if (raw) {
+        const settings = JSON.parse(raw);
+        if (
+          settings.playlistLayout === 'list' ||
+          settings.playlistLayout === 'grid'
+        ) {
+          this.layoutType = settings.playlistLayout;
+        }
+      }
+    } catch {
+      // Ignore errors, fallback to default
+    }
+  }
 
   ngAfterViewInit() {
     this.scrollToActiveEpisode(true);

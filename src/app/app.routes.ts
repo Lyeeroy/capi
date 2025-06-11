@@ -12,12 +12,17 @@ export const routes: Routes = [
   {
     path: 'movies',
     component: DiscoverComponent,
-    data: { mediaType: 'movie' }
+    data: { mediaType: 'movie' },
   },
   {
     path: 'tvshows',
     component: DiscoverComponent,
-    data: { mediaType: 'tv' }
+    data: { mediaType: 'tv' },
+  },
+  {
+    path: 'discover/anime',
+    component: DiscoverComponent,
+    data: { mediaType: 'anime' },
   },
   { path: 'anime', component: AnimeComponent },
   { path: 'searchResults/:query', component: SearchResultsComponent },

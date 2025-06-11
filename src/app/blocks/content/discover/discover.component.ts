@@ -41,7 +41,7 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
 
   genreId: number = 0;
   sortValue: string = '';
-  mediaType: 'movie' | 'tv' = 'movie';
+  mediaType: 'movie' | 'tv' | 'anime' = 'movie'; // add 'anime'
 
   // New: Sorting mode (discover, trending, topRated, nowPlaying, etc.)
   sortMode:
@@ -64,27 +64,32 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
 
   // New: Map sortMode to endpoint
   private getEndpoint(): string {
+    // Map 'anime' to 'tv' endpoint with genreId 16
+    const isAnime = this.mediaType === 'anime';
+    const baseMediaType = isAnime ? 'tv' : this.mediaType;
     switch (this.sortMode) {
       case 'discover':
-        return `/discover/${this.mediaType}`;
+        return `/discover/${baseMediaType}`;
       case 'trending':
-        return `/trending/${this.mediaType}/week`;
+        return `/trending/${baseMediaType}/week`;
       case 'topRated':
-        return `/${this.mediaType}/top_rated`;
+        return `/${baseMediaType}/top_rated`;
       case 'nowPlaying':
-        return this.mediaType === 'movie'
-          ? '/movie/now_playing'
-          : '/tv/on_the_air';
+        if (baseMediaType === 'movie') return '/movie/now_playing';
+        if (baseMediaType === 'tv') return '/tv/on_the_air';
+        return '/tv/on_the_air';
       case 'upcoming':
-        return this.mediaType === 'movie'
-          ? '/movie/upcoming'
-          : '/tv/airing_today';
+        if (baseMediaType === 'movie') return '/movie/upcoming';
+        if (baseMediaType === 'tv') return '/tv/airing_today';
+        return '/tv/airing_today';
       case 'airingToday':
+        if (baseMediaType === 'tv') return '/tv/airing_today';
         return '/tv/airing_today';
       case 'onTheAir':
+        if (baseMediaType === 'tv') return '/tv/on_the_air';
         return '/tv/on_the_air';
       default:
-        return `/discover/${this.mediaType}`;
+        return `/discover/${baseMediaType}`;
     }
   }
 
@@ -94,6 +99,12 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
       const previousMediaType = this.mediaType;
 
       this.mediaType = newMediaType;
+
+      // If anime, always set genreId to 16 (TMDB anime genre)
+      if (this.mediaType === 'anime') {
+        this.genreId = 16;
+      }
+
       this.updateEndpoint();
 
       if (this.initialSetupDone && previousMediaType !== newMediaType) {
@@ -156,6 +167,12 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
     this.initialFillAttempts = 0; // Reset attempts for the new filter set
     this.lastLoadTime = 0; // Allow immediate load after reset
     this.isLoading = false; // Ensure not stuck in a loading state
+
+    // If anime, always set genreId to 16
+    if (this.mediaType === 'anime') {
+      this.genreId = 16;
+    }
+
     this.updateEndpoint(); // Ensure endpoint is up to date
 
     this.cdr.detectChanges(); // Apply changes immediately (e.g., hide spinner, update child inputs)

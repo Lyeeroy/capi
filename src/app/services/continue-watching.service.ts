@@ -17,7 +17,19 @@ export class ContinueWatchingService {
   private readonly key = 'continueWatching';
   private readonly maxEntries = 30;
 
+  private isEnabled(): boolean {
+    try {
+      const raw = localStorage.getItem('appSettings');
+      if (raw) {
+        const settings = JSON.parse(raw);
+        return settings.enableContinueWatching !== false;
+      }
+    } catch {}
+    return true;
+  }
+
   getList(): ContinueWatchingEntry[] {
+    if (!this.isEnabled()) return [];
     try {
       const raw = localStorage.getItem(this.key);
       if (!raw) return [];
@@ -36,6 +48,7 @@ export class ContinueWatchingService {
    * For Movie: If finished, remove from list.
    */
   saveOrAdvance(entry: ContinueWatchingEntry, totalEpisodesInSeason?: number) {
+    if (!this.isEnabled()) return;
     let list = this.getList();
     // Remove all entries for this series/movie
     list = list.filter(
@@ -75,6 +88,7 @@ export class ContinueWatchingService {
   }
 
   removeEntry(index: number) {
+    if (!this.isEnabled()) return;
     const list = this.getList();
     const entry = list[index];
     if (entry && entry.tmdbID) {
@@ -89,6 +103,7 @@ export class ContinueWatchingService {
   }
 
   remove(tmdbID: string, mediaType: string) {
+    if (!this.isEnabled()) return;
     // Remove from continue watching list
     let list = this.getList();
     list = list.filter(
@@ -105,10 +120,12 @@ export class ContinueWatchingService {
   }
 
   clearAll() {
+    if (!this.isEnabled()) return;
     localStorage.removeItem(this.key);
   }
 
   overwriteList(newList: ContinueWatchingEntry[]) {
+    if (!this.isEnabled()) return;
     localStorage.setItem(this.key, JSON.stringify(newList));
   }
 }

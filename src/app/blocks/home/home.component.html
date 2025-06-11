@@ -2,7 +2,7 @@
   <app-carousel></app-carousel>
 </div>
 
-<div class="mt-4">
+<div class="mt-4" *ngIf="enableContinueWatching && hasContinueWatching">
   <lib-header
     [title]="'Continue Watching'"
     [icon]="'play'"

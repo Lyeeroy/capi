@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { ContentTabsComponent } from '../../components/content-tabs/content-tabs.component';
 import { CarouselComponent } from './carousel/carousel.component';
@@ -21,7 +21,31 @@ import { FormsModule } from '@angular/forms';
   ],
   templateUrl: './home.component.html',
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   trendingMediaType: string = 'movie';
   discoverMediaType: string = 'movie';
+  enableContinueWatching = true;
+  hasContinueWatching = false;
+
+  ngOnInit() {
+    try {
+      const raw = localStorage.getItem('appSettings');
+      if (raw) {
+        const settings = JSON.parse(raw);
+        this.enableContinueWatching = settings.enableContinueWatching !== false;
+      }
+    } catch {
+      this.enableContinueWatching = true;
+    }
+    // Check if continueWatching exists and is non-empty
+    try {
+      const cwRaw = localStorage.getItem('continueWatching');
+      this.hasContinueWatching =
+        !!cwRaw &&
+        Array.isArray(JSON.parse(cwRaw)) &&
+        JSON.parse(cwRaw).length > 0;
+    } catch {
+      this.hasContinueWatching = false;
+    }
+  }
 }

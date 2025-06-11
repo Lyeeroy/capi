@@ -48,18 +48,7 @@
           responseData?.first_air_date ? 'First Air Date' : 'Release Date'
         "
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-3.5 w-3.5 mr-1.5"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        <app-icon-lib ico="calendar" class="h-3.5 w-3.5 mr-1.5"></app-icon-lib>
         {{
           responseData?.first_air_date || responseData?.release_date
             | date : "mediumDate"
@@ -72,18 +61,7 @@
         class="inline-flex items-center bg-purple-100 text-purple-800 text-xs font-semibold px-3 py-1 rounded-full cursor-default"
         title="Total Seasons"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-3.5 w-3.5 mr-1.5"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.586l-1.707 1.707A.997.997 0 019 17v-2H5a2 2 0 01-2-2V5zm11 2H6v6h8V7z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        <app-icon-lib ico="seasons" class="h-3.5 w-3.5 mr-1.5"></app-icon-lib>
         {{ responseData.number_of_seasons }}
         {{ responseData.number_of_seasons === 1 ? "Season" : "Seasons" }}
       </span>
@@ -94,18 +72,7 @@
         class="inline-flex items-center bg-indigo-100 text-indigo-800 text-xs font-semibold px-3 py-1 rounded-full cursor-default"
         title="Total Episodes"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-3.5 w-3.5 mr-1.5"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        <app-icon-lib ico="episodes" class="h-3.5 w-3.5 mr-1.5"></app-icon-lib>
         {{ responseData.number_of_episodes }}
         {{ responseData.number_of_episodes === 1 ? "Episode" : "Episodes" }}
       </span>
@@ -122,19 +89,24 @@
           text-xs font-semibold px-3 py-1 rounded-full cursor-default"
         title="Status"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-3.5 w-3.5 mr-1.5"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 10.414l2.293 2.293a1 1 0 001.414-1.414L10.414 9z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        <app-icon-lib ico="status" class="h-3.5 w-3.5 mr-1.5"></app-icon-lib>
         {{ responseData.status }}
+      </span>
+    </ng-container>
+
+    <ng-container *ngIf="responseData?.media_type">
+      <span
+        class="inline-flex items-center 
+          {{
+          responseData.media_type === 'tv'
+            ? 'bg-blue-100 text-blue-700'
+            : 'bg-yellow-100 text-yellow-700'
+        }}
+          text-xs font-semibold px-3 py-1 rounded-full cursor-default"
+        title="Media Type"
+      >
+        <app-icon-lib ico="mediatype" class="h-3.5 w-3.5 mr-1.5"></app-icon-lib>
+        {{ responseData.media_type }}
       </span>
     </ng-container>
 
@@ -147,18 +119,7 @@
           responseData?.runtime ? 'Movie Runtime' : 'Avg. Episode Runtime'
         "
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-3.5 w-3.5 mr-1.5"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 10.586V6z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        <app-icon-lib ico="runtime" class="h-3.5 w-3.5 mr-1.5"></app-icon-lib>
         {{ responseData?.runtime || (responseData?.episode_run_time?.[0] || 'N/A') }}
         min
       </span>
@@ -166,6 +127,16 @@
   </section>
 
   <ng-container *ngIf="responseData?.status || responseData?.networks?.length">
+    <section
+      *ngIf="responseData?.overview"
+      class="p-3 border border-gray-200 rounded-md"
+    >
+      <h3 class="mb-1 text-sm font-semibold text-gray-700">Overview</h3>
+      <p class="text-sm text-gray-800 leading-relaxed">
+        {{ responseData.overview }}
+      </p>
+    </section>
+
     <section
       class="p-4 bg-gray-50 rounded-md border border-gray-200 flex flex-col gap-y-3"
     >
@@ -205,16 +176,7 @@
     class="p-3 border border-gray-200 rounded-md"
   >
     <div class="flex items-center gap-2 text-sm">
-      <svg
-        class="w-5 h-5 text-yellow-500"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-        aria-hidden="true"
-      >
-        <path
-          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-        />
-      </svg>
+      <app-icon-lib ico="star" class="w-5 h-5 text-yellow-500"></app-icon-lib>
       <span class="font-semibold text-gray-900"
         >{{ responseData.vote_average.toFixed(1) }}/10</span
       >
@@ -268,16 +230,6 @@
         {{ genre.name }}
       </span>
     </div>
-  </section>
-
-  <section
-    *ngIf="responseData?.overview"
-    class="p-3 border border-gray-200 rounded-md"
-  >
-    <h3 class="mb-1 text-sm font-semibold text-gray-700">Overview</h3>
-    <p class="text-sm text-gray-800 leading-relaxed">
-      {{ responseData.overview }}
-    </p>
   </section>
 
   <section class="p-3 border border-gray-200 rounded-md">
