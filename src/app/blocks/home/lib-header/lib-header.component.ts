@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'lib-header',
   standalone: true,
-  imports: [IconLibComponent],
+  imports: [IconLibComponent, RouterLink],
   template: `
     <div class="flex justify-between items-center p-4">
       <div class="flex items-center">
@@ -20,10 +21,12 @@ import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
         </div>
       </div>
       <a
+        routerLink="/discover"
         class="text-sm text-gray-500 flex items-center"
         [attr.aria-label]="'View all ' + title"
       >
-        View All <span class="ml-1">›</span>
+        View All
+        <span routerLinkActive="router-link-active" class="ml-1">›</span>
       </a>
     </div>
   `,

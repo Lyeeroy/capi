@@ -29,5 +29,6 @@ export const routes: Routes = [
   { path: 'player/:id/:mediaType', component: PlayerComponent },
   { path: 'table', component: TableComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: 'discover', component: DiscoverComponent },
   { path: '', component: HomeComponent },
 ];
