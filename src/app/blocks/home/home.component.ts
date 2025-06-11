@@ -37,7 +37,7 @@ export class HomeComponent implements OnInit {
     } catch {
       this.enableContinueWatching = true;
     }
-    // Check if continueWatching exists and is non-empty and has valid duration
+    // Check if continueWatching exists and is non-empty and has valid unfinished entries
     try {
       const cwRaw = localStorage.getItem('continueWatching');
       if (cwRaw) {
@@ -46,8 +46,12 @@ export class HomeComponent implements OnInit {
           Array.isArray(arr) &&
           arr.some(
             (entry: any) =>
-              (entry.mediaType === 'tv' && entry.duration >= 900) ||
-              (entry.mediaType === 'movie' && entry.duration >= 4200)
+              (entry.mediaType === 'tv' &&
+                entry.currentTime < entry.duration &&
+                entry.duration >= 900) ||
+              (entry.mediaType === 'movie' &&
+                entry.currentTime < entry.duration &&
+                entry.duration >= 4200)
           );
       } else {
         this.hasContinueWatching = false;

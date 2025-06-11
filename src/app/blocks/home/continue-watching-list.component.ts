@@ -30,8 +30,12 @@ export class ContinueWatchingListComponent implements OnInit {
       .getList()
       .filter(
         (entry) =>
-          (entry.mediaType === 'tv' && entry.duration >= 900) ||
-          (entry.mediaType === 'movie' && entry.duration >= 4200)
+          (entry.mediaType === 'tv' &&
+            entry.currentTime < entry.duration &&
+            entry.duration >= 900) ||
+          (entry.mediaType === 'movie' &&
+            entry.currentTime < entry.duration &&
+            entry.duration >= 4200)
       );
   }
 

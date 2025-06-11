@@ -135,11 +135,13 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (typeof this.videoCurrentTime !== 'number' || this.videoCurrentTime < 0)
       this.videoCurrentTime = 0;
 
+    // Only increment currentTime if not finished
     if (!this.episodeFinished && this.videoCurrentTime < this.videoDuration) {
       this.videoCurrentTime = Math.min(
         this.videoCurrentTime + 5,
         this.videoDuration
       );
+      // Do not advance episode here!
     } else if (
       this.videoCurrentTime >= this.videoDuration &&
       !this.episodeFinished
@@ -150,13 +152,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
         clearInterval(this.progressInterval);
         this.progressInterval = null;
       }
-      if (
-        this.mediaType === 'tv' &&
-        this.currentEpisodes &&
-        this.currentEpisode < this.currentEpisodes.length
-      ) {
-        this.currentEpisode++;
-      }
+      // Do NOT increment currentEpisode here!
+      // Advancing to the next episode should only happen when the user explicitly selects it.
     }
     return {
       currentTime: this.videoCurrentTime,

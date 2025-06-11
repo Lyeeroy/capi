@@ -50,45 +50,30 @@ export class ContinueWatchingService {
   saveOrAdvance(entry: ContinueWatchingEntry, totalEpisodesInSeason?: number) {
     if (!this.isEnabled()) return;
     let list = this.getList();
-    // Find previous entry for this series/movie/episode
-    const prevEntry = list.find(
-      (e) =>
-        e.tmdbID === entry.tmdbID &&
-        e.mediaType === entry.mediaType &&
-        (entry.mediaType !== 'tv' ||
-          (e.season === entry.season && e.episode === entry.episode))
-    );
-    // Remove all entries for this series/movie/episode
+    // Remove all entries for this series/movie (not just episode)
     list = list.filter(
-      (e) =>
-        !(
-          e.tmdbID === entry.tmdbID &&
-          e.mediaType === entry.mediaType &&
-          (entry.mediaType !== 'tv' ||
-            (e.season === entry.season && e.episode === entry.episode))
-        )
+      (e) => !(e.tmdbID === entry.tmdbID && e.mediaType === entry.mediaType)
     );
 
-    // Only remove/advance if currentTime increased and threshold met
-    const shouldRemoveNow =
-      this.shouldRemove(entry) &&
-      (!prevEntry || entry.currentTime > prevEntry.currentTime);
+    const shouldRemoveNow = this.shouldRemove(entry);
 
     if (shouldRemoveNow) {
-      if (entry.mediaType === 'tv' && entry.episode && totalEpisodesInSeason) {
-        // If not last episode, advance to next episode
-        if (entry.episode < totalEpisodesInSeason) {
-          const nextEntry: ContinueWatchingEntry = {
-            ...entry,
-            episode: entry.episode + 1,
-            currentTime: 0,
-            duration: entry.duration,
-          };
-          list.unshift(nextEntry);
-        }
-        // If last episode, do not add (series finished)
+      if (
+        entry.mediaType === 'tv' &&
+        entry.episode &&
+        totalEpisodesInSeason &&
+        entry.episode < totalEpisodesInSeason
+      ) {
+        // Advance to next episode, keep in continue watching
+        const nextEntry: ContinueWatchingEntry = {
+          ...entry,
+          episode: entry.episode + 1,
+          currentTime: 0,
+          // duration will be updated by the player on next watch
+        };
+        list.unshift(nextEntry);
       }
-      // For movies, do not add (movie finished)
+      // If last episode or movie finished, do not add anything (removes from continue watching)
     } else {
       // Not finished, just update/add entry
       list.unshift(entry);
