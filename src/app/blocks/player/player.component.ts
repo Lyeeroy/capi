@@ -85,6 +85,30 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.currentEpisode = queryParams['episode']
         ? Number(queryParams['episode'])
         : 1;
+
+      // Set HARDCODED_DURATION based on mediaType
+      if (this.mediaType === 'movie') {
+        this.HARDCODED_DURATION = 4200;
+      } else {
+        this.HARDCODED_DURATION = 900;
+      }
+
+      // Try to restore currentTime from continue watching
+      const cwList = this.continueWatchingService.getList();
+      const entry = cwList.find(
+        (e) =>
+          e.tmdbID === String(this.id) &&
+          e.mediaType === this.mediaType &&
+          (this.mediaType === 'movie' ||
+            (e.season === this.currentSeason &&
+              e.episode === this.currentEpisode))
+      );
+      if (entry && typeof entry.currentTime === 'number') {
+        this.videoCurrentTime = entry.currentTime;
+      } else {
+        this.videoCurrentTime = 0;
+      }
+
       this.initializeData();
       this.loadSourcesService.loadSources().then(() => {
         this.sources = this.loadSourcesService.sources;
@@ -93,12 +117,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
           this.reloadIframe();
         }
       });
-      // Set HARDCODED_DURATION based on mediaType
-      if (this.mediaType === 'movie') {
-        this.HARDCODED_DURATION = 4200;
-      } else {
-        this.HARDCODED_DURATION = 900;
-      }
     });
     window.addEventListener('beforeunload', this.saveProgress);
     this.progressInterval = setInterval(() => this.saveProgress(), 5000);

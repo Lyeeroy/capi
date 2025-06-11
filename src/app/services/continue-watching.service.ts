@@ -50,13 +50,31 @@ export class ContinueWatchingService {
   saveOrAdvance(entry: ContinueWatchingEntry, totalEpisodesInSeason?: number) {
     if (!this.isEnabled()) return;
     let list = this.getList();
-    // Remove all entries for this series/movie
+    // Find previous entry for this series/movie/episode
+    const prevEntry = list.find(
+      (e) =>
+        e.tmdbID === entry.tmdbID &&
+        e.mediaType === entry.mediaType &&
+        (entry.mediaType !== 'tv' ||
+          (e.season === entry.season && e.episode === entry.episode))
+    );
+    // Remove all entries for this series/movie/episode
     list = list.filter(
-      (e) => !(e.tmdbID === entry.tmdbID && e.mediaType === entry.mediaType)
+      (e) =>
+        !(
+          e.tmdbID === entry.tmdbID &&
+          e.mediaType === entry.mediaType &&
+          (entry.mediaType !== 'tv' ||
+            (e.season === entry.season && e.episode === entry.episode))
+        )
     );
 
-    // If finished (>= 70%), advance or remove
-    if (this.shouldRemove(entry)) {
+    // Only remove/advance if currentTime increased and threshold met
+    const shouldRemoveNow =
+      this.shouldRemove(entry) &&
+      (!prevEntry || entry.currentTime > prevEntry.currentTime);
+
+    if (shouldRemoveNow) {
       if (entry.mediaType === 'tv' && entry.episode && totalEpisodesInSeason) {
         // If not last episode, advance to next episode
         if (entry.episode < totalEpisodesInSeason) {
@@ -85,8 +103,8 @@ export class ContinueWatchingService {
     // Use 900s for TV, 4200s for movies
     const minDuration = entry.mediaType === 'tv' ? 900 : 4200;
     if (!entry.duration || entry.duration < minDuration) return false;
-    const percent = entry.currentTime / entry.duration;
-    return percent >= 0.7 || entry.currentTime >= entry.duration;
+    // Only check if currentTime >= duration (hardcoded time)
+    return entry.currentTime >= entry.duration;
   }
 
   removeEntry(index: number) {
