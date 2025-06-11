@@ -40,7 +40,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   currentEpisodes: { number: number; name: string }[] = [];
   currentPosters: string[] = [];
   layoutType: 'list' | 'grid' | 'poster' = 'list';
-  activeEpisodeIndex: number = 0;
+  activeEpisodeIndex: number = -1;
   sources: any = [];
   currentSourceUrl: string = '';
   currentSeason: number = 1;
@@ -84,29 +84,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.currentEpisode = queryParams['episode']
         ? Number(queryParams['episode'])
         : 1;
-
-      // --- Highlight fix: load last played from localStorage if available ---
-      if (this.id && this.mediaType === 'tv') {
-        const lastPlayedKey = `playlist_last_played_${this.id}`;
-        const stored = localStorage.getItem(lastPlayedKey);
-        if (stored) {
-          try {
-            const lastPlayed = JSON.parse(stored);
-            if (
-              lastPlayed &&
-              typeof lastPlayed.season === 'number' &&
-              typeof lastPlayed.episode === 'number'
-            ) {
-              this.currentSeason = lastPlayed.season;
-              this.currentEpisode = lastPlayed.episode;
-            }
-          } catch {
-            // ignore corrupted data
-          }
-        }
-      }
-      // --- End highlight fix ---
-
       this.initializeData();
       this.loadSourcesService.loadSources().then(() => {
         this.sources = this.loadSourcesService.sources;
@@ -116,9 +93,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         }
       });
     });
-    // Optionally, listen for pause or beforeunload to save progress
     window.addEventListener('beforeunload', this.saveProgress);
-    // Periodically save progress (simulate, replace with real player integration)
     this.progressInterval = setInterval(() => this.saveProgress(), 5000);
   }
 
@@ -128,7 +103,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
     clearInterval(this.progressInterval);
   }
 
-  // Simulate getting currentTime and duration from player (hardcoded only)
   getCurrentTimeAndDuration(): { currentTime: number; duration: number } {
     if (!this.videoDuration) this.videoDuration = this.HARDCODED_DURATION;
     if (typeof this.videoCurrentTime !== 'number' || this.videoCurrentTime < 0)
@@ -163,12 +137,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
     };
   }
 
-  // No TMDB duration fetch, always use hardcoded
   getDurationFromResponse(): number {
     return 0;
   }
 
-  // Call this when video pauses or component is destroyed
   saveProgress = () => {
     if (!this.id || !this.mediaType) return;
     const { currentTime, duration } = this.getCurrentTimeAndDuration();
@@ -253,7 +225,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
               response?.number_of_seasons ?? this.seasonNumber;
             this.names = response?.name ?? this.names;
             this.responseData = response;
-            console.log('Response:', this.responseData);
             if (this.seasonNumber) {
               this.getAllSeasonData();
             }
@@ -262,9 +233,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
         this.tmdbService
           .callAPI('https://api.themoviedb.org/3', `/movie/${this.id}`, 'movie')
           .subscribe((response) => {
-            //this.names = response?.title ?? this.names;
             this.responseData = response;
-            console.log('Response:', this.responseData);
           });
       }
     }
@@ -272,21 +241,22 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   getAllSeasonData() {
     if (this.seasonNumber) {
-      const seasonObservables = Array.from(
+      this.totalSeasons = Array.from(
         { length: this.seasonNumber },
-        (_, i) =>
-          this.tmdbService.callAPI(
-            'https://api.themoviedb.org/3',
-            `/tv/${this.id}/season/${i + 1}`,
-            'tv'
-          )
+        (_, i) => i + 1
+      );
+      const seasonObservables = this.totalSeasons.map((seasonNum) =>
+        this.tmdbService.callAPI(
+          'https://api.themoviedb.org/3',
+          `/tv/${this.id}/season/${seasonNum}`,
+          'tv'
+        )
       );
       forkJoin(seasonObservables).subscribe(
         (responses) => {
           responses.forEach((response, index) => {
             if (response?.episodes) {
               const seasonNum = index + 1;
-              this.totalSeasons.push(seasonNum);
               this.episodeNames[seasonNum] = response.episodes.map(
                 (episode: any, episodeIndex: number) => ({
                   number: episodeIndex + 1,
@@ -302,17 +272,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
             }
           });
           this.updateCurrentEpisodes(this.currentSeason);
-          // --- Always update localStorage for highlight ---
-          if (this.id && this.mediaType === 'tv') {
-            localStorage.setItem(
-              `playlist_last_played_${this.id}`,
-              JSON.stringify({
-                season: this.currentSeason,
-                episode: this.currentEpisode,
-              })
-            );
-          }
-          // --- End highlight fix ---
           this.updateUrl();
         },
         (error) => console.error('Error fetching season data:', error)
@@ -321,77 +280,139 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   playEpisode(index: number) {
-    this.currentEpisode = this.isSortedAscending
-      ? this.currentEpisodes[index]?.number || index + 1
-      : this.currentEpisodes[index]?.number ||
-        this.currentEpisodes.length - index;
-    this.updateCurrentEpisodes(this.currentSeason);
+    if (this.currentEpisodes[index]) {
+      this.currentEpisode = this.currentEpisodes[index].number;
+      this.activeEpisodeIndex = index;
+    } else {
+      this.activeEpisodeIndex = -1;
+    }
     this.videoCurrentTime = 0;
     this.videoDuration = this.HARDCODED_DURATION;
     this.episodeFinished = false;
     if (!this.progressInterval) {
       this.progressInterval = setInterval(() => this.saveProgress(), 5000);
     }
-    // Store last played in localStorage for highlight
-    if (this.id) {
-      localStorage.setItem(
-        `playlist_last_played_${this.id}`,
-        JSON.stringify({
-          season: this.currentSeason,
-          episode: this.currentEpisode,
-        })
-      );
-    }
-    // --- Highlight fix: update activeEpisodeIndex ---
-    const idx = this.currentEpisodes.findIndex(
-      (ep) => ep.number === this.currentEpisode
-    );
-    this.activeEpisodeIndex = idx !== -1 ? idx : 0;
-    // --- End highlight fix ---
     this.updateUrl();
     this.reloadIframe();
-  }
-
-  highlightActiveEpisode(index: number) {
-    this.activeEpisodeIndex = index;
   }
 
   onSeasonChange(newSeason: number) {
     this.currentSeason = newSeason;
     this.updateCurrentEpisodes(this.currentSeason);
+    const idx = this.currentEpisodes.findIndex(
+      (ep) => ep.number === this.currentEpisode
+    );
+    this.activeEpisodeIndex = idx !== -1 ? idx : -1;
     this.videoCurrentTime = 0;
     this.videoDuration = this.HARDCODED_DURATION;
     this.episodeFinished = false;
     if (!this.progressInterval) {
       this.progressInterval = setInterval(() => this.saveProgress(), 5000);
     }
-    // Remove highlight if current episode is not in this season
-    if (this.id) {
-      const found = this.currentEpisodes.find(
-        (ep) => ep.number === this.currentEpisode
-      );
-      if (!found) {
-        localStorage.removeItem(`playlist_last_played_${this.id}`);
-        // --- Highlight fix: reset activeEpisodeIndex if not found ---
-        this.activeEpisodeIndex = 0;
-      } else {
-        // --- Highlight fix: update activeEpisodeIndex if found ---
-        const idx = this.currentEpisodes.findIndex(
-          (ep) => ep.number === this.currentEpisode
-        );
-        this.activeEpisodeIndex = idx !== -1 ? idx : 0;
-      }
-    }
     this.updateUrl();
   }
 
-  updateUrl() {
-    const url = new URL(window.location.href);
-    const queryParams = new URLSearchParams(url.search);
-    queryParams.set('season', this.currentSeason.toString());
-    queryParams.set('episode', this.currentEpisode.toString());
-    const newUrl = `${url.pathname}?${queryParams.toString()}`;
-    this.location.replaceState(newUrl);
+  updateCurrentEpisodes(seasonNumber: number) {
+    if (this.episodeNames[seasonNumber] && this.episodePosters[seasonNumber]) {
+      this.currentEpisodes = this.episodeNames[seasonNumber];
+      this.currentPosters = this.episodePosters[seasonNumber];
+      const idx = this.currentEpisodes.findIndex(
+        (ep) => ep.number === this.currentEpisode
+      );
+      this.activeEpisodeIndex = idx !== -1 ? idx : -1;
+    } else {
+      this.currentEpisodes = [];
+      this.currentPosters = [];
+      this.activeEpisodeIndex = -1;
+    }
+  }
+
+  isSortedAscending = true;
+  ascOrDescSort() {
+    this.currentEpisodes.reverse();
+    this.currentPosters.reverse();
+    this.isSortedAscending = !this.isSortedAscending;
+    this.updateActiveEpisodeIndex();
+  }
+
+  updateActiveEpisodeIndex() {
+    if (!this.currentEpisodes || !Array.isArray(this.currentEpisodes)) {
+      this.activeEpisodeIndex = -1;
+      return;
+    }
+    const idx = this.currentEpisodes.findIndex(
+      (ep) => ep.number === this.currentEpisode
+    );
+    this.activeEpisodeIndex = idx !== -1 ? idx : -1;
+  }
+
+  cancel() {
+    this.location.back();
+  }
+
+  changeLayout() {
+    this.layoutType = this.layoutType === 'list' ? 'grid' : 'list';
+  }
+
+  resumeFromContinueWatching(entry: any) {
+    const queryParams: any = {};
+    if (entry.mediaType === 'tv') {
+      queryParams.season = entry.season;
+      queryParams.episode = entry.episode;
+    }
+    this.router.navigate(['/player', entry.tmdbID, entry.mediaType], {
+      queryParams,
+    });
+  }
+
+  onSourceChange(newSourceUrl: string) {
+    this.currentSourceUrl = newSourceUrl;
+    this.reloadIframe();
+  }
+
+  reloadIframe() {
+    if (this.currentSourceUrl) {
+      this.iframeUrl = this.translateIntoIframe(this.currentSourceUrl);
+    }
+    this.showIframe = false;
+    setTimeout(() => (this.showIframe = true), 0);
+  }
+
+  translateIntoIframe(url: string): SafeResourceUrl {
+    let newUrl: string;
+    const match = url.match(this.mappingRegex);
+
+    if (match) {
+      const [_, baseUrl, __, tokenTv, tokenMovie, restOfUrl] = match;
+      const replacement = this.mediaType === 'movie' ? tokenMovie : tokenTv;
+      newUrl = `${baseUrl}${replacement}${restOfUrl}`;
+      newUrl = newUrl.replace(/#id/g, this.id?.toString() || '');
+    } else {
+      newUrl = url
+        .replace(/#type/g, this.mediaType || 'tv')
+        .replace(/#id/g, this.id?.toString() || '');
+    }
+
+    if (this.mediaType === 'tv') {
+      newUrl = newUrl
+        .replace(/#season/g, this.currentSeason.toString())
+        .replace(/#episode/g, this.currentEpisode.toString());
+    } else {
+      newUrl = newUrl
+        .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
+        .replace(/\/(season|episode)\/[^/]+/gi, '')
+        .replace(/-*(#season|#episode)-*/gi, '')
+        .replace(/--+/g, '-')
+        .replace(/-+$/g, '');
+    }
+
+    newUrl = newUrl
+      .replace(/([^:])\/{2,}/g, '$1/')
+      .replace(/\/+(\?.*)?$/, '$1')
+      .replace(/\?+$/, '')
+      .replace(/-+$/g, '');
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
   }
 
   nextEpisode(index: number) {
@@ -424,118 +445,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSourceChange(newSourceUrl: string) {
-    this.currentSourceUrl = newSourceUrl;
-    this.reloadIframe();
-  }
-
-  reloadIframe() {
-    this.highlightActiveEpisode(this.currentEpisode - 1);
-    if (this.currentSourceUrl) {
-      this.iframeUrl = this.translateIntoIframe(this.currentSourceUrl);
-    }
-    this.showIframe = false;
-    setTimeout(() => (this.showIframe = true), 0);
-  }
-
-  translateIntoIframe(url: string): SafeResourceUrl {
-    let newUrl: string;
-    const match = url.match(this.mappingRegex);
-
-    if (match) {
-      const [_, baseUrl, __, tokenTv, tokenMovie, restOfUrl] = match;
-      const replacement = this.mediaType === 'movie' ? tokenMovie : tokenTv;
-      newUrl = `${baseUrl}${replacement}${restOfUrl}`;
-      newUrl = newUrl.replace(/#id/g, this.id?.toString() || '');
-    } else {
-      newUrl = url
-        .replace(/#type/g, this.mediaType || 'tv')
-        .replace(/#id/g, this.id?.toString() || '');
-    }
-
-    // Handle TV-specific replacements
-    if (this.mediaType === 'tv') {
-      newUrl = newUrl
-        .replace(/#season/g, this.currentSeason.toString())
-        .replace(/#episode/g, this.currentEpisode.toString());
-    } else {
-      // For movies, remove any season/episode references
-      newUrl = newUrl
-        .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
-        .replace(/\/(season|episode)\/[^/]+/gi, '')
-        .replace(/-*(#season|#episode)-*/gi, '')
-        .replace(/--+/g, '-') // Replace multiple consecutive hyphens with single hyphen
-        .replace(/-+$/g, ''); // Remove trailing hyphens
-    }
-
-    // Clean up the URL
-    newUrl = newUrl
-      .replace(/([^:])\/{2,}/g, '$1/') // Fix double slashes
-      .replace(/\/+(\?.*)?$/, '$1') // Remove trailing slashes before query params
-      .replace(/\?+$/, '') // Remove trailing question marks
-      .replace(/-+$/g, ''); // Remove trailing hyphens again (final cleanup)
-
-    return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
-  }
-  updateCurrentEpisodes(seasonNumber: number) {
-    if (this.episodeNames[seasonNumber] && this.episodePosters[seasonNumber]) {
-      this.currentEpisodes = this.episodeNames[seasonNumber];
-      this.currentPosters = this.episodePosters[seasonNumber];
-      // --- Always update localStorage for highlight ---
-      if (this.id && this.mediaType === 'tv') {
-        localStorage.setItem(
-          `playlist_last_played_${this.id}`,
-          JSON.stringify({
-            season: this.currentSeason,
-            episode: this.currentEpisode,
-          })
-        );
-      }
-      // --- End highlight fix ---
-      const idx = this.currentEpisodes.findIndex(
-        (ep) => ep.number === this.currentEpisode
-      );
-      this.activeEpisodeIndex = idx !== -1 ? idx : 0;
-      // --- Highlight fix: keep currentEpisode in sync with activeEpisodeIndex ---
-      if (this.currentEpisodes[this.activeEpisodeIndex]) {
-        this.currentEpisode =
-          this.currentEpisodes[this.activeEpisodeIndex].number;
-      }
-      // --- End highlight fix ---
-    }
-  }
-
-  isSortedAscending = true;
-  ascOrDescSort() {
-    this.currentEpisodes.reverse();
-    this.currentPosters.reverse();
-    this.isSortedAscending = !this.isSortedAscending;
-  }
-
-  cancel() {
-    this.location.back();
-  }
-
-  changeLayout() {
-    this.layoutType = this.layoutType === 'list' ? 'grid' : 'list';
-    // this.layoutType =
-    //   this.layoutType === 'list'
-    //     ? 'grid'
-    //     : this.layoutType === 'grid'
-    //     ? 'poster'
-    //     : 'list';
-  }
-
-  // Remove time from URL when resuming
-  resumeFromContinueWatching(entry: any) {
-    const queryParams: any = {};
-    if (entry.mediaType === 'tv') {
-      queryParams.season = entry.season;
-      queryParams.episode = entry.episode;
-    }
-    // Do NOT add time to queryParams
-    this.router.navigate(['/player', entry.tmdbID, entry.mediaType], {
-      queryParams,
-    });
+  updateUrl() {
+    const url = new URL(window.location.href);
+    const queryParams = new URLSearchParams(url.search);
+    queryParams.set('season', this.currentSeason.toString());
+    queryParams.set('episode', this.currentEpisode.toString());
+    const newUrl = `${url.pathname}?${queryParams.toString()}`;
+    this.location.replaceState(newUrl);
   }
 }
