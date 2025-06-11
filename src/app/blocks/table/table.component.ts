@@ -14,6 +14,7 @@ import { ImportComponent } from './import/import.component';
 import { YnComponent } from '../../forms/yn.component';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { SourceSubscriptionService } from '../../services/source-subscription.service';
+import { Router, RouterLink, RouterModule } from '@angular/router';
 
 interface Source {
   id: number;
@@ -41,6 +42,7 @@ type OriginalSource = Omit<Source, 'isEditing' | 'selected'>;
     ImportComponent,
     YnComponent,
     IconLibComponent,
+    RouterModule, // <-- add RouterModule for routerLink
   ],
 })
 export class TableComponent implements OnInit, OnDestroy {
@@ -83,7 +85,8 @@ export class TableComponent implements OnInit, OnDestroy {
   constructor(
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
-    public sourceSub: SourceSubscriptionService // <-- inject service
+    public sourceSub: SourceSubscriptionService, // <-- inject service
+    private router: Router // <-- inject router
   ) {}
 
   ngOnInit(): void {
@@ -585,5 +588,9 @@ export class TableComponent implements OnInit, OnDestroy {
   // RemoveIsNewcomerFromLocalStorage is now handled by subscribeToDefaultSources
   removeIsNewcomerFromLocalStorage() {
     this.subscribeToDefaultSources();
+  }
+
+  openDocs(): void {
+    this.router.navigate(['/table/docs']);
   }
 }

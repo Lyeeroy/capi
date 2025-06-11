@@ -30,5 +30,12 @@ export const routes: Routes = [
   { path: 'table', component: TableComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'discover', component: DiscoverComponent },
+  {
+    path: 'table/docs',
+    loadComponent: () =>
+      import('./blocks/table/docs/table-docs.component').then(
+        (m) => m.TableDocsComponent
+      ),
+  },
   { path: '', component: HomeComponent },
 ];
