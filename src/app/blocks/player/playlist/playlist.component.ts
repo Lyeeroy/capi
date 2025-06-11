@@ -65,6 +65,8 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   private scrollToActiveEpisode(initial = false) {
+    // Do not scroll if screen size is under 1024px
+    if (window.innerWidth < 1024) return;
     // Only scroll if the active episode is in the currently viewed season
     if (this.activeEpisodeSeason !== this.currentSeason) return;
     if (this.initialScrollDone && !initial) return;
