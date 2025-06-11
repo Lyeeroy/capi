@@ -21,19 +21,19 @@
             *ngIf="!isSubscribed"
             type="button"
             (click)="subscribeToDefaultSources()"
-            class="cursor-pointer px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-green-500 text-white hover:bg-green-600 border-green-500 focus:outline-none focus:ring-2 focus:ring-green-300"
+            class="cursor-pointer px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-white text-black hover:bg-gray-100 border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-300"
           >
             <app-icon-lib ico="sync" class="h-5 w-5"></app-icon-lib>
-            Subscribe
+            Subscribe to Capi sources
           </button>
           <button
             *ngIf="isSubscribed"
             type="button"
             (click)="unsubscribeFromDefaultSources()"
-            class="cursor-pointer px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-yellow-500 text-white hover:bg-yellow-600 border-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+            class="cursor-pointer px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-white text-black hover:bg-gray-100 border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-300"
           >
             <app-icon-lib ico="sync" class="h-5 w-5"></app-icon-lib>
-            Unsubscribe
+            Unsubscribe to Capi sources
           </button>
 
           <button
