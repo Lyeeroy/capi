@@ -86,12 +86,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
         ? Number(queryParams['episode'])
         : 1;
 
-      // Set HARDCODED_DURATION based on mediaType
-      if (this.mediaType === 'movie') {
-        this.HARDCODED_DURATION = 4200;
-      } else {
-        this.HARDCODED_DURATION = 900;
-      }
+      // Set videoDuration based on TMDB runtime if available
+      setTimeout(() => {
+        const runtime = this.getDurationFromResponse();
+        if (runtime > 0) {
+          this.videoDuration = Math.floor(runtime * 0.7); // Use 70% of TMDB runtime
+        } else {
+          // fallback to hardcoded: use full default duration
+          this.videoDuration = this.mediaType === 'movie' ? 4200 : 900;
+        }
+      }, 0);
 
       // Try to restore currentTime from continue watching
       const cwList = this.continueWatchingService.getList();
@@ -129,11 +133,21 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   getCurrentTimeAndDuration(): { currentTime: number; duration: number } {
-    if (!this.videoDuration) {
-      this.videoDuration = this.HARDCODED_DURATION;
+    if (!this.videoDuration || this.videoDuration === this.HARDCODED_DURATION) {
+      // Try to update videoDuration from TMDB response if possible
+      const runtime = this.getDurationFromResponse();
+      if (runtime > 0) {
+        this.videoDuration = Math.floor(runtime * 0.7); // Use 70% of TMDB runtime
+      } else {
+        this.videoDuration = this.mediaType === 'movie' ? 4200 : 900;
+      }
     }
-    if (typeof this.videoCurrentTime !== 'number' || this.videoCurrentTime < 0)
+    if (
+      typeof this.videoCurrentTime !== 'number' ||
+      this.videoCurrentTime < 0
+    ) {
       this.videoCurrentTime = 0;
+    }
 
     // Only increment currentTime if not finished
     if (!this.episodeFinished && this.videoCurrentTime < this.videoDuration) {
@@ -162,6 +176,40 @@ export class PlayerComponent implements OnInit, OnDestroy {
   }
 
   getDurationFromResponse(): number {
+    // For movies, TMDB returns 'runtime' in minutes
+    if (this.mediaType === 'movie' && this.responseData?.runtime) {
+      return this.responseData.runtime * 60; // convert to seconds
+    }
+    // For TV, TMDB returns 'episode_run_time' as array of minutes (average per episode)
+    if (this.mediaType === 'tv') {
+      // Try to get runtime for the current episode if available
+      if (
+        this.responseData?.seasons &&
+        Array.isArray(this.responseData.seasons) &&
+        this.currentSeason &&
+        this.currentEpisode
+      ) {
+        const season = this.responseData.seasons.find(
+          (s: any) => s.season_number === this.currentSeason
+        );
+        if (season && season.episodes && Array.isArray(season.episodes)) {
+          const episode = season.episodes.find(
+            (ep: any) => ep.episode_number === this.currentEpisode
+          );
+          if (episode && episode.runtime) {
+            return episode.runtime * 60;
+          }
+        }
+      }
+      // Fallback: use average episode runtime
+      if (
+        this.responseData?.episode_run_time &&
+        Array.isArray(this.responseData.episode_run_time) &&
+        this.responseData.episode_run_time.length > 0
+      ) {
+        return this.responseData.episode_run_time[0] * 60;
+      }
+    }
     return 0;
   }
 
