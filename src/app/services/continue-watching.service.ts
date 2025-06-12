@@ -46,6 +46,8 @@ export class ContinueWatchingService {
    * Save or update the continue watching entry.
    * For TV: If finished, advance to next episode.
    * For Movie: If finished, remove from list.
+   *
+   * Foolproof: Prevent accidental overwrite if user goes back to a lower episode.
    */
   saveOrAdvance(entry: ContinueWatchingEntry, totalEpisodesInSeason?: number) {
     if (!this.isEnabled()) return;
@@ -54,6 +56,47 @@ export class ContinueWatchingService {
     list = list.filter(
       (e) => !(e.tmdbID === entry.tmdbID && e.mediaType === entry.mediaType)
     );
+
+    // --- Foolproof logic for TV shows ---
+    if (entry.mediaType === 'tv' && entry.episode) {
+      const highestKey = `cw_highest_${entry.tmdbID}_s${entry.season}`;
+      const pendingKey = `cw_pending_${entry.tmdbID}_s${entry.season}`;
+      let highestWatched = 0;
+      try {
+        highestWatched = Number(localStorage.getItem(highestKey)) || 0;
+      } catch {}
+      // If user is going back to a lower episode
+      if (entry.episode < highestWatched) {
+        // Check if grace period is active
+        let pending = null;
+        try {
+          pending = JSON.parse(localStorage.getItem(pendingKey) || 'null');
+        } catch {}
+        const now = Date.now();
+        const GRACE_PERIOD_MS = 3 * 60 * 1000; // 3 minutes
+        const watchedEnough = entry.currentTime > 0.5 * (entry.duration || 1);
+        if (!pending || pending.episode !== entry.episode) {
+          // Start new grace period
+          localStorage.setItem(
+            pendingKey,
+            JSON.stringify({ episode: entry.episode, start: now })
+          );
+          // Do NOT overwrite yet
+          return;
+        } else if (now - pending.start < GRACE_PERIOD_MS && !watchedEnough) {
+          // Still in grace period and not watched enough
+          return;
+        }
+        // If grace period passed or watched enough, allow overwrite
+        localStorage.removeItem(pendingKey);
+      } else if (entry.episode > highestWatched) {
+        // Update highest episode reached
+        try {
+          localStorage.setItem(highestKey, String(entry.episode));
+        } catch {}
+      }
+    }
+    // --- End foolproof logic ---
 
     const shouldRemoveNow = this.shouldRemove(entry);
 
@@ -78,7 +121,6 @@ export class ContinueWatchingService {
       // Not finished, just update/add entry
       list.unshift(entry);
     }
-
     // Limit size
     if (list.length > this.maxEntries) list = list.slice(0, this.maxEntries);
     localStorage.setItem(this.key, JSON.stringify(list));
