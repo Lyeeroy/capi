@@ -97,7 +97,7 @@
       <button
         type="button"
         class="cursor-pointer w-full md:w-56 text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:outline-none focus:ring-amber-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
-        (click)="isYnOpenCW = true"
+        (click)="isUniversalOpenCW = true"
       >
         Clear Continue Watching
       </button>
@@ -122,7 +122,7 @@
       <button
         type="button"
         class="cursor-pointer w-full md:w-56 text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
-        (click)="isYnOpen = true"
+        (click)="isUniversalOpen = true"
       >
         Clear Cache
       </button>
@@ -130,22 +130,18 @@
   </div>
 </div>
 
-<!-- Yes/No Modal -->
-<app-yn-modal
-  [(isYnOpen)]="isYnOpen"
-  [title]="'Clear Cache?'"
-  [message]="
-    'Are you sure you want to clear all local data? This cannot be undone.'
-  "
-  (answerEvent)="handleYnAnswer($event)"
-></app-yn-modal>
+<universal-modal
+  [open]="isUniversalOpen"
+  title="Clear Cache?"
+  message="Are you sure you want to clear all local data? This cannot be undone."
+  (confirm)="handleUniversalConfirm()"
+  (cancel)="isUniversalOpen = false"
+></universal-modal>
 
-<!-- Clear Continue Watching Modal -->
-<app-yn-modal
-  [(isYnOpen)]="isYnOpenCW"
-  [title]="'Clear Continue Watching?'"
-  [message]="
-    'Are you sure you want to clear your Continue Watching list? This cannot be undone.'
-  "
-  (answerEvent)="handleYnAnswerCW($event)"
-></app-yn-modal>
+<universal-modal
+  [open]="isUniversalOpenCW"
+  title="Clear Continue Watching?"
+  message="Are you sure you want to clear your Continue Watching list? This cannot be undone."
+  (confirm)="handleUniversalConfirmCW()"
+  (cancel)="isUniversalOpenCW = false"
+></universal-modal>

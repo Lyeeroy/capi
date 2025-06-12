@@ -34,6 +34,12 @@ export class ContentTabsNetflixLikeComponent
   }
   private subscription: Subscription | null = null;
   @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
+  private isDragging = false;
+  private dragStartX = 0;
+  private scrollStartLeft = 0;
+  private dragDistance = 0;
+  private readonly DRAG_THRESHOLD = 10; // px
+
   constructor(private tmdbService: TmdbService, private router: Router) {}
   ngOnInit(): void {
     this.fetchData();
@@ -99,5 +105,40 @@ export class ContentTabsNetflixLikeComponent
         behavior: 'smooth',
       });
     }
+  }
+  onMouseDown(event: MouseEvent | Touch): void {
+    // Prevent default to avoid image drag/select
+    if (event instanceof MouseEvent) {
+      event.preventDefault();
+    }
+    this.isDragging = true;
+    this.dragStartX = 'clientX' in event ? event.clientX : 0;
+    this.scrollStartLeft = this.scrollContainer.nativeElement.scrollLeft;
+    this.dragDistance = 0;
+    this.scrollContainer.nativeElement.classList.add('dragging');
+  }
+
+  onMouseMove(event: MouseEvent | Touch): void {
+    if (!this.isDragging) return;
+    if (event instanceof MouseEvent) {
+      event.preventDefault();
+    }
+    const dx = 'clientX' in event ? event.clientX - this.dragStartX : 0;
+    this.dragDistance = Math.abs(dx);
+    this.scrollContainer.nativeElement.scrollLeft = this.scrollStartLeft - dx;
+  }
+
+  onMouseUpOrLeave(): void {
+    this.isDragging = false;
+    this.scrollContainer.nativeElement.classList.remove('dragging');
+  }
+
+  onTileClick(event: MouseEvent, index: number): void {
+    if (this.dragDistance > this.DRAG_THRESHOLD) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+    this.redirectToPlayer(index);
   }
 }

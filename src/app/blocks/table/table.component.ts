@@ -11,7 +11,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { ExportComponent } from './export/export.component';
 import { ImportComponent } from './import/import.component';
-import { YnComponent } from '../../forms/yn.component';
+import { UniversalModalComponent } from '../../forms/universal-modal.component';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { SourceSubscriptionService } from '../../services/source-subscription.service';
 import { Router, RouterLink, RouterModule } from '@angular/router';
@@ -40,7 +40,7 @@ type OriginalSource = Omit<Source, 'isEditing' | 'selected'>;
     CdkDropList,
     ExportComponent,
     ImportComponent,
-    YnComponent,
+    UniversalModalComponent,
     IconLibComponent,
     RouterModule, // <-- add RouterModule for routerLink
   ],
@@ -54,16 +54,6 @@ export class TableComponent implements OnInit, OnDestroy {
   isAdding: boolean = false;
   newName: string = '';
   newUrl: string = '';
-
-  isYnOpenDelete: boolean = false;
-  YnTitleDelete: string = 'Delete all existing sources?';
-  YnMessageDelete: string =
-    'Are you sure you want to delete all sources? This action cannot be undone.';
-
-  isYnOpenDiscard: boolean = false; // For discard confirmation
-  YnTitleDiscard: string = 'Discard Unsaved Changes?';
-  YnMessageDiscard: string =
-    'Are you sure you want to discard all changes made since the last save? This action cannot be undone.';
 
   isSaving: boolean = false;
   hasUnsavedChanges: boolean = false;
@@ -81,6 +71,18 @@ export class TableComponent implements OnInit, OnDestroy {
     number,
     { name: string; url: string; enabled: boolean }
   >();
+
+  // Universal modal state and text for delete/discard
+  isUniversalOpenDelete: boolean = false;
+  isUniversalOpenDiscard: boolean = false;
+  YnTitleDelete: string = 'Delete all existing sources?';
+  YnMessageDelete: string =
+    'Are you sure you want to delete all sources? This action cannot be undone.';
+  YnTitleDiscard: string = 'Discard Unsaved Changes?';
+  YnMessageDiscard: string =
+    'Are you sure you want to discard all changes made since the last save? This action cannot be undone.';
+
+  showSubscribeWarningModal: boolean = false;
 
   constructor(
     private sanitizer: DomSanitizer,
@@ -152,8 +154,7 @@ export class TableComponent implements OnInit, OnDestroy {
       if (!source.name && source.url) {
         source.name = this.getDisplayName(source);
       }
-      source.isEditing = false; // Ensure all editing states are cleared on save
-      // source.selected remains as is, user might want to continue working with selection
+      source.isEditing = false;
     });
     this._reIndexSources();
 
@@ -164,11 +165,11 @@ export class TableComponent implements OnInit, OnDestroy {
       enabled: s.enabled,
     }));
     localStorage.setItem('sources', JSON.stringify(dataToSave));
-    this.originalSources = this._deepCloneSourcesForComparison(this.sources); // Update baseline
+    this.originalSources = this._deepCloneSourcesForComparison(this.sources);
 
     this.hasUnsavedChanges = false;
-    this.isBulkEditingSelected = false; // Reset bulk edit state
-    this.editCache.clear(); // Clear any pending individual edit caches
+    this.isBulkEditingSelected = false; // Corrected typo
+    this.editCache.clear();
 
     setTimeout(() => {
       this.isSaving = false;
@@ -195,15 +196,7 @@ export class TableComponent implements OnInit, OnDestroy {
     this.isBulkEditingSelected = false;
 
     this.updateMasterCheckboxState();
-    this.isYnOpenDiscard = false; // Close confirmation modal
     this.cdr.detectChanges();
-  }
-
-  handleYnAnswerForDiscard(answer: 'yes' | 'no'): void {
-    if (answer === 'yes') {
-      this.discardChanges();
-    }
-    this.isYnOpenDiscard = false;
   }
 
   // --- Source Manipulation ---
@@ -480,12 +473,11 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   deleteSelectedSources(): void {
-    this.sourceSub.unsubscribeFromDefaults(); // <-- auto-unsubscribe
+    this.sourceSub.unsubscribeFromDefaults();
     this.sources = this.sources.filter((s) => !s.selected);
     this._reIndexSources();
-    this.isAllSelected = false; // Master checkbox should be unchecked
+    this.isAllSelected = false;
     if (this.isBulkEditingSelected) {
-      // If we were bulk editing, and deleted all, reset state
       this.isBulkEditingSelected = false;
     }
     this.updateMasterCheckboxState();
@@ -500,14 +492,7 @@ export class TableComponent implements OnInit, OnDestroy {
     this.isBulkEditingSelected = false;
     this.updateMasterCheckboxState();
     this._checkForChanges();
-    this.isYnOpenDelete = false;
-  }
-
-  handleYnAnswerForDeleteSources(answer: 'yes' | 'no'): void {
-    if (answer === 'yes') {
-      this.removeAllSources();
-    }
-    this.isYnOpenDelete = false;
+    this.isUniversalOpenDelete = false;
   }
 
   // --- Menu Logic ---
@@ -570,9 +555,26 @@ export class TableComponent implements OnInit, OnDestroy {
 
   // --- Subscription Logic ---
   subscribeToDefaultSources(): void {
+    // Check for custom sources before subscribing
+    const customSources = this.sourceSub.getCustomSources();
+    if (customSources.length > 0) {
+      this.showSubscribeWarningModal = true;
+      return;
+    }
     this.sourceSub.subscribeToDefaults();
     this.loadData();
     this.cdr.detectChanges();
+  }
+
+  handleSubscribeConfirm() {
+    this.showSubscribeWarningModal = false;
+    this.sourceSub.subscribeToDefaults();
+    this.loadData();
+    this.cdr.detectChanges();
+  }
+
+  handleSubscribeCancel() {
+    this.showSubscribeWarningModal = false;
   }
 
   unsubscribeFromDefaultSources(): void {
@@ -592,5 +594,15 @@ export class TableComponent implements OnInit, OnDestroy {
 
   openDocs(): void {
     this.router.navigate(['/table/docs']);
+  }
+
+  handleUniversalConfirmDelete() {
+    this.removeAllSources();
+    this.isUniversalOpenDelete = false;
+  }
+
+  handleUniversalConfirmDiscard() {
+    this.discardChanges();
+    this.isUniversalOpenDiscard = false;
   }
 }

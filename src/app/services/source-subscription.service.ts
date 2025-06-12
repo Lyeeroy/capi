@@ -116,15 +116,15 @@ export class SourceSubscriptionService {
   subscribeToDefaults(): void {
     // If user has custom sources, confirm before overwriting
     const customSources = this.getCustomSources();
-    if (customSources.length > 0) {
-      if (
-        !confirm(
-          'You have custom sources. Subscribing will remove them. Continue?'
-        )
-      ) {
-        return;
-      }
-    }
+    // if (customSources.length > 0) {
+    //   if (
+    //     !confirm(
+    //       'You have custom sources. Subscribing will remove them. Continue?'
+    //     )
+    //   ) {
+    //     return;
+    //   }
+    // }
     this.saveSources(this.defaultSources);
     localStorage.setItem(this.isSubscribedKey, 'true');
   }

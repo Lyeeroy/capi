@@ -1,3 +1,6 @@
+// This file is deprecated and replaced by universal-modal.component.ts
+// Safe to delete after migration to UniversalModalComponent is complete.
+
 // src/app/forms/yn.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';

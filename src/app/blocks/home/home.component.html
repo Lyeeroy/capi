@@ -7,8 +7,82 @@
     [title]="'Continue Watching'"
     [icon]="'play'"
     [desc]="'Pick up where you left off'"
+    [actionLabel]="'Clear'"
+    [actionHandler]="onClearContinueWatching.bind(this)"
   ></lib-header>
-  <app-continue-watching-list></app-continue-watching-list>
+  <app-continue-watching-list #cwList></app-continue-watching-list>
+</div>
+
+<div class="mt-8">
+  <div
+    class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 p-4"
+  >
+    <div class="flex items-center">
+      <span
+        class="bg-gray-100 border border-gray-200 rounded-lg p-2 mr-3 flex items-center justify-center"
+        aria-hidden="true"
+      >
+        <app-icon-lib
+          [ico]="selectedMediaType === 'movie' ? 'movie' : 'tvshow'"
+          class="w-5 h-5"
+        ></app-icon-lib>
+      </span>
+      <div>
+        <h2 class="text-base font-semibold">Browse by Genre</h2>
+        <p class="text-xs text-gray-600">Find something new to watch</p>
+      </div>
+    </div>
+    <div
+      class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-stretch sm:items-center mt-3 md:mt-0"
+    >
+      <div class="flex gap-2 w-full sm:w-auto">
+        <button
+          class="cursor-pointer whitespace-nowrap flex-1 px-4 py-2 text-sm font-semibold rounded-lg border focus:outline-none transition-colors duration-200 h-[40px]"
+          [ngClass]="
+            selectedMediaType === 'movie'
+              ? 'bg-gray-200 text-gray-700 border-gray-400'
+              : 'bg-gray-100 text-gray-700 border-gray-300'
+          "
+          (click)="onSelectMediaType('movie')"
+        >
+          Movies
+        </button>
+        <button
+          class="cursor-pointer whitespace-nowrap flex-1 px-4 py-2 text-sm font-semibold rounded-lg border focus:outline-none transition-colors duration-200 h-[40px]"
+          [ngClass]="
+            selectedMediaType === 'tv'
+              ? 'bg-gray-200 text-gray-700 border-gray-400'
+              : 'bg-gray-100 text-gray-700 border-gray-300'
+          "
+          (click)="onSelectMediaType('tv')"
+        >
+          TV Shows
+        </button>
+      </div>
+      <div class="w-full sm:w-[200px] flex items-center">
+        <select
+          class="w-full sm:w-[200px] min-w-[140px] px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 h-[40px]"
+          [(ngModel)]="selectedGenreId"
+          (change)="onSelectGenre(selectedGenreId)"
+        >
+          <option [ngValue]="0">All Genres</option>
+          <option *ngFor="let genre of genreList" [ngValue]="genre.id">
+            {{ genre.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <app-content-tabs-netflix-like
+    [apiEndpoint]="
+      selectedGenreId
+        ? '/discover/' + selectedMediaType
+        : '/trending/' + selectedMediaType + '/week'
+    "
+    [sortBy]="selectedGenreId ? 'popularity.desc' : undefined"
+    [tileLimit]="20"
+    [genreId]="selectedGenreId"
+  ></app-content-tabs-netflix-like>
 </div>
 
 <div class="mt-4">
@@ -28,6 +102,8 @@
     [title]="'Popular TV Shows'"
     [icon]="'tvshow'"
     [desc]="'Trending just now'"
+    [actionLabel]="'View All'"
+    [actionHandler]="goToTVShows.bind(this)"
   ></lib-header>
   <app-content-tabs-netflix-like
     [apiEndpoint]="'/trending/' + 'tv' + '/week'"
@@ -35,8 +111,9 @@
   ></app-content-tabs-netflix-like>
 </div>
 
-<div class="mt-4">
-  <lib-header
+<div class="mt-4"></div>
+
+<!-- <lib-header
     [title]="'Movies'"
     [icon]="'movie'"
     [desc]="'Discover'"
@@ -61,4 +138,12 @@
     [tileLimit]="14"
     [genreId]="10765"
   ></app-content-tabs-netflix-like>
-</div>
+</div>  -->
+
+<universal-modal
+  [open]="showClearModal"
+  title="Clear Continue Watching?"
+  message="Are you sure you want to clear your Continue Watching list? This cannot be undone."
+  (confirm)="confirmClearContinueWatching()"
+  (cancel)="cancelClearContinueWatching()"
+></universal-modal>

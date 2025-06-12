@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { UniversalModalComponent } from '../../../forms/universal-modal.component';
 
 @Component({
   selector: 'app-export',
   templateUrl: 'export.component.html',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, UniversalModalComponent],
 })
 export class ExportComponent {
   constructor() {}
@@ -52,5 +53,16 @@ export class ExportComponent {
 
   copyToClipboard(textArea: HTMLTextAreaElement) {
     navigator.clipboard.writeText(textArea.value);
+  }
+
+  showSubscribeWarningModal: boolean = false;
+
+  handleSubscribeConfirm() {
+    this.showSubscribeWarningModal = false;
+    // Add logic to subscribe and replace sources here
+  }
+
+  handleSubscribeCancel() {
+    this.showSubscribeWarningModal = false;
   }
 }

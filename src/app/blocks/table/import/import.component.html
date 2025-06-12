@@ -61,4 +61,32 @@
       </div>
     </div>
   </div>
+
+  <universal-modal
+    [open]="showOverwriteModal"
+    title="Existing sources found"
+    message="Existing sources found. What do you want to do with the imported data?"
+    [customButtons]="true"
+  >
+    <div class="flex flex-col gap-2 mt-4">
+      <button
+        (click)="handleOverwriteConfirm(true)"
+        class="w-full rounded-lg bg-blue-600 px-4 py-2 text-white transition-all hover:bg-blue-700"
+      >
+        Overwrite (Replace All)
+      </button>
+      <button
+        (click)="handleOverwriteConfirm(false)"
+        class="w-full rounded-lg bg-green-600 px-4 py-2 text-white transition-all hover:bg-green-700"
+      >
+        Append (Add to Existing)
+      </button>
+      <button
+        (click)="handleOverwriteCancel()"
+        class="w-full rounded-lg bg-gray-200 px-4 py-2 text-gray-700 transition-all hover:bg-gray-300"
+      >
+        Cancel
+      </button>
+    </div>
+  </universal-modal>
 </div>

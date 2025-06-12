@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { YnComponent } from '../../forms/yn.component';
+import { UniversalModalComponent } from '../../forms/universal-modal.component';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { ContinueWatchingService } from '../../services/continue-watching.service';
 
@@ -15,12 +15,12 @@ const SETTINGS_KEY = 'appSettings';
 
 @Component({
   selector: 'app-settings',
-  imports: [FormsModule, YnComponent, IconLibComponent],
+  imports: [FormsModule, UniversalModalComponent, IconLibComponent],
   templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit {
-  isYnOpen = false;
-  isYnOpenCW = false;
+  isUniversalOpen = false;
+  isUniversalOpenCW = false;
 
   // Settings state
   settings: AppSettings = {
@@ -76,23 +76,20 @@ export class SettingsComponent implements OnInit {
     localStorage.setItem('appSettings', JSON.stringify(this.settings));
   }
 
-  handleYnAnswer(answer: 'yes' | 'no') {
-    if (answer === 'yes') {
-      // Remove all items from localStorage
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const key = localStorage.key(i);
-        if (key) {
-          localStorage.removeItem(key);
-        }
+  handleUniversalConfirm() {
+    this.isUniversalOpen = false;
+    // Remove all items from localStorage
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key) {
+        localStorage.removeItem(key);
       }
-      window.location.reload();
     }
+    window.location.reload();
   }
 
-  handleYnAnswerCW(answer: string) {
-    if (answer === 'true' || answer === 'yes') {
-      localStorage.removeItem('continueWatching');
-    }
-    this.isYnOpenCW = false;
+  handleUniversalConfirmCW() {
+    this.isUniversalOpenCW = false;
+    localStorage.removeItem('continueWatching');
   }
 }

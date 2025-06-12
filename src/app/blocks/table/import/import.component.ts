@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { UniversalModalComponent } from '../../../forms/universal-modal.component';
 
 @Component({
   selector: 'app-import',
   templateUrl: 'import.component.html',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, UniversalModalComponent],
 })
 export class ImportComponent {
   @Input() isImportModalOpen: boolean = false;
@@ -19,6 +20,10 @@ export class ImportComponent {
   @Output() isImportModalOpenChange = new EventEmitter<boolean>();
 
   importData: string = '';
+
+  showOverwriteModal: boolean = false;
+  pendingImportData: any = null;
+  overwriteMode: 'replace' | 'append' | null = null;
 
   constructor() {}
 
@@ -55,22 +60,27 @@ export class ImportComponent {
     }
 
     if (this.sources.length === 0) {
-      console.log('var is empty');
       parsedImportData.map((source: any) => this.sources.push(source));
+      this.closeImportModal();
     } else {
-      console.log('var is not empty');
-      if (
-        confirm(
-          'Existing sources found. Overwrite all? (OK = replace, Cancel = append)'
-        )
-      ) {
-        console.log('overwrite');
-        this.sources.splice(0, this.sources.length, ...parsedImportData);
-      } else {
-        console.log('append');
-        parsedImportData.map((source: any) => this.sources.push(source));
-      }
+      this.pendingImportData = parsedImportData;
+      this.showOverwriteModal = true;
     }
+  }
+
+  handleOverwriteConfirm(replace: boolean) {
+    if (replace) {
+      this.sources.splice(0, this.sources.length, ...this.pendingImportData);
+    } else {
+      this.pendingImportData.map((source: any) => this.sources.push(source));
+    }
+    this.showOverwriteModal = false;
+    this.pendingImportData = null;
     this.closeImportModal();
+  }
+
+  handleOverwriteCancel() {
+    this.showOverwriteModal = false;
+    this.pendingImportData = null;
   }
 }
