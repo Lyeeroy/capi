@@ -17,10 +17,25 @@ export class ControlsComponent {
   @Input() mediaType: string = '';
 
   @Output() sourceChange = new EventEmitter<string>();
-  @Output() prevEpisodeClick = new EventEmitter<void>();
-  @Output() nextEpisodeClick = new EventEmitter<void>();
   @Output() prevSourceClick = new EventEmitter<void>();
   @Output() nextSourceClick = new EventEmitter<void>();
+
+  sourceLayout: 'dropdown' | 'grid' = 'dropdown';
+
+  ngOnInit() {
+    // Load source layout from localStorage
+    try {
+      const raw = localStorage.getItem('appSettings');
+      if (raw) {
+        const settings = JSON.parse(raw);
+        if (settings.sourceLayout) {
+          this.sourceLayout = settings.sourceLayout;
+        }
+      }
+    } catch {
+      // Ignore errors, use default
+    }
+  }
 
   onSourceChange(event: Event) {
     const target = event.target as HTMLSelectElement;
@@ -35,23 +50,8 @@ export class ControlsComponent {
     this.nextSourceClick.emit();
   }
 
-  prevEpisode() {
-    this.prevEpisodeClick.emit();
-  }
-
-  nextEpisode() {
-    this.nextEpisodeClick.emit();
-  }
-
-  currentSeason = 1;
-
-  scrollSources(amount: number) {
-    const scroller = document.querySelector('.scrollbar-hide');
-    scroller?.scrollBy({ left: amount, behavior: 'smooth' });
-  }
-
-  onSourceChangeManual(url: string) {
-    this.currentSourceUrl = url;
-    // Your existing source change logic here
+  onSourceSelect(source: any) {
+    this.currentSourceUrl = source.url;
+    this.sourceChange.emit(source.url);
   }
 }

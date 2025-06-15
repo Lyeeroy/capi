@@ -47,6 +47,10 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   episodeElements!: QueryList<ElementRef>;
   private initialScrollDone = false;
 
+  // Add search functionality
+  searchQuery: string = '';
+  filteredEpisodes: Episode[] = [];
+
   ngOnInit() {
     // Load default layout from localStorage if available
     try {
@@ -63,6 +67,7 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     } catch {
       // Ignore errors, fallback to default
     }
+    this.filteredEpisodes = [...this.currentEpisodes];
   }
 
   ngAfterViewInit() {
@@ -76,6 +81,8 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
       changes['activeEpisodeIndex'] ||
       changes['activeEpisodeSeason']
     ) {
+      this.filteredEpisodes = [...this.currentEpisodes];
+      this.filterEpisodes();
       setTimeout(() => this.scrollToActiveEpisode(), 0);
     }
   }
@@ -116,6 +123,39 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
       this.currentSeason === this.activeEpisodeSeason &&
       index === this.activeEpisodeIndex
     );
+  }
+
+  filterEpisodes() {
+    if (!this.searchQuery.trim()) {
+      this.filteredEpisodes = [...this.currentEpisodes];
+    } else {
+      const query = this.searchQuery.toLowerCase();
+      this.filteredEpisodes = this.currentEpisodes.filter(
+        (episode) =>
+          episode.number.toString().includes(query) ||
+          episode.name.toLowerCase().includes(query)
+      );
+    }
+  }
+
+  onSearchChange(query: string) {
+    this.searchQuery = query;
+    this.filterEpisodes();
+  }
+
+  getOriginalIndex(filteredIndex: number): number {
+    const episode = this.filteredEpisodes[filteredIndex];
+    return this.currentEpisodes.findIndex((ep) => ep.number === episode.number);
+  }
+
+  isEpisodeActiveByFilteredIndex(filteredIndex: number): boolean {
+    const originalIndex = this.getOriginalIndex(filteredIndex);
+    return this.isEpisodeActiveByIndex(originalIndex);
+  }
+
+  onFilteredEpisodeSelected(filteredIndex: number) {
+    const originalIndex = this.getOriginalIndex(filteredIndex);
+    this.onEpisodeSelected(originalIndex, originalIndex);
   }
 
   onLayoutChange() {

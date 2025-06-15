@@ -12,6 +12,7 @@ import { PlaylistComponent } from './playlist/playlist.component';
 import { PlayerHeader } from './player-header/player-header.component';
 import { InfoComponent } from './info/info.component';
 import { ContinueWatchingService } from '../../services/continue-watching.service';
+import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 
 @Component({
   selector: 'app-player',
@@ -26,6 +27,7 @@ import { ContinueWatchingService } from '../../services/continue-watching.servic
     ControlsComponent,
     PlaylistComponent,
     InfoComponent,
+    IconLibComponent,
   ],
   providers: [LoadSourcesService],
 })
@@ -85,6 +87,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
       this.currentEpisode = queryParams['episode']
         ? Number(queryParams['episode'])
         : 1;
+
+      // Set the active episode season to current season on load
+      this.activeEpisodeSeason = this.currentSeason;
 
       // Set videoDuration based on TMDB runtime if available
       setTimeout(() => {
@@ -344,6 +349,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
             }
           });
           this.updateCurrentEpisodes(this.currentSeason);
+          // Set the correct active episode index after data is loaded
+          this.setActiveEpisodeIndex();
           this.updateUrl();
         },
         (error) => console.error('Error fetching season data:', error)
@@ -351,11 +358,22 @@ export class PlayerComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Add this new method to properly set the active episode index
+  setActiveEpisodeIndex() {
+    if (this.currentEpisodes && this.currentEpisodes.length > 0) {
+      const idx = this.currentEpisodes.findIndex(
+        (ep) => ep.number === this.currentEpisode
+      );
+      this.activeEpisodeIndex = idx !== -1 ? idx : -1;
+      this.activeEpisodeSeason = this.currentSeason;
+    }
+  }
+
   playEpisode(index: number) {
     if (this.currentEpisodes[index]) {
       this.currentEpisode = this.currentEpisodes[index].number;
       this.activeEpisodeIndex = index;
-      this.activeEpisodeSeason = this.currentSeason; // NEW: set season of playing episode
+      this.activeEpisodeSeason = this.currentSeason;
     } else {
       this.activeEpisodeIndex = -1;
     }
@@ -372,10 +390,17 @@ export class PlayerComponent implements OnInit, OnDestroy {
   onSeasonChange(newSeason: number) {
     this.currentSeason = newSeason;
     this.updateCurrentEpisodes(this.currentSeason);
-    const idx = this.currentEpisodes.findIndex(
-      (ep) => ep.number === this.currentEpisode
-    );
-    this.activeEpisodeIndex = idx !== -1 ? idx : -1;
+
+    // Only update activeEpisodeIndex if we're changing to the season of the currently playing episode
+    if (newSeason === this.activeEpisodeSeason) {
+      const idx = this.currentEpisodes.findIndex(
+        (ep) => ep.number === this.currentEpisode
+      );
+      this.activeEpisodeIndex = idx !== -1 ? idx : -1;
+    } else {
+      this.activeEpisodeIndex = -1;
+    }
+
     // Do NOT update activeEpisodeSeason here; it should only change when playEpisode is called
     this.videoCurrentTime = 0;
     this.videoDuration = this.HARDCODED_DURATION;
@@ -390,11 +415,16 @@ export class PlayerComponent implements OnInit, OnDestroy {
     if (this.episodeNames[seasonNumber] && this.episodePosters[seasonNumber]) {
       this.currentEpisodes = this.episodeNames[seasonNumber];
       this.currentPosters = this.episodePosters[seasonNumber];
-      const idx = this.currentEpisodes.findIndex(
-        (ep) => ep.number === this.currentEpisode
-      );
-      this.activeEpisodeIndex = idx !== -1 ? idx : -1;
-      // Do NOT update activeEpisodeSeason here
+
+      // Only set active episode index if we're viewing the season of the currently playing episode
+      if (seasonNumber === this.activeEpisodeSeason) {
+        const idx = this.currentEpisodes.findIndex(
+          (ep) => ep.number === this.currentEpisode
+        );
+        this.activeEpisodeIndex = idx !== -1 ? idx : -1;
+      } else {
+        this.activeEpisodeIndex = -1;
+      }
     } else {
       this.currentEpisodes = [];
       this.currentPosters = [];

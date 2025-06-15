@@ -1,25 +1,29 @@
-<div class="p-3 sm:p-4 bg-white">
+<div>
+  <!-- Dropdown Source Navigation -->
   <div
-    class="flex flex-col gap-3 sm:gap-4 items-center justify-between lg:flex-row"
+    *ngIf="sourceLayout === 'dropdown'"
+    class="relative flex border border-gray-300 rounded-lg bg-white overflow-hidden w-full sm:w-auto sm:max-w-sm h-[46px]"
   >
-    <!-- Source Navigation -->
-    <div
-      class="flex items-center rounded-lg border border-gray-200 bg-white w-full lg:w-auto"
+    <!-- Background for center section -->
+    <div class="absolute inset-y-0 left-[40px] right-[40px]"></div>
+
+    <button
+      class="relative z-10 flex items-center justify-center px-3 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 cursor-pointer h-full"
+      (click)="prevSource()"
     >
-      <button
-        class="text-gray-700 py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm transition-colors duration-150 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 flex items-center gap-1 group w-full md:w-auto justify-center cursor-pointer"
-        (click)="prevSource()"
-      >
-        <app-icon-lib
-          ico="arrowLeft"
-          class="w-3 h-3 sm:w-3.5 sm:h-3.5 transform transition-transform duration-150 group-hover:-translate-x-0.5"
-        ></app-icon-lib>
-        <span class="hidden sm:inline">Prev</span>
-      </button>
+      <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
+    </button>
+
+    <div
+      class="relative z-10 flex-1 flex items-center justify-center group cursor-pointer h-full"
+      (click)="dropdownSelect?.focus()"
+    >
       <select
-        class="bg-white text-gray-700 text-center w-full py-2 px-4 sm:px-6 font-medium text-xs sm:text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 appearance-none bg-chevron-down bg-no-repeat bg-right-1 sm:bg-right-2 bg-center"
+        #dropdownSelect
+        class="text-gray-700 text-center font-medium text-sm focus:outline-none appearance-none cursor-pointer w-full pr-8 h-full"
         (change)="onSourceChange($event)"
         [(ngModel)]="currentSourceUrl"
+        (click)="$event.stopPropagation()"
       >
         <option
           *ngFor="let source of sources; let i = index"
@@ -29,44 +33,38 @@
           {{ source.name }}
         </option>
       </select>
-      <button
-        class="text-gray-700 py-2 px-3 sm:px-4 font-medium text-xs sm:text-sm transition-colors duration-150 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300 flex items-center gap-1 group w-full md:w-auto justify-center cursor-pointer"
-        (click)="nextSource()"
-      >
-        <span class="hidden sm:inline">Next</span>
-        <app-icon-lib
-          ico="arrowRight"
-          class="w-3 h-3 sm:w-3.5 sm:h-3.5 transform transition-transform duration-150 group-hover:translate-x-0.5"
-        ></app-icon-lib>
-      </button>
+      <app-icon-lib
+        ico="chevron-down"
+        class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+      ></app-icon-lib>
     </div>
 
-    <!-- Episode Navigation -->
+    <button
+      class="relative z-10 flex items-center justify-center px-3 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 cursor-pointer h-full"
+      (click)="nextSource()"
+    >
+      <app-icon-lib ico="arrowRight" class="w-4 h-4"></app-icon-lib>
+    </button>
+  </div>
+
+  <!-- Grid Source Layout -->
+  <div *ngIf="sourceLayout === 'grid'" class="w-[90%]">
     <div
-      class="flex gap-2 w-full lg:w-auto justify-center"
-      *ngIf="mediaType !== 'movie'"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2"
     >
       <button
-        class="border border-blue-300 flex-1 px-3 py-2 sm:px-4 rounded-lg bg-white hover:bg-blue-50 active:bg-blue-100 text-xs sm:text-sm font-medium text-blue-600 flex items-center justify-center gap-1 transition-all duration-150 active:scale-[0.98] group cursor-pointer"
-        (click)="prevEpisode()"
+        *ngFor="let source of sources"
+        [hidden]="source.enabled === false"
+        (click)="onSourceSelect(source)"
+        [class.bg-blue-500]="currentSourceUrl === source.url"
+        [class.text-white]="currentSourceUrl === source.url"
+        [class.bg-gray-100]="currentSourceUrl !== source.url"
+        [class.text-gray-700]="currentSourceUrl !== source.url"
+        [class.hover:bg-blue-600]="currentSourceUrl === source.url"
+        [class.hover:bg-gray-200]="currentSourceUrl !== source.url"
+        class="px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 cursor-pointer border border-gray-200"
       >
-        <app-icon-lib
-          ico="arrowLeft"
-          class="w-3 h-3 sm:w-3.5 sm:h-3.5 transform transition-transform duration-150 group-hover:-translate-x-0.5"
-        ></app-icon-lib>
-        <span class="hidden sm:inline whitespace-nowrap">Prev Episode</span>
-      </button>
-
-      <button
-        class="border border-blue-300 flex-1 px-3 py-2 sm:px-4 rounded-lg bg-white hover:bg-blue-50 active:bg-blue-100 text-xs sm:text-sm font-medium text-blue-600 flex items-center justify-center gap-1 transition-all duration-150 active:scale-[0.98] group cursor-pointer"
-        (click)="nextEpisode()"
-        *ngIf="mediaType !== 'movie'"
-      >
-        <span class="hidden sm:inline whitespace-nowrap">Next Episode</span>
-        <app-icon-lib
-          ico="arrowRight"
-          class="w-3 h-3 sm:w-3.5 sm:h-3.5 transform transition-transform duration-150 group-hover:translate-x-0.5"
-        ></app-icon-lib>
+        {{ source.name }}
       </button>
     </div>
   </div>

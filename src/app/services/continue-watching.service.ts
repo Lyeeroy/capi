@@ -33,8 +33,25 @@ export class ContinueWatchingService {
     try {
       const raw = localStorage.getItem(this.key);
       if (!raw) return [];
-      const parsed = JSON.parse(raw);
+      let parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) throw new Error('Corrupted');
+      // Filter and advance logic
+      parsed = parsed.filter((entry: ContinueWatchingEntry) => {
+        if (!entry.duration) return true;
+        if (entry.currentTime >= entry.duration) {
+          // If TV, advance to next episode if possible (assume totalEpisodesInSeason unknown here)
+          if (entry.mediaType === 'tv' && entry.episode) {
+            // Advance to next episode, reset currentTime
+            entry.episode += 1;
+            entry.currentTime = 0;
+            // duration will be updated by the player on next watch
+            return true;
+          }
+          // If movie, remove from list
+          return false;
+        }
+        return true;
+      });
       return parsed;
     } catch {
       localStorage.removeItem(this.key);

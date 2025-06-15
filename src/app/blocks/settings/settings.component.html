@@ -72,6 +72,37 @@
         </select>
       </div>
     </div>
+
+    <!-- Source Layout Section -->
+    <div
+      class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50"
+    >
+      <div class="flex-1">
+        <div
+          class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+        >
+          <app-icon-lib
+            ico="menu"
+            class="w-6 h-6 text-green-500"
+          ></app-icon-lib>
+          Video Source Layout
+        </div>
+        <div class="text-sm text-gray-500 mt-2 max-w-xl">
+          Choose how video sources are displayed in the player controls. Grid
+          and list layouts show all sources at once for quick selection.
+        </div>
+      </div>
+      <div class="w-full md:w-auto mt-4 md:mt-0">
+        <select
+          class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          [(ngModel)]="settings.sourceLayout"
+          (change)="onSourceLayoutChange(settings.sourceLayout)"
+        >
+          <option value="dropdown">Dropdown</option>
+          <option value="grid">Grid</option>
+        </select>
+      </div>
+    </div>
   </div>
 </div>
 <div class="w-full max-w-3xl mx-auto bg-white rounded-3xl p-10">

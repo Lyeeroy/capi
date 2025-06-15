@@ -9,69 +9,41 @@ import { CommonModule } from '@angular/common';
     <div
       class="py-2 flex flex-col lg:flex-row justify-start lg:justify-between items-start lg:items-center gap-2 lg:gap-0"
     >
-      <nav
-        class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-xl bg-gray-50 w-full lg:w-fit max-w-full"
-        aria-label="Breadcrumb"
+      <!-- Back Button -->
+      <div
+        class="flex items-center px-4 py-2.5 text-gray-700 border border-gray-300 rounded-xl bg-white w-full lg:w-fit max-w-full"
         [class.hidden]="!showName"
         [class.flex]="showName"
       >
-        <ol
-          class="inline-flex items-center gap-1 md:gap-2 rtl:gap-x-reverse min-w-0 w-full"
+        <button
+          (click)="onGoBack()"
+          class="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors duration-200"
         >
-          <li class="inline-flex items-center flex-shrink-0">
-            <button
-              (click)="onGoBack()"
-              class="inline-flex items-center text-sm font-medium text-gray-600 hover:text-blue-600 cursor-pointer whitespace-nowrap"
-            >
-              Go Back
-            </button>
-          </li>
+          <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
+          Go Back
+        </button>
+      </div>
 
-          <li
-            aria-current="page"
-            class="min-w-0 flex-grow cursor-pointer"
-            (click)="toggleTitleExpansion()"
-          >
-            <div class="flex items-center">
-              <svg
-                class="rtl:rotate-180 block w-3 h-3 mx-1 text-gray-400 flex-shrink-0"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 6 10"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="m1 9 4-4-4-4"
-                />
-              </svg>
-              <span
-                class="block ms-1 text-sm text-gray-600 md:ms-2 font-semibold w-full"
-                [class.whitespace-nowrap]="!isTitleExpanded"
-                [class.overflow-hidden]="!isTitleExpanded"
-                [class.text-ellipsis]="!isTitleExpanded"
-                [class.min-w-0]="!isTitleExpanded"
-              >
-                {{ responseData?.name || responseData?.title || 'Loading...' }}
-              </span>
-            </div>
-          </li>
-        </ol>
-      </nav>
-
+      <!-- Toggle Switch for Playlist/Details -->
       <div
-        class=" flex px-5 py-3 gap-2 text-gray-700 border border-gray-200 rounded-xl bg-gray-50 w-full lg:w-fit max-w-full flex-shrink-0 justify-between lg:justify-normal"
+        class="relative flex border border-gray-300 rounded-xl bg-white overflow-hidden w-full lg:w-fit max-w-full flex-shrink-0"
         [class.hidden]="!showDetailsAndPlaylist"
         [class.flex]="showDetailsAndPlaylist"
       >
+        <!-- Background slider -->
+        <div
+          class="absolute top-0 bottom-0 bg-blue-500 transition-all duration-300 ease-out z-0"
+          [style.left.%]="highlightPlaylist ? 0 : 50"
+          [style.width.%]="50"
+        ></div>
+
+        <!-- Playlist Button -->
         <button
-          class="flex items-center text-sm font-medium hover:text-blue-800 active:text-blue-600 whitespace-nowrap transition-all duration-200 ease-in-out"
+          class="relative z-10 flex-1 flex items-center justify-center px-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out"
           (click)="onShowPlaylist()"
-          [class.text-blue-600]="highlightPlaylist"
-          [class.text-gray-600]="!highlightPlaylist"
+          [class.text-white]="highlightPlaylist && mediaType !== 'movie'"
+          [class.text-gray-400]="mediaType === 'movie'"
+          [class.text-gray-700]="!highlightPlaylist && mediaType !== 'movie'"
           [disabled]="mediaType === 'movie'"
           [class.cursor-not-allowed]="mediaType === 'movie'"
           [class.cursor-pointer]="mediaType !== 'movie'"
@@ -79,14 +51,15 @@ import { CommonModule } from '@angular/common';
           <app-icon-lib ico="play" class="w-4 h-4 mr-2"></app-icon-lib>
           Playlist
         </button>
-        <span class="text-sm text-gray-400 hidden sm:block">/</span>
-        <div class="hidden text-blue-600">xd</div>
+
+        <!-- Details Button -->
         <button
-          class="flex items-center text-sm font-medium  hover:text-blue-800 active:text-blue-600 cursor-pointer whitespace-nowrap transition-all duration-200 ease-in-out"
+          class="relative z-10 flex-1 flex items-center justify-center px-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out"
           (click)="onShowDetails()"
-          [class.text-blue-600]="highlightDetails"
-          [class.text-gray-600]="!highlightDetails"
-          [disabled]="mediaType === 'movie'"
+          [class.text-white]="highlightDetails"
+          [class.text-gray-700]="!highlightDetails"
+          [class.cursor-not-allowed]="mediaType === 'movie' && highlightDetails"
+          [class.cursor-pointer]="!(mediaType === 'movie' && highlightDetails)"
         >
           <app-icon-lib ico="menu" class="w-4 h-4 mr-2"></app-icon-lib>
           Details
@@ -94,7 +67,7 @@ import { CommonModule } from '@angular/common';
       </div>
     </div>
   `,
-  imports: [IconLibComponent, IconLibComponent, CommonModule],
+  imports: [IconLibComponent, CommonModule],
 })
 export class PlayerHeader implements OnInit {
   constructor() {}
@@ -121,20 +94,22 @@ export class PlayerHeader implements OnInit {
     window.history.back();
   }
 
-  toggleTitleExpansion() {
-    this.isTitleExpanded = !this.isTitleExpanded;
-  }
-
   onShowPlaylist() {
-    this.showPlaylist.emit();
-    this.highlightPlaylist = true;
-    this.highlightDetails = false;
+    if (this.mediaType !== 'movie') {
+      this.showPlaylist.emit();
+      this.highlightPlaylist = true;
+      this.highlightDetails = false;
+    }
   }
 
   onShowDetails() {
-    this.showDetails.emit();
-    this.highlightDetails = true;
-    this.highlightPlaylist = false;
+    // Only allow toggling if it's not a movie, or if it's a movie but details are not already selected
+    if (this.mediaType !== 'movie' || !this.highlightDetails) {
+      this.showDetails.emit();
+      this.highlightDetails = true;
+      this.highlightPlaylist = false;
+    }
+    // If it's a movie and details are already selected, do nothing
   }
 
   ngOnInit() {

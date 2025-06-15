@@ -8,6 +8,7 @@ import { ContinueWatchingService } from '../../services/continue-watching.servic
 interface AppSettings {
   playlistLayout: 'list' | 'grid';
   enableContinueWatching: boolean;
+  sourceLayout: 'dropdown' | 'grid';
   // Add more settings here (e.g., darkMode: boolean)
 }
 
@@ -26,6 +27,7 @@ export class SettingsComponent implements OnInit {
   settings: AppSettings = {
     playlistLayout: 'list',
     enableContinueWatching: true,
+    sourceLayout: 'dropdown',
     // Add more defaults here
   };
 
@@ -74,6 +76,12 @@ export class SettingsComponent implements OnInit {
   onEnableContinueWatchingChange(value: boolean) {
     this.settings.enableContinueWatching = value;
     localStorage.setItem('appSettings', JSON.stringify(this.settings));
+  }
+
+  // Handler for source layout change
+  onSourceLayoutChange(layout: 'dropdown' | 'grid') {
+    this.settings.sourceLayout = layout;
+    this.saveSettings();
   }
 
   handleUniversalConfirm() {
