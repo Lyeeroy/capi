@@ -591,7 +591,8 @@ export class PlayerComponent implements OnInit, OnDestroy {
       .replace(/-+$/g, '');
 
     return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
-  }  nextEpisode(index: number) {
+  }
+  nextEpisode(index: number) {
     const episodeToAdvanceFrom = this.getEpisodeToAdvanceFrom();
 
     // Check if we're at the last episode of the current season
