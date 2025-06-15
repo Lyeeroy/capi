@@ -116,22 +116,23 @@ export class ContinueWatchingService {
     // --- End foolproof logic ---
 
     const shouldRemoveNow = this.shouldRemove(entry);
-
     if (shouldRemoveNow) {
-      if (
-        entry.mediaType === 'tv' &&
-        entry.episode &&
-        totalEpisodesInSeason &&
-        entry.episode < totalEpisodesInSeason
-      ) {
-        // Advance to next episode, keep in continue watching
-        const nextEntry: ContinueWatchingEntry = {
-          ...entry,
-          episode: entry.episode + 1,
-          currentTime: 0,
-          // duration will be updated by the player on next watch
-        };
-        list.unshift(nextEntry);
+      if (entry.mediaType === 'tv' && entry.episode && totalEpisodesInSeason) {
+        if (entry.episode < totalEpisodesInSeason) {
+          // Advance to next episode in same season, keep in continue watching
+          const nextEntry: ContinueWatchingEntry = {
+            ...entry,
+            episode: entry.episode + 1,
+            currentTime: 0,
+            // duration will be updated by the player on next watch
+          };
+          list.unshift(nextEntry);
+        } else {
+          // Last episode of season - the player component will handle season transition
+          // when user manually clicks next episode. For automatic progression,
+          // we'll just remove from continue watching to avoid complications.
+          // If there's a next season, the user can manually navigate to it.
+        }
       }
       // If last episode or movie finished, do not add anything (removes from continue watching)
     } else {
