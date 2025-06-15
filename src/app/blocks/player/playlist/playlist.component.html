@@ -130,14 +130,14 @@
 
     <!-- List Layout -->
     <ng-container *ngIf="layoutType === 'list'">
-      <div class="p-3 space-y-1.5">
+      <div class="p-3">
         <div
           *ngFor="let episode of filteredEpisodes; let i = index"
           (click)="onFilteredEpisodeSelected(i)"
           [attr.id]="'episode-list-' + i"
           #episodeList
           [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
-          class="flex items-center cursor-pointer transition-colors duration-200 rounded-lg border border-gray-200 overflow-hidden hover:bg-gray-50"
+          class="mt-1 flex items-center cursor-pointer transition-colors duration-200 rounded-lg border border-gray-200 overflow-hidden hover:bg-gray-50"
         >
           <div
             class="flex items-center justify-center py-2.5 font-bold text-sm w-12 transition-colors duration-200"
