@@ -48,7 +48,7 @@
   </div>
 
   <!-- Grid Source Layout -->
-  <div *ngIf="sourceLayout === 'grid'" class="w-[90%]">
+  <div *ngIf="sourceLayout === 'grid'" class="w-full lg:w-[90%]">
     <div
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2"
     >
@@ -62,7 +62,7 @@
         [class.text-gray-700]="currentSourceUrl !== source.url"
         [class.hover:bg-blue-600]="currentSourceUrl === source.url"
         [class.hover:bg-gray-200]="currentSourceUrl !== source.url"
-        class="px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 cursor-pointer border border-gray-200"
+        class="px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 cursor-pointer border border-gray-200 truncate"
       >
         {{ source.name }}
       </button>
