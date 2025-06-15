@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
+import { Episode } from '../playlist/playlist.component';
 
 @Component({
   selector: 'app-info',
@@ -13,7 +14,7 @@ export class InfoComponent implements OnInit {
   @Input() names: string = '';
   @Input() totalSeasons: number[] = [];
   @Input() currentSeason: number = 1;
-  @Input() currentEpisodes: { number: number; name: string }[] = [];
+  @Input() currentEpisodes: Episode[] = [];
   @Input() currentPosters: string[] = [];
   @Input() episodeData: any[] = [];
   @Input() responseData: any = null;

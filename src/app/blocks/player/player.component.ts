@@ -37,9 +37,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
   names: string | null = null;
   seasonNumber: number | null = 0;
   totalSeasons: number[] = [];
-  episodeNames: { [key: number]: { number: number; name: string }[] } = {};
+  episodeNames: {
+    [key: number]: { number: number; name: string; description?: string }[];
+  } = {};
   episodePosters: { [key: number]: string[] } = {};
-  currentEpisodes: { number: number; name: string }[] = [];
+  currentEpisodes: { number: number; name: string; description?: string }[] =
+    [];
   currentPosters: string[] = [];
   layoutType: 'list' | 'grid' | 'poster' = 'list';
   activeEpisodeIndex: number = -1;
@@ -338,6 +341,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
                 (episode: any, episodeIndex: number) => ({
                   number: episodeIndex + 1,
                   name: episode.name,
+                  description: episode.overview || 'No description available.',
                 })
               );
               this.episodePosters[seasonNum] = response.episodes.map(
@@ -454,9 +458,14 @@ export class PlayerComponent implements OnInit, OnDestroy {
   cancel() {
     this.location.back();
   }
-
   changeLayout() {
-    this.layoutType = this.layoutType === 'list' ? 'grid' : 'list';
+    if (this.layoutType === 'list') {
+      this.layoutType = 'grid';
+    } else if (this.layoutType === 'grid') {
+      this.layoutType = 'poster';
+    } else {
+      this.layoutType = 'list';
+    }
   }
 
   resumeFromContinueWatching(entry: any) {

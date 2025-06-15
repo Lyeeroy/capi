@@ -18,6 +18,7 @@ import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 export interface Episode {
   number: number;
   name: string;
+  description?: string;
 }
 
 @Component({
@@ -46,11 +47,14 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChildren('episodeBtn, episodeList')
   episodeElements!: QueryList<ElementRef>;
   private initialScrollDone = false;
+  private scrollEnabled = true; // Add this property
 
   // Add search functionality
   searchQuery: string = '';
   filteredEpisodes: Episode[] = [];
 
+  // Add expand tracking for poster view descriptions
+  expandedDescriptions: Set<number> = new Set();
   ngOnInit() {
     // Load default layout from localStorage if available
     try {
@@ -59,9 +63,14 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
         const settings = JSON.parse(raw);
         if (
           settings.playlistLayout === 'list' ||
-          settings.playlistLayout === 'grid'
+          settings.playlistLayout === 'grid' ||
+          settings.playlistLayout === 'poster'
         ) {
           this.layoutType = settings.playlistLayout;
+        }
+        // Load scroll setting
+        if (typeof settings.enableScrollToEpisode === 'boolean') {
+          this.scrollEnabled = settings.enableScrollToEpisode;
         }
       }
     } catch {
@@ -88,22 +97,36 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   }
 
   private scrollToActiveEpisode(initial = false) {
+    // Check if scrolling is enabled in settings
+    if (!this.scrollEnabled) return;
+
     // Do not scroll if screen size is under 1024px
     if (window.innerWidth < 1024) return;
     // Only scroll if the active episode is in the currently viewed season
     if (this.activeEpisodeSeason !== this.currentSeason) return;
-    if (this.initialScrollDone && !initial) return;
+    // Remove the initialScrollDone check to allow scrolling when episodes are selected
     if (
       typeof this.activeEpisodeIndex !== 'number' ||
       this.activeEpisodeIndex < 0
     )
       return;
-    const el =
-      document.getElementById('episode-btn-' + this.activeEpisodeIndex) ||
-      document.getElementById('episode-list-' + this.activeEpisodeIndex);
+
+    // Try different element IDs based on layout type
+    let el: HTMLElement | null = null;
+
+    if (this.layoutType === 'grid') {
+      el = document.getElementById('episode-btn-' + this.activeEpisodeIndex);
+    } else if (this.layoutType === 'list') {
+      el = document.getElementById('episode-list-' + this.activeEpisodeIndex);
+    } else if (this.layoutType === 'poster') {
+      el = document.getElementById('episode-poster-' + this.activeEpisodeIndex);
+    }
+
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      this.initialScrollDone = true;
+      if (initial) {
+        this.initialScrollDone = true;
+      }
     }
   }
 
@@ -114,7 +137,8 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
 
   onEpisodeSelected(logicalIndex: number, actualIndex: number) {
     this.episodeSelected.emit(actualIndex);
-    this.initialScrollDone = true;
+    // Remove this line to allow scrolling when episodes are selected
+    // this.initialScrollDone = true;
   }
 
   isEpisodeActiveByIndex(index: number): boolean {
@@ -160,13 +184,40 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
 
   onLayoutChange() {
     this.layoutChange.emit();
+    // Trigger scroll to active episode after layout change
+    setTimeout(() => this.scrollToActiveEpisode(), 100);
   }
 
   onSortToggle() {
     this.sortToggle.emit();
   }
-
   onClose() {
     this.close.emit();
+  }
+
+  // Methods for poster view description expansion
+  toggleDescription(episodeIndex: number) {
+    if (this.expandedDescriptions.has(episodeIndex)) {
+      this.expandedDescriptions.delete(episodeIndex);
+    } else {
+      this.expandedDescriptions.add(episodeIndex);
+    }
+  }
+
+  isDescriptionExpanded(episodeIndex: number): boolean {
+    return this.expandedDescriptions.has(episodeIndex);
+  }
+
+  getDisplayDescription(episode: Episode, episodeIndex: number): string {
+    if (!episode.description) return 'No description available.';
+
+    const isExpanded = this.isDescriptionExpanded(episodeIndex);
+    const maxLength = 120;
+
+    if (isExpanded || episode.description.length <= maxLength) {
+      return episode.description;
+    }
+
+    return episode.description.substring(0, maxLength) + '...';
   }
 }

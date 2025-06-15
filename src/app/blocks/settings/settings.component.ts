@@ -6,9 +6,10 @@ import { ContinueWatchingService } from '../../services/continue-watching.servic
 
 // Settings interface for future extensibility
 interface AppSettings {
-  playlistLayout: 'list' | 'grid';
+  playlistLayout: 'list' | 'grid' | 'poster';
   enableContinueWatching: boolean;
   sourceLayout: 'dropdown' | 'grid';
+  enableScrollToEpisode: boolean;
   // Add more settings here (e.g., darkMode: boolean)
 }
 
@@ -28,6 +29,7 @@ export class SettingsComponent implements OnInit {
     playlistLayout: 'list',
     enableContinueWatching: true,
     sourceLayout: 'dropdown',
+    enableScrollToEpisode: true,
     // Add more defaults here
   };
 
@@ -66,9 +68,8 @@ export class SettingsComponent implements OnInit {
   saveSettings() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
   }
-
   // Handler for playlist layout change
-  onPlaylistLayoutChange(layout: 'list' | 'grid') {
+  onPlaylistLayoutChange(layout: 'list' | 'grid' | 'poster') {
     this.settings.playlistLayout = layout;
     this.saveSettings();
   }
@@ -81,6 +82,12 @@ export class SettingsComponent implements OnInit {
   // Handler for source layout change
   onSourceLayoutChange(layout: 'dropdown' | 'grid') {
     this.settings.sourceLayout = layout;
+    this.saveSettings();
+  }
+
+  // Handler for scroll to episode change
+  onEnableScrollToEpisodeChange(value: boolean) {
+    this.settings.enableScrollToEpisode = value;
     this.saveSettings();
   }
 
