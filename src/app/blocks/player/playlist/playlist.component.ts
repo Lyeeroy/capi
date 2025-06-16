@@ -7,9 +7,11 @@ import {
   SimpleChanges,
   OnInit,
   AfterViewInit,
+  OnDestroy,
   ViewChildren,
   QueryList,
   ElementRef,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -27,7 +29,9 @@ export interface Episode {
   imports: [CommonModule, FormsModule, IconLibComponent],
   templateUrl: './playlist.component.html',
 })
-export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
+export class PlaylistComponent
+  implements OnInit, OnChanges, AfterViewInit, OnDestroy
+{
   @Input() names: string = '';
   @Input() totalSeasons: number[] = [];
   @Input() currentSeason: number = 1;
@@ -78,11 +82,12 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     }
     this.filteredEpisodes = [...this.currentEpisodes];
   }
-
   ngAfterViewInit() {
-    this.scrollToActiveEpisode(true);
+    // Use longer delay for initial scroll to ensure all elements are rendered
+    setTimeout(() => {
+      this.scrollToActiveEpisode(true);
+    }, 200);
   }
-
   ngOnChanges(changes: SimpleChanges) {
     if (
       changes['currentSeason'] ||
@@ -92,43 +97,88 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     ) {
       this.filteredEpisodes = [...this.currentEpisodes];
       this.filterEpisodes();
-      setTimeout(() => this.scrollToActiveEpisode(), 0);
+
+      // Use debounced scroll for changes
+      this.debouncedScrollToActiveEpisode(false, 100);
     }
   }
-
   private scrollToActiveEpisode(initial = false) {
     // Check if scrolling is enabled in settings
     if (!this.scrollEnabled) return;
 
-    // Do not scroll if screen size is under 1024px
-    if (window.innerWidth < 1024) return;
     // Only scroll if the active episode is in the currently viewed season
     if (this.activeEpisodeSeason !== this.currentSeason) return;
-    // Remove the initialScrollDone check to allow scrolling when episodes are selected
+
+    // Validate active episode index
     if (
       typeof this.activeEpisodeIndex !== 'number' ||
       this.activeEpisodeIndex < 0
     )
-      return; // Try different element IDs based on layout type
+      return;
+
+    // Find the filtered index for the active episode
+    const activeEpisode = this.currentEpisodes[this.activeEpisodeIndex];
+    if (!activeEpisode) return;
+
+    const filteredIndex = this.filteredEpisodes.findIndex(
+      (ep) => ep.number === activeEpisode.number
+    );
+
+    if (filteredIndex === -1) return; // Active episode is filtered out
+
+    // Use setTimeout to ensure DOM is ready
+    setTimeout(() => {
+      this.attemptScroll(filteredIndex, initial);
+    }, 50);
+  }
+  private attemptScroll(
+    filteredIndex: number,
+    initial = false,
+    retryCount = 0
+  ) {
+    const maxRetries = 3;
     let el: HTMLElement | null = null;
 
+    // Try different element IDs based on layout type
     if (this.layoutType === 'grid') {
-      el = document.getElementById('episode-btn-' + this.activeEpisodeIndex);
+      el = document.getElementById('episode-btn-' + filteredIndex);
     } else if (this.layoutType === 'list') {
-      el = document.getElementById('episode-list-' + this.activeEpisodeIndex);
+      el = document.getElementById('episode-list-' + filteredIndex);
     } else if (this.layoutType === 'poster') {
-      el = document.getElementById('episode-poster-' + this.activeEpisodeIndex);
+      el = document.getElementById(
+        'episode-poster-' + this.getOriginalIndex(filteredIndex)
+      );
     } else if (this.layoutType === 'compact') {
       el = document.getElementById(
-        'episode-compact-' + this.activeEpisodeIndex
+        'episode-compact-' + this.getOriginalIndex(filteredIndex)
       );
     }
 
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if (initial) {
-        this.initialScrollDone = true;
+      // Check if element is visible and has dimensions
+      const rect = el.getBoundingClientRect();
+      if (rect.height > 0 && rect.width > 0) {
+        // Check if element is already in viewport
+        if (!this.isElementInViewport(el)) {
+          this.smoothScrollToElement(el);
+        }
+
+        if (initial) {
+          this.initialScrollDone = true;
+        }
+        return;
       }
+    }
+
+    // Retry if element not found or not ready, up to maxRetries
+    if (retryCount < maxRetries) {
+      setTimeout(() => {
+        this.attemptScroll(filteredIndex, initial, retryCount + 1);
+      }, 100 * (retryCount + 1)); // Exponential backoff
+    } else {
+      console.warn(
+        `Failed to scroll to episode after ${maxRetries} attempts. Layout: ${this.layoutType}, FilteredIndex: ${filteredIndex}`
+      );
     }
   }
 
@@ -136,11 +186,12 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     const newSeason = Number((event.target as HTMLSelectElement).value);
     this.seasonChange.emit(newSeason);
   }
-
   onEpisodeSelected(logicalIndex: number, actualIndex: number) {
     this.episodeSelected.emit(actualIndex);
-    // Remove this line to allow scrolling when episodes are selected
-    // this.initialScrollDone = true;
+    // Allow scrolling when episodes are selected
+    setTimeout(() => {
+      this.scrollToActiveEpisode();
+    }, 100);
   }
 
   isEpisodeActiveByIndex(index: number): boolean {
@@ -150,7 +201,6 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
       index === this.activeEpisodeIndex
     );
   }
-
   filterEpisodes() {
     if (!this.searchQuery.trim()) {
       this.filteredEpisodes = [...this.currentEpisodes];
@@ -162,10 +212,9 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
           episode.name.toLowerCase().includes(query)
       );
     }
-    // Force height recalculation after filtering
-    setTimeout(() => {
-      // Trigger change detection for height calculations
-    }, 0);
+
+    // Use debounced scroll after filtering
+    this.debouncedScrollToActiveEpisode();
   }
 
   onSearchChange(query: string) {
@@ -187,11 +236,12 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     const originalIndex = this.getOriginalIndex(filteredIndex);
     this.onEpisodeSelected(originalIndex, originalIndex);
   }
-
   onLayoutChange() {
     this.layoutChange.emit();
-    // Trigger scroll to active episode after layout change
-    setTimeout(() => this.scrollToActiveEpisode(), 100);
+    // Use longer timeout to ensure layout change is complete
+    setTimeout(() => {
+      this.scrollToActiveEpisode();
+    }, 150);
   }
 
   onSortToggle() {
@@ -273,19 +323,26 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   getGridMinHeight(): string {
     const episodeCount = this.filteredEpisodes.length;
     if (episodeCount === 0) return '200px'; // Empty state
-    if (episodeCount <= 12) {
-      // Small number of episodes, calculate exact height
-      const containerWidth =
-        window.innerWidth < 1024 ? window.innerWidth - 48 : 300 - 24;
-      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 72));
-      const rows = Math.ceil(episodeCount / episodesPerRow);
-      return `${Math.max(rows * 50, 100)}px`;
-    }
-    const containerWidth =
-      window.innerWidth < 1024 ? window.innerWidth - 48 : 300 - 24;
-    const episodesPerRow = Math.max(1, Math.floor(containerWidth / 72));
-    const rows = Math.ceil(episodeCount / episodesPerRow);
-    return `${rows * 50}px`;
+
+    // Use fixed grid columns based on container width
+    const cols = this.getGridColumns();
+    const rows = Math.ceil(episodeCount / cols);
+
+    // Each grid item has aspect-[3/2] ratio with gap-2 (8px)
+    const itemWidth = 48; // Approximate width for grid items
+    const itemHeight = itemWidth * (2 / 3); // 3:2 aspect ratio = height is 2/3 of width
+    const gap = 8;
+    const totalHeight = rows * itemHeight + (rows - 1) * gap;
+
+    return `${Math.max(totalHeight, 100)}px`;
+  }
+
+  private getGridColumns(): number {
+    // Match the responsive grid columns from template
+    if (window.innerWidth >= 1024) return 8; // lg:grid-cols-8
+    if (window.innerWidth >= 768) return 6; // md:grid-cols-6
+    if (window.innerWidth >= 640) return 5; // sm:grid-cols-5
+    return 4; // grid-cols-4
   }
 
   getListMinHeight(): string {
@@ -332,5 +389,139 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     const episodesPerRow = Math.max(1, Math.floor(containerWidth / 142));
     const rows = Math.ceil(episodeCount / episodesPerRow);
     return `${rows * 160}px`;
+  }
+
+  private getScrollContainer(): HTMLElement | null {
+    // Find the scrollable container for the playlist
+    const container = document.querySelector(
+      '.playlist-container'
+    ) as HTMLElement;
+    if (container) return container;
+
+    // Fallback to finding by class patterns
+    const episodesContainer = document.querySelector(
+      '[class*="overflow-y-auto"]'
+    ) as HTMLElement;
+    return episodesContainer;
+  }
+
+  private isElementInViewport(element: HTMLElement): boolean {
+    const rect = element.getBoundingClientRect();
+    const container = this.getScrollContainer();
+
+    if (!container) {
+      // Fall back to window viewport
+      return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <=
+          (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <=
+          (window.innerWidth || document.documentElement.clientWidth)
+      );
+    }
+
+    const containerRect = container.getBoundingClientRect();
+    return rect.top >= containerRect.top && rect.bottom <= containerRect.bottom;
+  }
+
+  private smoothScrollToElement(element: HTMLElement): void {
+    const container = this.getScrollContainer();
+
+    if (container && container !== element.offsetParent) {
+      // Calculate scroll position relative to container
+      const containerRect = container.getBoundingClientRect();
+      const elementRect = element.getBoundingClientRect();
+      const containerScrollTop = container.scrollTop;
+
+      const elementTop =
+        elementRect.top - containerRect.top + containerScrollTop;
+      const containerHeight = containerRect.height;
+      const elementHeight = elementRect.height;
+
+      // Center the element in the container
+      const targetScrollTop =
+        elementTop - (containerHeight - elementHeight) / 2;
+
+      container.scrollTo({
+        top: Math.max(0, targetScrollTop),
+        behavior: 'smooth',
+      });
+    } else {
+      // Fallback to standard scrollIntoView
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    }
+  }
+
+  /**
+   * Public method to trigger scroll to active episode
+   * Can be called from parent components when needed
+   */
+  public refreshScroll(): void {
+    setTimeout(() => {
+      this.scrollToActiveEpisode();
+    }, 50);
+  }
+
+  /**
+   * Force scroll even if disabled in settings (for debugging)
+   */
+  public forceScroll(): void {
+    const wasEnabled = this.scrollEnabled;
+    this.scrollEnabled = true;
+    setTimeout(() => {
+      this.scrollToActiveEpisode();
+      this.scrollEnabled = wasEnabled;
+    }, 50);
+  }
+
+  /**
+   * SCROLL FUNCTIONALITY IMPROVEMENTS:
+   *
+   * 1. Fixed element ID mapping issues by using filtered indices correctly
+   * 2. Added retry mechanism with exponential backoff for DOM readiness
+   * 3. Improved viewport detection and smooth scrolling
+   * 4. Added proper container detection for nested scrolling
+   * 5. Removed mobile restrictions - now works on all screen sizes
+   * 6. Added resize handling for responsive behavior
+   * 7. Better timing for DOM updates and layout changes
+   * 8. Public methods for external control and debugging
+   */
+  @HostListener('window:resize', ['$event'])
+  onWindowResize(event: any) {
+    // Debounce resize events
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+
+    this.resizeTimeout = setTimeout(() => {
+      this.debouncedScrollToActiveEpisode(false, 300);
+    }, 300);
+  }
+
+  private resizeTimeout: any;
+
+  private scrollTimeout: any;
+
+  private debouncedScrollToActiveEpisode(initial = false, delay = 50) {
+    if (this.scrollTimeout) {
+      clearTimeout(this.scrollTimeout);
+    }
+
+    this.scrollTimeout = setTimeout(() => {
+      this.scrollToActiveEpisode(initial);
+    }, delay);
+  }
+  ngOnDestroy() {
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+    if (this.scrollTimeout) {
+      clearTimeout(this.scrollTimeout);
+    }
   }
 }

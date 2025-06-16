@@ -372,6 +372,21 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.onShowDetails = true;
   }
 
+  playerRefresh(): void {
+    console.log('Refreshing player...');
+    // Reload the iframe or reinitialize the player
+    if (this.iframeUrl) {
+      // Force reload by temporarily clearing and restoring the URL
+      const currentUrl = this.iframeUrl;
+      this.showIframe = false;
+      
+      setTimeout(() => {
+        this.iframeUrl = currentUrl;
+        this.showIframe = true;
+      }, 100);
+    }
+  }
+
   cancel(): void {
     this.location.back();
   }
@@ -622,43 +637,115 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
   }
-  nextEpisode(index: number) {
-    const episodeToAdvanceFrom = this.getEpisodeToAdvanceFrom();
 
-    // Check if we're at the last episode of the current season
-    if (episodeToAdvanceFrom === this.currentEpisodes.length) {
-      // If there's a next season available, move to it
-      if (this.currentSeason < this.totalSeasons.length) {
-        this.moveToNextSeason();
-        return;
-      }
-      // If no next season available, do nothing
+  /**
+   * SORTING BUG FIX:
+   *
+   * Fixed the episode navigation bug where "next episode" would incorrectly navigate
+   * when episodes were sorted in descending order (bottom to top).
+   *
+   * Key changes:
+   * 1. nextEpisode() and prevEpisode() now use array indices instead of episode numbers
+   * 2. Navigation direction is based on isSortedAscending flag
+   * 3. Season transitions respect the current sort order
+   * 4. Episode availability checks account for sorting direction
+   * 5. Episode labels show correct information based on sort order
+   *
+   * When sorted ascending (1,2,3,4...): next = higher episode number (index + 1)
+   * When sorted descending (4,3,2,1...): next = lower episode number (index - 1)
+   */
+  nextEpisode(index: number) {
+    if (!this.isViewingSameSeasonAsActive()) {
       return;
     }
 
-    // Advance to next episode in current season
-    this.setCurrentEpisode(episodeToAdvanceFrom + 1);
-    this.resetVideoState();
-    this.updateUrl();
-    this.reloadIframe();
+    // Get current episode index in the (possibly sorted) array
+    const currentIndex = this.activeEpisodeIndex;
+    if (currentIndex === -1) return;
+
+    // Navigate based on sort order
+    let nextIndex: number;
+    if (this.isSortedAscending) {
+      // Ascending: next episode is at currentIndex + 1
+      nextIndex = currentIndex + 1;
+      if (nextIndex >= this.currentEpisodes.length) {
+        // At the end, try to move to next season
+        if (this.currentSeason < this.totalSeasons.length) {
+          this.moveToNextSeason();
+          return;
+        }
+        return; // No next episode/season available
+      }
+    } else {
+      // Descending: next episode is at currentIndex - 1 (going down the list)
+      nextIndex = currentIndex - 1;
+      if (nextIndex < 0) {
+        // At the end of descending list, try to move to next season
+        if (this.currentSeason < this.totalSeasons.length) {
+          this.moveToNextSeason();
+          return;
+        }
+        return; // No next episode/season available
+      }
+    }
+
+    // Set the new episode
+    const nextEpisode = this.currentEpisodes[nextIndex];
+    if (nextEpisode) {
+      this.currentEpisode = nextEpisode.number;
+      this.activeEpisodeIndex = nextIndex;
+      this.activeEpisodeSeason = this.currentSeason;
+      this.resetVideoState();
+      this.updateUrl();
+      this.reloadIframe();
+    }
   }
 
   prevEpisode(index: number) {
-    const episodeToBackFrom = this.getEpisodeToBackFrom();
-
-    // Check if we're at the first episode of the current season
-    if (episodeToBackFrom <= 1) {
-      if (this.currentSeason > 1) {
-        this.moveToPreviousSeason();
-      }
+    if (!this.isViewingSameSeasonAsActive()) {
       return;
     }
 
-    // Go back to previous episode in current season
-    this.setCurrentEpisode(episodeToBackFrom - 1);
-    this.resetVideoState();
-    this.updateUrl();
-    this.reloadIframe();
+    // Get current episode index in the (possibly sorted) array
+    const currentIndex = this.activeEpisodeIndex;
+    if (currentIndex === -1) return;
+
+    // Navigate based on sort order
+    let prevIndex: number;
+    if (this.isSortedAscending) {
+      // Ascending: previous episode is at currentIndex - 1
+      prevIndex = currentIndex - 1;
+      if (prevIndex < 0) {
+        // At the beginning, try to move to previous season
+        if (this.currentSeason > 1) {
+          this.moveToPreviousSeason();
+          return;
+        }
+        return; // No previous episode/season available
+      }
+    } else {
+      // Descending: previous episode is at currentIndex + 1 (going up the list)
+      prevIndex = currentIndex + 1;
+      if (prevIndex >= this.currentEpisodes.length) {
+        // At the beginning of descending list, try to move to previous season
+        if (this.currentSeason > 1) {
+          this.moveToPreviousSeason();
+          return;
+        }
+        return; // No previous episode/season available
+      }
+    }
+
+    // Set the new episode
+    const prevEpisode = this.currentEpisodes[prevIndex];
+    if (prevEpisode) {
+      this.currentEpisode = prevEpisode.number;
+      this.activeEpisodeIndex = prevIndex;
+      this.activeEpisodeSeason = this.currentSeason;
+      this.resetVideoState();
+      this.updateUrl();
+      this.reloadIframe();
+    }
   }
 
   // Helper methods for episode navigation
@@ -678,14 +765,26 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.activeEpisodeIndex >= 0
     );
   }
-
   private moveToNextSeason(): void {
     this.currentSeason++;
-    this.setCurrentEpisode(1);
     this.updateCurrentEpisodes(this.currentSeason);
-    this.resetVideoState();
-    this.updateUrl();
-    this.reloadIframe();
+
+    setTimeout(() => {
+      // When moving to next season, start from the beginning based on sort order
+      if (this.isSortedAscending) {
+        // Ascending: start with episode 1 (first in array)
+        this.setCurrentEpisode(1);
+      } else {
+        // Descending: start with the highest episode number (first in array)
+        const firstEpisode = this.currentEpisodes[0];
+        if (firstEpisode) {
+          this.setCurrentEpisode(firstEpisode.number);
+        }
+      }
+      this.resetVideoState();
+      this.updateUrl();
+      this.reloadIframe();
+    }, 0);
   }
 
   private moveToPreviousSeason(): void {
@@ -693,16 +792,30 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.updateCurrentEpisodes(this.currentSeason);
 
     setTimeout(() => {
-      this.setCurrentEpisode(this.currentEpisodes.length);
+      // When moving to previous season, start from the end based on sort order
+      if (this.isSortedAscending) {
+        // Ascending: start with the last episode (last in array)
+        const lastEpisode =
+          this.currentEpisodes[this.currentEpisodes.length - 1];
+        if (lastEpisode) {
+          this.setCurrentEpisode(lastEpisode.number);
+        }
+      } else {
+        // Descending: start with episode 1 (last in array)
+        this.setCurrentEpisode(1);
+      }
       this.resetVideoState();
       this.updateUrl();
       this.reloadIframe();
     }, 0);
   }
-
   private setCurrentEpisode(episodeNumber: number): void {
     this.currentEpisode = episodeNumber;
-    this.activeEpisodeIndex = episodeNumber - 1;
+    // Find the correct index for this episode number in the current (possibly sorted) array
+    const idx = this.currentEpisodes.findIndex(
+      (ep) => ep.number === episodeNumber
+    );
+    this.activeEpisodeIndex = idx !== -1 ? idx : -1;
     this.activeEpisodeSeason = this.currentSeason;
   }
 
@@ -722,41 +835,94 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     const newUrl = `${url.pathname}?${queryParams.toString()}`;
     this.location.replaceState(newUrl);
   }
-
   // Helper methods to check episode availability across seasons
   hasNextEpisode(): boolean {
-    const episodeToCheck = this.getEpisodeToAdvanceFrom();
-    return (
-      episodeToCheck < this.currentEpisodes.length ||
-      this.currentSeason < this.totalSeasons.length
-    );
+    if (!this.isViewingSameSeasonAsActive()) {
+      return false;
+    }
+
+    const currentIndex = this.activeEpisodeIndex;
+    if (currentIndex === -1) return false;
+
+    if (this.isSortedAscending) {
+      // Ascending: can go next if not at the end of array or if there's a next season
+      return (
+        currentIndex < this.currentEpisodes.length - 1 ||
+        this.currentSeason < this.totalSeasons.length
+      );
+    } else {
+      // Descending: can go next if not at the beginning of array or if there's a next season
+      return currentIndex > 0 || this.currentSeason < this.totalSeasons.length;
+    }
   }
 
   hasPreviousEpisode(): boolean {
-    const episodeToCheck = this.getEpisodeToBackFrom();
-    return episodeToCheck > 1 || this.currentSeason > 1;
+    if (!this.isViewingSameSeasonAsActive()) {
+      return false;
+    }
+    const currentIndex = this.activeEpisodeIndex;
+    if (currentIndex === -1) return false;
+
+    if (this.isSortedAscending) {
+      // Ascending: can go back if not at the beginning of array or if there's a previous season
+      return currentIndex > 0 || this.currentSeason > 1;
+    } else {
+      // Descending: can go back if not at the end of array or if there's a previous season
+      return (
+        currentIndex < this.currentEpisodes.length - 1 || this.currentSeason > 1
+      );
+    }
   }
-
   getNextEpisodeLabel(): string {
-    const episodeToCheck = this.getEpisodeToAdvanceFrom();
-
-    if (episodeToCheck < this.currentEpisodes.length) {
+    if (!this.isViewingSameSeasonAsActive()) {
       return 'Next Episode';
-    } else if (this.currentSeason < this.totalSeasons.length) {
-      return `Season ${this.currentSeason + 1} Ep 1`;
+    }
+
+    const currentIndex = this.activeEpisodeIndex;
+    if (currentIndex === -1) return 'Next Episode';
+
+    if (this.isSortedAscending) {
+      // Ascending: next means higher episode number
+      if (currentIndex < this.currentEpisodes.length - 1) {
+        return 'Next Episode';
+      } else if (this.currentSeason < this.totalSeasons.length) {
+        return `Season ${this.currentSeason + 1} Ep 1`;
+      }
+    } else {
+      // Descending: next means going down the list (lower episode number)
+      if (currentIndex > 0) {
+        return 'Next Episode';
+      } else if (this.currentSeason < this.totalSeasons.length) {
+        return `Season ${this.currentSeason + 1} Ep 1`;
+      }
     }
     return 'Next Episode';
   }
 
   getPreviousEpisodeLabel(): string {
-    const episodeToCheck = this.getEpisodeToBackFrom();
-
-    if (episodeToCheck > 1) {
+    if (!this.isViewingSameSeasonAsActive()) {
       return 'Prev Episode';
-    } else if (this.currentSeason > 1) {
-      const prevSeasonEpisodes = this.episodeNames[this.currentSeason - 1];
-      const lastEpNum = prevSeasonEpisodes?.length || 1;
-      return `S${this.currentSeason - 1} Ep ${lastEpNum}`;
+    }
+
+    const currentIndex = this.activeEpisodeIndex;
+    if (currentIndex === -1) return 'Prev Episode';
+
+    if (this.isSortedAscending) {
+      // Ascending: previous means lower episode number
+      if (currentIndex > 0) {
+        return 'Prev Episode';
+      } else if (this.currentSeason > 1) {
+        const prevSeasonEpisodes = this.episodeNames[this.currentSeason - 1];
+        const lastEpNum = prevSeasonEpisodes?.length || 1;
+        return `S${this.currentSeason - 1} Ep ${lastEpNum}`;
+      }
+    } else {
+      // Descending: previous means going up the list (higher episode number)
+      if (currentIndex < this.currentEpisodes.length - 1) {
+        return 'Prev Episode';
+      } else if (this.currentSeason > 1) {
+        return `S${this.currentSeason - 1} Ep 1`;
+      }
     }
     return 'Prev Episode';
   }
