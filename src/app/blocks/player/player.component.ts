@@ -764,11 +764,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     if (typeof window === 'undefined') return 400; // SSR fallback
 
     if (window.innerWidth < 1024) {
-      // Mobile: use viewport width to calculate 16:9 aspect ratio
-      return window.innerWidth * (9 / 16);
+      // Mobile: use 80vh for better mobile experience
+      return Math.round(window.innerHeight * 0.8);
     }
 
-    // Desktop: calculate height to match video aspect ratio (not the entire container)
+    // Desktop: calculate height to match video aspect ratio
     // Get the video container width (75% of viewport width minus gap)
     const containerWidth = window.innerWidth;
     const gap = 16; // 1rem gap
@@ -825,15 +825,30 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       console.log('videoContainer:', videoContainer);
       console.log('playlistContainer:', playlistContainer);
 
-      if (videoContainer && playlistContainer) {
-        const videoHeight = videoContainer.offsetHeight;
-        console.log('video height:', videoHeight);
+      if (playlistContainer) {
+        if (window.innerWidth < 1024) {
+          // Mobile: Use 80vh for better mobile experience
+          const mobileHeight = Math.round(window.innerHeight * 0.8);
+          playlistContainer.style.height = `${mobileHeight}px`;
+          playlistContainer.style.minHeight = `${mobileHeight}px`;
+          console.log(
+            'Set mobile playlist height to 80vh:',
+            mobileHeight + 'px'
+          );
+        } else if (videoContainer) {
+          // Desktop: Match video container height
+          const videoHeight = videoContainer.offsetHeight;
+          console.log('video height:', videoHeight);
 
-        playlistContainer.style.height = `${videoHeight}px`;
-        playlistContainer.style.minHeight = `${videoHeight}px`;
-        console.log('Set playlist height to:', videoHeight + 'px');
+          playlistContainer.style.height = `${videoHeight}px`;
+          playlistContainer.style.minHeight = `${videoHeight}px`;
+          console.log(
+            'Set desktop playlist height to match video:',
+            videoHeight + 'px'
+          );
+        }
       } else {
-        console.log('Containers not found');
+        console.log('Playlist container not found');
       }
     }, 100);
   }
