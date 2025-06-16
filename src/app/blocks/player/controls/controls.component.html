@@ -2,7 +2,7 @@
   <!-- Dropdown Source Navigation -->
   <div
     *ngIf="sourceLayout === 'dropdown'"
-    class="relative flex border border-gray-300 rounded-lg bg-white overflow-hidden w-full sm:w-auto sm:max-w-sm h-[46px]"
+    class="relative flex border border-gray-300 rounded-lg bg-white overflow-hidden w-full lg:w-auto lg:max-w-sm h-[42px]"
   >
     <!-- Background for center section -->
     <div class="absolute inset-y-0 left-[40px] right-[40px]"></div>
@@ -48,10 +48,8 @@
   </div>
 
   <!-- Grid Source Layout -->
-  <div *ngIf="sourceLayout === 'grid'" class="w-full lg:w-[90%]">
-    <div
-      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2"
-    >
+  <div *ngIf="sourceLayout === 'grid'" class="w-full">
+    <div class="flex flex-wrap gap-2 justify-start">
       <button
         *ngFor="let source of sources"
         [hidden]="source.enabled === false"
@@ -62,7 +60,7 @@
         [class.text-gray-700]="currentSourceUrl !== source.url"
         [class.hover:bg-blue-600]="currentSourceUrl === source.url"
         [class.hover:bg-gray-200]="currentSourceUrl !== source.url"
-        class="px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 cursor-pointer border border-gray-200 truncate"
+        class="px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 cursor-pointer border border-gray-200 truncate min-w-[80px] max-w-[120px] flex-shrink-0"
       >
         {{ source.name }}
       </button>

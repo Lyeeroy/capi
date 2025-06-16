@@ -160,6 +160,10 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
           episode.name.toLowerCase().includes(query)
       );
     }
+    // Force height recalculation after filtering
+    setTimeout(() => {
+      // Trigger change detection for height calculations
+    }, 0);
   }
 
   onSearchChange(query: string) {
@@ -219,5 +223,92 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     return episode.description.substring(0, maxLength) + '...';
+  }  getSmartHeight(): string {
+    // Let the parent container handle the height with CSS
+    return '100%';
+  }
+
+  private getCalculatedHeight(): number {
+    const headerHeight = 120; // Header + controls
+    const episodeCount = this.filteredEpisodes.length;
+
+    if (this.layoutType === 'grid') {
+      const containerWidth =
+        window.innerWidth < 1024 ? window.innerWidth - 48 : 300 - 24;
+      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 72)); // Ensure at least 1 per row
+      const rows = Math.ceil(episodeCount / episodesPerRow);
+      return headerHeight + Math.max(rows * 50, 100) + 24; // Minimum height + padding
+    } else if (this.layoutType === 'list') {
+      return headerHeight + Math.max(episodeCount * 45, 100) + 24; // Minimum height + padding
+    } else {
+      // poster
+      const containerWidth =
+        window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
+      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 220)); // Ensure at least 1 per row
+      const rows = Math.ceil(episodeCount / episodesPerRow);
+      return headerHeight + Math.max(rows * 280, 200) + 24; // Minimum height + padding
+    }
+  }  getEpisodesMaxHeight(): string {
+    // Ensure episodes container has proper height
+    return 'calc(100% - 120px)'; // Subtract header height
+  }
+
+  private getMinContentHeight(): number {
+    const episodeCount = this.filteredEpisodes.length;
+    if (episodeCount === 0) return 200; // Empty state height
+
+    if (this.layoutType === 'grid') {
+      return Math.min(episodeCount * 50, 400); // Max 400px for grid
+    } else if (this.layoutType === 'list') {
+      return Math.min(episodeCount * 45, 600); // Max 600px for list
+    } else {
+      return Math.min(episodeCount * 280, 800); // Max 800px for poster
+    }
+  }
+
+  getGridMinHeight(): string {
+    const episodeCount = this.filteredEpisodes.length;
+    if (episodeCount === 0) return '200px'; // Empty state
+    if (episodeCount <= 12) {
+      // Small number of episodes, calculate exact height
+      const containerWidth =
+        window.innerWidth < 1024 ? window.innerWidth - 48 : 300 - 24;
+      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 72));
+      const rows = Math.ceil(episodeCount / episodesPerRow);
+      return `${Math.max(rows * 50, 100)}px`;
+    }
+    const containerWidth =
+      window.innerWidth < 1024 ? window.innerWidth - 48 : 300 - 24;
+    const episodesPerRow = Math.max(1, Math.floor(containerWidth / 72));
+    const rows = Math.ceil(episodeCount / episodesPerRow);
+    return `${rows * 50}px`;
+  }
+
+  getListMinHeight(): string {
+    const episodeCount = this.filteredEpisodes.length;
+    if (episodeCount === 0) return '200px'; // Empty state
+    if (episodeCount <= 8) {
+      // Small number of episodes, calculate exact height
+      return `${Math.max(episodeCount * 45, 100)}px`;
+    }
+    return `${episodeCount * 45}px`;
+  }
+
+  getPosterMinHeight(): string {
+    const episodeCount = this.filteredEpisodes.length;
+    if (episodeCount === 0) return '200px'; // Empty state
+    if (episodeCount <= 4) {
+      // Small number of episodes, calculate exact height
+      const containerWidth =
+        window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
+      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 220));
+      const rows = Math.ceil(episodeCount / episodesPerRow);
+      return `${Math.max(rows * 280, 200)}px`;
+    }
+    const containerWidth =
+      window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
+    const episodesPerRow = Math.max(1, Math.floor(containerWidth / 220));
+    const rows = Math.ceil(episodeCount / episodesPerRow);
+    return `${rows * 280}px`;
   }
 }

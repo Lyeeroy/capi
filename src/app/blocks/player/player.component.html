@@ -16,9 +16,10 @@
   (showPlaylist)="showPlaylist()"
   (showDetails)="showDetails()"
 ></app-player-header>
-<div class="flex flex-col lg:flex-row gap-0 lg:gap-4">
-  <div class="w-full lg:w-3/4 lg:aspect-video rounded-xl">
-    <app-iframe [iframeUrl]="iframeUrl" [showIframe]="showIframe"></app-iframe>
+<div class="flex flex-col lg:flex-row gap-0 lg:gap-4 lg:items-stretch">  <div class="w-full lg:w-3/4 flex flex-col rounded-xl" id="iframe-container" #iframeContainer>
+    <div class="aspect-video rounded-xl" id="video-container" #videoContainer>
+      <app-iframe [iframeUrl]="iframeUrl" [showIframe]="showIframe"></app-iframe>
+    </div>
 
     <!-- Mobile Episode Navigation - Show first on mobile -->
     <div *ngIf="mediaType !== 'movie'" class="block lg:hidden mt-2">
@@ -67,11 +68,9 @@
     </div>
 
     <!-- Desktop Controls Row - Sources on left, Episode navigation on right -->
-    <div
-      class="hidden lg:flex flex-col sm:flex-row justify-between items-start mt-2 gap-2 sm:gap-4"
-    >
+    <div class="hidden lg:flex items-start justify-between mt-2 gap-4">
       <!-- Source Controls on the left -->
-      <div class="w-full sm:flex-1">
+      <div class="flex-1 min-w-0 max-w-2xl">
         <app-controls
           [currentSourceUrl]="currentSourceUrl"
           [sources]="sources"
@@ -83,9 +82,9 @@
         ></app-controls>
       </div>
       <!-- Episode Navigation on the right -->
-      <div *ngIf="mediaType !== 'movie'" class="w-full sm:w-auto">
+      <div *ngIf="mediaType !== 'movie'" class="flex-shrink-0 ml-auto">
         <div
-          class="relative flex border border-gray-300 rounded-xl bg-white overflow-hidden w-full"
+          class="relative flex border border-gray-300 rounded-xl bg-white overflow-hidden min-w-[280px]"
         >
           <button
             [disabled]="!hasPreviousEpisode()"
@@ -97,10 +96,9 @@
             (click)="hasPreviousEpisode() && prevEpisode(currentEpisode)"
           >
             <app-icon-lib ico="arrowLeft" class="w-4 h-4 mr-2"></app-icon-lib>
-            <span class="hidden sm:inline whitespace-nowrap">{{
+            <span class="whitespace-nowrap">{{
               getPreviousEpisodeLabel()
             }}</span>
-            <span class="sm:hidden">Prev</span>
           </button>
 
           <button
@@ -112,10 +110,7 @@
             [class.cursor-pointer]="hasNextEpisode()"
             (click)="hasNextEpisode() && nextEpisode(currentEpisode)"
           >
-            <span class="hidden sm:inline whitespace-nowrap">{{
-              getNextEpisodeLabel()
-            }}</span>
-            <span class="sm:hidden">Next</span>
+            <span class="whitespace-nowrap">{{ getNextEpisodeLabel() }}</span>
             <app-icon-lib ico="arrowRight" class="w-4 h-4 ml-2"></app-icon-lib>
           </button>
         </div>
@@ -129,13 +124,11 @@
     [showName]="false"
     [showDetailsAndPlaylist]="true"
     [mediaType]="mediaType ?? 'tv'"
-    (showPlaylist)="showPlaylist()"
-    (showDetails)="showDetails()"
-  ></app-player-header>
-  <div
-    class="w-full lg:w-1/4 flex flex-col rounded-xl 
-           h-[60vh] min-h-[320px] max-h-[80vh]
-           lg:h-[min(calc(100vh-180px),calc(75vw*9/16))] lg:min-h-[400px] lg:max-h-[calc(100vh-120px)]"
+    (showPlaylist)="showPlaylist()"    (showDetails)="showDetails()"
+  ></app-player-header>  <div
+    class="w-full lg:w-1/4 flex flex-col rounded-xl"
+    id="playlist-container"
+    #playlistContainer
   >
     <app-playlist
       *ngIf="mediaType == 'tv' && onShowPlaylist === true"

@@ -1,5 +1,5 @@
 <div
-  class="h-full flex flex-col bg-gray-50 relative overflow-hidden rounded-lg border border-gray-200"
+  class="h-full w-full flex flex-col bg-gray-50 relative overflow-hidden rounded-lg border border-gray-200"
 >
   <!-- Decorative background patterns -->
   <div class="absolute inset-0 opacity-5">
@@ -99,15 +99,39 @@
         </div>
       </div>
     </div>
-  </div>
+  </div>  <!-- Episodes Container -->
+  <div
+    class="flex-1 overflow-y-auto relative rounded-b-lg min-h-0"
+    [style.max-height]="getEpisodesMaxHeight()"
+  >
+    <!-- Empty State -->
+    <div
+      *ngIf="filteredEpisodes.length === 0"
+      class="flex flex-col items-center justify-center h-full min-h-[200px] p-8 text-center"
+    >
+      <app-icon-lib
+        ico="search"
+        class="w-12 h-12 text-gray-400 mb-4"
+      ></app-icon-lib>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No episodes found</h3>
+      <p class="text-sm text-gray-500">
+        <span *ngIf="searchQuery">No episodes match "{{ searchQuery }}"</span>
+        <span *ngIf="!searchQuery">No episodes available for this season</span>
+      </p>
+      <button
+        *ngIf="searchQuery"
+        (click)="searchQuery = ''; onSearchChange('')"
+        class="mt-4 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+      >
+        Clear search
+      </button>
+    </div>
 
-  <!-- Episodes Container -->
-  <div class="flex-1 overflow-y-auto relative rounded-b-lg">
     <!-- Grid Layout -->
-    <ng-container *ngIf="layoutType === 'grid'">
-      <div
+    <ng-container *ngIf="layoutType === 'grid' && filteredEpisodes.length > 0">      <div
         class="grid gap-2.5 p-3"
         style="grid-template-columns: repeat(auto-fit, minmax(60px, 1fr))"
+        [style.min-height]="getGridMinHeight()"
       >
         <button
           *ngFor="let episode of filteredEpisodes; let i = index"
@@ -130,8 +154,8 @@
     </ng-container>
 
     <!-- List Layout -->
-    <ng-container *ngIf="layoutType === 'list'">
-      <div class="p-3">
+    <ng-container *ngIf="layoutType === 'list' && filteredEpisodes.length > 0">
+      <div class="p-3" [style.min-height]="getListMinHeight()">
         <div
           *ngFor="let episode of filteredEpisodes; let i = index"
           (click)="onFilteredEpisodeSelected(i)"
@@ -169,17 +193,18 @@
     </ng-container>
 
     <!-- Poster Layout -->
-    <ng-container *ngIf="layoutType === 'poster'">
-      <div
+    <ng-container
+      *ngIf="layoutType === 'poster' && filteredEpisodes.length > 0"
+    >      <div
         class="grid gap-2 sm:gap-4 p-2 sm:p-3"
         style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))"
-      >
-        <div
+        [style.min-height]="getPosterMinHeight()"
+      ><div
           *ngFor="let episode of filteredEpisodes; let i = index"
           (click)="onFilteredEpisodeSelected(i)"
           [attr.id]="'episode-poster-' + getOriginalIndex(i)"
           #episodePoster
-          class="group relative cursor-pointer bg-white rounded-lg sm:rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+          class="group relative cursor-pointer bg-white rounded-lg sm:rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-[1.02] min-h-[280px]"
           [class.ring-2]="isEpisodeActiveByFilteredIndex(i)"
           [class.ring-blue-500]="isEpisodeActiveByFilteredIndex(i)"
           [class.ring-offset-2]="isEpisodeActiveByFilteredIndex(i)"

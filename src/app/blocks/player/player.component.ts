@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location, CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -60,7 +60,10 @@ interface TMDBResponse {
   ],
   providers: [LoadSourcesService],
 })
-export class PlayerComponent implements OnInit, OnDestroy {
+export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('playlistContainer') playlistContainer!: ElementRef;
+  @ViewChild('videoContainer') videoContainer!: ElementRef;
+  
   // Media info
   id: number | null = null;
   mediaType: 'tv' | 'movie' | null = null;
@@ -106,6 +109,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
   private readonly MAPPING_REGEX =
     /^(https?:\/\/[^\/]+\/)([^\/?]+)\?([^:]+):([^\/]+)(\/.*)$/;
 
+  // Window resize tracking
+  private resizeListener?: () => void;
+
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -118,6 +124,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('');
   }
   ngOnInit() {
+    // Set up window resize listener for height calculation
+    this.setupResizeListener();
+    
     this.routeSubscription = this.route.paramMap.subscribe((params) => {
       this.id = Number(params.get('id'));
       const mediaTypeParam = params.get('mediaType');
@@ -178,6 +187,13 @@ export class PlayerComponent implements OnInit, OnDestroy {
     });
     window.addEventListener('beforeunload', this.saveProgress);
     this.progressInterval = setInterval(() => this.saveProgress(), 5000);
+  }  ngAfterViewInit() {
+    // Match playlist height to iframe after view initialization
+    this.matchPlaylistHeight();
+    
+    // Also try again after a longer delay in case content is still loading
+    setTimeout(() => this.matchPlaylistHeight(), 500);
+    setTimeout(() => this.matchPlaylistHeight(), 1000);
   }
   ngOnDestroy() {
     this.saveProgress();
@@ -187,6 +203,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
   private cleanup(): void {
     if (this.routeSubscription) {
       this.routeSubscription.unsubscribe();
+    }
+    if (this.resizeListener && typeof window !== 'undefined') {
+      window.removeEventListener('resize', this.resizeListener);
     }
     window.removeEventListener('beforeunload', this.saveProgress);
     if (this.progressInterval) {
@@ -729,5 +748,65 @@ export class PlayerComponent implements OnInit, OnDestroy {
       return `S${this.currentSeason - 1} Ep ${lastEpNum}`;
     }
     return 'Prev Episode';
+  }  getPlaylistHeight(): number {
+    if (typeof window === 'undefined') return 400; // SSR fallback
+    
+    if (window.innerWidth < 1024) {
+      // Mobile: use viewport width to calculate 16:9 aspect ratio
+      return window.innerWidth * (9 / 16);
+    }
+
+    // Desktop: calculate height to match video aspect ratio (not the entire container)
+    // Get the video container width (75% of viewport width minus gap)
+    const containerWidth = window.innerWidth;
+    const gap = 16; // 1rem gap
+    const videoContainerWidth = (containerWidth * 0.75) - (gap / 2);
+    const aspectRatioHeight = videoContainerWidth * (9 / 16); // 16:9 aspect ratio
+    
+    return Math.round(aspectRatioHeight);
+  }
+
+  getIframeContainerHeight(): number | null {
+    if (typeof window === 'undefined') return null; // SSR fallback
+
+    if (window.innerWidth < 1024) {
+      // Mobile: set explicit height to match playlist
+      return window.innerWidth * (9 / 16);
+    }
+
+    // Desktop: let aspect-video class handle it
+    return null;
+  }
+  private setupResizeListener(): void {
+    if (typeof window === 'undefined') return;
+    
+    this.resizeListener = () => {
+      // Re-match heights when window resizes
+      this.matchPlaylistHeight();
+    };
+    
+    window.addEventListener('resize', this.resizeListener);
+  }  private matchPlaylistHeight(): void {
+    if (typeof window === 'undefined') return;
+    
+    setTimeout(() => {
+      const videoContainer = this.videoContainer?.nativeElement;
+      const playlistContainer = this.playlistContainer?.nativeElement;
+      
+      console.log('Matching heights...');
+      console.log('videoContainer:', videoContainer);
+      console.log('playlistContainer:', playlistContainer);
+      
+      if (videoContainer && playlistContainer) {
+        const videoHeight = videoContainer.offsetHeight;
+        console.log('video height:', videoHeight);
+        
+        playlistContainer.style.height = `${videoHeight}px`;
+        playlistContainer.style.minHeight = `${videoHeight}px`;
+        console.log('Set playlist height to:', videoHeight + 'px');
+      } else {
+        console.log('Containers not found');
+      }
+    }, 100);
   }
 }

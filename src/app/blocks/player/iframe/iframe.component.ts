@@ -3,13 +3,12 @@ import { Component, Input, ElementRef } from '@angular/core';
 import { SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-iframe',
-  template: `
+  selector: 'app-iframe',  template: `
     <ng-container *ngIf="showIframe">
       <iframe
         #iframeElement
         [src]="iframeUrl"
-        class="w-full aspect-video rounded-2xl"
+        class="w-full h-full rounded-2xl"
         frameborder="0"
         allowfullscreen
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
