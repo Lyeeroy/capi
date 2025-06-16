@@ -33,7 +33,7 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() currentSeason: number = 1;
   @Input() currentEpisodes: Episode[] = [];
   @Input() currentPosters: string[] = [];
-  @Input() layoutType: 'list' | 'grid' | 'poster' = 'list';
+  @Input() layoutType: 'list' | 'grid' | 'poster' | 'compact' = 'list';
   @Input() isSortedAscending: boolean = true;
   @Input() seriesId: string = '';
   @Input() activeEpisodeIndex: number = -1;
@@ -109,9 +109,7 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
       typeof this.activeEpisodeIndex !== 'number' ||
       this.activeEpisodeIndex < 0
     )
-      return;
-
-    // Try different element IDs based on layout type
+      return; // Try different element IDs based on layout type
     let el: HTMLElement | null = null;
 
     if (this.layoutType === 'grid') {
@@ -120,6 +118,10 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
       el = document.getElementById('episode-list-' + this.activeEpisodeIndex);
     } else if (this.layoutType === 'poster') {
       el = document.getElementById('episode-poster-' + this.activeEpisodeIndex);
+    } else if (this.layoutType === 'compact') {
+      el = document.getElementById(
+        'episode-compact-' + this.activeEpisodeIndex
+      );
     }
 
     if (el) {
@@ -223,7 +225,8 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     }
 
     return episode.description.substring(0, maxLength) + '...';
-  }  getSmartHeight(): string {
+  }
+  getSmartHeight(): string {
     // Let the parent container handle the height with CSS
     return '100%';
   }
@@ -248,7 +251,8 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
       const rows = Math.ceil(episodeCount / episodesPerRow);
       return headerHeight + Math.max(rows * 280, 200) + 24; // Minimum height + padding
     }
-  }  getEpisodesMaxHeight(): string {
+  }
+  getEpisodesMaxHeight(): string {
     // Ensure episodes container has proper height
     return 'calc(100% - 120px)'; // Subtract header height
   }
@@ -310,5 +314,23 @@ export class PlaylistComponent implements OnInit, OnChanges, AfterViewInit {
     const episodesPerRow = Math.max(1, Math.floor(containerWidth / 220));
     const rows = Math.ceil(episodeCount / episodesPerRow);
     return `${rows * 280}px`;
+  }
+
+  getCompactMinHeight(): string {
+    const episodeCount = this.filteredEpisodes.length;
+    if (episodeCount === 0) return '160px'; // Empty state
+    if (episodeCount <= 6) {
+      // Small number of episodes, calculate exact height
+      const containerWidth =
+        window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
+      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 142)); // 140px + 2px gap
+      const rows = Math.ceil(episodeCount / episodesPerRow);
+      return `${Math.max(rows * 160, 160)}px`; // Compact cards are 160px high
+    }
+    const containerWidth =
+      window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
+    const episodesPerRow = Math.max(1, Math.floor(containerWidth / 142));
+    const rows = Math.ceil(episodeCount / episodesPerRow);
+    return `${rows * 160}px`;
   }
 }

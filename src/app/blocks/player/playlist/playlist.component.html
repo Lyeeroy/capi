@@ -99,7 +99,8 @@
         </div>
       </div>
     </div>
-  </div>  <!-- Episodes Container -->
+  </div>
+  <!-- Episodes Container -->
   <div
     class="flex-1 overflow-y-auto relative rounded-b-lg min-h-0"
     [style.max-height]="getEpisodesMaxHeight()"
@@ -128,7 +129,8 @@
     </div>
 
     <!-- Grid Layout -->
-    <ng-container *ngIf="layoutType === 'grid' && filteredEpisodes.length > 0">      <div
+    <ng-container *ngIf="layoutType === 'grid' && filteredEpisodes.length > 0">
+      <div
         class="grid gap-2.5 p-3"
         style="grid-template-columns: repeat(auto-fit, minmax(60px, 1fr))"
         [style.min-height]="getGridMinHeight()"
@@ -195,11 +197,13 @@
     <!-- Poster Layout -->
     <ng-container
       *ngIf="layoutType === 'poster' && filteredEpisodes.length > 0"
-    >      <div
+    >
+      <div
         class="grid gap-2 sm:gap-4 p-2 sm:p-3"
         style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))"
         [style.min-height]="getPosterMinHeight()"
-      ><div
+      >
+        <div
           *ngFor="let episode of filteredEpisodes; let i = index"
           (click)="onFilteredEpisodeSelected(i)"
           [attr.id]="'episode-poster-' + getOriginalIndex(i)"
@@ -312,6 +316,100 @@
                 ></app-icon-lib>
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Compact Poster Layout -->
+    <ng-container
+      *ngIf="layoutType === 'compact' && filteredEpisodes.length > 0"
+    >
+      <div
+        class="grid gap-1.5 p-2"
+        style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr))"
+        [style.min-height]="getCompactMinHeight()"
+      >
+        <div
+          *ngFor="let episode of filteredEpisodes; let i = index"
+          (click)="onFilteredEpisodeSelected(i)"
+          [attr.id]="'episode-compact-' + getOriginalIndex(i)"
+          #episodeCompact
+          class="group relative cursor-pointer bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01] min-h-[160px]"
+          [class.ring-1]="isEpisodeActiveByFilteredIndex(i)"
+          [class.ring-blue-500]="isEpisodeActiveByFilteredIndex(i)"
+          [class.ring-offset-1]="isEpisodeActiveByFilteredIndex(i)"
+        >
+          <!-- Compact Poster Image -->
+          <div
+            class="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden"
+          >
+            <img
+              [src]="
+                currentPosters[getOriginalIndex(i)] ||
+                'https://placehold.co/300x169/e5e5e5/9ca3af?text=Ep+' +
+                  episode.number
+              "
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              [alt]="'Episode ' + episode.number + ': ' + episode.name"
+              loading="lazy"
+            />
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"
+            ></div>
+
+            <!-- Compact Episode Number Badge -->
+            <div class="absolute top-1 left-1">
+              <span
+                class="inline-flex items-center justify-center w-5 h-5 backdrop-blur-sm text-xs font-bold rounded shadow-md"
+                [class.bg-blue-500]="isEpisodeActiveByFilteredIndex(i)"
+                [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
+                [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
+                [class.text-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
+              >
+                {{ episode.number }}
+              </span>
+            </div>
+
+            <!-- Compact Play Button -->
+            <div class="absolute top-1 right-1">
+              <div
+                class="w-6 h-6 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md group-hover:bg-blue-600 transition-colors duration-200"
+              >
+                <app-icon-lib
+                  ico="play"
+                  class="w-3 h-3 text-white"
+                ></app-icon-lib>
+              </div>
+            </div>
+          </div>
+
+          <!-- Compact Episode Info -->
+          <div class="p-2">
+            <h4
+              class="text-xs font-medium text-gray-900 line-clamp-2 leading-tight"
+              [class.text-blue-600]="isEpisodeActiveByFilteredIndex(i)"
+            >
+              {{ episode.name }}
+            </h4>
+            <div
+              *ngIf="episode.description"
+              class="mt-1 text-xs text-gray-500 line-clamp-2 leading-tight"
+            >
+              {{
+                episode.description.length > 60
+                  ? episode.description.substring(0, 60) + "..."
+                  : episode.description
+              }}
+            </div>
+          </div>
+
+          <!-- Active Episode Indicator -->
+          <div
+            *ngIf="isEpisodeActiveByFilteredIndex(i)"
+            class="absolute bottom-1 right-1"
+          >
+            <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
           </div>
         </div>
       </div>

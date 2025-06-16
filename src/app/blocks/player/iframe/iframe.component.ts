@@ -3,7 +3,8 @@ import { Component, Input, ElementRef } from '@angular/core';
 import { SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-iframe',  template: `
+  selector: 'app-iframe',
+  template: `
     <ng-container *ngIf="showIframe">
       <iframe
         #iframeElement
