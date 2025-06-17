@@ -317,7 +317,7 @@ export class PlaylistComponent
       if (typeof window !== 'undefined') {
         const viewportHeight = window.innerHeight;
         // Calculate 60% of the viewport height
-        const targetHeight = Math.floor(viewportHeight * 0.6);
+        const targetHeight = Math.floor(viewportHeight * 0.595);
         // Still account for header and other UI elements (approximately 150px)
         const availableHeight = targetHeight - 150;
         const minHeight = 300; // Minimum height for good UX
