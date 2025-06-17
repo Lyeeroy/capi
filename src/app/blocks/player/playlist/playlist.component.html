@@ -195,7 +195,7 @@
     <ng-container
       *ngIf="layoutType === 'poster' && filteredEpisodes.length > 0"
     >
-      <div class="bg-white p-3 space-y-3">
+      <div class="bg-white p-3 [&>*:not(:first-child)]:mt-3">
         <div
           *ngFor="let episode of filteredEpisodes; let i = index"
           (click)="onFilteredEpisodeSelected(i)"
