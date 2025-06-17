@@ -342,24 +342,9 @@ export class PlaylistComponent
       const rows = Math.ceil(episodeCount / episodesPerRow);
       return headerHeight + Math.max(rows * 280, 200) + 24; // Minimum height + padding
     }
-  }
-  getEpisodesMaxHeight(): string {
-    // Only constrain height when details are NOT expanded
-    if (!this.isDetailsExpanded) {
-      if (typeof window !== 'undefined') {
-        const viewportHeight = window.innerHeight;
-        // Calculate 60% of the viewport height
-        const targetHeight = Math.floor(viewportHeight * 0.595);
-        // Still account for header and other UI elements (approximately 150px)
-        const availableHeight = targetHeight - 150;
-        const minHeight = 300; // Minimum height for good UX
-        const maxHeight = Math.max(availableHeight, minHeight);
-        return `${maxHeight}px`;
-      }
-      return 'calc(70vh - 150px)'; // Fallback for SSR
-    }
-
-    // When details are expanded, don't constrain height - let it grow as needed
+  }  getEpisodesMaxHeight(): string {
+    // Always use 'auto' to let flexbox handle the height
+    // The parent container (unified-panel) will control the overall height
     return 'auto';
   }
 

@@ -150,6 +150,9 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   // Window resize tracking
   private resizeListener?: () => void;
 
+  // ResizeObserver for dynamic control height tracking
+  private controlsResizeObserver?: ResizeObserver;
+
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -238,8 +241,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit() {
     // Match playlist height to iframe after view initialization
     this.matchPlaylistHeight();
-
-    // Also try again after a longer delay in case content is still loading
+    
+    // Set up ResizeObserver for controls
+    this.setupControlsResizeObserver();
+    
+    // Additional timeouts for layout settling
     setTimeout(() => this.matchPlaylistHeight(), 500);
     setTimeout(() => this.matchPlaylistHeight(), 1000);
   }
@@ -259,6 +265,10 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.progressInterval) {
       clearInterval(this.progressInterval);
       this.progressInterval = null;
+    }
+    
+    if (this.controlsResizeObserver) {
+      this.controlsResizeObserver.disconnect();
     }
   }
   getCurrentTimeAndDuration(): { currentTime: number; duration: number } {
@@ -408,9 +418,10 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.onShowPlaylist = false;
     this.onShowDetails = true;
   }
-
   toggleDetailsExpansion(): void {
     this.isDetailsExpanded = !this.isDetailsExpanded;
+    // Update playlist height after details expansion change
+    setTimeout(() => this.updatePlaylistHeight(), 300);
   }
 
   cancel(): void {
@@ -1005,17 +1016,18 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       console.warn('Failed to load settings:', error);
       // Keep default layout if settings loading fails
     }
-  }
-  private matchPlaylistHeight(): void {
+  }  private matchPlaylistHeight(): void {
     if (typeof window === 'undefined') return;
 
     setTimeout(() => {
       const videoContainer = this.videoContainer?.nativeElement;
       const playlistContainer = this.playlistContainer?.nativeElement;
+      const desktopControls = document.getElementById('desktop-controls');
 
       console.log('Matching heights...');
       console.log('videoContainer:', videoContainer);
       console.log('playlistContainer:', playlistContainer);
+      console.log('desktopControls:', desktopControls);
 
       if (playlistContainer) {
         if (window.innerWidth < 1024) {
@@ -1027,21 +1039,64 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
             'Set mobile playlist height to 80vh:',
             mobileHeight + 'px'
           );
-        } else if (videoContainer) {
-          // Desktop: Match video container height
+        } else if (videoContainer && desktopControls) {
+          // Desktop: Match video container height + controls height
           const videoHeight = videoContainer.offsetHeight;
+          const controlsHeight = desktopControls.offsetHeight;
+          const marginTop = 8; // mt-2 = 0.5rem = 8px
+          const totalHeight = videoHeight + controlsHeight + marginTop;
+          
           console.log('video height:', videoHeight);
+          console.log('controls height:', controlsHeight);
+          console.log('total height:', totalHeight);
+
+          playlistContainer.style.height = `${totalHeight}px`;
+          playlistContainer.style.minHeight = `${totalHeight}px`;
+          console.log(
+            'Set desktop playlist height to match video + controls:',
+            totalHeight + 'px'
+          );
+        } else if (videoContainer) {
+          // Fallback: Just video container height if controls not found
+          const videoHeight = videoContainer.offsetHeight;
+          console.log('video height (fallback):', videoHeight);
 
           playlistContainer.style.height = `${videoHeight}px`;
           playlistContainer.style.minHeight = `${videoHeight}px`;
           console.log(
-            'Set desktop playlist height to match video:',
+            'Set desktop playlist height to match video (fallback):',
             videoHeight + 'px'
           );
+        } else {
+          // Retry if elements are not ready yet
+          console.log('Elements not ready, retrying in 200ms...');
+          setTimeout(() => this.matchPlaylistHeight(), 200);
         }
       } else {
-        console.log('Playlist container not found');
+        console.log('Playlist container not found, retrying in 200ms...');
+        setTimeout(() => this.matchPlaylistHeight(), 200);
       }
     }, 100);
+  }
+
+  private setupControlsResizeObserver(): void {
+    if (typeof window === 'undefined' || !('ResizeObserver' in window)) return;
+
+    setTimeout(() => {
+      const desktopControls = document.getElementById('desktop-controls');
+      if (desktopControls) {
+        this.controlsResizeObserver = new ResizeObserver(() => {
+          // Debounce the height matching to avoid excessive calls
+          setTimeout(() => this.matchPlaylistHeight(), 50);
+        });
+        
+        this.controlsResizeObserver.observe(desktopControls);
+      }
+    }, 200);
+  }
+
+  // Method to manually trigger height update
+  public updatePlaylistHeight(): void {
+    this.matchPlaylistHeight();
   }
 }
