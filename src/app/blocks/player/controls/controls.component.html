@@ -1,69 +1,117 @@
-<div>
-  <!-- Dropdown Source Navigation -->
+<div class="flex flex-col bg-white rounded-xl border border-gray-200">
+  <!-- Sources Header (clickable to expand/collapse) -->
   <div
-    *ngIf="sourceLayout === 'dropdown'"
-    class="relative flex border border-gray-300 rounded-lg bg-white overflow-hidden w-full lg:w-auto lg:max-w-sm h-[42px]"
+    class="bg-gray-50 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+    (click)="toggleSourcesExpansion()"
   >
-    <!-- Background for center section -->
-    <div class="absolute inset-y-0 left-[40px] right-[40px]"></div>
-
-    <button
-      class="relative z-10 flex items-center justify-center px-3 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 cursor-pointer h-full"
-      (click)="prevSource()"
-    >
-      <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
-    </button>
-
-    <div
-      class="relative z-10 flex-1 flex items-center justify-center group cursor-pointer h-full"
-      (click)="dropdownSelect?.focus()"
-    >
-      <select
-        #dropdownSelect
-        class="text-gray-700 text-center font-medium text-sm focus:outline-none appearance-none cursor-pointer w-full pr-8 h-full"
-        (change)="onSourceChange($event)"
-        [(ngModel)]="currentSourceUrl"
-        (click)="$event.stopPropagation()"
-      >
-        <option
-          *ngFor="let source of sources; let i = index"
-          [value]="source.url"
-          [hidden]="source.enabled === false"
-        >
-          {{ source.name }}
-        </option>
-      </select>
-      <app-icon-lib
-        ico="chevron-down"
-        class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-      ></app-icon-lib>
+    <div class="flex items-center gap-3 min-w-0 flex-1">
+      <div class="w-2 h-7 bg-green-500 rounded-full"></div>
+      <div class="min-w-0 flex-1">
+        <h2 class="text-base font-bold text-gray-900 truncate">Sources</h2>
+        <div class="text-sm text-gray-500 font-medium truncate">
+          {{ getCurrentSourceName() }} •
+          {{ getEnabledSources().length }} available
+        </div>
+      </div>
     </div>
 
-    <button
-      class="relative z-10 flex items-center justify-center px-3 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200 cursor-pointer h-full"
-      (click)="nextSource()"
-    >
-      <app-icon-lib ico="arrowRight" class="w-4 h-4"></app-icon-lib>
-    </button>
+    <!-- Navigation buttons and expand toggle -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <!-- Previous Source Button -->
+      <button
+        title="Previous Source"
+        (click)="prevSource(); $event.stopPropagation()"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors duration-200"
+      >
+        <app-icon-lib
+          ico="arrowLeft"
+          class="w-4 h-4 text-gray-600"
+        ></app-icon-lib>
+      </button>
+
+      <!-- Next Source Button -->
+      <button
+        title="Next Source"
+        (click)="nextSource(); $event.stopPropagation()"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors duration-200"
+      >
+        <app-icon-lib
+          ico="arrowRight"
+          class="w-4 h-4 text-gray-600"
+        ></app-icon-lib>
+      </button>
+      <!-- Expand/Collapse Toggle -->
+      <div
+        class="transition-transform duration-200"
+        [class.rotate-180]="isSourcesExpanded"
+      >
+        <app-icon-lib
+          ico="chevron-down"
+          class="w-4 h-4 text-gray-500"
+        ></app-icon-lib>
+      </div>
+    </div>
   </div>
 
-  <!-- Grid Source Layout -->
-  <div *ngIf="sourceLayout === 'grid'" class="w-full">
-    <div class="flex flex-wrap gap-2 justify-start">
-      <button
-        *ngFor="let source of sources"
-        [hidden]="source.enabled === false"
-        (click)="onSourceSelect(source)"
-        [class.bg-blue-500]="currentSourceUrl === source.url"
-        [class.text-white]="currentSourceUrl === source.url"
-        [class.bg-gray-100]="currentSourceUrl !== source.url"
-        [class.text-gray-700]="currentSourceUrl !== source.url"
-        [class.hover:bg-blue-600]="currentSourceUrl === source.url"
-        [class.hover:bg-gray-200]="currentSourceUrl !== source.url"
-        class="px-3 py-2 rounded-xl text-xs font-medium transition-colors duration-200 cursor-pointer border border-gray-200 truncate min-w-[80px] max-w-[120px] flex-shrink-0"
-      >
-        {{ source.name }}
-      </button>
+  <!-- Expandable Sources Content -->
+  <div
+    class="overflow-hidden transition-all duration-300 ease-in-out"
+    [style.max-height.px]="isSourcesExpanded ? 300 : 0"
+  >
+    <div class="max-h-[300px] overflow-y-auto">
+      <!-- Sources List -->
+      <div class="p-4 bg-white">
+        <div class="space-y-2">
+          <button
+            *ngFor="let source of getEnabledSources(); let i = index"
+            (click)="onSourceSelect(source)"
+            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 transition-all duration-200 hover:bg-gray-50"
+            [class.bg-green-50]="currentSourceUrl === source.url"
+            [class.border-green-300]="currentSourceUrl === source.url"
+            [class.ring-2]="currentSourceUrl === source.url"
+            [class.ring-green-500]="currentSourceUrl === source.url"
+            [class.bg-white]="currentSourceUrl !== source.url"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-3 h-3 rounded-full"
+                  [class.bg-green-500]="currentSourceUrl === source.url"
+                  [class.bg-gray-300]="currentSourceUrl !== source.url"
+                ></div>
+                <div>
+                  <div
+                    class="font-medium text-sm"
+                    [class.text-green-700]="currentSourceUrl === source.url"
+                    [class.text-gray-900]="currentSourceUrl !== source.url"
+                  >
+                    {{ source.name }}
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    Source {{ i + 1 }} of {{ getEnabledSources().length }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Active indicator -->
+              <div
+                *ngIf="currentSourceUrl === source.url"
+                class="flex items-center justify-center"
+              >
+                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+              </div>
+            </div>
+          </button>
+        </div>
+        <!-- Empty state -->
+        <div *ngIf="getEnabledSources().length === 0" class="text-center py-8">
+          <app-icon-lib
+            ico="close"
+            class="w-8 h-8 text-gray-400 mx-auto mb-2"
+          ></app-icon-lib>
+          <p class="text-sm text-gray-500">No sources available</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>

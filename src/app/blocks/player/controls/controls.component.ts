@@ -20,16 +20,16 @@ export class ControlsComponent {
   @Output() prevSourceClick = new EventEmitter<void>();
   @Output() nextSourceClick = new EventEmitter<void>();
 
-  sourceLayout: 'dropdown' | 'grid' = 'dropdown';
+  isSourcesExpanded: boolean = false;
 
   ngOnInit() {
-    // Load source layout from localStorage
+    // Load sources expansion state from localStorage if needed
     try {
       const raw = localStorage.getItem('appSettings');
       if (raw) {
         const settings = JSON.parse(raw);
-        if (settings.sourceLayout) {
-          this.sourceLayout = settings.sourceLayout;
+        if (typeof settings.sourcesExpanded === 'boolean') {
+          this.isSourcesExpanded = settings.sourcesExpanded;
         }
       }
     } catch {
@@ -37,9 +37,18 @@ export class ControlsComponent {
     }
   }
 
-  onSourceChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    this.sourceChange.emit(target.value);
+  toggleSourcesExpansion(): void {
+    this.isSourcesExpanded = !this.isSourcesExpanded;
+
+    // Save state to localStorage
+    try {
+      const raw = localStorage.getItem('appSettings') || '{}';
+      const settings = JSON.parse(raw);
+      settings.sourcesExpanded = this.isSourcesExpanded;
+      localStorage.setItem('appSettings', JSON.stringify(settings));
+    } catch {
+      // Ignore errors
+    }
   }
 
   prevSource() {
@@ -53,5 +62,16 @@ export class ControlsComponent {
   onSourceSelect(source: any) {
     this.currentSourceUrl = source.url;
     this.sourceChange.emit(source.url);
+  }
+
+  getCurrentSourceName(): string {
+    const currentSource = this.sources.find(
+      (source) => source.url === this.currentSourceUrl && source.enabled
+    );
+    return currentSource ? currentSource.name : 'No Source';
+  }
+
+  getEnabledSources() {
+    return this.sources.filter((source) => source.enabled);
   }
 }

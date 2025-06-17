@@ -24,38 +24,21 @@
         [showIframe]="showIframe"
       ></app-iframe>
     </div>
-
     <!-- Mobile Episode Navigation - Show first on mobile -->
     <div *ngIf="mediaType !== 'movie'" class="block lg:hidden mt-2">
-      <div
-        class="relative flex border border-gray-300 rounded-xl bg-white overflow-hidden w-full"
-      >
-        <button
-          [disabled]="!hasPreviousEpisode()"
-          [class.opacity-50]="!hasPreviousEpisode()"
-          [class.cursor-not-allowed]="!hasPreviousEpisode()"
-          [class.hover:bg-blue-100]="hasPreviousEpisode()"
-          class="flex-1 flex items-center justify-center px-4 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 transition-all duration-200 border-r border-gray-200"
-          [class.cursor-pointer]="hasPreviousEpisode()"
-          (click)="hasPreviousEpisode() && prevEpisode(currentEpisode)"
-        >
-          <app-icon-lib ico="arrowLeft" class="w-4 h-4 mr-2"></app-icon-lib>
-          <span class="whitespace-nowrap">{{ getPreviousEpisodeLabel() }}</span>
-        </button>
-
-        <button
-          [disabled]="!hasNextEpisode()"
-          [class.opacity-50]="!hasNextEpisode()"
-          [class.cursor-not-allowed]="!hasNextEpisode()"
-          [class.hover:bg-blue-600]="hasNextEpisode()"
-          class="flex-1 flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-blue-500 transition-all duration-200"
-          [class.cursor-pointer]="hasNextEpisode()"
-          (click)="hasNextEpisode() && nextEpisode(currentEpisode)"
-        >
-          <span class="whitespace-nowrap">{{ getNextEpisodeLabel() }}</span>
-          <app-icon-lib ico="arrowRight" class="w-4 h-4 ml-2"></app-icon-lib>
-        </button>
-      </div>
+      <app-episode-navigation
+        [names]="names || ''"
+        [currentEpisode]="currentEpisode"
+        [currentSeason]="currentSeason"
+        [mediaType]="mediaType ?? 'tv'"
+        [responseData]="responseData"
+        [hasPreviousEpisode]="hasPreviousEpisode()"
+        [hasNextEpisode]="hasNextEpisode()"
+        [previousEpisodeLabel]="getPreviousEpisodeLabel()"
+        [nextEpisodeLabel]="getNextEpisodeLabel()"
+        (previousEpisodeClick)="prevEpisode(currentEpisode)"
+        (nextEpisodeClick)="nextEpisode(currentEpisode)"
+      ></app-episode-navigation>
     </div>
 
     <!-- Mobile Source Controls -->
@@ -86,38 +69,23 @@
         ></app-controls>
       </div>
       <!-- Episode Navigation on the right -->
-      <div *ngIf="mediaType !== 'movie'" class="flex-shrink-0 ml-auto">
-        <div
-          class="relative flex border border-gray-300 rounded-xl bg-white overflow-hidden min-w-[280px]"
-        >
-          <button
-            [disabled]="!hasPreviousEpisode()"
-            [class.opacity-50]="!hasPreviousEpisode()"
-            [class.cursor-not-allowed]="!hasPreviousEpisode()"
-            [class.hover:bg-blue-100]="hasPreviousEpisode()"
-            class="flex-1 flex items-center justify-center px-4 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 transition-all duration-200 border-r border-gray-200"
-            [class.cursor-pointer]="hasPreviousEpisode()"
-            (click)="hasPreviousEpisode() && prevEpisode(currentEpisode)"
-          >
-            <app-icon-lib ico="arrowLeft" class="w-4 h-4 mr-2"></app-icon-lib>
-            <span class="whitespace-nowrap">{{
-              getPreviousEpisodeLabel()
-            }}</span>
-          </button>
-
-          <button
-            [disabled]="!hasNextEpisode()"
-            [class.opacity-50]="!hasNextEpisode()"
-            [class.cursor-not-allowed]="!hasNextEpisode()"
-            [class.hover:bg-blue-600]="hasNextEpisode()"
-            class="flex-1 flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-blue-500 transition-all duration-200"
-            [class.cursor-pointer]="hasNextEpisode()"
-            (click)="hasNextEpisode() && nextEpisode(currentEpisode)"
-          >
-            <span class="whitespace-nowrap">{{ getNextEpisodeLabel() }}</span>
-            <app-icon-lib ico="arrowRight" class="w-4 h-4 ml-2"></app-icon-lib>
-          </button>
-        </div>
+      <div
+        *ngIf="mediaType !== 'movie'"
+        class="flex-shrink-0 ml-auto min-w-[300px]"
+      >
+        <app-episode-navigation
+          [names]="names || ''"
+          [currentEpisode]="currentEpisode"
+          [currentSeason]="currentSeason"
+          [mediaType]="mediaType ?? 'tv'"
+          [responseData]="responseData"
+          [hasPreviousEpisode]="hasPreviousEpisode()"
+          [hasNextEpisode]="hasNextEpisode()"
+          [previousEpisodeLabel]="getPreviousEpisodeLabel()"
+          [nextEpisodeLabel]="getNextEpisodeLabel()"
+          (previousEpisodeClick)="prevEpisode(currentEpisode)"
+          (nextEpisodeClick)="nextEpisode(currentEpisode)"
+        ></app-episode-navigation>
       </div>
     </div>
   </div>
@@ -214,7 +182,7 @@
             [class.rounded-b-xl]="!isDetailsExpanded"
           >
             <!-- Sources Header -->
-            <div
+            <!-- <div
               class="relative flex items-center justify-between p-2 xl:p-4 bg-white border-b border-gray-200"
             >
               <div class="flex items-center gap-3 min-w-0 flex-1 pr-4">
@@ -230,9 +198,9 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
             <!-- Sources List -->
-            <div class="flex-1 overflow-y-auto p-4">
+            <!-- <div class="flex-1 overflow-y-auto p-4">
               <div class="space-y-2">
                 <div
                   *ngFor="let source of sources; let i = index"
@@ -258,7 +226,7 @@
                   </span>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>

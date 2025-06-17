@@ -89,8 +89,14 @@ export class PlaylistComponent
   ngAfterViewInit() {
     // Use longer delay for initial scroll to ensure all elements are rendered
     setTimeout(() => {
+      console.log('Initial scroll attempt', {
+        activeEpisodeIndex: this.activeEpisodeIndex,
+        activeEpisodeSeason: this.activeEpisodeSeason,
+        currentSeason: this.currentSeason,
+        scrollEnabled: this.scrollEnabled,
+      });
       this.scrollToActiveEpisode(true);
-    }, 200);
+    }, 800);
   }
   ngOnChanges(changes: SimpleChanges) {
     if (
@@ -102,8 +108,17 @@ export class PlaylistComponent
       this.filteredEpisodes = [...this.currentEpisodes];
       this.filterEpisodes();
 
+      // Log changes for debugging
+      if (changes['activeEpisodeIndex'] || changes['activeEpisodeSeason']) {
+        console.log('Episode/Season changed', {
+          activeEpisodeIndex: this.activeEpisodeIndex,
+          activeEpisodeSeason: this.activeEpisodeSeason,
+          currentSeason: this.currentSeason,
+        });
+      }
+
       // Use debounced scroll for changes
-      this.debouncedScrollToActiveEpisode(false, 100);
+      this.debouncedScrollToActiveEpisode(false, 300);
     }
 
     // Trigger change detection when details panel state changes to recalculate height
@@ -121,7 +136,8 @@ export class PlaylistComponent
     // Validate active episode index
     if (
       typeof this.activeEpisodeIndex !== 'number' ||
-      this.activeEpisodeIndex < 0
+      this.activeEpisodeIndex < 0 ||
+      this.activeEpisodeIndex >= this.currentEpisodes.length
     )
       return;
 
@@ -135,40 +151,47 @@ export class PlaylistComponent
 
     if (filteredIndex === -1) return; // Active episode is filtered out
 
-    // Use setTimeout to ensure DOM is ready
-    setTimeout(() => {
-      this.attemptScroll(filteredIndex, initial);
-    }, 50);
+    // Use longer timeout to ensure DOM is ready
+    setTimeout(
+      () => {
+        this.attemptScroll(filteredIndex, initial);
+      },
+      initial ? 500 : 200
+    );
   }
+
   private attemptScroll(
     filteredIndex: number,
     initial = false,
     retryCount = 0
   ) {
-    const maxRetries = 3;
+    const maxRetries = 8;
     let el: HTMLElement | null = null;
+    let elementId = '';
 
-    // Try different element IDs based on layout type
+    // Generate correct element ID based on layout type
     if (this.layoutType === 'grid') {
-      el = document.getElementById('episode-btn-' + filteredIndex);
+      elementId = 'episode-btn-' + filteredIndex;
     } else if (this.layoutType === 'list') {
-      el = document.getElementById('episode-list-' + filteredIndex);
+      elementId = 'episode-list-' + filteredIndex;
     } else if (this.layoutType === 'poster') {
-      el = document.getElementById(
-        'episode-poster-' + this.getOriginalIndex(filteredIndex)
-      );
+      elementId = 'episode-poster-' + this.getOriginalIndex(filteredIndex);
     } else if (this.layoutType === 'compact') {
-      el = document.getElementById(
-        'episode-compact-' + this.getOriginalIndex(filteredIndex)
-      );
+      elementId = 'episode-compact-' + this.getOriginalIndex(filteredIndex);
     }
 
+    el = document.getElementById(elementId);
+
     if (el) {
-      // Check if element is visible and has dimensions
+      // Check if element has been rendered properly
       const rect = el.getBoundingClientRect();
       if (rect.height > 0 && rect.width > 0) {
-        // Check if element is already in viewport
-        if (!this.isElementInViewport(el)) {
+        // Always scroll on initial load or if element is not in viewport
+        if (initial || !this.isElementInViewport(el)) {
+          console.log(`Scrolling to episode ${elementId}`, {
+            initial,
+            retryCount,
+          });
           this.smoothScrollToElement(el);
         }
 
@@ -179,14 +202,23 @@ export class PlaylistComponent
       }
     }
 
-    // Retry if element not found or not ready, up to maxRetries
+    // Retry if element not found or not ready
     if (retryCount < maxRetries) {
+      const delay = Math.min(200 * (retryCount + 1), 1000); // Cap at 1 second
       setTimeout(() => {
         this.attemptScroll(filteredIndex, initial, retryCount + 1);
-      }, 100 * (retryCount + 1)); // Exponential backoff
+      }, delay);
     } else {
       console.warn(
-        `Failed to scroll to episode after ${maxRetries} attempts. Layout: ${this.layoutType}, FilteredIndex: ${filteredIndex}`
+        `Failed to scroll to episode after ${maxRetries} attempts.`,
+        {
+          layout: this.layoutType,
+          filteredIndex,
+          elementId,
+          activeEpisodeIndex: this.activeEpisodeIndex,
+          activeEpisodeSeason: this.activeEpisodeSeason,
+          currentSeason: this.currentSeason,
+        }
       );
     }
   }
@@ -416,59 +448,63 @@ export class PlaylistComponent
   }
 
   private getScrollContainer(): HTMLElement | null {
-    // Find the scrollable container for the playlist
-    const container = document.querySelector(
-      '.playlist-container'
-    ) as HTMLElement;
-    if (container) return container;
-
-    // Fallback to finding by class patterns
+    // First try to find the episodes container by class
     const episodesContainer = document.querySelector(
-      '[class*="overflow-y-auto"]'
+      '.episodes-scroll-container'
     ) as HTMLElement;
-    return episodesContainer;
-  }
+    if (episodesContainer) return episodesContainer;
 
-  private isElementInViewport(element: HTMLElement): boolean {
-    const rect = element.getBoundingClientRect();
-    const container = this.getScrollContainer();
-
-    if (!container) {
-      // Fall back to window viewport
-      return (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <=
-          (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <=
-          (window.innerWidth || document.documentElement.clientWidth)
-      );
+    // Fallback to finding the overflow-y-auto container within the playlist component
+    const playlistElement = document.querySelector('app-playlist');
+    if (playlistElement) {
+      const scrollContainer = playlistElement.querySelector(
+        '.overflow-y-auto'
+      ) as HTMLElement;
+      if (scrollContainer) return scrollContainer;
     }
 
-    const containerRect = container.getBoundingClientRect();
-    return rect.top >= containerRect.top && rect.bottom <= containerRect.bottom;
+    // Last resort - find any overflow-y-auto container
+    const containers = document.querySelectorAll('.overflow-y-auto');
+    for (let i = 0; i < containers.length; i++) {
+      const container = containers[i] as HTMLElement;
+      if (container.scrollHeight > container.clientHeight) {
+        return container;
+      }
+    }
+
+    return null;
   }
 
   private smoothScrollToElement(element: HTMLElement): void {
     const container = this.getScrollContainer();
 
-    if (container && container !== element.offsetParent) {
-      // Calculate scroll position relative to container
+    if (container) {
+      // Get the container's current scroll position
       const containerRect = container.getBoundingClientRect();
       const elementRect = element.getBoundingClientRect();
-      const containerScrollTop = container.scrollTop;
 
-      const elementTop =
-        elementRect.top - containerRect.top + containerScrollTop;
-      const containerHeight = containerRect.height;
-      const elementHeight = elementRect.height;
+      // Calculate the element's position relative to the container's scroll area
+      let elementTop = 0;
+      let currentElement = element;
 
-      // Center the element in the container
+      // Walk up the DOM tree to calculate total offset from container
+      while (currentElement && currentElement !== container) {
+        elementTop += currentElement.offsetTop;
+        currentElement = currentElement.offsetParent as HTMLElement;
+      }
+
+      // Calculate target scroll position (center the element)
+      const containerHeight = container.clientHeight;
+      const elementHeight = element.offsetHeight;
       const targetScrollTop =
-        elementTop - (containerHeight - elementHeight) / 2;
+        elementTop - containerHeight / 2 + elementHeight / 2;
+
+      // Ensure we don't scroll beyond bounds
+      const maxScroll = container.scrollHeight - container.clientHeight;
+      const finalScrollTop = Math.max(0, Math.min(targetScrollTop, maxScroll));
 
       container.scrollTo({
-        top: Math.max(0, targetScrollTop),
+        top: finalScrollTop,
         behavior: 'smooth',
       });
     } else {
@@ -481,14 +517,33 @@ export class PlaylistComponent
     }
   }
 
+  private isElementInViewport(element: HTMLElement): boolean {
+    const container = this.getScrollContainer();
+    const rect = element.getBoundingClientRect();
+
+    if (!container) {
+      return rect.top >= 0 && rect.bottom <= window.innerHeight;
+    }
+
+    const containerRect = container.getBoundingClientRect();
+
+    // Check if element is within container bounds with some margin
+    const margin = 20;
+    return (
+      rect.top >= containerRect.top - margin &&
+      rect.bottom <= containerRect.bottom + margin
+    );
+  }
+
   /**
    * Public method to trigger scroll to active episode
    * Can be called from parent components when needed
    */
   public refreshScroll(): void {
+    console.log('Manual refresh scroll triggered');
     setTimeout(() => {
-      this.scrollToActiveEpisode();
-    }, 50);
+      this.scrollToActiveEpisode(true);
+    }, 100);
   }
 
   /**
@@ -497,10 +552,11 @@ export class PlaylistComponent
   public forceScroll(): void {
     const wasEnabled = this.scrollEnabled;
     this.scrollEnabled = true;
+    console.log('Force scroll triggered');
     setTimeout(() => {
-      this.scrollToActiveEpisode();
+      this.scrollToActiveEpisode(true);
       this.scrollEnabled = wasEnabled;
-    }, 50);
+    }, 100);
   }
 
   /**
@@ -532,7 +588,7 @@ export class PlaylistComponent
 
   private scrollTimeout: any;
 
-  private debouncedScrollToActiveEpisode(initial = false, delay = 50) {
+  private debouncedScrollToActiveEpisode(initial = false, delay = 100) {
     if (this.scrollTimeout) {
       clearTimeout(this.scrollTimeout);
     }

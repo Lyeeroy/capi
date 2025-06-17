@@ -15,6 +15,9 @@ interface AppSettings {
 
 const SETTINGS_KEY = 'appSettings';
 
+// Event to notify components of settings changes
+const SETTINGS_CHANGE_EVENT = 'appSettingsChanged';
+
 @Component({
   selector: 'app-settings',
   imports: [FormsModule, UniversalModalComponent, IconLibComponent],
@@ -63,11 +66,15 @@ export class SettingsComponent implements OnInit {
       // Ignore errors, use defaults
     }
   }
-
   // Save settings to localStorage
   saveSettings() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
-  } // Handler for playlist layout change
+    
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new CustomEvent(SETTINGS_CHANGE_EVENT, {
+      detail: this.settings
+    }));
+  }// Handler for playlist layout change
   onPlaylistLayoutChange(layout: 'list' | 'grid' | 'poster' | 'compact') {
     this.settings.playlistLayout = layout;
     this.saveSettings();

@@ -18,6 +18,7 @@ import { ControlsComponent } from './controls/controls.component';
 import { PlaylistComponent } from './playlist/playlist.component';
 import { PlayerHeader } from './player-header/player-header.component';
 import { InfoComponent } from './info/info.component';
+import { EpisodeNavigationComponent } from './episode-navigation/episode-navigation.component';
 import { ContinueWatchingService } from '../../services/continue-watching.service';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 
@@ -92,6 +93,7 @@ interface TMDBResponse {
     ControlsComponent,
     PlaylistComponent,
     InfoComponent,
+    EpisodeNavigationComponent,
     IconLibComponent,
   ],
   providers: [LoadSourcesService],
@@ -173,6 +175,12 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
         mediaTypeParam === 'tv' || mediaTypeParam === 'movie'
           ? mediaTypeParam
           : null;
+
+      // If media type is movie, expand details by default
+      if (this.mediaType === 'movie') {
+        this.isDetailsExpanded = true;
+      }
+
       this.names = this.route.snapshot.queryParams['name'];
       const queryParams = this.route.snapshot.queryParams;
       this.currentSeason = queryParams['season']
