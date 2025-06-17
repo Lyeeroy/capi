@@ -12,6 +12,7 @@ import {
   QueryList,
   ElementRef,
   HostListener,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -43,6 +44,7 @@ export class PlaylistComponent
   @Input() activeEpisodeIndex: number = -1;
   @Input() currentEpisode: number = 1;
   @Input() activeEpisodeSeason: number = 1; // NEW: season of the currently playing episode
+  @Input() isDetailsExpanded: boolean = false; // NEW: details panel state
   @Output() seasonChange = new EventEmitter<number>();
   @Output() episodeSelected = new EventEmitter<number>();
   @Output() layoutChange = new EventEmitter<void>();
@@ -56,9 +58,11 @@ export class PlaylistComponent
   // Add search functionality
   searchQuery: string = '';
   filteredEpisodes: Episode[] = [];
-
   // Add expand tracking for poster view descriptions
   expandedDescriptions: Set<number> = new Set();
+
+  constructor(private cdr: ChangeDetectorRef) {}
+
   ngOnInit() {
     // Load default layout from localStorage if available
     try {
@@ -100,6 +104,11 @@ export class PlaylistComponent
 
       // Use debounced scroll for changes
       this.debouncedScrollToActiveEpisode(false, 100);
+    }
+
+    // Trigger change detection when details panel state changes to recalculate height
+    if (changes['isDetailsExpanded']) {
+      this.cdr.detectChanges();
     }
   }
   private scrollToActiveEpisode(initial = false) {
@@ -303,8 +312,23 @@ export class PlaylistComponent
     }
   }
   getEpisodesMaxHeight(): string {
-    // Ensure episodes container has proper height
-    return 'calc(100% - 120px)'; // Subtract header height
+    // Only constrain height when details are NOT expanded
+    if (!this.isDetailsExpanded) {
+      if (typeof window !== 'undefined') {
+        const viewportHeight = window.innerHeight;
+        // Calculate 60% of the viewport height
+        const targetHeight = Math.floor(viewportHeight * 0.6);
+        // Still account for header and other UI elements (approximately 150px)
+        const availableHeight = targetHeight - 150;
+        const minHeight = 300; // Minimum height for good UX
+        const maxHeight = Math.max(availableHeight, minHeight);
+        return `${maxHeight}px`;
+      }
+      return 'calc(70vh - 150px)'; // Fallback for SSR
+    }
+
+    // When details are expanded, don't constrain height - let it grow as needed
+    return 'auto';
   }
 
   private getMinContentHeight(): number {
@@ -490,8 +514,7 @@ export class PlaylistComponent
    * 6. Added resize handling for responsive behavior
    * 7. Better timing for DOM updates and layout changes
    * 8. Public methods for external control and debugging
-   */
-  @HostListener('window:resize', ['$event'])
+   */ @HostListener('window:resize', ['$event'])
   onWindowResize(event: any) {
     // Debounce resize events
     if (this.resizeTimeout) {
@@ -500,6 +523,8 @@ export class PlaylistComponent
 
     this.resizeTimeout = setTimeout(() => {
       this.debouncedScrollToActiveEpisode(false, 300);
+      // Trigger change detection to recalculate height
+      this.cdr?.detectChanges();
     }, 300);
   }
 

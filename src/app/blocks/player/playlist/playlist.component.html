@@ -1,5 +1,5 @@
 <div
-  class="h-full w-full flex flex-col bg-gray-50 relative overflow-hidden rounded-lg border border-gray-200"
+  class="h-full w-full flex flex-col bg-gray-50 relative overflow-hidden border border-gray-200"
 >
   <!-- Decorative background patterns -->
   <div class="absolute inset-0 opacity-5">
@@ -100,7 +100,7 @@
   </div>
   <!-- Episodes Container -->
   <div
-    class="flex-1 overflow-y-auto relative rounded-b-lg min-h-0"
+    class="flex-1 overflow-y-auto relative rounded-b-lg"
     [style.max-height]="getEpisodesMaxHeight()"
   >
     <!-- Empty State -->
@@ -143,9 +143,7 @@
             [class.ring-blue-300]="isEpisodeActiveByFilteredIndex(i)"
             [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
             [class.text-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
-            [class.hover:bg-blue-600]="isEpisodeActiveByFilteredIndex(i)"
-            [class.hover:bg-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
-            class="cursor-pointer aspect-[3/2] flex items-center justify-center rounded-lg transition-colors duration-200 text-sm font-semibold border border-gray-200"
+            class="cursor-pointer aspect-[3/2] flex items-center justify-center rounded-lg transition-colors duration-200 text-sm font-semibold border border-gray-200 hover:bg-gray-100"
           >
             {{ episode.number }}
           </button>
@@ -161,12 +159,10 @@
           (click)="onFilteredEpisodeSelected(i)"
           [attr.id]="'episode-list-' + i"
           #episodeList
-          class="mt-1 flex items-center cursor-pointer transition-colors duration-200 rounded-lg border border-gray-200 overflow-hidden"
+          class="mt-1 flex items-center cursor-pointer transition-colors duration-200 rounded-lg border border-gray-200 overflow-hidden hover:bg-gray-100"
           [class.bg-blue-500]="isEpisodeActiveByFilteredIndex(i)"
           [class.border-blue-600]="isEpisodeActiveByFilteredIndex(i)"
           [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.hover:bg-blue-600]="isEpisodeActiveByFilteredIndex(i)"
-          [class.hover:bg-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
         >
           <div
             class="flex items-center justify-center py-2.5 font-bold text-sm w-12"
@@ -195,13 +191,13 @@
     <ng-container
       *ngIf="layoutType === 'poster' && filteredEpisodes.length > 0"
     >
-      <div class="bg-white p-3 [&>*:not(:first-child)]:mt-3">
+      <div class="p-3 [&>*:not(:first-child)]:mt-3">
         <div
           *ngFor="let episode of filteredEpisodes; let i = index"
           (click)="onFilteredEpisodeSelected(i)"
           [attr.id]="'episode-poster-' + getOriginalIndex(i)"
           #episodePoster
-          class="flex items-center cursor-pointer transition-all duration-200 bg-white hover:bg-gray-50 border border-gray-200 rounded-lg"
+          class="flex items-center cursor-pointer transition-all duration-200 hover:bg-gray-50 border border-gray-200 rounded-lg bg-white"
           [class.bg-blue-50]="isEpisodeActiveByFilteredIndex(i)"
           [class.border-blue-300]="isEpisodeActiveByFilteredIndex(i)"
           [class.ring-2]="isEpisodeActiveByFilteredIndex(i)"
@@ -298,7 +294,7 @@
           (click)="onFilteredEpisodeSelected(i)"
           [attr.id]="'episode-compact-' + getOriginalIndex(i)"
           #episodeCompact
-          class="group relative cursor-pointer bg-white rounded-md border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01] min-h-[160px]"
+          class="group relative cursor-pointer bg-white rounded-md border border-gray-200 overflow-hidden transition-all duration-200 hover:scale-[1.01] min-h-[160px] hover:bg-gray-50"
           [class.ring-2]="isEpisodeActiveByFilteredIndex(i)"
           [class.ring-blue-500]="isEpisodeActiveByFilteredIndex(i)"
           [class.ring-offset-1]="isEpisodeActiveByFilteredIndex(i)"
@@ -324,7 +320,7 @@
             <!-- Compact Episode Number Badge -->
             <div class="absolute top-1 left-1">
               <span
-                class="inline-flex items-center justify-center w-5 h-5 backdrop-blur-sm text-xs font-bold rounded shadow-md"
+                class="inline-flex items-center justify-center w-5 h-5 backdrop-blur-sm text-xs font-bold rounded"
                 [class.bg-blue-500]="isEpisodeActiveByFilteredIndex(i)"
                 [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
                 [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
@@ -337,7 +333,7 @@
             <!-- Compact Play Button -->
             <div class="absolute top-1 right-1">
               <div
-                class="w-6 h-6 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center shadow-md group-hover:bg-blue-600 transition-colors duration-200"
+                class="w-6 h-6 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-200"
               >
                 <app-icon-lib
                   ico="play"

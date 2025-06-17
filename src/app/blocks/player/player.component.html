@@ -2,10 +2,8 @@
   class="hidden lg:block"
   [responseData]="responseData"
   [showName]="true"
-  [showDetailsAndPlaylist]="true"
+  [showDetailsAndPlaylist]="false"
   [mediaType]="mediaType ?? 'tv'"
-  (showPlaylist)="showPlaylist()"
-  (showDetails)="showDetails()"
 >
 </app-player-header>
 <app-player-header
@@ -13,8 +11,6 @@
   [responseData]="responseData"
   [showName]="true"
   [showDetailsAndPlaylist]="false"
-  (showPlaylist)="showPlaylist()"
-  (showDetails)="showDetails()"
 ></app-player-header>
 <div class="flex flex-col lg:flex-row gap-0 lg:gap-4 lg:items-stretch">
   <div
@@ -125,51 +121,149 @@
       </div>
     </div>
   </div>
-
   <app-player-header
     class="block lg:hidden"
     [responseData]="responseData"
     [showName]="false"
-    [showDetailsAndPlaylist]="true"
+    [showDetailsAndPlaylist]="false"
     [mediaType]="mediaType ?? 'tv'"
-    (showPlaylist)="showPlaylist()"
-    (showDetails)="showDetails()"
   ></app-player-header>
-  <div
-    class="w-full lg:w-1/4 flex flex-col rounded-xl h-[80vh] lg:h-auto"
-    id="playlist-container"
-    #playlistContainer
-  >
-    <app-playlist
-      *ngIf="mediaType == 'tv' && onShowPlaylist === true"
-      [names]="names || ''"
-      [totalSeasons]="totalSeasons"
-      [currentSeason]="currentSeason"
-      [currentEpisodes]="currentEpisodes"
-      [currentPosters]="currentPosters"
-      [layoutType]="layoutType"
-      [isSortedAscending]="isSortedAscending"
-      [activeEpisodeIndex]="activeEpisodeIndex"
-      [activeEpisodeSeason]="activeEpisodeSeason"
-      [seriesId]="id?.toString() || ''"
-      [currentEpisode]="currentEpisode"
-      (seasonChange)="onSeasonChange($event)"
-      (episodeSelected)="playEpisode($event)"
-      (layoutChange)="changeLayout()"
-      (sortToggle)="ascOrDescSort()"
-      class="flex-1 overflow-hidden"
-    ></app-playlist>
-    <app-info
-      *ngIf="
-        mediaType == 'tv' ? onShowPlaylist == false : onShowPlaylist == true
-      "
-      class="flex-1 overflow-auto"
-      [names]="names || ''"
-      [currentSeason]="currentSeason"
-      [currentEpisodes]="currentEpisodes"
-      [currentPosters]="currentPosters"
-      [responseData]="responseData"
-      [mediaType]="mediaType ?? 'tv'"
-    ></app-info>
+  <!-- Unified Panel with collapsible details and playlist -->
+  <div class="w-full lg:w-1/4 flex flex-col rounded-xl" id="unified-panel">
+    <div class="flex flex-col">
+      <!-- Collapsible Details Section -->
+      <div
+        class="flex-shrink-0 bg-white rounded-t-xl border border-gray-200 border-b-0"
+      >
+        <!-- Details Header (clickable to expand/collapse) -->
+        <div
+          class="bg-gray-50 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+          (click)="toggleDetailsExpansion()"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-2 h-7 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"
+            ></div>
+            <div>
+              <h2 class="text-base font-bold text-gray-900 truncate">
+                Details
+              </h2>
+              <div class="text-sm text-gray-500 font-medium">
+                {{ responseData?.name || responseData?.title || "Loading..." }}
+              </div>
+            </div>
+          </div>
+          <div
+            class="transition-transform duration-200"
+            [class.rotate-180]="isDetailsExpanded"
+          >
+            <app-icon-lib
+              ico="chevronDown"
+              class="w-4 h-4 text-gray-500"
+            ></app-icon-lib>
+          </div>
+        </div>
+        <!-- Expandable Details Content -->
+        <div
+          class="overflow-hidden transition-all duration-300 ease-in-out"
+          [style.max-height.px]="isDetailsExpanded ? 400 : 0"
+        >
+          <div class="max-h-[400px] overflow-y-auto">
+            <app-info
+              class="block"
+              [names]="names || ''"
+              [currentSeason]="currentSeason"
+              [currentEpisodes]="currentEpisodes"
+              [currentPosters]="currentPosters"
+              [responseData]="responseData"
+              [mediaType]="mediaType ?? 'tv'"
+            ></app-info>
+          </div>
+        </div>
+      </div>
+      <!-- Episodes/Playlist Section -->
+      <div
+        class="flex-1 flex flex-col min-h-0 overflow-hidden max-h-[70vh]"
+        [class.max-h-none]="isDetailsExpanded"
+        [class.rounded-b-xl]="!isDetailsExpanded"
+      >
+        <div class="flex-1 overflow-hidden">
+          <app-playlist
+            *ngIf="mediaType == 'tv'"
+            [names]="names || ''"
+            [totalSeasons]="totalSeasons"
+            [currentSeason]="currentSeason"
+            [currentEpisodes]="currentEpisodes"
+            [currentPosters]="currentPosters"
+            [layoutType]="layoutType"
+            [isSortedAscending]="isSortedAscending"
+            [activeEpisodeIndex]="activeEpisodeIndex"
+            [activeEpisodeSeason]="activeEpisodeSeason"
+            [seriesId]="id?.toString() || ''"
+            [currentEpisode]="currentEpisode"
+            [isDetailsExpanded]="isDetailsExpanded"
+            (seasonChange)="onSeasonChange($event)"
+            (episodeSelected)="playEpisode($event)"
+            (layoutChange)="changeLayout()"
+            (sortToggle)="ascOrDescSort()"
+            class="h-full"
+            [class.rounded-t-none]="isDetailsExpanded"
+          ></app-playlist>
+          <!-- For movies, show a simplified source list -->
+          <div
+            *ngIf="mediaType === 'movie'"
+            class="h-full flex flex-col bg-gray-50 relative overflow-hidden border-x border-b border-gray-200"
+            [class.rounded-b-xl]="!isDetailsExpanded"
+          >
+            <!-- Sources Header -->
+            <div
+              class="relative flex items-center justify-between p-2 xl:p-4 bg-white border-b border-gray-200"
+            >
+              <div class="flex items-center gap-3 min-w-0 flex-1 pr-4">
+                <div
+                  class="w-2 h-7 bg-blue-500 rounded-full flex-shrink-0"
+                ></div>
+                <div class="min-w-0 flex-1">
+                  <h2 class="text-base font-bold text-gray-900 truncate">
+                    Sources
+                  </h2>
+                  <div class="text-sm text-gray-500 font-medium">
+                    {{ sources.length }} available
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Sources List -->
+            <div class="flex-1 overflow-y-auto p-4">
+              <div class="space-y-2">
+                <div
+                  *ngFor="let source of sources; let i = index"
+                  class="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                  [class.bg-blue-50]="currentSourceUrl === source.url"
+                  [class.border-blue-400]="currentSourceUrl === source.url"
+                >
+                  <span class="text-sm font-medium text-gray-700">{{
+                    source.name
+                  }}</span>
+                  <button
+                    *ngIf="currentSourceUrl !== source.url"
+                    class="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 rounded hover:bg-blue-50 transition-colors"
+                    (click)="onSourceChange(source.url)"
+                  >
+                    Switch
+                  </button>
+                  <span
+                    *ngIf="currentSourceUrl === source.url"
+                    class="text-xs text-blue-600 font-medium px-2 py-1 bg-blue-100 rounded"
+                  >
+                    Active
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

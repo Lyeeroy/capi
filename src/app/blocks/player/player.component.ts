@@ -53,7 +53,36 @@ interface TMDBResponse {
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
+  styles: [
+    `
+      /* Hide headers from child components when in unified view */
+      #unified-panel app-info > div > div:first-child {
+        display: none !important;
+      }
 
+      #unified-panel app-playlist > div > div:first-child {
+        display: none !important;
+      }
+
+      /* Remove borders from child components */
+      #unified-panel app-info > div {
+        border: none !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+      }
+
+      #unified-panel app-playlist > div {
+        border: none !important;
+        border-radius: 0 !important;
+      }
+
+      /* Ensure proper border radius for playlist when details collapsed */
+      #unified-panel app-playlist.rounded-t-none > div {
+        border-top-left-radius: 0 !important;
+        border-top-right-radius: 0 !important;
+      }
+    `,
+  ],
   standalone: true,
   imports: [
     CommonModule,
@@ -90,12 +119,12 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   currentEpisode: number = 1;
   activeEpisodeIndex: number = -1;
   activeEpisodeSeason: number = 1;
-
   // UI state
   layoutType: 'list' | 'grid' | 'poster' | 'compact' = 'list';
   onShowPlaylist: boolean = true;
   onShowDetails: boolean = false;
   showIframe: boolean = true;
+  isDetailsExpanded: boolean = false;
 
   // Video sources
   sources: Source[] = [];
@@ -372,19 +401,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.onShowDetails = true;
   }
 
-  playerRefresh(): void {
-    console.log('Refreshing player...');
-    // Reload the iframe or reinitialize the player
-    if (this.iframeUrl) {
-      // Force reload by temporarily clearing and restoring the URL
-      const currentUrl = this.iframeUrl;
-      this.showIframe = false;
-      
-      setTimeout(() => {
-        this.iframeUrl = currentUrl;
-        this.showIframe = true;
-      }, 100);
-    }
+  toggleDetailsExpansion(): void {
+    this.isDetailsExpanded = !this.isDetailsExpanded;
   }
 
   cancel(): void {
