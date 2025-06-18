@@ -342,7 +342,8 @@ export class PlaylistComponent
       const rows = Math.ceil(episodeCount / episodesPerRow);
       return headerHeight + Math.max(rows * 280, 200) + 24; // Minimum height + padding
     }
-  }  getEpisodesMaxHeight(): string {
+  }
+  getEpisodesMaxHeight(): string {
     // Always use 'auto' to let flexbox handle the height
     // The parent container (unified-panel) will control the overall height
     return 'auto';
