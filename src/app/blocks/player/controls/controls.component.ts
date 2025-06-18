@@ -1,5 +1,5 @@
 // src/app/blocks/player/controls/controls.component.ts
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 import { CommonModule } from '@angular/common';
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-controls',
   standalone: true, // Mark the component as standalone
   templateUrl: './controls.component.html',
+  styleUrls: ['../player-modals.css'],
   imports: [FormsModule, IconLibComponent, CommonModule], // Include FormsModule in the imports array
 })
 export class ControlsComponent {
@@ -36,10 +37,41 @@ export class ControlsComponent {
       // Ignore errors, use default
     }
   }
+  // Reference to the modal elements for animation
+  @ViewChild('modalOverlay') modalOverlay?: ElementRef;
+  @ViewChild('modalContent') modalContent?: ElementRef;
+  
+  isClosingAnimation = false;
 
   toggleSourcesExpansion(): void {
-    this.isSourcesExpanded = !this.isSourcesExpanded;
-
+    if (this.isSourcesExpanded) {
+      // Handle closing animation
+      this.isClosingAnimation = true;
+      
+      // Add closing animation classes
+      setTimeout(() => {
+        if (this.modalOverlay?.nativeElement) {
+          this.modalOverlay.nativeElement.classList.add('closing');
+        }
+        if (this.modalContent?.nativeElement) {
+          this.modalContent.nativeElement.classList.add('closing');
+        }
+        
+        // Wait for animation to complete before hiding
+        setTimeout(() => {
+          this.isSourcesExpanded = false;
+          this.isClosingAnimation = false;
+          this.saveExpansionState();
+        }, 250); // Match animation duration
+      }, 0);
+    } else {
+      // Simply open
+      this.isSourcesExpanded = true;
+      this.saveExpansionState();
+    }
+  }
+  
+  private saveExpansionState(): void {
     // Save state to localStorage
     try {
       const raw = localStorage.getItem('appSettings') || '{}';

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ElementRef, ViewChild } from '@angular/core';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 import { CommonModule } from '@angular/common';
 
@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-episode-navigation',
   standalone: true,
   templateUrl: './episode-navigation.component.html',
+  styleUrls: ['../player-modals.css'],
   imports: [IconLibComponent, CommonModule],
 })
 export class EpisodeNavigationComponent {
@@ -38,10 +39,41 @@ export class EpisodeNavigationComponent {
       // Ignore errors, use default
     }
   }
+  // Reference to the modal elements for animation
+  @ViewChild('modalOverlay') modalOverlay?: ElementRef;
+  @ViewChild('modalContent') modalContent?: ElementRef;
+  
+  isClosingAnimation = false;
 
   toggleEpisodeNavExpansion(): void {
-    this.isEpisodeNavExpanded = !this.isEpisodeNavExpanded;
-
+    if (this.isEpisodeNavExpanded) {
+      // Handle closing animation
+      this.isClosingAnimation = true;
+      
+      // Add closing animation classes
+      setTimeout(() => {
+        if (this.modalOverlay?.nativeElement) {
+          this.modalOverlay.nativeElement.classList.add('closing');
+        }
+        if (this.modalContent?.nativeElement) {
+          this.modalContent.nativeElement.classList.add('closing');
+        }
+        
+        // Wait for animation to complete before hiding
+        setTimeout(() => {
+          this.isEpisodeNavExpanded = false;
+          this.isClosingAnimation = false;
+          this.saveExpansionState();
+        }, 250); // Match animation duration
+      }, 0);
+    } else {
+      // Simply open
+      this.isEpisodeNavExpanded = true;
+      this.saveExpansionState();
+    }
+  }
+  
+  private saveExpansionState(): void {
     // Save state to localStorage
     try {
       const raw = localStorage.getItem('appSettings') || '{}';

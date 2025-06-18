@@ -1,1 +1,70 @@
 @import "tailwindcss";
+
+/* Modal animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+    filter: blur(2px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(15px) scale(0.95);
+    filter: blur(1px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes modal-slide-up-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(100vh) scale(0.8);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translateY(-20px) scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-modal-slide-up {
+  animation: modal-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-modal-slide-up-from-bottom {
+  animation: modal-slide-up-from-bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Scale animation for the trigger component */
+@keyframes component-scale {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0.95);
+  }
+}
+
+.animate-component-scale {
+  animation: component-scale 0.2s ease-out forwards;
+}

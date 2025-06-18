@@ -1,7 +1,8 @@
-<div class="flex flex-col bg-white rounded-xl border border-gray-200">
+<!-- Episode Navigation Component -->
+<div class="bg-white rounded-xl border border-gray-200">
   <!-- Episode Navigation Header (clickable to expand/collapse) -->
   <div
-    class="bg-gray-50 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+    class="bg-gray-50 rounded-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors"
     (click)="toggleEpisodeNavExpansion()"
   >
     <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -66,104 +67,129 @@
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Expandable Episode Details Content -->
+<!-- Modal Overlay for Episode Navigation -->
+<div
+  *ngIf="isEpisodeNavExpanded || isClosingAnimation"
+  class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50 p-4 modal-overlay"
+  #modalOverlay
+  (click)="toggleEpisodeNavExpansion()"
+>
   <div
-    class="overflow-hidden transition-all duration-300 ease-in-out"
-    [style.max-height.px]="isEpisodeNavExpanded ? 300 : 0"
+    class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden modal-content"
+    #modalContent
+    (click)="$event.stopPropagation()"
   >
-    <div class="max-h-[300px] overflow-y-auto">
-      <!-- Episode Navigation Details -->
-      <div class="p-4 bg-white">
-        <div class="space-y-4">
-          <!-- Current Episode Info -->
-          <div
-            class="flex items-center gap-4 p-3 bg-blue-50 rounded-lg border border-blue-200"
-          >
-            <div class="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-blue-900 text-sm">
-                {{
-                  mediaType === "movie"
-                    ? "Currently Watching"
-                    : "Current Episode"
-                }}
-              </div>
-              <div class="text-blue-700 text-xs">
-                {{ getCurrentEpisodeInfo() }}
-              </div>
+    <!-- Modal Header -->
+    <div
+      class="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-xl"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Episode Navigation</h2>
+          <div class="text-sm text-gray-500">
+            {{ getCurrentEpisodeInfo() }}
+          </div>
+        </div>
+      </div>
+      <button
+        (click)="toggleEpisodeNavExpansion()"
+        class="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+      >
+        <app-icon-lib ico="close" class="w-5 h-5 text-gray-600"></app-icon-lib>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="p-4 max-h-[60vh] overflow-y-auto">
+      <div class="space-y-4">
+        <!-- Current Episode Info -->
+        <div
+          class="flex items-center gap-4 p-3 bg-blue-50 rounded-lg border border-blue-200"
+        >
+          <div class="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium text-blue-900 text-sm">
+              {{
+                mediaType === "movie" ? "Currently Watching" : "Current Episode"
+              }}
+            </div>
+            <div class="text-blue-700 text-xs">
+              {{ getCurrentEpisodeInfo() }}
             </div>
           </div>
+        </div>
 
-          <!-- Navigation Options -->
-          <div *ngIf="mediaType !== 'movie'" class="space-y-2">
-            <!-- Previous Episode -->
-            <button
-              [disabled]="!hasPreviousEpisode"
-              (click)="onPreviousEpisode()"
-              [class.opacity-50]="!hasPreviousEpisode"
-              [class.cursor-not-allowed]="!hasPreviousEpisode"
-              [class.hover:bg-gray-50]="hasPreviousEpisode"
-              class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 transition-all duration-200"
-              [class.cursor-pointer]="hasPreviousEpisode"
-            >
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <app-icon-lib
-                    ico="arrowLeft"
-                    class="w-4 h-4 text-gray-600"
-                  ></app-icon-lib>
-                  <div>
-                    <div class="font-medium text-sm text-gray-900">
-                      Previous Episode
-                    </div>
-                    <div class="text-xs text-gray-500">
-                      {{ previousEpisodeLabel }}
-                    </div>
+        <!-- Navigation Options -->
+        <div *ngIf="mediaType !== 'movie'" class="space-y-2">
+          <!-- Previous Episode -->
+          <button
+            [disabled]="!hasPreviousEpisode"
+            (click)="onPreviousEpisode(); toggleEpisodeNavExpansion()"
+            [class.opacity-50]="!hasPreviousEpisode"
+            [class.cursor-not-allowed]="!hasPreviousEpisode"
+            [class.hover:bg-gray-50]="hasPreviousEpisode"
+            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 transition-all duration-200"
+            [class.cursor-pointer]="hasPreviousEpisode"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <app-icon-lib
+                  ico="arrowLeft"
+                  class="w-4 h-4 text-gray-600"
+                ></app-icon-lib>
+                <div>
+                  <div class="font-medium text-sm text-gray-900">
+                    Previous Episode
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    {{ previousEpisodeLabel }}
                   </div>
                 </div>
               </div>
-            </button>
+            </div>
+          </button>
 
-            <!-- Next Episode -->
-            <button
-              [disabled]="!hasNextEpisode"
-              (click)="onNextEpisode()"
-              [class.opacity-50]="!hasNextEpisode"
-              [class.cursor-not-allowed]="!hasNextEpisode"
-              [class.hover:bg-blue-50]="hasNextEpisode"
-              class="w-full text-left px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 transition-all duration-200"
-              [class.cursor-pointer]="hasNextEpisode"
-            >
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <app-icon-lib
-                    ico="arrowRight"
-                    class="w-4 h-4 text-blue-600"
-                  ></app-icon-lib>
-                  <div>
-                    <div class="font-medium text-sm text-blue-900">
-                      Next Episode
-                    </div>
-                    <div class="text-xs text-blue-700">
-                      {{ nextEpisodeLabel }}
-                    </div>
+          <!-- Next Episode -->
+          <button
+            [disabled]="!hasNextEpisode"
+            (click)="onNextEpisode(); toggleEpisodeNavExpansion()"
+            [class.opacity-50]="!hasNextEpisode"
+            [class.cursor-not-allowed]="!hasNextEpisode"
+            [class.hover:bg-blue-50]="hasNextEpisode"
+            class="w-full text-left px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 transition-all duration-200"
+            [class.cursor-pointer]="hasNextEpisode"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <app-icon-lib
+                  ico="arrowRight"
+                  class="w-4 h-4 text-blue-600"
+                ></app-icon-lib>
+                <div>
+                  <div class="font-medium text-sm text-blue-900">
+                    Next Episode
+                  </div>
+                  <div class="text-xs text-blue-700">
+                    {{ nextEpisodeLabel }}
                   </div>
                 </div>
               </div>
-            </button>
-          </div>
+            </div>
+          </button>
+        </div>
 
-          <!-- Movie info when media type is movie -->
-          <div *ngIf="mediaType === 'movie'" class="text-center py-4">
-            <app-icon-lib
-              ico="movie"
-              class="w-8 h-8 text-gray-400 mx-auto mb-2"
-            ></app-icon-lib>
-            <p class="text-sm text-gray-500">
-              This is a movie - no episode navigation available
-            </p>
-          </div>
+        <!-- Movie info when media type is movie -->
+        <div *ngIf="mediaType === 'movie'" class="text-center py-4">
+          <app-icon-lib
+            ico="movie"
+            class="w-8 h-8 text-gray-400 mx-auto mb-2"
+          ></app-icon-lib>
+          <p class="text-sm text-gray-500">
+            This is a movie - no episode navigation available
+          </p>
         </div>
       </div>
     </div>
