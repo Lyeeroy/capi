@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, Output, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 import { CommonModule } from '@angular/common';
 
@@ -42,14 +49,14 @@ export class EpisodeNavigationComponent {
   // Reference to the modal elements for animation
   @ViewChild('modalOverlay') modalOverlay?: ElementRef;
   @ViewChild('modalContent') modalContent?: ElementRef;
-  
+
   isClosingAnimation = false;
 
   toggleEpisodeNavExpansion(): void {
     if (this.isEpisodeNavExpanded) {
       // Handle closing animation
       this.isClosingAnimation = true;
-      
+
       // Add closing animation classes
       setTimeout(() => {
         if (this.modalOverlay?.nativeElement) {
@@ -58,7 +65,7 @@ export class EpisodeNavigationComponent {
         if (this.modalContent?.nativeElement) {
           this.modalContent.nativeElement.classList.add('closing');
         }
-        
+
         // Wait for animation to complete before hiding
         setTimeout(() => {
           this.isEpisodeNavExpanded = false;
@@ -72,7 +79,7 @@ export class EpisodeNavigationComponent {
       this.saveExpansionState();
     }
   }
-  
+
   private saveExpansionState(): void {
     // Save state to localStorage
     try {

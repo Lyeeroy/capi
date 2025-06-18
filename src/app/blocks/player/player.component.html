@@ -71,10 +71,7 @@
           ></app-controls>
         </div>
         <!-- Episode Navigation on the right -->
-        <div
-          *ngIf="mediaType !== 'movie'"
-          class="flex-shrink-0 ml-auto min-w-[300px]"
-        >
+        <div *ngIf="mediaType !== 'movie'" class="flex-shrink-0 ml-auto flex-1">
           <app-episode-navigation
             [names]="names || ''"
             [currentEpisode]="currentEpisode"

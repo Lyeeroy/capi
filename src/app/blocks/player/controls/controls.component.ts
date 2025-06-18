@@ -1,5 +1,12 @@
 // src/app/blocks/player/controls/controls.component.ts
-import { Component, EventEmitter, Input, Output, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms'; // Import FormsModule for ngModel
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 import { CommonModule } from '@angular/common';
@@ -40,14 +47,14 @@ export class ControlsComponent {
   // Reference to the modal elements for animation
   @ViewChild('modalOverlay') modalOverlay?: ElementRef;
   @ViewChild('modalContent') modalContent?: ElementRef;
-  
+
   isClosingAnimation = false;
 
   toggleSourcesExpansion(): void {
     if (this.isSourcesExpanded) {
       // Handle closing animation
       this.isClosingAnimation = true;
-      
+
       // Add closing animation classes
       setTimeout(() => {
         if (this.modalOverlay?.nativeElement) {
@@ -56,7 +63,7 @@ export class ControlsComponent {
         if (this.modalContent?.nativeElement) {
           this.modalContent.nativeElement.classList.add('closing');
         }
-        
+
         // Wait for animation to complete before hiding
         setTimeout(() => {
           this.isSourcesExpanded = false;
@@ -70,7 +77,7 @@ export class ControlsComponent {
       this.saveExpansionState();
     }
   }
-  
+
   private saveExpansionState(): void {
     // Save state to localStorage
     try {
