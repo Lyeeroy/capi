@@ -45,6 +45,7 @@ export class PlaylistComponent
   @Input() currentEpisode: number = 1;
   @Input() activeEpisodeSeason: number = 1; // NEW: season of the currently playing episode
   @Input() isDetailsExpanded: boolean = false; // NEW: details panel state
+  @Input() mediaType: 'tv' | 'movie' | null = null;
   @Output() seasonChange = new EventEmitter<number>();
   @Output() episodeSelected = new EventEmitter<number>();
   @Output() layoutChange = new EventEmitter<void>();

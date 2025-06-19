@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -6,27 +6,20 @@ import { CommonModule } from '@angular/common';
 import { HighlightSlectedMenuRoute } from '../side-bar/side-bar.service';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { TmdbService } from '../../services/tmdb.service'; // Import TmdbService
-import { ClickOutsideDirective } from './click-outside.directive';
 
 @Component({
   selector: 'app-nav-bar',
   templateUrl: './nav-bar.component.html',
   standalone: true,
-  imports: [
-    FormsModule,
-    RouterModule,
-    CommonModule,
-    IconLibComponent,
-    ClickOutsideDirective,
-  ],
+  imports: [FormsModule, RouterModule, CommonModule, IconLibComponent],
   providers: [HighlightSlectedMenuRoute, TmdbService], // Add TmdbService to providers
 })
-export class NavBarComponent implements AfterViewInit {
+export class NavBarComponent implements AfterViewInit, OnDestroy {
   query = '';
   searchResults: any[] = [];
-  showMobileMenu = false; // Add showMobileMenu property
-  navBarWidth = '100vw';
+  showMobileMenu = false;
   isMobile = false;
+  navBarWidth = '250px';
 
   menuItems = [
     { label: 'Home', route: '', svg: 'home' },
@@ -44,18 +37,17 @@ export class NavBarComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.highlightSlectedMenuRoute.ngAfterViewInit();
-    // Dynamically set navBarWidth to match the nav bar's width
-    setTimeout(() => {
-      const nav = document.querySelector('header .w-full.mx-auto');
-      if (nav) {
-        const rect = (nav as HTMLElement).getBoundingClientRect();
-        this.navBarWidth = rect.width + 'px';
-      }
-      this.isMobile = window.innerWidth < 1024;
-    });
-    window.addEventListener('resize', () => {
-      this.isMobile = window.innerWidth < 1024;
-    });
+    this.checkIsMobile();
+    window.addEventListener('resize', this.checkIsMobile.bind(this));
+  }
+
+  ngOnDestroy() {
+    window.removeEventListener('resize', this.checkIsMobile.bind(this));
+  }
+
+  checkIsMobile() {
+    this.isMobile = window.innerWidth <= 768;
+    this.navBarWidth = this.isMobile ? '80vw' : '250px';
   }
 
   get sources() {
