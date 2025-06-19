@@ -67,6 +67,18 @@ export class TableComponent implements OnInit, OnDestroy {
   isAllSelected: boolean = false;
   isBulkEditingSelected: boolean = false; // For "Edit Selected" / "Done Editing Selected" button state
 
+  // Advanced Source Modal state
+  isAdvancedSourceModalOpen: boolean = false;
+  advancedSourceName: string = '';
+  advancedSourceUrl: string = '';
+  validationState = {
+    hasId: false,
+    hasType: false,
+    hasSeason: false,
+    hasEpisode: false,
+    isValid: false,
+  };
+
   private editCache = new Map<
     number,
     { name: string; url: string; enabled: boolean }
@@ -277,6 +289,93 @@ export class TableComponent implements OnInit, OnDestroy {
       this._checkForChanges();
     }
     this.isAdding = false;
+  }
+
+  // Advanced Source Modal Methods
+  openAdvancedSourceModal(): void {
+    this.isAdvancedSourceModalOpen = true;
+    this.advancedSourceName = '';
+    this.advancedSourceUrl = '';
+    this.resetValidationState();
+  }
+
+  closeAdvancedSourceModal(): void {
+    this.isAdvancedSourceModalOpen = false;
+    this.advancedSourceName = '';
+    this.advancedSourceUrl = '';
+    this.resetValidationState();
+  }
+
+  insertTag(tag: string): void {
+    const textarea = document.getElementById('advancedSourceTextarea') as HTMLTextAreaElement;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      const before = text.substring(0, start);
+      const after = text.substring(end);
+      
+      // Insert tag at cursor position
+      const newText = before + tag + after;
+      this.advancedSourceUrl = newText;
+      
+      // Update cursor position
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + tag.length;
+        textarea.focus();
+        this.validateAdvancedUrl();
+      }, 0);
+    }
+  }
+
+  validateAdvancedUrl(): void {
+    const url = this.advancedSourceUrl.toLowerCase();
+    
+    this.validationState = {
+      hasId: url.includes('#id'),
+      hasType: url.includes('#type'),
+      hasSeason: url.includes('#season'),
+      hasEpisode: url.includes('#episode'),
+      isValid: false
+    };
+
+    // Check if all required tags are present
+    this.validationState.isValid = 
+      this.validationState.hasId && 
+      this.validationState.hasType && 
+      this.validationState.hasSeason && 
+      this.validationState.hasEpisode;
+  }
+
+  resetValidationState(): void {
+    this.validationState = {
+      hasId: false,
+      hasType: false,
+      hasSeason: false,
+      hasEpisode: false,
+      isValid: false
+    };
+  }
+
+  confirmAdvancedAdd(): void {
+    const trimmedName = this.advancedSourceName.trim();
+    const trimmedUrl = this.advancedSourceUrl.trim();
+
+    if (trimmedUrl) {
+      const newSource: Source = {
+        id: 0,
+        name: trimmedName || this.getDisplayName({ url: trimmedUrl } as Source),
+        url: trimmedUrl,
+        isEditing: false,
+        enabled: true,
+        selected: false,
+      };
+      this.sourceSub.unsubscribeFromDefaults();
+      this.sources = [newSource, ...this.sources];
+      this._reIndexSources();
+      this._checkForChanges();
+      this.closeAdvancedSourceModal();
+    }
   }
 
   getDisplayName(source: Partial<Source>): string {

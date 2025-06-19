@@ -186,14 +186,16 @@
         tabindex="0"
         aria-label="Add new source"
       >
-        <div class="flex items-center justify-center h-full">
-          <app-icon-lib
-            ico="plus"
-            class="h-6 w-6 text-gray-400 group-hover:text-blue-500"
-          ></app-icon-lib>
-          <span class="ml-2 text-gray-500 group-hover:text-blue-500"
-            >Add a new source</span
-          >
+        <div class="flex items-center justify-between h-full">
+          <div class="flex items-center justify-center flex-1">
+            <app-icon-lib
+              ico="plus"
+              class="h-6 w-6 text-gray-400 group-hover:text-blue-500"
+            ></app-icon-lib>
+            <span class="ml-2 text-gray-500 group-hover:text-blue-500"
+              >Add a new source</span
+            >
+          </div>
         </div>
       </div>
 
@@ -201,7 +203,9 @@
         *ngIf="isAdding"
         class="p-4 border-2 border-dashed border-blue-200 rounded-lg bg-blue-50/50"
       >
-        <h3 class="text-lg font-medium text-gray-800 mb-3">Add New Source</h3>
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-lg font-medium text-gray-800">Add New Source</h3>
+        </div>
         <div class="flex flex-col sm:flex-row gap-3 items-start">
           <input
             type="text"
@@ -218,6 +222,15 @@
             (keyup.enter)="confirmAdd()"
           />
           <div class="flex gap-2 self-stretch sm:self-auto">
+            <button
+              type="button"
+              class="px-3 py-2 text-sm font-medium text-purple-700 bg-purple-100 hover:bg-purple-200 rounded-md border border-purple-300 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 flex items-center justify-center"
+              (click)="openAdvancedSourceModal(); cancelAdd()"
+              title="Open Advanced Source Editor"
+              aria-label="Open Advanced Source Editor"
+            >
+              <app-icon-lib ico="maximize" class="h-4 w-4"></app-icon-lib>
+            </button>
             <button
               type="button"
               class="px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
@@ -634,6 +647,258 @@
 </div>
 
 <!-- Modals -->
+<!-- Advanced Source Modal -->
+<div
+  *ngIf="isAdvancedSourceModalOpen"
+  class="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-4 bg-black/20 backdrop-blur-sm overflow-y-auto"
+  (click)="closeAdvancedSourceModal()"
+>
+  <div
+    class="bg-white rounded-xl border border-gray-200 shadow-2xl w-full max-w-4xl my-4 sm:my-8 max-h-[95vh] sm:max-h-[85vh] overflow-hidden flex flex-col"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Modal Header -->
+    <div
+      class="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50 rounded-t-xl"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-8 bg-purple-500 rounded-full"></div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-900">
+            Advanced Source Editor
+          </h2>
+          <div class="text-sm text-gray-500">
+            Create sources with URL tags and live validation
+          </div>
+        </div>
+      </div>
+      <button
+        (click)="closeAdvancedSourceModal()"
+        class="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        title="Close"
+      >
+        <app-icon-lib ico="xMark" class="w-5 h-5 text-gray-600"></app-icon-lib>
+      </button>
+    </div>
+
+    <!-- Modal Content -->
+    <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+      <!-- Source Name Input -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Source Name (optional)
+        </label>
+        <input
+          type="text"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+          placeholder="Enter a friendly name for this source"
+          [(ngModel)]="advancedSourceName"
+        />
+      </div>
+
+      <!-- URL Textarea -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Source URL with Tags
+        </label>
+        <textarea
+          id="advancedSourceTextarea"
+          rows="4"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all resize-none font-mono text-sm"
+          placeholder="https://example.com/embed/#type/#id/#season/#episode"
+          [(ngModel)]="advancedSourceUrl"
+          (input)="validateAdvancedUrl()"
+        ></textarea>
+      </div>
+
+      <!-- Tag Buttons -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-3">
+          Click to insert tags at cursor position
+        </label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-medium rounded-lg border transition-all flex items-center justify-center gap-2"
+            [ngClass]="{
+              'bg-blue-100 text-blue-700 border-blue-300':
+                validationState.hasId,
+              'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200':
+                !validationState.hasId
+            }"
+            (click)="insertTag('#id')"
+            title="TMDB ID placeholder"
+          >
+            <app-icon-lib
+              ico="check"
+              class="w-4 h-4"
+              *ngIf="validationState.hasId"
+            ></app-icon-lib>
+            #id
+          </button>
+
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-medium rounded-lg border transition-all flex items-center justify-center gap-2"
+            [ngClass]="{
+              'bg-orange-100 text-orange-700 border-orange-300':
+                validationState.hasType,
+              'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200':
+                !validationState.hasType
+            }"
+            (click)="insertTag('#type')"
+            title="Media type (tv/movie) placeholder"
+          >
+            <app-icon-lib
+              ico="check"
+              class="w-4 h-4"
+              *ngIf="validationState.hasType"
+            ></app-icon-lib>
+            #type
+          </button>
+
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-medium rounded-lg border transition-all flex items-center justify-center gap-2"
+            [ngClass]="{
+              'bg-red-100 text-red-700 border-red-300':
+                validationState.hasSeason,
+              'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200':
+                !validationState.hasSeason
+            }"
+            (click)="insertTag('#season')"
+            title="Season number placeholder"
+          >
+            <app-icon-lib
+              ico="check"
+              class="w-4 h-4"
+              *ngIf="validationState.hasSeason"
+            ></app-icon-lib>
+            #season
+          </button>
+
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-medium rounded-lg border transition-all flex items-center justify-center gap-2"
+            [ngClass]="{
+              'bg-green-100 text-green-700 border-green-300':
+                validationState.hasEpisode,
+              'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200':
+                !validationState.hasEpisode
+            }"
+            (click)="insertTag('#episode')"
+            title="Episode number placeholder"
+          >
+            <app-icon-lib
+              ico="check"
+              class="w-4 h-4"
+              *ngIf="validationState.hasEpisode"
+            ></app-icon-lib>
+            #episode
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Validation Status -->
+      <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+        <div class="flex items-center gap-2 mb-2">
+          <app-icon-lib
+            ico="check"
+            class="w-5 h-5 text-green-500"
+            *ngIf="validationState.isValid"
+          ></app-icon-lib>
+          <app-icon-lib
+            ico="close"
+            class="w-5 h-5 text-red-500"
+            *ngIf="!validationState.isValid"
+          ></app-icon-lib>
+          <span
+            class="font-medium text-sm"
+            [ngClass]="{
+              'text-green-700': validationState.isValid,
+              'text-red-700': !validationState.isValid
+            }"
+          >
+            {{
+              validationState.isValid
+                ? "All required tags present!"
+                : "Missing required tags"
+            }}
+          </span>
+        </div>
+        <div class="text-xs text-gray-600 space-y-1">
+          <div class="flex items-center gap-2">
+            <span
+              class="w-2 h-2 rounded-full"
+              [ngClass]="{
+                'bg-blue-500': validationState.hasId,
+                'bg-gray-300': !validationState.hasId
+              }"
+            ></span>
+            <span>#id tag</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span
+              class="w-2 h-2 rounded-full"
+              [ngClass]="{
+                'bg-orange-500': validationState.hasType,
+                'bg-gray-300': !validationState.hasType
+              }"
+            ></span>
+            <span>#type tag</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span
+              class="w-2 h-2 rounded-full"
+              [ngClass]="{
+                'bg-red-500': validationState.hasSeason,
+                'bg-gray-300': !validationState.hasSeason
+              }"
+            ></span>
+            <span>#season tag</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span
+              class="w-2 h-2 rounded-full"
+              [ngClass]="{
+                'bg-green-500': validationState.hasEpisode,
+                'bg-gray-300': !validationState.hasEpisode
+              }"
+            ></span>
+            <span>#episode tag</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div
+      class="flex flex-col sm:flex-row justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl"
+    >
+      <button
+        type="button"
+        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 order-2 sm:order-1"
+        (click)="closeAdvancedSourceModal()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="px-4 py-2 text-sm font-medium text-white rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
+        [ngClass]="{
+          'bg-purple-600 hover:bg-purple-700 border-purple-600':
+            advancedSourceUrl.trim(),
+          'bg-gray-400 border-gray-400': !advancedSourceUrl.trim()
+        }"
+        (click)="confirmAdvancedAdd()"
+        [disabled]="!advancedSourceUrl.trim()"
+      >
+        Add Source
+      </button>
+    </div>
+  </div>
+</div>
+
 <universal-modal
   [open]="isUniversalOpenDelete"
   [title]="YnTitleDelete"
