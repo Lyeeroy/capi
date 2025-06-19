@@ -13,13 +13,7 @@
   [showDetailsAndPlaylist]="false"
 ></app-player-header>
 <div class="flex flex-col lg:flex-row gap-0 lg:gap-4">
-  <div
-    [ngClass]="
-      mediaType === 'movie'
-        ? 'w-full flex flex-col'
-        : 'w-full lg:w-3/4 flex flex-col'
-    "
-  >
+  <div class="w-full lg:w-[70%] flex flex-col">
     <!-- Main content column: iframe and controls -->
     <div class="flex flex-col" id="iframe-container" #iframeContainer>
       <div class="aspect-video rounded-xl" id="video-container" #videoContainer>
@@ -197,8 +191,7 @@
 
   <!-- Right Side: Playlist Only -->
   <div
-    *ngIf="mediaType !== 'movie'"
-    class="w-full lg:w-1/4 flex flex-col rounded-xl"
+    class="w-full lg:w-[30%] flex flex-col rounded-xl"
     id="playlist-container"
     #playlistContainer
   >
