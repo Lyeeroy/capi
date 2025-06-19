@@ -7,7 +7,7 @@
       class="w-full mx-auto bg-gray-50/95 backdrop-blur-lg border border-gray-200 rounded-2xl overflow-hidden"
     >
       <!--  sm:w-4/5 lg:w-2/3 mx-auto -->
-      <div class="px-3 py-2 sm:px-4 sm:py-2 lg:px-6 lg:py-3">
+      <div class="px-3 py-3 sm:px-4 sm:py-2 lg:px-6 lg:py-3">
         <div
           class="flex flex-col lg:flex-row lg:items-center lg:justify-between"
         >
@@ -57,65 +57,92 @@
           <!-- Right: Search and Actions -->
           <div class="flex items-center gap-2 w-full lg:w-auto lg:gap-3">
             <!-- Search Bar -->
-            <div class="flex-1">
-              <div class="relative flex items-center">
+            <div class="flex-1 relative">
+              <div class="relative group">
                 <input
                   id="search"
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search movies, TV shows..."
                   [(ngModel)]="query"
                   (input)="searchMovies()"
                   (keydown.enter)="searchMovies()"
-                  class="w-full pl-4 pr-10 py-2 sm:py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200/50 transition-all outline-none text-gray-700 placeholder-gray-400 text-sm"
+                  class="w-full pl-4 pr-16 py-2.5 sm:py-3 lg:py-2.5 rounded-xl border border-gray-200/80 bg-white/90 backdrop-blur-sm focus:border-blue-400 focus:ring-4 focus:ring-blue-100/60 focus:bg-white hover:border-gray-300 hover:shadow-sm transition-all duration-200 outline-none text-gray-800 placeholder-gray-500 text-sm sm:text-base lg:text-sm shadow-sm group-hover:shadow-md"
                 />
                 <div
-                  class="absolute inset-y-0 right-0 flex items-center pr-3 gap-1.5"
+                  class="absolute inset-y-0 right-0 flex items-center pr-3 gap-1"
                 >
-                  <app-icon-lib
+                  <!-- Clear Button -->
+                  <button
                     *ngIf="query.length > 0"
-                    ico="clear"
-                    class="h-4 w-4 text-gray-500 cursor-pointer hover:text-gray-700"
+                    type="button"
                     (click)="clearSearch(); focusSearchInput()"
-                  ></app-icon-lib>
+                    class="p-1 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors duration-150 group/clear"
+                    aria-label="Clear search"
+                  >
+                    <app-icon-lib
+                      ico="clear"
+                      class="h-4 w-4 text-gray-400 group-hover/clear:text-gray-600 transition-colors"
+                    ></app-icon-lib>
+                  </button>
 
-                  <app-icon-lib
-                    ico="search"
-                    class="h-4 w-4 sm:h-5 sm:w-5 text-gray-500 cursor-pointer hover:text-gray-700"
+                  <!-- Search Button -->
+                  <button
+                    type="button"
                     (click)="searchMovies()"
-                  ></app-icon-lib>
+                    class="p-1 rounded-md hover:bg-blue-50 active:bg-blue-100 transition-colors duration-150 group/search"
+                    aria-label="Search"
+                  >
+                    <app-icon-lib
+                      ico="search"
+                      class="h-4 w-4 sm:h-5 sm:w-5 lg:h-4 lg:w-4 text-blue-500 group-hover/search:text-blue-600 transition-colors"
+                    ></app-icon-lib>
+                  </button>
                 </div>
               </div>
             </div>
-
             <!-- Action Icons -->
-            <div class="flex items-center gap-1 sm:gap-2">
+            <div class="flex items-center gap-2 sm:gap-3">
+              <!-- Sources Button -->
               <button
-                class="relative p-1.5 sm:p-2 rounded-lg hover:bg-gray-100/50 transition-colors cursor-pointer"
+                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200/80 hover:bg-white hover:border-gray-300 hover:shadow-md active:scale-95 transition-all duration-200"
                 routerLink="/table"
                 aria-label="Sources"
+                [ngClass]="{
+                  'bg-blue-50 border-blue-200 shadow-sm': isActive('/table'),
+                  'bg-white/80 border-gray-200/80': !isActive('/table')
+                }"
               >
                 <app-icon-lib
                   ico="sources"
-                  class="w-4 h-4 sm:w-5 sm:h-5"
+                  class="w-4 h-4 sm:w-5 sm:h-5 lg:w-4 lg:h-4 transition-colors duration-200"
                   [class.text-blue-600]="isActive('/table')"
-                  [class.text-gray-700]="!isActive('/table')"
+                  [class.text-gray-600]="!isActive('/table')"
+                  [class.group-hover:text-blue-500]="!isActive('/table')"
                 ></app-icon-lib>
+                <!-- Badge -->
                 <span
-                  class="absolute -top-1 -right-1 bg-blue-500 text-xs text-white px-1 py-0.5 rounded-full"
+                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-gradient-to-r from-blue-500 to-blue-600 text-xs text-white font-medium flex items-center justify-center rounded-full border-2 border-white shadow-sm"
                 >
                   {{ sources.length }}
                 </span>
               </button>
+
+              <!-- Settings Button -->
               <button
-                class="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100/50 transition-colors cursor-pointer"
+                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200/80 hover:bg-white hover:border-gray-300 hover:shadow-md active:scale-95 transition-all duration-200"
                 routerLink="/settings"
                 aria-label="Settings"
+                [ngClass]="{
+                  'bg-blue-50 border-blue-200 shadow-sm': isActive('/settings'),
+                  'bg-white/80 border-gray-200/80': !isActive('/settings')
+                }"
               >
                 <app-icon-lib
                   ico="settings"
-                  class="w-4 h-4 sm:w-5 sm:h-5"
+                  class="w-4 h-4 sm:w-5 sm:h-5 lg:w-4 lg:h-4 transition-all duration-200 group-hover:rotate-90 group-active:rotate-180"
                   [class.text-blue-600]="isActive('/settings')"
-                  [class.text-gray-700]="!isActive('/settings')"
+                  [class.text-gray-600]="!isActive('/settings')"
+                  [class.group-hover:text-blue-500]="!isActive('/settings')"
                 ></app-icon-lib>
               </button>
             </div>
@@ -129,36 +156,45 @@
 <!-- Mobile Navigation (Bottom Bar) -->
 <nav class="fixed bottom-0 inset-x-0 z-50 lg:hidden">
   <div
-    class="w-full sm:w-4/5 mx-auto bg-gray-50/95 backdrop-blur-lg border-t border-gray-200 rounded-t-2xl shadow-sm"
+    class="w-full sm:w-4/5 mx-auto bg-white/95 backdrop-blur-lg border-t border-gray-200/80 rounded-t-2xl shadow-lg"
   >
-    <ul class="flex justify-around items-center py-2 px-4">
+    <ul class="flex justify-around items-center py-3 px-2">
       <li
         *ngFor="let item of menuItems"
         id="li-menu-mobile-{{ item.route }}"
         class="flex-1"
-        routerLinkActive="bg-blue-100 rounded-lg"
-        [routerLinkActiveOptions]="{ exact: true }"
       >
         <a
           routerLink="{{ item.route }}"
-          class="flex flex-col items-center py-2 transition-colors duration-300"
+          class="flex flex-col items-center py-2 px-1 rounded-xl transition-all duration-300 group active:scale-95"
           (click)="handleClick($event)"
           [ngClass]="{
-            'text-blue-600': isActive(item.route),
-            'text-gray-700': !isActive(item.route)
+            'bg-blue-50 text-blue-600': isActive(item.route),
+            'text-gray-600 hover:text-blue-500 hover:bg-blue-50/50': !isActive(
+              item.route
+            )
           }"
         >
-          <app-icon-lib
-            ico="{{ item.svg }}"
-            class="w-6 h-6 mb-1 mx-auto"
-            [class.text-blue-600]="isActive(item.route)"
-            [class.text-gray-700]="!isActive(item.route)"
-          ></app-icon-lib>
+          <div class="relative">
+            <app-icon-lib
+              ico="{{ item.svg }}"
+              class="w-6 h-6 mb-1.5 mx-auto transition-all duration-300"
+              [class.text-blue-600]="isActive(item.route)"
+              [class.text-gray-600]="!isActive(item.route)"
+              [class.group-hover:text-blue-500]="!isActive(item.route)"
+              [class.group-hover:scale-110]="!isActive(item.route)"
+            ></app-icon-lib>
+            <!-- Active indicator dot -->
+            <div
+              *ngIf="isActive(item.route)"
+              class="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full animate-pulse"
+            ></div>
+          </div>
           <span
-            class="text-xs font-medium text-center leading-tight"
+            class="text-xs font-medium text-center leading-tight transition-colors duration-300"
             [ngClass]="{
               'text-blue-600': isActive(item.route),
-              'text-gray-700': !isActive(item.route)
+              'text-gray-600': !isActive(item.route)
             }"
           >
             {{ item.label }}
