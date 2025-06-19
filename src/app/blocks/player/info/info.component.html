@@ -1,11 +1,13 @@
 <!-- Content Container -->
-<div class="p-4 flex flex-col gap-4">
+<div class="p-6 flex flex-col gap-6">
   <!-- Title and Poster Section -->
-  <div class="bg-white rounded-lg border border-gray-200 p-4">
-    <div class="flex gap-4">
-      <div class="w-20 h-28 flex-shrink-0">
+  <div class="bg-white rounded-xl border border-gray-200 p-6">
+    <div
+      class="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start"
+    >
+      <div class="w-28 h-40 sm:w-24 sm:h-36 flex-shrink-0 mb-3 sm:mb-0">
         <img
-          class="w-full h-full object-cover rounded-md border border-gray-200"
+          class="w-full h-full object-cover rounded-lg border-2 border-gray-200"
           [src]="
             responseData?.poster_path
               ? 'https://image.tmdb.org/t/p/w300/' + responseData.poster_path
@@ -17,57 +19,61 @@
           "
         />
       </div>
-      <div class="flex-1 min-w-0">
-        <h3 class="text-base font-bold text-gray-900 truncate">
+      <div class="flex-1 min-w-0 text-center sm:text-left">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-900 truncate mb-2">
           {{ responseData?.name || responseData?.title || "Loading..." }}
         </h3>
-        <p class="text-sm text-gray-600 mt-1 line-clamp-2">
-          {{ responseData?.tagline }}
+        <p
+          *ngIf="responseData?.tagline"
+          class="text-sm sm:text-base text-gray-700 mt-2 line-clamp-2 italic"
+        >
+          "{{ responseData?.tagline }}"
         </p>
         <!-- Rating -->
         <div
           *ngIf="responseData?.vote_average"
-          class="flex items-center gap-1.5 mt-2"
+          class="flex justify-center sm:justify-start items-center gap-2 mt-4 bg-white/70 backdrop-blur-sm rounded-lg px-3 py-2 w-fit mx-auto sm:mx-0"
         >
           <app-icon-lib
             ico="star"
-            class="w-4 h-4 text-yellow-500"
+            class="w-5 h-5 text-yellow-500"
           ></app-icon-lib>
-          <span class="text-sm font-semibold text-gray-900">{{
+          <span class="text-base font-bold text-gray-900">{{
             responseData.vote_average.toFixed(1)
           }}</span>
-          <span class="text-sm text-gray-500"
-            >({{ responseData.vote_count | number }})</span
+          <span class="text-sm text-gray-600 font-medium"
+            >/10 ({{ responseData.vote_count | number }} votes)</span
           >
         </div>
       </div>
     </div>
   </div>
-
   <!-- Info Badges -->
-  <div class="bg-white rounded-lg border border-gray-200 p-4">
-    <h4 class="text-sm font-bold text-gray-700 mb-3">Information</h4>
-    <div class="flex flex-wrap gap-1.5">
+  <div class="bg-white rounded-xl border border-gray-200 p-6">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-1 h-6 bg-blue-500 rounded-full"></div>
+      <h4 class="text-lg font-bold text-gray-800">Information</h4>
+    </div>
+    <div class="flex flex-wrap gap-2">
       <!-- Media Type Badge -->
       <ng-container *ngIf="mediaType">
         <span
-          class="inline-flex items-center gap-1.5 bg-emerald-100 text-emerald-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
           <app-icon-lib
             [ico]="mediaType === 'movie' ? 'movie' : 'tvshow'"
-            class="w-3.5 h-3.5"
+            class="w-4 h-4"
           ></app-icon-lib>
           {{ mediaType === "movie" ? "Movie" : "TV Show" }}
         </span>
       </ng-container>
-
       <ng-container
         *ngIf="responseData?.first_air_date || responseData?.release_date"
       >
         <span
-          class="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="year" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="year" class="w-4 h-4"></app-icon-lib>
           {{
             responseData?.first_air_date || responseData?.release_date
               | date : "yyyy"
@@ -77,9 +83,9 @@
 
       <ng-container *ngIf="responseData?.number_of_seasons">
         <span
-          class="inline-flex items-center gap-1.5 bg-purple-100 text-purple-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-purple-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="seasons" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="seasons" class="w-4 h-4"></app-icon-lib>
           {{ responseData.number_of_seasons }} Season{{
             responseData.number_of_seasons === 1 ? "" : "s"
           }}
@@ -88,47 +94,38 @@
 
       <ng-container *ngIf="responseData?.number_of_episodes">
         <span
-          class="inline-flex items-center gap-1.5 bg-indigo-100 text-indigo-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="episodes" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="episodes" class="w-4 h-4"></app-icon-lib>
           {{ responseData.number_of_episodes }} Episode{{
             responseData.number_of_episodes === 1 ? "" : "s"
           }}
         </span>
       </ng-container>
-
       <ng-container *ngIf="responseData?.status">
         <span
-          class="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded"
-          [class.bg-red-100]="
+          class="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg"
+          [class.bg-red-500]="
             responseData.status === 'Ended' ||
             responseData.status === 'Canceled'
           "
-          [class.text-red-700]="
-            responseData.status === 'Ended' ||
-            responseData.status === 'Canceled'
-          "
-          [class.bg-green-100]="
+          [class.bg-green-500]="
             responseData.status !== 'Ended' &&
             responseData.status !== 'Canceled'
           "
-          [class.text-green-700]="
-            responseData.status !== 'Ended' &&
-            responseData.status !== 'Canceled'
-          "
+          [class.text-white]="true"
         >
-          <app-icon-lib ico="status" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="status" class="w-4 h-4"></app-icon-lib>
           {{ responseData.status }}
         </span>
       </ng-container>
-
       <ng-container
         *ngIf="responseData?.runtime || responseData?.episode_run_time?.length"
       >
         <span
-          class="inline-flex items-center gap-1.5 bg-pink-100 text-pink-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-pink-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="duration" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="duration" class="w-4 h-4"></app-icon-lib>
           {{ responseData?.runtime || (responseData?.episode_run_time?.[0] || 'N/A') }}
           min
         </span>
@@ -137,45 +134,44 @@
       <!-- Additional Movie/TV Show specific badges -->
       <ng-container *ngIf="responseData?.budget && responseData.budget > 0">
         <span
-          class="inline-flex items-center gap-1.5 bg-amber-100 text-amber-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-amber-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="budget" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="budget" class="w-4 h-4"></app-icon-lib>
           ${{ (responseData.budget / 1000000).toFixed(1) }}M Budget
         </span>
       </ng-container>
 
       <ng-container *ngIf="responseData?.revenue && responseData.revenue > 0">
         <span
-          class="inline-flex items-center gap-1.5 bg-green-100 text-green-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-green-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="boxoffice" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="boxoffice" class="w-4 h-4"></app-icon-lib>
           ${{ (responseData.revenue / 1000000).toFixed(1) }}M Box Office
         </span>
       </ng-container>
-
       <ng-container *ngIf="responseData?.production_companies?.length">
         <span
-          class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-gray-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="company" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="company" class="w-4 h-4"></app-icon-lib>
           {{ responseData.production_companies[0].name }}
         </span>
       </ng-container>
 
       <ng-container *ngIf="responseData?.in_production === true">
         <span
-          class="inline-flex items-center gap-1.5 bg-orange-100 text-orange-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-orange-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="producing" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="producing" class="w-4 h-4"></app-icon-lib>
           In Production
         </span>
       </ng-container>
 
       <ng-container *ngIf="responseData?.adult === true">
         <span
-          class="inline-flex items-center gap-1.5 bg-red-100 text-red-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-red-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="adult" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="adult" class="w-4 h-4"></app-icon-lib>
           Adult Content
         </span>
       </ng-container>
@@ -185,9 +181,9 @@
         *ngIf="responseData?.popularity && responseData.popularity > 50"
       >
         <span
-          class="inline-flex items-center gap-1.5 bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-yellow-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="popularity" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="popularity" class="w-4 h-4"></app-icon-lib>
           Popular
         </span>
       </ng-container>
@@ -199,35 +195,39 @@
         "
       >
         <span
-          class="inline-flex items-center gap-1.5 bg-teal-100 text-teal-800 text-sm font-medium px-2.5 py-1 rounded"
+          class="inline-flex items-center gap-2 bg-teal-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
         >
-          <app-icon-lib ico="language" class="w-3.5 h-3.5"></app-icon-lib>
+          <app-icon-lib ico="language" class="w-4 h-4"></app-icon-lib>
           {{ responseData.original_language.toUpperCase() }}
         </span>
       </ng-container>
     </div>
   </div>
-
   <!-- Overview -->
   <div
     *ngIf="responseData?.overview"
-    class="bg-white rounded-lg border border-gray-200 p-4"
+    class="bg-white rounded-xl border border-gray-200 p-6"
   >
-    <h4 class="text-sm font-bold text-gray-700 mb-3">Overview</h4>
-    <p class="text-sm text-gray-800 leading-relaxed">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-1 h-6 bg-green-500 rounded-full"></div>
+      <h4 class="text-lg font-bold text-gray-800">Overview</h4>
+    </div>
+    <p class="text-base text-gray-700 leading-relaxed">
       {{ responseData.overview }}
     </p>
   </div>
-
   <!-- Latest Episode -->
   <div
     *ngIf="responseData?.last_episode_to_air"
-    class="bg-white rounded-lg border border-gray-200 p-4"
+    class="bg-white rounded-xl border border-gray-200 p-6"
   >
-    <h4 class="text-sm font-bold text-gray-700 mb-3">Latest Episode</h4>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-1 h-6 bg-purple-500 rounded-full"></div>
+      <h4 class="text-lg font-bold text-gray-800">Latest Episode</h4>
+    </div>
+    <div class="flex items-center gap-4">
       <span
-        class="px-2.5 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded"
+        class="px-4 py-2 text-sm font-bold text-white bg-purple-500 rounded-lg"
       >
         S{{
           responseData.last_episode_to_air.season_number | number : "2.0-0"
@@ -237,10 +237,10 @@
         }}
       </span>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-gray-900 truncate">
+        <p class="text-base font-semibold text-gray-900 truncate">
           {{ responseData.last_episode_to_air.name }}
         </p>
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-gray-600 font-medium">
           {{ responseData.last_episode_to_air.air_date | date : "mediumDate" }}
         </p>
       </div>
@@ -250,49 +250,62 @@
   <!-- Genres -->
   <div
     *ngIf="responseData?.genres?.length"
-    class="bg-white rounded-lg border border-gray-200 p-4"
+    class="bg-white rounded-xl border border-gray-200 p-6"
   >
-    <h4 class="text-sm font-bold text-gray-700 mb-3">Genres</h4>
-    <div class="flex flex-wrap gap-1.5">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-1 h-6 bg-orange-500 rounded-full"></div>
+      <h4 class="text-lg font-bold text-gray-800">Genres</h4>
+    </div>
+    <div class="flex flex-wrap gap-2">
       <span
         *ngFor="let genre of responseData.genres"
-        class="inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded"
+        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg transition-shadow"
       >
-        <app-icon-lib ico="genre" class="w-3 h-3"></app-icon-lib>
+        <app-icon-lib ico="genre" class="w-4 h-4"></app-icon-lib>
         {{ genre.name }}
       </span>
     </div>
   </div>
-
   <!-- Network & Additional Info -->
-  <div class="bg-white rounded-lg border border-gray-200 p-4">
-    <h4 class="text-sm font-bold text-gray-700 mb-3">Additional Info</h4>
-    <div class="space-y-2 text-sm">
-      <div *ngIf="responseData?.networks?.length" class="flex items-center">
+  <div class="bg-white rounded-xl border border-gray-200 p-6">
+    <div class="flex items-center gap-2 mb-4">
+      <div class="w-1 h-6 bg-cyan-500 rounded-full"></div>
+      <h4 class="text-lg font-bold text-gray-800">Additional Info</h4>
+    </div>
+    <div class="space-y-4 text-sm">
+      <div
+        *ngIf="responseData?.networks?.length"
+        class="flex items-center bg-white/70 backdrop-blur-sm rounded-lg p-3"
+      >
         <app-icon-lib
           ico="network"
-          class="w-4 h-4 text-gray-500 mr-2"
+          class="w-5 h-5 text-cyan-600 mr-3"
         ></app-icon-lib>
-        <span class="font-medium text-gray-700 w-16 flex-shrink-0"
+        <span class="font-semibold text-gray-800 w-20 flex-shrink-0"
           >Network:</span
         >
-        <span class="text-gray-600">
+        <span class="text-gray-700 font-medium">
           {{ responseData.networks[0].name }}
-          <span *ngIf="responseData.origin_country?.length"
+          <span
+            *ngIf="responseData.origin_country?.length"
+            class="text-gray-500"
             >({{ responseData.origin_country[0] }})</span
           >
         </span>
       </div>
 
-      <div *ngIf="responseData?.created_by?.length" class="flex items-center">
+      <div
+        *ngIf="responseData?.created_by?.length"
+        class="flex items-center bg-white/70 backdrop-blur-sm rounded-lg p-3"
+      >
         <app-icon-lib
           ico="production"
-          class="w-4 h-4 text-gray-500 mr-2"
+          class="w-5 h-5 text-cyan-600 mr-3"
         ></app-icon-lib>
-        <span class="font-medium text-gray-700 w-16 flex-shrink-0"
+        <span class="font-semibold text-gray-800 w-20 flex-shrink-0"
           >Creator:</span
         >
-        <span class="text-gray-600">
+        <span class="text-gray-700 font-medium">
           <ng-container
             *ngFor="let creator of responseData.created_by; let isLast = last"
           >
@@ -303,16 +316,16 @@
 
       <div
         *ngIf="responseData?.spoken_languages?.length"
-        class="flex items-center"
+        class="flex items-center bg-white/70 backdrop-blur-sm rounded-lg p-3"
       >
         <app-icon-lib
           ico="language"
-          class="w-4 h-4 text-gray-500 mr-2"
+          class="w-5 h-5 text-cyan-600 mr-3"
         ></app-icon-lib>
-        <span class="font-medium text-gray-700 w-16 flex-shrink-0"
+        <span class="font-semibold text-gray-800 w-20 flex-shrink-0"
           >Language:</span
         >
-        <span class="text-gray-600">
+        <span class="text-gray-700 font-medium">
           {{
             responseData.spoken_languages[0]?.english_name ||
               responseData.spoken_languages[0]?.name
@@ -320,18 +333,21 @@
         </span>
       </div>
 
-      <div *ngIf="responseData?.homepage" class="flex items-center">
+      <div
+        *ngIf="responseData?.homepage"
+        class="flex items-center bg-white/70 backdrop-blur-sm rounded-lg p-3"
+      >
         <app-icon-lib
           ico="sources"
-          class="w-4 h-4 text-gray-500 mr-2"
+          class="w-5 h-5 text-cyan-600 mr-3"
         ></app-icon-lib>
-        <span class="font-medium text-gray-700 w-16 flex-shrink-0"
+        <span class="font-semibold text-gray-800 w-20 flex-shrink-0"
           >Website:</span
         >
         <a
           [href]="responseData.homepage"
           target="_blank"
-          class="text-blue-600 hover:underline text-xs truncate"
+          class="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
         >
           Visit Homepage
         </a>

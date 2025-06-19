@@ -11,8 +11,15 @@
         <h2 class="text-base font-bold text-gray-900 truncate">
           {{ getSubtitle() }}
         </h2>
-        <div class="text-sm text-gray-500 font-medium truncate">
-          {{ getCurrentEpisodeInfo() }} • {{ getEpisodeCount() }}
+        <div
+          class="text-sm text-gray-500 font-medium truncate justify-center items-center"
+        >
+          {{ getCurrentEpisodeInfo() }}
+          <app-icon-lib
+            ico="chevronRight"
+            class="inline w-[0.8rem] h-[0.8rem] mx-[0.1rem] text-gray-500 mb-[0.1rem]"
+          ></app-icon-lib>
+          {{ getEpisodeCount() }}
         </div>
       </div>
     </div>
@@ -94,12 +101,25 @@
           </div>
         </div>
       </div>
-      <button
-        (click)="toggleEpisodeNavExpansion()"
-        class="p-2 rounded-lg hover:bg-gray-200 transition-colors"
-      >
-        <app-icon-lib ico="close" class="w-5 h-5 text-gray-600"></app-icon-lib>
-      </button>
+      <div class="flex items-center gap-2">
+        <!-- Copy Episode Info Button -->
+        <button
+          (click)="copyEpisodeInfoToClipboard()"
+          class="p-2 rounded-lg hover:bg-gray-200 transition-colors ml-2"
+          title="Copy Episode Info"
+        >
+          <app-icon-lib ico="copy" class="w-5 h-5 text-gray-600"></app-icon-lib>
+        </button>
+        <button
+          (click)="toggleEpisodeNavExpansion()"
+          class="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        >
+          <app-icon-lib
+            ico="close"
+            class="w-5 h-5 text-gray-600"
+          ></app-icon-lib>
+        </button>
+      </div>
     </div>
 
     <!-- Modal Content -->

@@ -108,7 +108,16 @@ export class EpisodeNavigationComponent {
     if (this.mediaType === 'movie') {
       return this.responseData?.title || this.names || 'Movie';
     }
-    return `S${this.currentSeason}:E${this.currentEpisode}`;
+    // Format season and episode with leading zeros, but only up to two digits
+    const seasonStr =
+      this.currentSeason < 10
+        ? `0${this.currentSeason}`
+        : `${this.currentSeason}`;
+    const episodeStr =
+      this.currentEpisode < 10
+        ? `0${this.currentEpisode}`
+        : `${this.currentEpisode}`;
+    return `S${seasonStr}:E${episodeStr}`;
   }
 
   getSubtitle(): string {
@@ -123,7 +132,58 @@ export class EpisodeNavigationComponent {
     if (this.mediaType === 'movie') {
       return 'Feature Film';
     }
-    // This could be enhanced to show actual episode count if available
-    return 'Navigate Episodes';
+    // Show next episode info, including season change if needed
+    if (!this.hasNextEpisode) {
+      return 'No Next Ep.';
+    }
+    let nextSeason = this.currentSeason;
+    let nextEpisode = this.currentEpisode + 1;
+    // Try to get episode count for current season from responseData
+    let episodesInSeason = 0;
+    if (this.responseData && this.responseData.seasons) {
+      const seasonData = this.responseData.seasons.find(
+        (s: any) => s.season_number === this.currentSeason
+      );
+      if (seasonData && seasonData.episode_count) {
+        episodesInSeason = seasonData.episode_count;
+      }
+    }
+    if (episodesInSeason && nextEpisode > episodesInSeason) {
+      // Move to next season, episode 1
+      nextSeason++;
+      nextEpisode = 1;
+    }
+    const seasonStr = nextSeason < 10 ? `0${nextSeason}` : `${nextSeason}`;
+    const episodeStr = nextEpisode < 10 ? `0${nextEpisode}` : `${nextEpisode}`;
+    return `S${seasonStr}:E${episodeStr}`;
+  }
+
+  copyEpisodeInfoToClipboard() {
+    let text = '';
+    if (this.mediaType === 'movie') {
+      text = this.responseData?.title || this.names || 'Movie';
+    } else {
+      const name = this.names || this.responseData?.name || 'TV Show';
+      const seasonStr =
+        this.currentSeason < 10
+          ? `0${this.currentSeason}`
+          : `${this.currentSeason}`;
+      const episodeStr =
+        this.currentEpisode < 10
+          ? `0${this.currentEpisode}`
+          : `${this.currentEpisode}`;
+      text = `${name} S${seasonStr}E${episodeStr}`;
+    }
+    if (navigator && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    } else {
+      // fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
   }
 }

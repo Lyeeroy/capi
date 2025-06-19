@@ -13,7 +13,13 @@
   [showDetailsAndPlaylist]="false"
 ></app-player-header>
 <div class="flex flex-col lg:flex-row gap-0 lg:gap-4">
-  <div class="w-full lg:w-3/4 flex flex-col">
+  <div
+    [ngClass]="
+      mediaType === 'movie'
+        ? 'w-full flex flex-col'
+        : 'w-full lg:w-3/4 flex flex-col'
+    "
+  >
     <!-- Main content column: iframe and controls -->
     <div class="flex flex-col" id="iframe-container" #iframeContainer>
       <div class="aspect-video rounded-xl" id="video-container" #videoContainer>
@@ -59,7 +65,11 @@
         id="desktop-controls"
       >
         <!-- Source Controls on the left -->
-        <div class="flex-1 min-w-0 max-w-2xl">
+        <div
+          [ngClass]="
+            mediaType === 'movie' ? 'w-full' : 'flex-1 min-w-0 max-w-2xl'
+          "
+        >
           <app-controls
             [currentSourceUrl]="currentSourceUrl"
             [sources]="sources"
@@ -119,21 +129,16 @@
           </div>
         </div>
         <!-- Expandable Details Content -->
-        <div
-          class="overflow-hidden transition-all duration-300 ease-in-out"
-          [style.max-height.px]="isDetailsExpanded ? 400 : 0"
-        >
-          <div class="max-h-[400px] overflow-y-auto">
-            <app-info
-              class="block"
-              [names]="names || ''"
-              [currentSeason]="currentSeason"
-              [currentEpisodes]="currentEpisodes"
-              [currentPosters]="currentPosters"
-              [responseData]="responseData"
-              [mediaType]="mediaType ?? 'tv'"
-            ></app-info>
-          </div>
+        <div *ngIf="isDetailsExpanded" class="animate-modal-slide-up">
+          <app-info
+            class="block"
+            [names]="names || ''"
+            [currentSeason]="currentSeason"
+            [currentEpisodes]="currentEpisodes"
+            [currentPosters]="currentPosters"
+            [responseData]="responseData"
+            [mediaType]="mediaType ?? 'tv'"
+          ></app-info>
         </div>
       </div>
     </div>
@@ -148,63 +153,55 @@
     [mediaType]="mediaType ?? 'tv'"
   ></app-player-header>
 
+  <!-- Mobile Details Section (visible only on mobile, always shown) -->
+  <div class="lg:hidden">
+    <div class="flex-shrink-0 bg-white rounded-xl border border-gray-200 mb-4">
+      <!-- Details Header (clickable to expand/collapse) -->
+      <div
+        class="bg-gray-50 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+        (click)="toggleDetailsExpansion()"
+      >
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
+          <div>
+            <h2 class="text-base font-bold text-gray-900 truncate">Details</h2>
+            <div class="text-sm text-gray-500 font-medium">
+              {{ responseData?.name || responseData?.title || "Loading..." }}
+            </div>
+          </div>
+        </div>
+        <div
+          class="transition-transform duration-200"
+          [class.rotate-180]="isDetailsExpanded"
+        >
+          <app-icon-lib
+            ico="chevronDown"
+            class="w-4 h-4 text-gray-500"
+          ></app-icon-lib>
+        </div>
+      </div>
+      <!-- Expandable Details Content -->
+      <div *ngIf="isDetailsExpanded" class="animate-modal-slide-up">
+        <app-info
+          class="block"
+          [names]="names || ''"
+          [currentSeason]="currentSeason"
+          [currentEpisodes]="currentEpisodes"
+          [currentPosters]="currentPosters"
+          [responseData]="responseData"
+          [mediaType]="mediaType ?? 'tv'"
+        ></app-info>
+      </div>
+    </div>
+  </div>
+
   <!-- Right Side: Playlist Only -->
   <div
+    *ngIf="mediaType !== 'movie'"
     class="w-full lg:w-1/4 flex flex-col rounded-xl"
     id="playlist-container"
     #playlistContainer
   >
-    <!-- Mobile Details Section (visible only on mobile) -->
-    <div class="lg:hidden">
-      <div
-        class="flex-shrink-0 bg-white rounded-xl border border-gray-200 mb-4"
-      >
-        <!-- Details Header (clickable to expand/collapse) -->
-        <div
-          class="bg-gray-50 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-          (click)="toggleDetailsExpansion()"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
-            <div>
-              <h2 class="text-base font-bold text-gray-900 truncate">
-                Details
-              </h2>
-              <div class="text-sm text-gray-500 font-medium">
-                {{ responseData?.name || responseData?.title || "Loading..." }}
-              </div>
-            </div>
-          </div>
-          <div
-            class="transition-transform duration-200"
-            [class.rotate-180]="isDetailsExpanded"
-          >
-            <app-icon-lib
-              ico="chevronDown"
-              class="w-4 h-4 text-gray-500"
-            ></app-icon-lib>
-          </div>
-        </div>
-        <!-- Expandable Details Content -->
-        <div
-          class="overflow-hidden transition-all duration-300 ease-in-out"
-          [style.max-height.px]="isDetailsExpanded ? 400 : 0"
-        >
-          <div class="max-h-[400px] overflow-y-auto">
-            <app-info
-              class="block"
-              [names]="names || ''"
-              [currentSeason]="currentSeason"
-              [currentEpisodes]="currentEpisodes"
-              [currentPosters]="currentPosters"
-              [responseData]="responseData"
-              [mediaType]="mediaType ?? 'tv'"
-            ></app-info>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Playlist Section - Now standing alone -->
     <div class="h-full flex flex-col" [style.height.px]="playlistHeight">
       <app-playlist
@@ -227,14 +224,6 @@
         (sortToggle)="ascOrDescSort()"
         class="h-full rounded-xl border border-gray-200"
       ></app-playlist>
-
-      <!-- For movies, show a simplified source list -->
-      <div
-        *ngIf="mediaType === 'movie'"
-        class="h-full flex flex-col bg-gray-50 rounded-xl border border-gray-200 overflow-hidden"
-      >
-        <!-- Sources content would go here if needed -->
-      </div>
     </div>
   </div>
 </div>
