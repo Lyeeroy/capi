@@ -7,7 +7,7 @@
       class="w-full mx-auto bg-gray-50/95 backdrop-blur-lg border border-gray-200 rounded-2xl overflow-hidden"
     >
       <!--  sm:w-4/5 lg:w-2/3 mx-auto -->
-      <div class="px-3 py-3 sm:px-4 sm:py-2 lg:px-6 lg:py-3">
+      <div class="px-3 py-3 sm:px-4 sm:py-3 lg:px-6 lg:py-3">
         <div
           class="flex flex-col lg:flex-row lg:items-center lg:justify-between"
         >
@@ -66,7 +66,7 @@
                   [(ngModel)]="query"
                   (input)="searchMovies()"
                   (keydown.enter)="searchMovies()"
-                  class="w-full pl-4 pr-16 py-2.5 sm:py-3 lg:py-2.5 rounded-xl border border-gray-200/80 bg-white/90 backdrop-blur-sm focus:border-blue-400 focus:ring-4 focus:ring-blue-100/60 focus:bg-white hover:border-gray-300 hover:shadow-sm transition-all duration-200 outline-none text-gray-800 placeholder-gray-500 text-sm sm:text-base lg:text-sm shadow-sm group-hover:shadow-md"
+                  class="w-full pl-4 pr-16 py-2.5 sm:py-3 lg:py-2.5 rounded-xl border border-gray-200/80 bg-white/90 backdrop-blur-sm focus:border-blue-400 focus:ring-4 focus:ring-blue-100/60 focus:bg-white hover:border-gray-300 transition-all duration-200 outline-none text-gray-800 placeholder-gray-500 text-sm sm:text-base lg:text-sm group-hover:"
                 />
                 <div
                   class="absolute inset-y-0 right-0 flex items-center pr-3 gap-1"
@@ -104,7 +104,7 @@
             <div class="flex items-center gap-2 sm:gap-3">
               <!-- Sources Button -->
               <button
-                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200/80 hover:bg-white hover:border-gray-300 hover:shadow-md active:scale-95 transition-all duration-200"
+                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200/80 hover:bg-white hover:border-gray-300 active:scale-95 transition-all duration-200"
                 routerLink="/table"
                 aria-label="Sources"
                 [ngClass]="{
@@ -121,7 +121,7 @@
                 ></app-icon-lib>
                 <!-- Badge -->
                 <span
-                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-gradient-to-r from-blue-500 to-blue-600 text-xs text-white font-medium flex items-center justify-center rounded-full border-2 border-white shadow-sm"
+                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-blue-500 text-xs text-white font-medium flex items-center justify-center rounded-full border-2 border-white"
                 >
                   {{ sources.length }}
                 </span>
@@ -129,7 +129,7 @@
 
               <!-- Settings Button -->
               <button
-                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200/80 hover:bg-white hover:border-gray-300 hover:shadow-md active:scale-95 transition-all duration-200"
+                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200/80 hover:bg-white hover:border-gray-300 active:scale-95 transition-all duration-200"
                 routerLink="/settings"
                 aria-label="Settings"
                 [ngClass]="{
@@ -156,7 +156,7 @@
 <!-- Mobile Navigation (Bottom Bar) -->
 <nav class="fixed bottom-0 inset-x-0 z-50 lg:hidden">
   <div
-    class="w-full sm:w-4/5 mx-auto bg-white/95 backdrop-blur-lg border-t border-gray-200/80 rounded-t-2xl shadow-lg"
+    class="w-full sm:w-4/5 mx-auto bg-white/95 backdrop-blur-lg border-t border-gray-200/80 rounded-t-2xl"
   >
     <ul class="flex justify-around items-center py-3 px-2">
       <li
