@@ -14,7 +14,7 @@ export interface Source {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class VideoSourceService {
   // Video sources
@@ -58,7 +58,7 @@ export class VideoSourceService {
       ...source,
       enabled: true, // Default all sources to enabled
     }));
-    
+
     if (this.sources && this.sources.length > 0) {
       this.currentSourceUrl = this.sources[0].url;
     }
@@ -191,7 +191,7 @@ export class VideoSourceService {
    * Toggle source enabled state
    */
   toggleSourceEnabled(sourceUrl: string): void {
-    const source = this.sources.find(s => s.url === sourceUrl);
+    const source = this.sources.find((s) => s.url === sourceUrl);
     if (source) {
       source.enabled = !source.enabled;
     }
@@ -201,14 +201,14 @@ export class VideoSourceService {
    * Check if there are any enabled sources
    */
   hasEnabledSources(): boolean {
-    return this.sources.some(source => source.enabled);
+    return this.sources.some((source) => source.enabled);
   }
 
   /**
    * Get enabled sources count
    */
   getEnabledSourcesCount(): number {
-    return this.sources.filter(source => source.enabled).length;
+    return this.sources.filter((source) => source.enabled).length;
   }
 
   /**

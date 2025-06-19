@@ -1,7 +1,7 @@
 import { Injectable, ElementRef } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PlayerUIService {
   // UI state
@@ -85,7 +85,7 @@ export class PlayerUIService {
   saveSettings(): void {
     try {
       const settings = {
-        playlistLayout: this.layoutType
+        playlistLayout: this.layoutType,
       };
       localStorage.setItem('appSettings', JSON.stringify(settings));
     } catch (error) {
@@ -225,7 +225,7 @@ export class PlayerUIService {
       onShowDetails: this.onShowDetails,
       showIframe: this.showIframe,
       isDetailsExpanded: this.isDetailsExpanded,
-      playlistHeight: this.playlistHeight
+      playlistHeight: this.playlistHeight,
     };
   }
 
@@ -271,7 +271,7 @@ export class PlayerUIService {
     return {
       videoContainer,
       playlistContainer,
-      mainContainer
+      mainContainer,
     };
   }
 

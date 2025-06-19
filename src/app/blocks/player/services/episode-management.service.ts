@@ -24,7 +24,7 @@ export interface TMDBResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EpisodeManagementService {
   // Season/Episode data
@@ -59,14 +59,25 @@ export class EpisodeManagementService {
   /**
    * Initialize episode data for TV shows
    */
-  initializeEpisodeData(id: number, mediaType: 'tv' | 'movie'): Observable<TMDBResponse> {
+  initializeEpisodeData(
+    id: number,
+    mediaType: 'tv' | 'movie'
+  ): Observable<TMDBResponse> {
     this.id = id;
     this.mediaType = mediaType;
 
     if (mediaType === 'tv') {
-      return this.tmdbService.callAPI('https://api.themoviedb.org/3', `/tv/${id}`, 'tv');
+      return this.tmdbService.callAPI(
+        'https://api.themoviedb.org/3',
+        `/tv/${id}`,
+        'tv'
+      );
     } else {
-      return this.tmdbService.callAPI('https://api.themoviedb.org/3', `/movie/${id}`, 'movie');
+      return this.tmdbService.callAPI(
+        'https://api.themoviedb.org/3',
+        `/movie/${id}`,
+        'movie'
+      );
     }
   }
 
@@ -78,8 +89,11 @@ export class EpisodeManagementService {
       throw new Error('Season number not available');
     }
 
-    this.totalSeasons = Array.from({ length: this.seasonNumber }, (_, i) => i + 1);
-    
+    this.totalSeasons = Array.from(
+      { length: this.seasonNumber },
+      (_, i) => i + 1
+    );
+
     const seasonObservables = this.totalSeasons.map((seasonNum) =>
       this.tmdbService.callAPI(
         'https://api.themoviedb.org/3',
@@ -105,11 +119,10 @@ export class EpisodeManagementService {
             description: episode.overview || 'No description available.',
           })
         );
-        this.episodePosters[seasonNum] = response.episodes.map(
-          (episode: any) =>
-            episode.still_path
-              ? `https://image.tmdb.org/t/p/w500${episode.still_path}`
-              : 'https://miro.medium.com/v2/resize:fit:300/0*E6pTrKTFvvLDOzzj.png'
+        this.episodePosters[seasonNum] = response.episodes.map((episode: any) =>
+          episode.still_path
+            ? `https://image.tmdb.org/t/p/w500${episode.still_path}`
+            : 'https://miro.medium.com/v2/resize:fit:300/0*E6pTrKTFvvLDOzzj.png'
         );
       }
     });
@@ -197,7 +210,11 @@ export class EpisodeManagementService {
   /**
    * Navigate to next episode with proper sorting logic
    */
-  nextEpisode(): { success: boolean; needsSeasonChange?: boolean; newSeason?: number } {
+  nextEpisode(): {
+    success: boolean;
+    needsSeasonChange?: boolean;
+    newSeason?: number;
+  } {
     if (!this.isViewingSameSeasonAsActive()) {
       return { success: false };
     }
@@ -210,7 +227,11 @@ export class EpisodeManagementService {
       nextIndex = currentIndex + 1;
       if (nextIndex >= this.currentEpisodes.length) {
         if (this.currentSeason < this.totalSeasons.length) {
-          return { success: false, needsSeasonChange: true, newSeason: this.currentSeason + 1 };
+          return {
+            success: false,
+            needsSeasonChange: true,
+            newSeason: this.currentSeason + 1,
+          };
         }
         return { success: false };
       }
@@ -218,7 +239,11 @@ export class EpisodeManagementService {
       nextIndex = currentIndex - 1;
       if (nextIndex < 0) {
         if (this.currentSeason < this.totalSeasons.length) {
-          return { success: false, needsSeasonChange: true, newSeason: this.currentSeason + 1 };
+          return {
+            success: false,
+            needsSeasonChange: true,
+            newSeason: this.currentSeason + 1,
+          };
         }
         return { success: false };
       }
@@ -238,7 +263,11 @@ export class EpisodeManagementService {
   /**
    * Navigate to previous episode with proper sorting logic
    */
-  prevEpisode(): { success: boolean; needsSeasonChange?: boolean; newSeason?: number } {
+  prevEpisode(): {
+    success: boolean;
+    needsSeasonChange?: boolean;
+    newSeason?: number;
+  } {
     if (!this.isViewingSameSeasonAsActive()) {
       return { success: false };
     }
@@ -251,7 +280,11 @@ export class EpisodeManagementService {
       prevIndex = currentIndex - 1;
       if (prevIndex < 0) {
         if (this.currentSeason > 1) {
-          return { success: false, needsSeasonChange: true, newSeason: this.currentSeason - 1 };
+          return {
+            success: false,
+            needsSeasonChange: true,
+            newSeason: this.currentSeason - 1,
+          };
         }
         return { success: false };
       }
@@ -259,7 +292,11 @@ export class EpisodeManagementService {
       prevIndex = currentIndex + 1;
       if (prevIndex >= this.currentEpisodes.length) {
         if (this.currentSeason > 1) {
-          return { success: false, needsSeasonChange: true, newSeason: this.currentSeason - 1 };
+          return {
+            success: false,
+            needsSeasonChange: true,
+            newSeason: this.currentSeason - 1,
+          };
         }
         return { success: false };
       }
