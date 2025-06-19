@@ -180,34 +180,22 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       // If media type is movie, expand details by default
       if (this.mediaType === 'movie') {
         this.isDetailsExpanded = true;
-      }
-
-      this.names = this.route.snapshot.queryParams['name'];
+      }      this.names = this.route.snapshot.queryParams['name'];
       const queryParams = this.route.snapshot.queryParams;
       this.currentSeason = queryParams['season']
         ? Number(queryParams['season'])
         : 1;
       this.currentEpisode = queryParams['episode']
         ? Number(queryParams['episode'])
-        : 1;
-
+        : 1; 
       // Set the active episode season to current season on load
       this.activeEpisodeSeason = this.currentSeason;
 
-      // Set videoDuration based on TMDB runtime if available
-      setTimeout(() => {
-        const runtime = this.getDurationFromResponse();
-        if (runtime > 0) {
-          this.videoDuration = Math.floor(runtime * 0.7); // Use 70% of TMDB runtime
-        } else {
-          // fallback to hardcoded: use full default duration
-          this.videoDuration = this.mediaType === 'movie' ? 4200 : 900;
-        }
-      }, 0);
-
-      // Try to restore currentTime from continue watching
+      // Try to restore currentTime and check for episode advancement from continue watching
       const cwList = this.continueWatchingService.getList();
-      const entry = cwList.find(
+      
+      // First look for exact match (same episode)
+      let entry = cwList.find(
         (e) =>
           e.tmdbID === String(this.id) &&
           e.mediaType === this.mediaType &&
@@ -215,6 +203,62 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
             (e.season === this.currentSeason &&
               e.episode === this.currentEpisode))
       );
+        // If exact match not found for TV, check if there's an entry with the next episode
+      // (which may have been auto-incremented by continueWatchingService)
+      if (!entry && this.mediaType === 'tv') {
+        // First check for next episode in same season
+        const advancedEntry = cwList.find(
+          (e) =>
+            e.tmdbID === String(this.id) &&
+            e.mediaType === 'tv' &&
+            e.season === this.currentSeason &&
+            e.episode === this.currentEpisode + 1 &&
+            e.currentTime === 0 // Confirm this is an auto-advanced entry (current time will be 0)
+        );
+        
+        // If found an auto-advanced entry in same season, update our current episode and use that entry
+        if (advancedEntry && typeof advancedEntry.episode === 'number') {
+          this.currentEpisode = advancedEntry.episode;
+          entry = advancedEntry;
+          
+          // Update URL without reloading to reflect the correct episode
+          const newQueryParams = { ...queryParams, episode: this.currentEpisode };
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: newQueryParams,
+            queryParamsHandling: 'merge',
+            replaceUrl: true // Don't add to browser history
+          });
+        } else {
+          // Check for next season's first episode (season advancement)
+          const nextSeasonEntry = cwList.find(
+            (e) =>
+              e.tmdbID === String(this.id) &&
+              e.mediaType === 'tv' &&
+              e.season === this.currentSeason + 1 &&
+              e.episode === 1 &&
+              e.currentTime === 0 // Confirm this is an auto-advanced entry (current time will be 0)
+          );
+          
+          // If found an auto-advanced entry to next season, update our current season/episode and use that entry
+          if (nextSeasonEntry && typeof nextSeasonEntry.season === 'number' && typeof nextSeasonEntry.episode === 'number') {
+            this.currentSeason = nextSeasonEntry.season;
+            this.currentEpisode = nextSeasonEntry.episode;
+            this.activeEpisodeSeason = this.currentSeason;
+            entry = nextSeasonEntry;
+            
+            // Update URL without reloading to reflect the correct season and episode
+            const newQueryParams = { ...queryParams, season: this.currentSeason, episode: this.currentEpisode };
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: newQueryParams,
+              queryParamsHandling: 'merge',
+              replaceUrl: true // Don't add to browser history
+            });
+          }
+        }
+      }
+      
       if (entry && typeof entry.currentTime === 'number') {
         this.videoCurrentTime = entry.currentTime;
       } else {
@@ -271,14 +315,27 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.videoCurrentTime = Math.min(
         this.videoCurrentTime + 5,
         this.videoDuration
-      );
-    } else if (
+      );    } else if (
       this.videoCurrentTime >= this.videoDuration &&
       !this.episodeFinished
     ) {
       this.videoCurrentTime = this.videoDuration;
       this.episodeFinished = true;
       this.stopProgressTracking();
+      
+      // If a TV show episode is finished, automatically update URL to next episode
+      if (this.mediaType === 'tv' && this.currentEpisodes && this.currentEpisode < this.currentEpisodes.length) {
+        const nextEpisode = this.currentEpisode + 1;
+        
+        // Update URL without reloading to reflect the next episode
+        const queryParams = { ...this.route.snapshot.queryParams, episode: nextEpisode };
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: queryParams,
+          queryParamsHandling: 'merge',
+          replaceUrl: true // Don't add to browser history
+        });
+      }
     }
 
     return {
@@ -286,16 +343,18 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       duration: this.videoDuration,
     };
   }
-
   private updateVideoDurationFromTMDB(): void {
-    if (!this.videoDuration || this.videoDuration === this.HARDCODED_DURATION) {
-      const runtime = this.getDurationFromResponse();
-      this.videoDuration =
-        runtime > 0
-          ? Math.floor(runtime * 0.7)
-          : this.mediaType === 'movie'
-          ? 4200
-          : 900;
+    // Always try to get the most accurate duration from TMDB
+    const runtime = this.getDurationFromResponse();
+    if (runtime > 0) {
+      // Use 70% of TMDB runtime as the effective duration
+      this.videoDuration = Math.floor(runtime * 0.7);
+    } else if (
+      !this.videoDuration ||
+      this.videoDuration === this.HARDCODED_DURATION
+    ) {
+      // Only fall back to hardcoded values if we don't have any duration set yet
+      this.videoDuration = this.mediaType === 'movie' ? 4200 : 900;
     }
   }
 
@@ -351,17 +410,17 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     }
     return 0;
-  }
-
-  saveProgress = () => {
+  }  saveProgress = () => {
     if (!this.id || !this.mediaType) return;
+    // Only skip saving if API response is not loaded yet
+    if (!this.responseData) return;
     const { currentTime, duration } = this.getCurrentTimeAndDuration();
 
+    // If API response is loaded, allow saving even if duration is fallback (some movies/TV lack duration)
     let totalEpisodesInSeason = undefined;
     if (this.mediaType === 'tv' && this.currentEpisodes) {
       totalEpisodesInSeason = this.currentEpisodes.length;
-    }
-
+    }    // Save progress to continue watching service
     this.continueWatchingService.saveOrAdvance(
       {
         tmdbID: String(this.id),
@@ -374,8 +433,52 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
         title: this.responseData?.title,
         name: this.responseData?.name,
       },
-      totalEpisodesInSeason
+      totalEpisodesInSeason,
+      this.seasonNumber || undefined // Pass total number of seasons
     );
+      // After saving, check if we need to update our UI to the next episode or season
+    if (this.episodeFinished && this.mediaType === 'tv') {
+      // Get the latest continue watching list to see if the episode/season advanced
+      const cwList = this.continueWatchingService.getList();
+      const updatedEntry = cwList.find(
+        (e) => e.tmdbID === String(this.id) && e.mediaType === 'tv'
+      );
+        // If the entry exists and either episode or season has advanced
+      if (updatedEntry && typeof updatedEntry.episode === 'number' && typeof updatedEntry.season === 'number') {
+        const hasAdvanced = 
+          updatedEntry.season > this.currentSeason || 
+          (updatedEntry.season === this.currentSeason && updatedEntry.episode > this.currentEpisode);
+          
+        if (hasAdvanced) {
+          // Store the old season for comparison
+          const oldSeason = this.currentSeason;
+          
+          // Update our component state to the next episode/season
+          this.currentSeason = updatedEntry.season;
+          this.currentEpisode = updatedEntry.episode;
+          this.videoCurrentTime = 0;
+          this.episodeFinished = false;
+          
+          // Update URL to reflect the next episode/season
+          const queryParams = { 
+            ...this.route.snapshot.queryParams, 
+            season: this.currentSeason,
+            episode: this.currentEpisode 
+          };
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: queryParams,
+            queryParamsHandling: 'merge',
+            replaceUrl: true // Don't add to browser history
+          });
+          
+          // If season changed, reload season data
+          if (updatedEntry.season !== oldSeason) {
+            this.getAllSeasonData();
+          }
+        }
+      }
+    }
   };
 
   findContinueWatchingIndex(): number {
@@ -451,6 +554,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
               response?.number_of_seasons ?? this.seasonNumber;
             this.names = response?.name ?? this.names;
             this.responseData = response;
+            // Update duration immediately when response is received
+            this.updateVideoDurationFromTMDB();
             if (this.seasonNumber) {
               this.getAllSeasonData();
             }
@@ -460,6 +565,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
           .callAPI('https://api.themoviedb.org/3', `/movie/${this.id}`, 'movie')
           .subscribe((response) => {
             this.responseData = response;
+            // Update duration immediately when response is received
+            this.updateVideoDurationFromTMDB();
           });
       }
     }

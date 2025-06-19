@@ -57,18 +57,20 @@ export class ContinueWatchingService {
       localStorage.removeItem(this.key);
       return [];
     }
-  }
-
-  /**
+  }  /**
    * Save or update the continue watching entry.
    * For TV: If finished, advance to next episode.
    * For Movie: If finished, remove from list.
    *
    * Foolproof: Prevent accidental overwrite if user goes back to a lower episode.
    */
-  saveOrAdvance(entry: ContinueWatchingEntry, totalEpisodesInSeason?: number) {
+  saveOrAdvance(entry: ContinueWatchingEntry, totalEpisodesInSeason?: number, totalSeasons?: number) {
     if (!this.isEnabled()) return;
     let list = this.getList();
+    
+    // Store the original episode number before any potential changes
+    const originalEpisode = entry.episode;
+    
     // Remove all entries for this series/movie (not just episode)
     list = list.filter(
       (e) => !(e.tmdbID === entry.tmdbID && e.mediaType === entry.mediaType)
@@ -82,6 +84,13 @@ export class ContinueWatchingService {
       try {
         highestWatched = Number(localStorage.getItem(highestKey)) || 0;
       } catch {}
+      
+      // Check if user has already progressed to next episode via another mechanism
+      // (This prevents overwriting with older episode data)
+      if (originalEpisode && highestWatched > originalEpisode && entry.currentTime < entry.duration * 0.9) {
+        return; // Don't save if user has already moved to a higher episode and this entry isn't nearly complete
+      }
+      
       // If user is going back to a lower episode
       if (entry.episode < highestWatched) {
         // Check if grace period is active
@@ -126,12 +135,20 @@ export class ContinueWatchingService {
             currentTime: 0,
             // duration will be updated by the player on next watch
           };
-          list.unshift(nextEntry);
-        } else {
-          // Last episode of season - the player component will handle season transition
-          // when user manually clicks next episode. For automatic progression,
-          // we'll just remove from continue watching to avoid complications.
-          // If there's a next season, the user can manually navigate to it.
+          list.unshift(nextEntry);        } else {
+          // Last episode of season - check if there's a next season
+          if (totalSeasons && entry.season && entry.season < totalSeasons) {
+            // Advance to next season's first episode
+            const nextSeasonEntry: ContinueWatchingEntry = {
+              ...entry,
+              season: entry.season + 1,
+              episode: 1,
+              currentTime: 0,
+              // duration will be updated by the player on next watch
+            };
+            list.unshift(nextSeasonEntry);
+          }
+          // If no next season or season info not available, remove from continue watching
         }
       }
       // If last episode or movie finished, do not add anything (removes from continue watching)
@@ -192,5 +209,84 @@ export class ContinueWatchingService {
   overwriteList(newList: ContinueWatchingEntry[]) {
     if (!this.isEnabled()) return;
     localStorage.setItem(this.key, JSON.stringify(newList));
+  }
+
+  /**
+   * Check if a specific episode has been watched (completed)
+   * @param tmdbID The TMDB ID of the show
+   * @param season The season number
+   * @param episode The episode number
+   * @returns boolean indicating if the episode has been watched
+   */
+  isEpisodeWatched(tmdbID: string, season: number, episode: number): boolean {
+    if (!this.isEnabled()) return false;
+    
+    try {
+      // Check the highest watched episode tracker
+      const highestKey = `cw_highest_${tmdbID}_s${season}`;
+      const highestWatched = Number(localStorage.getItem(highestKey)) || 0;
+      
+      // If we've watched a higher episode, this one must be completed
+      if (highestWatched > episode) {
+        return true;
+      }
+      
+      // Check current continue watching list for this episode
+      const cwList = this.getList();
+      const entry = cwList.find(
+        e => e.tmdbID === tmdbID && 
+             e.mediaType === 'tv' && 
+             e.season === season && 
+             e.episode === episode
+      );
+      
+      // If the entry exists and currentTime is at least 90% of duration, consider it watched
+      if (entry && entry.currentTime >= entry.duration * 0.9) {
+        return true;
+      }
+      
+      return false;
+    } catch {
+      return false;
+    }
+  }
+  
+  /**
+   * Get a list of all watched episodes for a show season
+   * @param tmdbID The TMDB ID of the show
+   * @param season The season number
+   * @returns Array of episode numbers that have been watched
+   */
+  getWatchedEpisodes(tmdbID: string, season: number): number[] {
+    if (!this.isEnabled()) return [];
+    
+    try {
+      // Get highest watched episode from localStorage
+      const highestKey = `cw_highest_${tmdbID}_s${season}`;
+      const highestWatched = Number(localStorage.getItem(highestKey)) || 0;
+      
+      // All episodes up to highest watched are considered watched
+      const watchedEpisodes: number[] = [];
+      for (let i = 1; i < highestWatched; i++) {
+        watchedEpisodes.push(i);
+      }
+      
+      // Check current continue watching list for additional watched episodes
+      const cwList = this.getList();
+      cwList.forEach(entry => {
+        if (entry.tmdbID === tmdbID && 
+            entry.mediaType === 'tv' && 
+            entry.season === season && 
+            typeof entry.episode === 'number' &&
+            entry.currentTime >= entry.duration * 0.9 &&
+            !watchedEpisodes.includes(entry.episode)) {
+          watchedEpisodes.push(entry.episode);
+        }
+      });
+      
+      return watchedEpisodes;
+    } catch {
+      return [];
+    }
   }
 }

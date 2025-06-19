@@ -9,6 +9,7 @@ interface AppSettings {
   playlistLayout: 'list' | 'grid' | 'poster' | 'compact';
   enableContinueWatching: boolean;
   enableScrollToEpisode: boolean;
+  showWatchedEpisodes: boolean;
   // Add more settings here (e.g., darkMode: boolean)
 }
 
@@ -25,12 +26,12 @@ const SETTINGS_CHANGE_EVENT = 'appSettingsChanged';
 export class SettingsComponent implements OnInit {
   isUniversalOpen = false;
   isUniversalOpenCW = false;
-
   // Settings state
   settings: AppSettings = {
     playlistLayout: 'list',
     enableContinueWatching: true,
     enableScrollToEpisode: true,
+    showWatchedEpisodes: true,
     // Add more defaults here
   };
 
@@ -88,6 +89,12 @@ export class SettingsComponent implements OnInit {
   // Handler for scroll to episode change
   onEnableScrollToEpisodeChange(value: boolean) {
     this.settings.enableScrollToEpisode = value;
+    this.saveSettings();
+  }
+
+  // Handler for show watched episodes change
+  onShowWatchedEpisodesChange(value: boolean) {
+    this.settings.showWatchedEpisodes = value;
     this.saveSettings();
   }
 
