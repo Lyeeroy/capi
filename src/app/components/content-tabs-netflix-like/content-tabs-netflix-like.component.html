@@ -28,14 +28,14 @@
       role="group"
       aria-label="Trending Content"
       class="flex gap-4 overflow-x-auto scrollbar-hide flex-grow"
-      style="-ms-overflow-style: none; scrollbar-width: none"
+      style="-ms-overflow-style: none; scrollbar-width: none; -webkit-overflow-scrolling: touch;"
       (mousedown)="onMouseDown($event)"
       (mousemove)="onMouseMove($event)"
       (mouseup)="onMouseUpOrLeave()"
       (mouseleave)="onMouseUpOrLeave()"
-      (touchstart)="onMouseDown($event.touches[0])"
-      (touchmove)="onMouseMove($event.touches[0])"
-      (touchend)="onMouseUpOrLeave()"
+      (touchstart)="onTouchStart($event)"
+      (touchmove)="onTouchMove($event)"
+      (touchend)="onTouchEnd()"
     >
       <ng-container
         *ngFor="let data of trending; let i = index; trackBy: trackByFn"

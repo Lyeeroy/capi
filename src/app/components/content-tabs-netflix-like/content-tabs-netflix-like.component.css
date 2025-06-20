@@ -1,0 +1,33 @@
+/* Enhanced touch scrolling behavior */
+.scrollbar-hide {
+  -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+  scroll-behavior: smooth;
+}
+
+/* Prevent text selection during mouse dragging */
+.dragging {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: grabbing;
+}
+
+/* Smooth scrolling for programmatic scrolls */
+.scrollbar-hide:not(.dragging) {
+  scroll-behavior: smooth;
+}
+
+/* Touch-specific optimizations */
+@media (pointer: coarse) {
+  .scrollbar-hide {
+    /* Better touch scrolling on coarse pointer devices */
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+  }
+  
+  /* Optional: Add scroll snap to tiles for better UX */
+  .scrollbar-hide > * {
+    scroll-snap-align: start;
+  }
+}

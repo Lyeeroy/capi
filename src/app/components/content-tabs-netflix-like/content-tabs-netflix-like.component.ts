@@ -12,13 +12,13 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TmdbService } from '../../services/tmdb.service';
 import { Subscription, forkJoin } from 'rxjs';
-import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 
 @Component({
   selector: 'app-content-tabs-netflix-like',
   templateUrl: './content-tabs-netflix-like.component.html',
+  styleUrls: ['./content-tabs-netflix-like.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule, IconLibComponent],
+  imports: [CommonModule, RouterModule],
 })
 export class ContentTabsNetflixLikeComponent
   implements OnInit, OnChanges, OnDestroy
@@ -39,6 +39,8 @@ export class ContentTabsNetflixLikeComponent
   private scrollStartLeft = 0;
   private dragDistance = 0;
   private readonly DRAG_THRESHOLD = 10; // px
+  private isTouch = false;
+  private touchStartTime = 0;
 
   constructor(private tmdbService: TmdbService, private router: Router) {}
   ngOnInit(): void {
@@ -106,35 +108,63 @@ export class ContentTabsNetflixLikeComponent
       });
     }
   }
-  onMouseDown(event: MouseEvent | Touch): void {
-    // Prevent default to avoid image drag/select
-    if (event instanceof MouseEvent) {
-      event.preventDefault();
-    }
+  onMouseDown(event: MouseEvent): void {
+    // Only handle mouse events, not touch
+    event.preventDefault();
+    this.isTouch = false;
     this.isDragging = true;
-    this.dragStartX = 'clientX' in event ? event.clientX : 0;
+    this.dragStartX = event.clientX;
     this.scrollStartLeft = this.scrollContainer.nativeElement.scrollLeft;
     this.dragDistance = 0;
     this.scrollContainer.nativeElement.classList.add('dragging');
   }
 
-  onMouseMove(event: MouseEvent | Touch): void {
-    if (!this.isDragging) return;
-    if (event instanceof MouseEvent) {
-      event.preventDefault();
-    }
-    const dx = 'clientX' in event ? event.clientX - this.dragStartX : 0;
+  onTouchStart(event: TouchEvent): void {
+    // For touch events, we want to allow native scrolling but track for click detection
+    this.isTouch = true;
+    this.isDragging = true;
+    this.touchStartTime = Date.now();
+    this.dragStartX = event.touches[0].clientX;
+    this.scrollStartLeft = this.scrollContainer.nativeElement.scrollLeft;
+    this.dragDistance = 0;
+    // Don't prevent default to allow native touch momentum scrolling
+  }
+
+  onMouseMove(event: MouseEvent): void {
+    if (!this.isDragging || this.isTouch) return;
+    event.preventDefault();
+    const dx = event.clientX - this.dragStartX;
     this.dragDistance = Math.abs(dx);
     this.scrollContainer.nativeElement.scrollLeft = this.scrollStartLeft - dx;
   }
 
+  onTouchMove(event: TouchEvent): void {
+    if (!this.isDragging || !this.isTouch) return;
+    // Don't prevent default to allow native momentum scrolling
+    const dx = event.touches[0].clientX - this.dragStartX;
+    this.dragDistance = Math.abs(dx);
+    // Don't manually set scrollLeft for touch - let native scrolling handle it
+  }
+
   onMouseUpOrLeave(): void {
-    this.isDragging = false;
-    this.scrollContainer.nativeElement.classList.remove('dragging');
+    if (!this.isTouch) {
+      this.isDragging = false;
+      this.scrollContainer.nativeElement.classList.remove('dragging');
+    }
+  }
+
+  onTouchEnd(): void {
+    if (this.isTouch) {
+      this.isDragging = false;
+      this.scrollContainer.nativeElement.classList.remove('dragging');
+    }
   }
 
   onTileClick(event: MouseEvent, index: number): void {
-    if (this.dragDistance > this.DRAG_THRESHOLD) {
+    // For touch events, also check timing to differentiate from quick taps
+    const isQuickTap = this.isTouch && (Date.now() - this.touchStartTime) < 200;
+    
+    if (this.dragDistance > this.DRAG_THRESHOLD && !isQuickTap) {
       event.preventDefault();
       event.stopPropagation();
       return;
