@@ -117,7 +117,7 @@ export class EpisodeNavigationComponent {
       this.currentEpisode < 10
         ? `0${this.currentEpisode}`
         : `${this.currentEpisode}`;
-    return `S${seasonStr}:E${episodeStr}`;
+    return `S${seasonStr}E${episodeStr}`;
   }
 
   getSubtitle(): string {

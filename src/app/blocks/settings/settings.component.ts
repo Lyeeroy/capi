@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UniversalModalComponent } from '../../forms/universal-modal.component';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
@@ -9,7 +10,7 @@ interface AppSettings {
   playlistLayout: 'list' | 'grid' | 'poster' | 'compact';
   enableContinueWatching: boolean;
   enableScrollToEpisode: boolean;
-  showWatchedEpisodes: boolean;
+  enableWatchedEpisodes: boolean;
   // Add more settings here (e.g., darkMode: boolean)
 }
 
@@ -20,20 +21,30 @@ const SETTINGS_CHANGE_EVENT = 'appSettingsChanged';
 
 @Component({
   selector: 'app-settings',
-  imports: [FormsModule, UniversalModalComponent, IconLibComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    UniversalModalComponent,
+    IconLibComponent,
+  ],
   templateUrl: './settings.component.html',
 })
 export class SettingsComponent implements OnInit {
   isUniversalOpen = false;
   isUniversalOpenCW = false;
+  isUniversalOpenWatched = false; // modal for watched episodes
   // Settings state
   settings: AppSettings = {
     playlistLayout: 'list',
     enableContinueWatching: true,
     enableScrollToEpisode: true,
-    showWatchedEpisodes: true,
+    enableWatchedEpisodes: true,
     // Add more defaults here
   };
+
+  isGeneralExpanded = true;
+  isPlaylistExpanded = true;
+  isDangerExpanded = true;
 
   constructor(private continueWatchingService: ContinueWatchingService) {
     this.loadSettings();
@@ -92,10 +103,33 @@ export class SettingsComponent implements OnInit {
     this.saveSettings();
   }
 
-  // Handler for show watched episodes change
-  onShowWatchedEpisodesChange(value: boolean) {
-    this.settings.showWatchedEpisodes = value;
+  // Handler for watched episodes feature toggle
+  onEnableWatchedEpisodesChange(value: boolean) {
+    this.settings.enableWatchedEpisodes = value;
     this.saveSettings();
+  }
+
+  // Clear all watched episodes data
+  clearAllWatchedEpisodes() {
+    this.isUniversalOpenWatched = true;
+  }
+
+  handleUniversalConfirmWatched() {
+    this.isUniversalOpenWatched = false;
+    try {
+      // Get all localStorage keys
+      const keys = Object.keys(localStorage);
+      // Remove all watched episodes keys
+      keys.forEach((key) => {
+        if (key.startsWith('watched_episodes_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      // Notify that settings changed to refresh components
+      this.saveSettings();
+    } catch (error) {
+      console.error('Error clearing all watched episodes:', error);
+    }
   }
 
   handleUniversalConfirm() {
@@ -113,5 +147,21 @@ export class SettingsComponent implements OnInit {
   handleUniversalConfirmCW() {
     this.isUniversalOpenCW = false;
     localStorage.removeItem('continueWatching');
+  }
+
+  // Scroll to section by id with smooth behavior
+  scrollToSection(event: Event, sectionId: string) {
+    event.preventDefault();
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  toggleSection(section: 'general' | 'playlist' | 'danger') {
+    if (section === 'general') this.isGeneralExpanded = !this.isGeneralExpanded;
+    if (section === 'playlist')
+      this.isPlaylistExpanded = !this.isPlaylistExpanded;
+    if (section === 'danger') this.isDangerExpanded = !this.isDangerExpanded;
   }
 }

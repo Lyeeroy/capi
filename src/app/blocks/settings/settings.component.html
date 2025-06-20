@@ -1,180 +1,367 @@
-<div
-  class="w-full max-w-3xl mx-auto mt-16 bg-white rounded-3xl border border-gray-200 p-10"
->
-  <div class="space-y-12">
-    <!-- Enable Continue Watching Section -->
+<!-- Settings Content Wrapper (no sidebar) -->
+<div class="w-full max-w-3xl mx-auto mt-16">
+  <div
+    id="general"
+    class="bg-white rounded-3xl border border-gray-200 p-0 mb-8"
+  >
+    <!-- General Section Header (expand/collapse, rounded if collapsed) -->
     <div
-      class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50"
+      class="bg-gray-50 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors w-full"
+      [ngClass]="{
+        'rounded-t-3xl': isGeneralExpanded,
+        'rounded-3xl': !isGeneralExpanded
+      }"
+      (click)="toggleSection('general')"
     >
-      <div class="flex-1">
-        <div
-          class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
-        >
-          <app-icon-lib
-            ico="play"
-            class="w-6 h-6 text-amber-500"
-          ></app-icon-lib>
-          Enable Continue Watching
-        </div>
-        <div class="text-sm text-gray-500 mt-2 max-w-xl">
-          Toggle to enable or disable the Continue Watching feature. If
-          disabled, your progress will not be saved and the section will be
-          hidden from the home page.
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
+        <div>
+          <h2 class="text-base font-bold text-gray-900 truncate">General</h2>
+          <div class="text-sm text-gray-500 font-medium">
+            Basic app features and toggles
+          </div>
         </div>
       </div>
       <div
-        class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
+        class="transition-transform duration-200"
+        [class.rotate-180]="isGeneralExpanded"
       >
-        <!-- Flowbite Switch -->
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            class="sr-only peer"
-            [(ngModel)]="settings.enableContinueWatching"
-            (change)="
-              onEnableContinueWatchingChange(settings.enableContinueWatching)
-            "
-          />
-          <div
-            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 transition"
-          ></div>
-          <div
-            class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-5"
-          ></div>
-        </label>
+        <app-icon-lib
+          ico="chevronDown"
+          class="w-4 h-4 text-gray-500"
+        ></app-icon-lib>
       </div>
     </div>
-
-    <!-- Enable Scroll to Episode Section -->
-    <div
-      class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50 hidden md:flex"
-    >
-      <div class="flex-1">
-        <div
-          class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
-        >
-          <app-icon-lib
-            ico="chevronDown"
-            class="w-6 h-6 text-purple-500"
-          ></app-icon-lib>
-          Auto Scroll to Episode
+    <div *ngIf="isGeneralExpanded" class="p-10 pt-6 animate-modal-slide-up">
+      <!-- Enable Continue Watching Section -->
+      <div
+        class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50"
+      >
+        <div class="flex-1">
+          <div
+            class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+          >
+            <app-icon-lib
+              ico="play"
+              class="w-6 h-6 text-amber-500"
+            ></app-icon-lib>
+            Enable Continue Watching
+          </div>
+          <div class="text-sm text-gray-500 mt-2 max-w-xl">
+            Toggle to enable or disable the Continue Watching feature. If
+            disabled, your progress will not be saved and the section will be
+            hidden from the home page.
+          </div>
         </div>
-        <div class="text-sm text-gray-500 mt-2 max-w-xl">
-          Automatically scroll to the currently playing episode in the playlist.
+        <div
+          class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
+        >
+          <!-- Flowbite Switch -->
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              class="sr-only peer"
+              [(ngModel)]="settings.enableContinueWatching"
+              (change)="
+                onEnableContinueWatchingChange(settings.enableContinueWatching)
+              "
+            />
+            <div
+              class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 transition"
+            ></div>
+            <div
+              class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-5"
+            ></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Enable Scroll to Episode Section -->
+      <div
+        class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50"
+      >
+        <div class="flex-1">
+          <div
+            class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+          >
+            <app-icon-lib
+              ico="chevronDown"
+              class="w-6 h-6 text-purple-500"
+            ></app-icon-lib>
+            Auto Scroll to Episode
+          </div>
+          <div class="text-sm text-gray-500 mt-2 max-w-xl">
+            Automatically scroll to the currently playing episode in the
+            playlist.
+          </div>
+        </div>
+        <div
+          class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
+        >
+          <!-- Flowbite Switch -->
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              class="sr-only peer"
+              [(ngModel)]="settings.enableScrollToEpisode"
+              (change)="
+                onEnableScrollToEpisodeChange(settings.enableScrollToEpisode)
+              "
+            />
+            <div
+              class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 transition"
+            ></div>
+            <div
+              class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-5"
+            ></div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Enable Watched Episodes Section -->
+      <div
+        class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50"
+      >
+        <div class="flex-1">
+          <div
+            class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+          >
+            <app-icon-lib
+              ico="check"
+              class="w-6 h-6 text-green-500"
+            ></app-icon-lib>
+            Watched Episodes Tracking
+          </div>
+          <div class="text-sm text-gray-500 mt-2 max-w-xl">
+            Track which episodes you've watched with blue indicators. When
+            enabled, episodes are automatically marked as watched when you
+            switch to a different episode.
+          </div>
+        </div>
+        <div
+          class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
+        >
+          <!-- Flowbite Switch -->
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              class="sr-only peer"
+              [(ngModel)]="settings.enableWatchedEpisodes"
+              (change)="
+                onEnableWatchedEpisodesChange(settings.enableWatchedEpisodes)
+              "
+            />
+            <div
+              class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 transition"
+            ></div>
+            <div
+              class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-5"
+            ></div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    id="playlist"
+    class="bg-white rounded-3xl border border-gray-200 p-0 mb-8"
+  >
+    <!-- Playlist Section Header (expand/collapse, rounded if collapsed) -->
+    <div
+      class="bg-gray-50 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors w-full"
+      [ngClass]="{
+        'rounded-t-3xl': isPlaylistExpanded,
+        'rounded-3xl': !isPlaylistExpanded
+      }"
+      (click)="toggleSection('playlist')"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-7 bg-purple-500 rounded-full"></div>
+        <div>
+          <h2 class="text-base font-bold text-gray-900 truncate">Playlist</h2>
+          <div class="text-sm text-gray-500 font-medium">
+            Playlist layout and display options
+          </div>
         </div>
       </div>
       <div
-        class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
+        class="transition-transform duration-200"
+        [class.rotate-180]="isPlaylistExpanded"
       >
-        <!-- Flowbite Switch -->
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            class="sr-only peer"
-            [(ngModel)]="settings.enableScrollToEpisode"
-            (change)="
-              onEnableScrollToEpisodeChange(settings.enableScrollToEpisode)
-            "
-          />
-          <div
-            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 transition"
-          ></div>
-          <div
-            class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-5"
-          ></div>
-        </label>
+        <app-icon-lib
+          ico="chevronDown"
+          class="w-4 h-4 text-gray-500"
+        ></app-icon-lib>
       </div>
     </div>
-
-    <!-- Playlist Layout Section (separated with border) -->
-    <div
-      class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50"
-    >
-      <div class="flex-1">
-        <div
-          class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
-        >
-          <app-icon-lib ico="menu" class="w-6 h-6 text-blue-500"></app-icon-lib>
-          Default Playlist Layout
+    <div *ngIf="isPlaylistExpanded" class="p-10 pt-6 animate-modal-slide-up">
+      <!-- Playlist Layout Section -->
+      <div
+        class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50"
+      >
+        <div class="flex-1">
+          <div
+            class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+          >
+            <app-icon-lib
+              ico="menu"
+              class="w-6 h-6 text-blue-500"
+            ></app-icon-lib>
+            Default Playlist Layout
+          </div>
+          <div class="text-sm text-gray-500 mt-2 max-w-xl">
+            Choose how episodes are displayed by default in the playlist.
+            Options include List (simple), Grid (episode numbers), Poster
+            (thumbnails), and Compact (space-efficient thumbnails). You can
+            always change it temporarily in the player.
+          </div>
         </div>
-        <div class="text-sm text-gray-500 mt-2 max-w-xl">
-          Choose how episodes are displayed by default in the playlist. Options
-          include List (simple), Grid (episode numbers), Poster (thumbnails),
-          and Compact (space-efficient thumbnails). You can always change it
-          temporarily in the player.
+        <div class="w-full md:w-auto mt-4 md:mt-0">
+          <select
+            class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            [(ngModel)]="settings.playlistLayout"
+            (change)="onPlaylistLayoutChange(settings.playlistLayout)"
+          >
+            <option value="list">List</option>
+            <option value="grid">Grid</option>
+            <option value="poster">Poster</option>
+            <option value="compact">Compact</option>
+          </select>
         </div>
       </div>
-      <div class="w-full md:w-auto mt-4 md:mt-0">
-        <select
-          class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          [(ngModel)]="settings.playlistLayout"
-          (change)="onPlaylistLayoutChange(settings.playlistLayout)"
+    </div>
+  </div>
+  <div id="danger" class="bg-white rounded-3xl border border-red-200 p-0">
+    <!-- Danger Zone Section Header (expand/collapse, rounded if collapsed) -->
+    <div
+      class="bg-red-50 flex items-center justify-between p-4 cursor-pointer hover:bg-red-50 transition-colors w-full"
+      [ngClass]="{
+        'rounded-t-3xl': isDangerExpanded,
+        'rounded-3xl': !isDangerExpanded
+      }"
+      (click)="toggleSection('danger')"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-7 bg-red-500 rounded-full"></div>
+        <div>
+          <h2 class="text-base font-bold text-gray-900 truncate">
+            Danger Zone
+          </h2>
+          <div class="text-sm text-gray-500 font-medium">
+            Reset or clear your data
+          </div>
+        </div>
+      </div>
+      <div
+        class="transition-transform duration-200"
+        [class.rotate-180]="isDangerExpanded"
+      >
+        <app-icon-lib
+          ico="chevronDown"
+          class="w-4 h-4 text-gray-500"
+        ></app-icon-lib>
+      </div>
+    </div>
+    <div *ngIf="isDangerExpanded" class="p-10 pt-6 animate-modal-slide-up">
+      <!-- Clear Watched Episodes Section (moved, yellow style) -->
+      <div class="border border-amber-200 rounded-xl p-6 mb-8 bg-amber-50">
+        <div
+          class="flex flex-col md:flex-row items-center justify-between gap-6"
         >
-          <option value="list">List</option>
-          <option value="grid">Grid</option>
-          <option value="poster">Poster</option>
-          <option value="compact">Compact</option>
-        </select>
+          <div class="flex-1">
+            <div
+              class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+            >
+              <app-icon-lib
+                ico="trash"
+                class="w-6 h-6 text-amber-500"
+              ></app-icon-lib>
+              Clear Watched Episodes
+            </div>
+            <div class="text-sm text-gray-500 mt-2 max-w-xl">
+              This will <b class="text-amber-600">reset all</b> blue indicators
+              across all series.
+            </div>
+          </div>
+          <div
+            class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
+          >
+            <button
+              (click)="clearAllWatchedEpisodes()"
+              class="cursor-pointer w-full md:w-56 text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:outline-none focus:ring-amber-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
+            >
+              Clear Watched Episodes
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Clear Continue Watching Section -->
+      <div class="border border-amber-200 rounded-xl p-6 mb-8 bg-amber-50">
+        <div
+          class="flex flex-col md:flex-row items-center justify-between gap-6"
+        >
+          <div class="flex-1">
+            <div
+              class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+            >
+              <app-icon-lib
+                ico="play"
+                class="w-6 h-6 text-amber-500"
+              ></app-icon-lib>
+              Clear Continue Watching
+            </div>
+            <div class="text-sm text-gray-500 mt-2 max-w-xl">
+              This will
+              <span class="font-semibold text-amber-600"
+                >permanently delete</span
+              >
+              your Continue Watching list.
+            </div>
+          </div>
+          <button
+            type="button"
+            class="cursor-pointer w-full md:w-56 text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:outline-none focus:ring-amber-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
+            (click)="isUniversalOpenCW = true"
+          >
+            Clear Continue Watching
+          </button>
+        </div>
+      </div>
+      <!-- Clear Cache Section -->
+      <div class="border border-red-200 rounded-xl p-6 mb-8 bg-red-50">
+        <div
+          class="flex flex-col md:flex-row items-center justify-between gap-6"
+        >
+          <div class="flex-1">
+            <div
+              class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+            >
+              <app-icon-lib
+                ico="trash"
+                class="w-6 h-6 text-red-500"
+              ></app-icon-lib>
+              Clear Cache
+            </div>
+            <div class="text-sm text-gray-500 mt-2 max-w-xl">
+              This will
+              <span class="font-semibold text-red-600">permanently delete</span>
+              all your local data (sources, continue watching, settings, etc).
+            </div>
+          </div>
+          <button
+            type="button"
+            class="cursor-pointer w-full md:w-56 text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
+            (click)="isUniversalOpen = true"
+          >
+            Clear Cache
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
-<div class="w-full max-w-3xl mx-auto bg-white rounded-3xl p-10">
-  <!-- Clear Continue Watching Section -->
-  <div class="border border-amber-200 rounded-xl p-6 mb-8 bg-amber-50">
-    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-      <div class="flex-1">
-        <div
-          class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
-        >
-          <app-icon-lib
-            ico="play"
-            class="w-6 h-6 text-amber-500"
-          ></app-icon-lib>
-          Clear Continue Watching
-        </div>
-        <div class="text-sm text-gray-500 mt-2 max-w-xl">
-          This will
-          <span class="font-semibold text-amber-600">permanently delete</span>
-          your Continue Watching list.
-        </div>
-      </div>
-      <button
-        type="button"
-        class="cursor-pointer w-full md:w-56 text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:outline-none focus:ring-amber-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
-        (click)="isUniversalOpenCW = true"
-      >
-        Clear Continue Watching
-      </button>
-    </div>
-  </div>
-  <!-- Clear Cache Section -->
-  <div class="border border-red-200 rounded-xl p-6 mb-8 bg-red-50">
-    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-      <div class="flex-1">
-        <div
-          class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
-        >
-          <app-icon-lib ico="trash" class="w-6 h-6 text-red-500"></app-icon-lib>
-          Clear Cache
-        </div>
-        <div class="text-sm text-gray-500 mt-2 max-w-xl">
-          This will
-          <span class="font-semibold text-red-600">permanently delete</span>
-          all your local data (sources, continue watching, settings, etc).
-        </div>
-      </div>
-      <button
-        type="button"
-        class="cursor-pointer w-full md:w-56 text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
-        (click)="isUniversalOpen = true"
-      >
-        Clear Cache
-      </button>
-    </div>
-  </div>
-</div>
 
+<!-- Modals (unchanged) -->
 <universal-modal
   [open]="isUniversalOpen"
   title="Clear Cache?"
@@ -182,11 +369,17 @@
   (confirm)="handleUniversalConfirm()"
   (cancel)="isUniversalOpen = false"
 ></universal-modal>
-
 <universal-modal
   [open]="isUniversalOpenCW"
   title="Clear Continue Watching?"
   message="Are you sure you want to clear your Continue Watching list? This cannot be undone."
   (confirm)="handleUniversalConfirmCW()"
   (cancel)="isUniversalOpenCW = false"
+></universal-modal>
+<universal-modal
+  [open]="isUniversalOpenWatched"
+  title="Clear Watched Episodes?"
+  message="Are you sure you want to clear all watched episode data? This cannot be undone."
+  (confirm)="handleUniversalConfirmWatched()"
+  (cancel)="isUniversalOpenWatched = false"
 ></universal-modal>

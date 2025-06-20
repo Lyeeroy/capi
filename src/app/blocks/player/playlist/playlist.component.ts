@@ -61,6 +61,11 @@ export class PlaylistComponent
   filteredEpisodes: Episode[] = [];
   // Add expand tracking for poster view descriptions
   expandedDescriptions: Set<number> = new Set();
+  // Add watched episodes tracking
+  private watchedEpisodes: Set<string> = new Set();
+
+  // Settings for watched episodes feature
+  public isWatchedEpisodesEnabled: boolean = true;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
@@ -85,6 +90,19 @@ export class PlaylistComponent
     } catch {
       // Ignore errors, fallback to default
     }
+
+    // Load watched episodes from localStorage
+    this.loadWatchedEpisodes();
+
+    // Load watched episodes settings
+    this.loadWatchedEpisodesSettings();
+
+    // Listen for settings changes
+    window.addEventListener(
+      'appSettingsChanged',
+      this.onSettingsChanged.bind(this)
+    );
+
     this.filteredEpisodes = [...this.currentEpisodes];
   }
   ngAfterViewInit() {
@@ -106,6 +124,27 @@ export class PlaylistComponent
       changes['activeEpisodeIndex'] ||
       changes['activeEpisodeSeason']
     ) {
+      // Mark previous episode as watched when active episode changes (e.g., next episode button)
+      if (changes['activeEpisodeIndex'] && this.isWatchedEpisodesEnabled) {
+        const previousIndex = changes['activeEpisodeIndex'].previousValue;
+        const currentIndex = changes['activeEpisodeIndex'].currentValue;
+
+        // If we moved from one episode to another (not initial load), mark previous as watched
+        if (
+          typeof previousIndex === 'number' &&
+          previousIndex >= 0 &&
+          previousIndex !== currentIndex &&
+          previousIndex < this.currentEpisodes.length
+        ) {
+          this.markEpisodeAsWatched(previousIndex);
+        }
+      }
+
+      // Reload watched episodes when season changes
+      if (changes['currentSeason'] || changes['seriesId']) {
+        this.loadWatchedEpisodes();
+      }
+
       this.filteredEpisodes = [...this.currentEpisodes];
       this.filterEpisodes();
 
@@ -273,167 +312,178 @@ export class PlaylistComponent
     const originalIndex = this.getOriginalIndex(filteredIndex);
     return this.isEpisodeActiveByIndex(originalIndex);
   }
-
   onFilteredEpisodeSelected(filteredIndex: number) {
     const originalIndex = this.getOriginalIndex(filteredIndex);
+
+    // Mark the currently playing episode as watched when switching to a different episode (only if feature is enabled)
+    if (
+      this.isWatchedEpisodesEnabled &&
+      this.activeEpisodeIndex >= 0 &&
+      this.activeEpisodeIndex !== originalIndex
+    ) {
+      this.markEpisodeAsWatched(this.activeEpisodeIndex);
+    }
     this.onEpisodeSelected(originalIndex, originalIndex);
   }
-  onLayoutChange() {
-    this.layoutChange.emit();
-    // Use longer timeout to ensure layout change is complete
-    setTimeout(() => {
-      this.scrollToActiveEpisode();
-    }, 150);
-  }
 
-  onSortToggle() {
-    this.sortToggle.emit();
-  }
-  onClose() {
-    this.close.emit();
-  }
+  // Methods for handling watched episodes
+  private loadWatchedEpisodes() {
+    if (!this.seriesId || !this.isWatchedEpisodesEnabled) return;
 
-  // Methods for poster view description expansion
-  toggleDescription(episodeIndex: number) {
-    if (this.expandedDescriptions.has(episodeIndex)) {
-      this.expandedDescriptions.delete(episodeIndex);
-    } else {
-      this.expandedDescriptions.add(episodeIndex);
+    try {
+      const watchedKey = `watched_episodes_${this.seriesId}`;
+      const watchedData = localStorage.getItem(watchedKey);
+      if (watchedData) {
+        const watchedArray = JSON.parse(watchedData);
+        this.watchedEpisodes = new Set(watchedArray);
+      }
+    } catch (error) {
+      console.error('Error loading watched episodes:', error);
+      this.watchedEpisodes = new Set();
     }
   }
 
-  isDescriptionExpanded(episodeIndex: number): boolean {
-    return this.expandedDescriptions.has(episodeIndex);
-  }
+  private saveWatchedEpisodes() {
+    if (!this.seriesId) return;
 
-  getDisplayDescription(episode: Episode, episodeIndex: number): string {
-    if (!episode.description) return 'No description available.';
-
-    const isExpanded = this.isDescriptionExpanded(episodeIndex);
-    const maxLength = 120;
-
-    if (isExpanded || episode.description.length <= maxLength) {
-      return episode.description;
-    }
-
-    return episode.description.substring(0, maxLength) + '...';
-  }
-  getSmartHeight(): string {
-    // Let the parent container handle the height with CSS
-    return '100%';
-  }
-
-  private getCalculatedHeight(): number {
-    const headerHeight = 120; // Header + controls
-    const episodeCount = this.filteredEpisodes.length;
-
-    if (this.layoutType === 'grid') {
-      const containerWidth =
-        window.innerWidth < 1024 ? window.innerWidth - 48 : 300 - 24;
-      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 72)); // Ensure at least 1 per row
-      const rows = Math.ceil(episodeCount / episodesPerRow);
-      return headerHeight + Math.max(rows * 50, 100) + 24; // Minimum height + padding
-    } else if (this.layoutType === 'list') {
-      return headerHeight + Math.max(episodeCount * 45, 100) + 24; // Minimum height + padding
-    } else {
-      // poster
-      const containerWidth =
-        window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
-      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 220)); // Ensure at least 1 per row
-      const rows = Math.ceil(episodeCount / episodesPerRow);
-      return headerHeight + Math.max(rows * 280, 200) + 24; // Minimum height + padding
+    try {
+      const watchedKey = `watched_episodes_${this.seriesId}`;
+      const watchedArray = Array.from(this.watchedEpisodes);
+      localStorage.setItem(watchedKey, JSON.stringify(watchedArray));
+    } catch (error) {
+      console.error('Error saving watched episodes:', error);
     }
   }
-  getEpisodesMaxHeight(): string {
-    // Always use 'auto' to let flexbox handle the height
-    // The parent container (unified-panel) will control the overall height
-    return 'auto';
+  private markEpisodeAsWatched(episodeIndex: number) {
+    const episode = this.currentEpisodes[episodeIndex];
+    if (!episode) return;
+
+    // Use the current season for the episode being marked as watched
+    const episodeKey = `s${this.currentSeason}e${episode.number}`;
+    this.watchedEpisodes.add(episodeKey);
+    this.saveWatchedEpisodes();
   }
 
-  private getMinContentHeight(): number {
-    const episodeCount = this.filteredEpisodes.length;
-    if (episodeCount === 0) return 200; // Empty state height
+  isEpisodeWatched(episodeIndex: number): boolean {
+    const episode = this.currentEpisodes[episodeIndex];
+    if (!episode) return false;
 
-    if (this.layoutType === 'grid') {
-      return Math.min(episodeCount * 50, 400); // Max 400px for grid
-    } else if (this.layoutType === 'list') {
-      return Math.min(episodeCount * 45, 600); // Max 600px for list
-    } else {
-      return Math.min(episodeCount * 280, 800); // Max 800px for poster
+    const episodeKey = `s${this.currentSeason}e${episode.number}`;
+    return this.watchedEpisodes.has(episodeKey);
+  }
+
+  isEpisodeWatchedByFilteredIndex(filteredIndex: number): boolean {
+    const originalIndex = this.getOriginalIndex(filteredIndex);
+    return this.isEpisodeWatched(originalIndex);
+  }
+
+  // Handle clicking on watched indicator (for removing watched status)
+  onWatchedIndicatorClick(filteredIndex: number, event: Event) {
+    event.stopPropagation(); // Prevent episode selection
+
+    if (!this.isWatchedEpisodesEnabled) return;
+
+    const originalIndex = this.getOriginalIndex(filteredIndex);
+    const episode = this.currentEpisodes[originalIndex];
+    if (!episode) return;
+
+    // Only allow removal if it's a watched episode (not currently playing)
+    if (
+      !this.isEpisodeActiveByFilteredIndex(filteredIndex) &&
+      this.isEpisodeWatchedByFilteredIndex(filteredIndex)
+    ) {
+      this.removeEpisodeFromWatched(originalIndex);
     }
   }
 
-  getGridMinHeight(): string {
-    const episodeCount = this.filteredEpisodes.length;
-    if (episodeCount === 0) return '200px'; // Empty state
+  private removeEpisodeFromWatched(episodeIndex: number) {
+    const episode = this.currentEpisodes[episodeIndex];
+    if (!episode) return;
 
-    // Use fixed grid columns based on container width
-    const cols = this.getGridColumns();
-    const rows = Math.ceil(episodeCount / cols);
-
-    // Each grid item has aspect-[3/2] ratio with gap-2 (8px)
-    const itemWidth = 48; // Approximate width for grid items
-    const itemHeight = itemWidth * (2 / 3); // 3:2 aspect ratio = height is 2/3 of width
-    const gap = 8;
-    const totalHeight = rows * itemHeight + (rows - 1) * gap;
-
-    return `${Math.max(totalHeight, 100)}px`;
+    const episodeKey = `s${this.currentSeason}e${episode.number}`;
+    this.watchedEpisodes.delete(episodeKey);
+    this.saveWatchedEpisodes();
   }
 
-  private getGridColumns(): number {
-    // Match the responsive grid columns from template
-    if (window.innerWidth >= 1024) return 8; // lg:grid-cols-8
-    if (window.innerWidth >= 768) return 6; // md:grid-cols-6
-    if (window.innerWidth >= 640) return 5; // sm:grid-cols-5
-    return 4; // grid-cols-4
-  }
-
-  getListMinHeight(): string {
-    const episodeCount = this.filteredEpisodes.length;
-    if (episodeCount === 0) return '200px'; // Empty state
-    if (episodeCount <= 8) {
-      // Small number of episodes, calculate exact height
-      return `${Math.max(episodeCount * 45, 100)}px`;
+  // Settings management methods
+  private loadWatchedEpisodesSettings() {
+    try {
+      const raw = localStorage.getItem('appSettings');
+      if (raw) {
+        const settings = JSON.parse(raw);
+        if (typeof settings.enableWatchedEpisodes === 'boolean') {
+          this.isWatchedEpisodesEnabled = settings.enableWatchedEpisodes;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading watched episodes settings:', error);
     }
-    return `${episodeCount * 45}px`;
   }
 
-  getPosterMinHeight(): string {
-    const episodeCount = this.filteredEpisodes.length;
-    if (episodeCount === 0) return '200px'; // Empty state
-    if (episodeCount <= 4) {
-      // Small number of episodes, calculate exact height
-      const containerWidth =
-        window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
-      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 220));
-      const rows = Math.ceil(episodeCount / episodesPerRow);
-      return `${Math.max(rows * 280, 200)}px`;
+  private saveWatchedEpisodesSettings() {
+    try {
+      let settings = {};
+      const raw = localStorage.getItem('appSettings');
+      if (raw) {
+        settings = JSON.parse(raw);
+      }
+      (settings as any).enableWatchedEpisodes = this.isWatchedEpisodesEnabled;
+      localStorage.setItem('appSettings', JSON.stringify(settings));
+    } catch (error) {
+      console.error('Error saving watched episodes settings:', error);
     }
-    const containerWidth =
-      window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
-    const episodesPerRow = Math.max(1, Math.floor(containerWidth / 220));
-    const rows = Math.ceil(episodeCount / episodesPerRow);
-    return `${rows * 280}px`;
   }
 
-  getCompactMinHeight(): string {
-    const episodeCount = this.filteredEpisodes.length;
-    if (episodeCount === 0) return '160px'; // Empty state
-    if (episodeCount <= 6) {
-      // Small number of episodes, calculate exact height
-      const containerWidth =
-        window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
-      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 142)); // 140px + 2px gap
-      const rows = Math.ceil(episodeCount / episodesPerRow);
-      return `${Math.max(rows * 160, 160)}px`; // Compact cards are 160px high
+  // Public methods for settings component
+  public toggleWatchedEpisodesFeature(enabled: boolean) {
+    this.isWatchedEpisodesEnabled = enabled;
+    this.saveWatchedEpisodesSettings();
+  }
+
+  // Public method to mark current episode as watched (called from external components like next episode button)
+  public markCurrentEpisodeAsWatched() {
+    if (!this.isWatchedEpisodesEnabled) return;
+
+    if (
+      this.activeEpisodeIndex >= 0 &&
+      this.activeEpisodeIndex < this.currentEpisodes.length
+    ) {
+      this.markEpisodeAsWatched(this.activeEpisodeIndex);
     }
-    const containerWidth =
-      window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
-    const episodesPerRow = Math.max(1, Math.floor(containerWidth / 142));
-    const rows = Math.ceil(episodeCount / episodesPerRow);
-    return `${rows * 160}px`;
   }
 
+  public clearAllWatchedEpisodes() {
+    if (!this.seriesId) return;
+
+    try {
+      const watchedKey = `watched_episodes_${this.seriesId}`;
+      localStorage.removeItem(watchedKey);
+      this.watchedEpisodes.clear();
+    } catch (error) {
+      console.error('Error clearing watched episodes:', error);
+    }
+  }
+
+  public clearAllWatchedEpisodesForAllSeries() {
+    try {
+      // Get all localStorage keys
+      const keys = Object.keys(localStorage);
+
+      // Remove all watched episodes keys
+      keys.forEach((key) => {
+        if (key.startsWith('watched_episodes_')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Clear current series watched episodes
+      this.watchedEpisodes.clear();
+    } catch (error) {
+      console.error('Error clearing all watched episodes:', error);
+    }
+  }
+
+  // Add the missing methods from the original file
   private getScrollContainer(): HTMLElement | null {
     // First try to find the episodes container by class
     const episodesContainer = document.querySelector(
@@ -522,42 +572,7 @@ export class PlaylistComponent
     );
   }
 
-  /**
-   * Public method to trigger scroll to active episode
-   * Can be called from parent components when needed
-   */
-  public refreshScroll(): void {
-    console.log('Manual refresh scroll triggered');
-    setTimeout(() => {
-      this.scrollToActiveEpisode(true);
-    }, 100);
-  }
-
-  /**
-   * Force scroll even if disabled in settings (for debugging)
-   */
-  public forceScroll(): void {
-    const wasEnabled = this.scrollEnabled;
-    this.scrollEnabled = true;
-    console.log('Force scroll triggered');
-    setTimeout(() => {
-      this.scrollToActiveEpisode(true);
-      this.scrollEnabled = wasEnabled;
-    }, 100);
-  }
-
-  /**
-   * SCROLL FUNCTIONALITY IMPROVEMENTS:
-   *
-   * 1. Fixed element ID mapping issues by using filtered indices correctly
-   * 2. Added retry mechanism with exponential backoff for DOM readiness
-   * 3. Improved viewport detection and smooth scrolling
-   * 4. Added proper container detection for nested scrolling
-   * 5. Removed mobile restrictions - now works on all screen sizes
-   * 6. Added resize handling for responsive behavior
-   * 7. Better timing for DOM updates and layout changes
-   * 8. Public methods for external control and debugging
-   */ @HostListener('window:resize', ['$event'])
+  @HostListener('window:resize', ['$event'])
   onWindowResize(event: any) {
     // Debounce resize events
     if (this.resizeTimeout) {
@@ -572,7 +587,6 @@ export class PlaylistComponent
   }
 
   private resizeTimeout: any;
-
   private scrollTimeout: any;
 
   private debouncedScrollToActiveEpisode(initial = false, delay = 100) {
@@ -584,6 +598,7 @@ export class PlaylistComponent
       this.scrollToActiveEpisode(initial);
     }, delay);
   }
+
   ngOnDestroy() {
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
@@ -591,5 +606,101 @@ export class PlaylistComponent
     if (this.scrollTimeout) {
       clearTimeout(this.scrollTimeout);
     }
+
+    // Remove settings change listener
+    window.removeEventListener(
+      'appSettingsChanged',
+      this.onSettingsChanged.bind(this)
+    );
+  }
+
+  private onSettingsChanged(event: any) {
+    const settings = event.detail;
+    if (typeof settings.enableWatchedEpisodes === 'boolean') {
+      this.isWatchedEpisodesEnabled = settings.enableWatchedEpisodes;
+      // Reload watched episodes if the feature was re-enabled
+      if (this.isWatchedEpisodesEnabled) {
+        this.loadWatchedEpisodes();
+      }
+    }
+  }
+
+  // Layout and UI methods
+  onLayoutChange() {
+    this.layoutChange.emit();
+    // Use longer timeout to ensure layout change is complete
+    setTimeout(() => {
+      this.scrollToActiveEpisode();
+    }, 150);
+  }
+
+  onSortToggle() {
+    this.sortToggle.emit();
+  }
+
+  // Methods for poster view description expansion
+  toggleDescription(episodeIndex: number) {
+    if (this.expandedDescriptions.has(episodeIndex)) {
+      this.expandedDescriptions.delete(episodeIndex);
+    } else {
+      this.expandedDescriptions.add(episodeIndex);
+    }
+  }
+
+  isDescriptionExpanded(episodeIndex: number): boolean {
+    return this.expandedDescriptions.has(episodeIndex);
+  }
+
+  getGridMinHeight(): string {
+    const episodeCount = this.filteredEpisodes.length;
+    if (episodeCount === 0) return '200px'; // Empty state
+
+    // Use fixed grid columns based on container width
+    const cols = this.getGridColumns();
+    const rows = Math.ceil(episodeCount / cols);
+
+    // Each grid item has aspect-[3/2] ratio with gap-2 (8px)
+    const itemWidth = 48; // Approximate width for grid items
+    const itemHeight = itemWidth * (2 / 3); // 3:2 aspect ratio = height is 2/3 of width
+    const gap = 8;
+    const totalHeight = rows * itemHeight + (rows - 1) * gap;
+
+    return `${Math.max(totalHeight, 100)}px`;
+  }
+
+  private getGridColumns(): number {
+    // Match the responsive grid columns from template
+    if (window.innerWidth >= 1024) return 8; // lg:grid-cols-8
+    if (window.innerWidth >= 768) return 6; // md:grid-cols-6
+    if (window.innerWidth >= 640) return 5; // sm:grid-cols-5
+    return 4; // grid-cols-4
+  }
+
+  getListMinHeight(): string {
+    const episodeCount = this.filteredEpisodes.length;
+    if (episodeCount === 0) return '200px'; // Empty state
+    if (episodeCount <= 8) {
+      // Small number of episodes, calculate exact height
+      return `${Math.max(episodeCount * 45, 100)}px`;
+    }
+    return `${episodeCount * 45}px`;
+  }
+
+  getCompactMinHeight(): string {
+    const episodeCount = this.filteredEpisodes.length;
+    if (episodeCount === 0) return '160px'; // Empty state
+    if (episodeCount <= 6) {
+      // Small number of episodes, calculate exact height
+      const containerWidth =
+        window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
+      const episodesPerRow = Math.max(1, Math.floor(containerWidth / 142)); // 140px + 2px gap
+      const rows = Math.ceil(episodeCount / episodesPerRow);
+      return `${Math.max(rows * 160, 160)}px`; // Compact cards are 160px high
+    }
+    const containerWidth =
+      window.innerWidth < 1024 ? window.innerWidth - 48 : 300;
+    const episodesPerRow = Math.max(1, Math.floor(containerWidth / 142));
+    const rows = Math.ceil(episodeCount / episodesPerRow);
+    return `${rows * 160}px`;
   }
 }

@@ -14,12 +14,13 @@
         <div
           class="text-sm text-gray-500 font-medium truncate justify-center items-center"
         >
-          {{ getCurrentEpisodeInfo() }}
           <app-icon-lib
-            ico="chevronRight"
-            class="inline w-[0.8rem] h-[0.8rem] mx-[0.1rem] text-gray-500 mb-[0.1rem]"
+            ico="play"
+            class="inline w-[0.8rem] h-[0.8rem] mx-[0.02rem] text-gray-500 mb-[0.15rem]"
           ></app-icon-lib>
-          {{ getEpisodeCount() }}
+          <!-- {{ getEpisodeCount() }} -->
+          {{ getCurrentEpisodeInfo() }}
+          Playing
         </div>
       </div>
     </div>

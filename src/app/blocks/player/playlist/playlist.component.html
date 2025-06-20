@@ -136,7 +136,7 @@
             (click)="onFilteredEpisodeSelected(i)"
             [attr.id]="'episode-btn-' + i"
             #episodeBtn
-            class="cursor-pointer aspect-[3/2] flex items-center justify-center rounded-lg transition-colors duration-200 text-sm font-semibold border"
+            class="cursor-pointer aspect-[3/2] flex items-center justify-center rounded-lg transition-colors duration-200 text-sm font-semibold border relative"
             [class.bg-blue-500]="isEpisodeActiveByFilteredIndex(i)"
             [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
             [class.ring-2]="isEpisodeActiveByFilteredIndex(i)"
@@ -149,6 +149,40 @@
             [class.hover:bg-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
           >
             {{ episode.number }}
+            <!-- Watched indicator for grid layout - white for currently playing, blue for watched -->
+            <div
+              *ngIf="
+                isEpisodeActiveByFilteredIndex(i) ||
+                (isWatchedEpisodesEnabled && isEpisodeWatchedByFilteredIndex(i))
+              "
+              class="absolute top-1 right-1"
+            >
+              <div
+                class="w-1.5 h-1.5 rounded-full relative group cursor-pointer"
+                [class.bg-white]="isEpisodeActiveByFilteredIndex(i)"
+                [class.bg-blue-500]="
+                  !isEpisodeActiveByFilteredIndex(i) &&
+                  isWatchedEpisodesEnabled &&
+                  isEpisodeWatchedByFilteredIndex(i)
+                "
+                (click)="onWatchedIndicatorClick(i, $event)"
+              >
+                <!-- X mark icon on hover for watched episodes -->
+                <div
+                  *ngIf="
+                    isWatchedEpisodesEnabled &&
+                    !isEpisodeActiveByFilteredIndex(i) &&
+                    isEpisodeWatchedByFilteredIndex(i)
+                  "
+                  class="absolute inset-0 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+                >
+                  <app-icon-lib
+                    ico="x"
+                    class="w-1 h-1 text-white"
+                  ></app-icon-lib>
+                </div>
+              </div>
+            </div>
           </button>
         </div>
       </div>
@@ -186,11 +220,34 @@
           >
             {{ episode.name }}
           </div>
-          <div
-            *ngIf="isEpisodeActiveByFilteredIndex(i)"
-            class="flex items-center justify-center py-2.5 px-3"
-          >
-            <div class="w-2.5 h-2.5 bg-white rounded-full"></div>
+          <!-- Episode indicator - white for currently playing, blue for watched -->
+          <div class="flex items-center justify-center py-2.5 px-3">
+            <div
+              *ngIf="
+                isEpisodeActiveByFilteredIndex(i) ||
+                (isWatchedEpisodesEnabled && isEpisodeWatchedByFilteredIndex(i))
+              "
+              class="w-2.5 h-2.5 rounded-full relative group cursor-pointer"
+              [class.bg-white]="isEpisodeActiveByFilteredIndex(i)"
+              [class.bg-blue-500]="
+                !isEpisodeActiveByFilteredIndex(i) &&
+                isWatchedEpisodesEnabled &&
+                isEpisodeWatchedByFilteredIndex(i)
+              "
+              (click)="onWatchedIndicatorClick(i, $event)"
+            >
+              <!-- X mark icon on hover for watched episodes -->
+              <div
+                *ngIf="
+                  isWatchedEpisodesEnabled &&
+                  !isEpisodeActiveByFilteredIndex(i) &&
+                  isEpisodeWatchedByFilteredIndex(i)
+                "
+                class="absolute inset-0 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+              >
+                <app-icon-lib ico="x" class="w-2 h-2 text-white"></app-icon-lib>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -241,15 +298,48 @@
               {{ episode.number }}
             </div>
           </div>
-
           <!-- Episode Info -->
-          <div class="flex-1 min-w-0 px-4 py-3">
+          <div class="flex-1 min-w-0 px-4 py-3 relative">
             <div
               class="text-sm font-medium mb-1 truncate"
               [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
               [class.text-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
             >
               {{ episode.name }}
+            </div>
+            <!-- Watched indicator for poster layout - white for currently playing, blue for watched -->
+            <div
+              *ngIf="
+                isEpisodeActiveByFilteredIndex(i) ||
+                (isWatchedEpisodesEnabled && isEpisodeWatchedByFilteredIndex(i))
+              "
+              class="absolute top-3 right-3"
+            >
+              <div
+                class="w-2 h-2 rounded-full relative group cursor-pointer"
+                [class.bg-white]="isEpisodeActiveByFilteredIndex(i)"
+                [class.bg-blue-500]="
+                  !isEpisodeActiveByFilteredIndex(i) &&
+                  isWatchedEpisodesEnabled &&
+                  isEpisodeWatchedByFilteredIndex(i)
+                "
+                (click)="onWatchedIndicatorClick(i, $event)"
+              >
+                <!-- X mark icon on hover for watched episodes -->
+                <div
+                  *ngIf="
+                    isWatchedEpisodesEnabled &&
+                    !isEpisodeActiveByFilteredIndex(i) &&
+                    isEpisodeWatchedByFilteredIndex(i)
+                  "
+                  class="absolute inset-0 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+                >
+                  <app-icon-lib
+                    ico="x"
+                    class="w-1.5 h-1.5 text-white"
+                  ></app-icon-lib>
+                </div>
+              </div>
             </div>
             <div class="flex items-end gap-2">
               <!-- Description text -->
@@ -385,13 +475,36 @@
               }}
             </div>
           </div>
-
-          <!-- Active Episode Indicator -->
+          <!-- Active Episode Indicator - white for currently playing, blue for watched -->
           <div
-            *ngIf="isEpisodeActiveByFilteredIndex(i)"
+            *ngIf="
+              isEpisodeActiveByFilteredIndex(i) ||
+              (isWatchedEpisodesEnabled && isEpisodeWatchedByFilteredIndex(i))
+            "
             class="absolute bottom-1 right-1"
           >
-            <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
+            <div
+              class="w-1.5 h-1.5 rounded-full relative group cursor-pointer"
+              [class.bg-white]="isEpisodeActiveByFilteredIndex(i)"
+              [class.bg-blue-500]="
+                !isEpisodeActiveByFilteredIndex(i) &&
+                isWatchedEpisodesEnabled &&
+                isEpisodeWatchedByFilteredIndex(i)
+              "
+              (click)="onWatchedIndicatorClick(i, $event)"
+            >
+              <!-- X mark icon on hover for watched episodes -->
+              <div
+                *ngIf="
+                  isWatchedEpisodesEnabled &&
+                  !isEpisodeActiveByFilteredIndex(i) &&
+                  isEpisodeWatchedByFilteredIndex(i)
+                "
+                class="absolute inset-0 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
+              >
+                <app-icon-lib ico="x" class="w-1 h-1 text-white"></app-icon-lib>
+              </div>
+            </div>
           </div>
         </div>
       </div>
