@@ -63,8 +63,8 @@
                 <button
                   type="button"
                   class="mr-2 flex lg:hidden items-center justify-center p-2 text-gray-700 hover:bg-gray-100 focus:outline-none"
-                  (click)="showMobileMenu = !showMobileMenu"
-                  aria-label="Open menu"
+                  (click)="toggleMenu($event)"
+                  aria-label="Toggle menu"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -186,12 +186,12 @@
     <div
       class="bg-white border border-gray-200 rounded-xl p-2 flex flex-col gap-1 animate-fade-in-down"
       [ngStyle]="{ width: navBarWidth }"
-      (clickOutside)="showMobileMenu = false"
+      (clickOutside)="closeMenu()"
     >
       <ng-container *ngFor="let item of menuItems">
         <a
           routerLink="{{ item.route }}"
-          (click)="handleClick($event); showMobileMenu = false"
+          (click)="handleClick($event); closeMenu()"
           class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-700"
           [ngClass]="{ 'text-blue-600 bg-blue-50': isActive(item.route) }"
         >

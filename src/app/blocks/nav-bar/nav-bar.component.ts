@@ -6,12 +6,19 @@ import { CommonModule } from '@angular/common';
 import { HighlightSlectedMenuRoute } from '../side-bar/side-bar.service';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { TmdbService } from '../../services/tmdb.service'; // Import TmdbService
+import { ClickOutsideDirective } from './click-outside.directive'; // Import ClickOutsideDirective
 
 @Component({
   selector: 'app-nav-bar',
   templateUrl: './nav-bar.component.html',
   standalone: true,
-  imports: [FormsModule, RouterModule, CommonModule, IconLibComponent],
+  imports: [
+    FormsModule,
+    RouterModule,
+    CommonModule,
+    IconLibComponent,
+    ClickOutsideDirective,
+  ],
   providers: [HighlightSlectedMenuRoute, TmdbService], // Add TmdbService to providers
 })
 export class NavBarComponent implements AfterViewInit, OnDestroy {
@@ -38,16 +45,32 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit() {
     this.highlightSlectedMenuRoute.ngAfterViewInit();
     this.checkIsMobile();
+    this.updateNavBarWidth();
     window.addEventListener('resize', this.checkIsMobile.bind(this));
+    window.addEventListener('resize', this.updateNavBarWidth.bind(this));
   }
 
   ngOnDestroy() {
     window.removeEventListener('resize', this.checkIsMobile.bind(this));
+    window.removeEventListener('resize', this.updateNavBarWidth.bind(this));
   }
 
   checkIsMobile() {
     this.isMobile = window.innerWidth <= 768;
-    this.navBarWidth = this.isMobile ? '80vw' : '250px';
+  }
+
+  updateNavBarWidth() {
+    // Get the actual navbar width to match it with the menu
+    setTimeout(() => {
+      const navBarElement = document.querySelector('header .w-full');
+      if (navBarElement) {
+        const width = navBarElement.getBoundingClientRect().width;
+        this.navBarWidth = `${width}px`;
+      } else {
+        // Fallback to previous logic
+        this.navBarWidth = this.isMobile ? '80vw' : '250px';
+      }
+    }, 0);
   }
 
   get sources() {
@@ -108,5 +131,24 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
       fragment: 'ignored',
       matrixParams: 'ignored',
     });
+  }
+
+  toggleMenu(event?: Event) {
+    // Prevent event propagation to avoid conflicts with click-outside directive
+    if (event) {
+      event.stopPropagation();
+    }
+
+    // Simple toggle - if open, close it; if closed, open it
+    this.showMobileMenu = !this.showMobileMenu;
+
+    // Update navbar width when opening menu to ensure they match
+    if (this.showMobileMenu) {
+      this.updateNavBarWidth();
+    }
+  }
+
+  closeMenu() {
+    this.showMobileMenu = false;
   }
 }
