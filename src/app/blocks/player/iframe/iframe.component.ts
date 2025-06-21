@@ -12,7 +12,9 @@ import { SafeResourceUrl } from '@angular/platform-browser';
         class="w-full h-full rounded-2xl"
         frameborder="0"
         allowfullscreen
+        referrerpolicy="no-referrer"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        sandbox="allow-scripts allow-same-origin"
       ></iframe>
     </ng-container>
   `,

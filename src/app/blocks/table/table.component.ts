@@ -413,7 +413,8 @@ export class TableComponent implements OnInit, OnDestroy {
 
   highlightUrl(url: string): SafeHtml {
     if (!url) return 'No URL provided';
-    let highlighted = url;    const replacements = [
+    let highlighted = url;
+    const replacements = [
       {
         regex: /(#type\?[^:]+:[^?\s&\/]+)/gi,
         class: 'text-purple-600 font-semibold decoration-purple-300',
