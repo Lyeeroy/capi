@@ -307,18 +307,20 @@ export class TableComponent implements OnInit, OnDestroy {
   }
 
   insertTag(tag: string): void {
-    const textarea = document.getElementById('advancedSourceTextarea') as HTMLTextAreaElement;
+    const textarea = document.getElementById(
+      'advancedSourceTextarea'
+    ) as HTMLTextAreaElement;
     if (textarea) {
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
       const text = textarea.value;
       const before = text.substring(0, start);
       const after = text.substring(end);
-      
+
       // Insert tag at cursor position
       const newText = before + tag + after;
       this.advancedSourceUrl = newText;
-      
+
       // Update cursor position
       setTimeout(() => {
         textarea.selectionStart = textarea.selectionEnd = start + tag.length;
@@ -330,20 +332,20 @@ export class TableComponent implements OnInit, OnDestroy {
 
   validateAdvancedUrl(): void {
     const url = this.advancedSourceUrl.toLowerCase();
-    
+
     this.validationState = {
       hasId: url.includes('#id'),
       hasType: url.includes('#type'),
       hasSeason: url.includes('#season'),
       hasEpisode: url.includes('#episode'),
-      isValid: false
+      isValid: false,
     };
 
     // Check if all required tags are present
-    this.validationState.isValid = 
-      this.validationState.hasId && 
-      this.validationState.hasType && 
-      this.validationState.hasSeason && 
+    this.validationState.isValid =
+      this.validationState.hasId &&
+      this.validationState.hasType &&
+      this.validationState.hasSeason &&
       this.validationState.hasEpisode;
   }
 
@@ -353,7 +355,7 @@ export class TableComponent implements OnInit, OnDestroy {
       hasType: false,
       hasSeason: false,
       hasEpisode: false,
-      isValid: false
+      isValid: false,
     };
   }
 
@@ -411,17 +413,36 @@ export class TableComponent implements OnInit, OnDestroy {
 
   highlightUrl(url: string): SafeHtml {
     if (!url) return 'No URL provided';
-    let highlighted = url;
-    const replacements = [
-      { regex: /(#type)/gi, class: 'bg-orange-100 text-orange-600' },
-      { regex: /(#id)/gi, class: 'bg-blue-100 text-blue-600' },
-      { regex: /(#season)/gi, class: 'bg-red-100 text-red-600' },
-      { regex: /(#episode)/gi, class: 'bg-green-100 text-green-600' },
+    let highlighted = url;    const replacements = [
+      {
+        regex: /(#type\?[^:]+:[^?\s&\/]+)/gi,
+        class: 'text-purple-600 font-semibold decoration-purple-300',
+      },
+      {
+        regex: /(#type)/gi,
+        class: 'text-orange-600 font-semibold decoration-orange-300',
+      },
+      {
+        regex: /(#id)/gi,
+        class: 'text-blue-600 font-semibold decoration-blue-300',
+      },
+      {
+        regex: /(#season)/gi,
+        class: 'text-red-600 font-semibold decoration-red-300',
+      },
+      {
+        regex: /(#episode)/gi,
+        class: 'text-green-600 font-semibold decoration-green-300',
+      },
+      {
+        regex: /(#no(?:="?\d+"?|=\d+)?)/gi,
+        class: 'text-cyan-600 font-semibold decoration-cyan-300',
+      },
     ];
     replacements.forEach((rep) => {
       highlighted = highlighted.replace(
         rep.regex,
-        `<span class="${rep.class} px-1 py-0.5 rounded font-semibold text-xs">$1</span>`
+        `<span class="${rep.class}">$1</span>`
       );
     });
     return this.sanitizer.bypassSecurityTrustHtml(highlighted);

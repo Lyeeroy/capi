@@ -712,6 +712,22 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showIframe = false;
     setTimeout(() => (this.showIframe = true), 0);
   }
+  // Helper to calculate absolute episode number for #no token
+  private getAbsoluteEpisodeNumber(): number {
+    if (
+      this.mediaType !== 'tv' ||
+      !this.currentSeason ||
+      !this.currentEpisode
+    ) {
+      return 1;
+    }
+    let total = 0;
+    for (let s = 1; s < this.currentSeason; s++) {
+      total += this.episodeNames[s]?.length || 0;
+    }
+    return total + this.currentEpisode;
+  }
+
   translateIntoIframe(url: string): SafeResourceUrl {
     let newUrl: string;
     const match = url.match(this.MAPPING_REGEX);
@@ -728,6 +744,18 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     if (this.mediaType === 'tv') {
+      // Replace #no="number", #no=number, or #no with base+offset logic
+      const absOffset = this.getAbsoluteEpisodeNumber() - 1; // offset from first episode
+      // Replace #no="number"
+      newUrl = newUrl.replace(/#no="(\d+)"/g, (_match, base) =>
+        (parseInt(base, 10) + absOffset).toString()
+      );
+      // Replace #no=number
+      newUrl = newUrl.replace(/#no=(\d+)/g, (_match, base) =>
+        (parseInt(base, 10) + absOffset).toString()
+      );
+      // Replace #no (no base, fallback to offset+1)
+      newUrl = newUrl.replace(/#no(?![=\w])/g, (absOffset + 1).toString());
       newUrl = newUrl
         .replace(/#season/g, this.currentSeason.toString())
         .replace(/#episode/g, this.currentEpisode.toString());
@@ -749,22 +777,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.sanitizer.bypassSecurityTrustResourceUrl(newUrl);
   }
 
-  /**
-   * SORTING BUG FIX:
-   *
-   * Fixed the episode navigation bug where "next episode" would incorrectly navigate
-   * when episodes were sorted in descending order (bottom to top).
-   *
-   * Key changes:
-   * 1. nextEpisode() and prevEpisode() now use array indices instead of episode numbers
-   * 2. Navigation direction is based on isSortedAscending flag
-   * 3. Season transitions respect the current sort order
-   * 4. Episode availability checks account for sorting direction
-   * 5. Episode labels show correct information based on sort order
-   *
-   * When sorted ascending (1,2,3,4...): next = higher episode number (index + 1)
-   * When sorted descending (4,3,2,1...): next = lower episode number (index - 1)
-   */ nextEpisode(index: number) {
+  nextEpisode(index: number) {
     if (!this.isViewingSameSeasonAsActive()) {
       return;
     }

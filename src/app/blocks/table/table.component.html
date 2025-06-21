@@ -361,10 +361,9 @@
                         />
                       </div>
                     </div>
-                    <div class="min-w-0">
-                      <div
+                    <div class="min-w-0">                      <div
                         *ngIf="!source.isEditing"
-                        class="text-xs text-gray-600 break-all"
+                        class="text-xs text-gray-600 break-all leading-relaxed"
                       >
                         <span [innerHTML]="highlightUrl(source.url)"></span>
                       </div>
@@ -508,10 +507,9 @@
                 </div>
               </td>
               <td class="hidden lg:table-cell p-3 align-middle min-w-[200px]">
-                <div class="max-w-full">
-                  <div
+                <div class="max-w-full">                  <div
                     *ngIf="!source.isEditing"
-                    class="text-sm text-gray-800 break-words"
+                    class="text-sm text-gray-800 break-words leading-relaxed"
                     [innerHTML]="highlightUrl(source.url || 'No URL provided')"
                   ></div>
                   <input
