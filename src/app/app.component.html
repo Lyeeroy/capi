@@ -1,14 +1,16 @@
 <div
-  class="h-full min-h-screen font-[sans-serif] container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12"
+  class="h-full min-h-screen font-[sans-serif] w-full bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300"
 >
-  <app-nav-bar></app-nav-bar>
-  <div class="flex items-start">
-    <!-- <app-side-bar></app-side-bar> -->
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+    <app-nav-bar></app-nav-bar>
+    <div class="flex items-start">
+      <!-- <app-side-bar></app-side-bar> -->
 
-    <section class="main-content flex-1 overflow-hidden">
-      <!-- <app-header></app-header> -->
-      <router-outlet />
-    </section>
+      <section class="main-content flex-1 overflow-hidden">
+        <!-- <app-header></app-header> -->
+        <router-outlet />
+      </section>
+    </div>
   </div>
 </div>
 <!-- <div class="mt-20 lg:mt-0"></div> -->

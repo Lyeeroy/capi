@@ -19,12 +19,12 @@
   >
     <div class="flex items-center">
       <span
-        class="bg-gray-100 border border-gray-200 rounded-lg p-2 mr-3 flex items-center justify-center"
+        class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mr-3 flex items-center justify-center"
         aria-hidden="true"
       >
         <app-icon-lib
           [ico]="selectedMediaType === 'movie' ? 'movie' : 'tvshow'"
-          class="w-5 h-5"
+          class="w-5 h-5 text-gray-700 dark:text-gray-200"
         ></app-icon-lib>
       </span>
       <div>
@@ -40,8 +40,8 @@
           class="cursor-pointer whitespace-nowrap flex-1 px-4 py-2 text-sm font-semibold rounded-lg border focus:outline-none transition-colors duration-200 h-[40px]"
           [ngClass]="
             selectedMediaType === 'movie'
-              ? 'bg-gray-200 text-gray-700 border-gray-400'
-              : 'bg-gray-100 text-gray-700 border-gray-300'
+              ? 'bg-gray-200 text-gray-700 border-gray-400 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400'
+              : 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700'
           "
           (click)="onSelectMediaType('movie')"
         >
@@ -51,8 +51,8 @@
           class="cursor-pointer whitespace-nowrap flex-1 px-4 py-2 text-sm font-semibold rounded-lg border focus:outline-none transition-colors duration-200 h-[40px]"
           [ngClass]="
             selectedMediaType === 'tv'
-              ? 'bg-gray-200 text-gray-700 border-gray-400'
-              : 'bg-gray-100 text-gray-700 border-gray-300'
+              ? 'bg-gray-200 text-gray-700 border-gray-400 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-400'
+              : 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700'
           "
           (click)="onSelectMediaType('tv')"
         >
@@ -61,12 +61,21 @@
       </div>
       <div class="w-full sm:w-[200px] flex items-center">
         <select
-          class="w-full sm:w-[200px] min-w-[140px] px-3 py-2 rounded-lg border border-gray-300 bg-white text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 h-[40px]"
+          class="w-full sm:w-[200px] min-w-[140px] px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 h-[40px]"
           [(ngModel)]="selectedGenreId"
           (change)="onSelectGenre(selectedGenreId)"
         >
-          <option [ngValue]="0">All Genres</option>
-          <option *ngFor="let genre of genreList" [ngValue]="genre.id">
+          <option
+            [ngValue]="0"
+            class="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200"
+          >
+            All Genres
+          </option>
+          <option
+            *ngFor="let genre of genreList"
+            [ngValue]="genre.id"
+            class="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200"
+          >
             {{ genre.name }}
           </option>
         </select>

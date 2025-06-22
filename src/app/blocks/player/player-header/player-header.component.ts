@@ -11,13 +11,13 @@ import { CommonModule } from '@angular/common';
     >
       <!-- Back Button -->
       <div
-        class="flex items-center px-4 py-2.5 text-gray-700 rounded-xl bg-white w-full lg:w-fit max-w-full"
+        class="flex items-center px-4 py-2.5 text-gray-700 dark:text-gray-200 rounded-xl bg-white dark:bg-gray-900 w-full lg:w-fit max-w-full"
         [class.hidden]="!showName"
         [class.flex]="showName"
       >
         <button
           (click)="onGoBack()"
-          class="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors duration-200"
+          class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg px-2 py-1"
         >
           <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
           Go Back

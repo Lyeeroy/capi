@@ -1,22 +1,26 @@
 <!-- Episode Navigation Component -->
-<div class="bg-white rounded-xl border border-gray-200">
+<div
+  class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700"
+>
   <!-- Episode Navigation Header (clickable to expand/collapse) -->
   <div
-    class="bg-gray-50 rounded-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+    class="bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
     (click)="toggleEpisodeNavExpansion()"
   >
     <div class="flex items-center gap-3 min-w-0 flex-1">
       <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
       <div class="min-w-0 flex-1 max-w-[170px]">
-        <h2 class="text-base font-bold text-gray-900 truncate">
+        <h2
+          class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+        >
           {{ getSubtitle() }}
         </h2>
         <div
-          class="text-sm text-gray-500 font-medium truncate justify-center items-center"
+          class="text-sm text-gray-500 dark:text-gray-300 font-medium truncate justify-center items-center"
         >
           <app-icon-lib
             ico="play"
-            class="inline w-[0.8rem] h-[0.8rem] mx-[0.02rem] text-gray-500 mb-[0.15rem]"
+            class="inline w-[0.8rem] h-[0.8rem] mx-[0.02rem] text-gray-500 dark:text-gray-300 mb-[0.15rem]"
           ></app-icon-lib>
           <!-- {{ getEpisodeCount() }} -->
           {{ getCurrentEpisodeInfo() }}
@@ -35,13 +39,12 @@
         (click)="onPreviousEpisode(); $event.stopPropagation()"
         [class.opacity-50]="!hasPreviousEpisode"
         [class.cursor-not-allowed]="!hasPreviousEpisode"
-        [class.hover:bg-gray-100]="hasPreviousEpisode"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 border border-gray-200 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-colors duration-200"
         [class.cursor-pointer]="hasPreviousEpisode"
       >
         <app-icon-lib
           ico="arrowLeft"
-          class="w-4 h-4 text-gray-600"
+          class="w-4 h-4 text-gray-600 dark:text-gray-200"
         ></app-icon-lib>
       </button>
 
@@ -53,8 +56,7 @@
         (click)="onNextEpisode(); $event.stopPropagation()"
         [class.opacity-50]="!hasNextEpisode"
         [class.cursor-not-allowed]="!hasNextEpisode"
-        [class.hover:bg-blue-600]="hasNextEpisode"
-        class="p-2 rounded-lg bg-blue-500 border border-blue-500 transition-colors duration-200"
+        class="p-2 rounded-lg bg-blue-500 dark:bg-blue-600 border border-blue-500 dark:border-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700 hover:border-blue-600 dark:hover:border-blue-500 transition-colors duration-200"
         [class.cursor-pointer]="hasNextEpisode"
       >
         <app-icon-lib
@@ -70,7 +72,7 @@
       >
         <app-icon-lib
           ico="chevron-down"
-          class="w-4 h-4 text-gray-500"
+          class="w-4 h-4 text-gray-500 dark:text-gray-400"
         ></app-icon-lib>
       </div>
     </div>
@@ -85,19 +87,21 @@
   (click)="toggleEpisodeNavExpansion()"
 >
   <div
-    class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden modal-content"
+    class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden modal-content"
     #modalContent
     (click)="$event.stopPropagation()"
   >
     <!-- Modal Header -->
     <div
-      class="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-xl"
+      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-xl"
     >
       <div class="flex items-center gap-3">
         <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
         <div>
-          <h2 class="text-lg font-bold text-gray-900">Episode Navigation</h2>
-          <div class="text-sm text-gray-500">
+          <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+            Episode Navigation
+          </h2>
+          <div class="text-sm text-gray-500 dark:text-gray-300">
             {{ getCurrentEpisodeInfo() }}
           </div>
         </div>
@@ -106,18 +110,21 @@
         <!-- Copy Episode Info Button -->
         <button
           (click)="copyEpisodeInfoToClipboard()"
-          class="p-2 rounded-lg hover:bg-gray-200 transition-colors ml-2"
+          class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 border border-transparent dark:border-transparent transition-colors ml-2"
           title="Copy Episode Info"
         >
-          <app-icon-lib ico="copy" class="w-5 h-5 text-gray-600"></app-icon-lib>
+          <app-icon-lib
+            ico="copy"
+            class="w-5 h-5 text-gray-600 dark:text-gray-200"
+          ></app-icon-lib>
         </button>
         <button
           (click)="toggleEpisodeNavExpansion()"
-          class="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+          class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 border border-transparent dark:border-transparent transition-colors"
         >
           <app-icon-lib
             ico="close"
-            class="w-5 h-5 text-gray-600"
+            class="w-5 h-5 text-gray-600 dark:text-gray-200"
           ></app-icon-lib>
         </button>
       </div>
@@ -128,16 +135,16 @@
       <div class="flex flex-col gap-4">
         <!-- Current Episode Info -->
         <div
-          class="flex items-center gap-4 p-3 bg-blue-50 rounded-lg border border-blue-200"
+          class="flex items-center gap-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-700"
         >
           <div class="w-3 h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
           <div class="flex-1 min-w-0">
-            <div class="font-medium text-blue-900 text-sm">
+            <div class="font-medium text-blue-900 dark:text-blue-100 text-sm">
               {{
                 mediaType === "movie" ? "Currently Watching" : "Current Episode"
               }}
             </div>
-            <div class="text-blue-700 text-xs">
+            <div class="text-blue-700 dark:text-blue-300 text-xs">
               {{ getCurrentEpisodeInfo() }}
             </div>
           </div>
@@ -152,7 +159,7 @@
             [class.opacity-50]="!hasPreviousEpisode"
             [class.cursor-not-allowed]="!hasPreviousEpisode"
             [class.hover:bg-gray-50]="hasPreviousEpisode"
-            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 transition-all duration-200"
+            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200"
             [class.cursor-pointer]="hasPreviousEpisode"
           >
             <div class="flex items-center justify-between">
@@ -162,10 +169,12 @@
                   class="w-4 h-4 text-gray-600"
                 ></app-icon-lib>
                 <div>
-                  <div class="font-medium text-sm text-gray-900">
+                  <div
+                    class="font-medium text-sm text-gray-900 dark:text-gray-100"
+                  >
                     Previous Episode
                   </div>
-                  <div class="text-xs text-gray-500">
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
                     {{ previousEpisodeLabel }}
                   </div>
                 </div>
@@ -180,7 +189,7 @@
             [class.opacity-50]="!hasNextEpisode"
             [class.cursor-not-allowed]="!hasNextEpisode"
             [class.hover:bg-blue-50]="hasNextEpisode"
-            class="w-full text-left px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 transition-all duration-200"
+            class="w-full text-left px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-900 transition-all duration-200"
             [class.cursor-pointer]="hasNextEpisode"
           >
             <div class="flex items-center justify-between">
@@ -190,10 +199,12 @@
                   class="w-4 h-4 text-blue-600"
                 ></app-icon-lib>
                 <div>
-                  <div class="font-medium text-sm text-blue-900">
+                  <div
+                    class="font-medium text-sm text-blue-900 dark:text-blue-100"
+                  >
                     Next Episode
                   </div>
-                  <div class="text-xs text-blue-700">
+                  <div class="text-xs text-blue-700 dark:text-blue-300">
                     {{ nextEpisodeLabel }}
                   </div>
                 </div>
@@ -208,7 +219,7 @@
             ico="movie"
             class="w-8 h-8 text-gray-400 mx-auto mb-2"
           ></app-icon-lib>
-          <p class="text-sm text-gray-500">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
             This is a movie - no episode navigation available
           </p>
         </div>

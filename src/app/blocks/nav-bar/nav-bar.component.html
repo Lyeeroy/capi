@@ -4,7 +4,7 @@
     <!--  px-4 sm:px-6 lg:px-8 -->
     <!-- Island Container -->
     <div
-      class="w-full mx-auto bg-gray-50/95 backdrop-blur-lg border border-gray-200 rounded-2xl overflow-hidden"
+      class="w-full mx-auto bg-gray-50/95 dark:bg-gray-800 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden transition-colors duration-300"
     >
       <!--  sm:w-4/5 lg:w-2/3 mx-auto -->
       <div class="px-3 py-3 sm:px-4 sm:py-3 lg:px-6 lg:py-3">
@@ -19,7 +19,7 @@
             >
               <img
                 src="capi.ico"
-                class="w-16 h-8 sm:w-18 sm:h-10 rounded-lg transition duration-200 hover:grayscale hover:brightness-0"
+                class="w-16 h-8 sm:w-18 sm:h-10 rounded-lg transition duration-200 dark:grayscale dark:filter dark:invert dark:brightness-0 filter-none"
                 alt="Capi Logo"
               />
             </a>
@@ -29,16 +29,21 @@
                   *ngFor="let item of menuItems"
                   id="li-menu-{{ item.route }}"
                   class="relative"
-                  routerLinkActive="bg-blue-100 rounded-lg"
+                  [ngClass]="{
+                    'bg-blue-100 dark:bg-blue-900 rounded-lg': isActive(
+                      item.route
+                    )
+                  }"
+                  routerLinkActive="bg-blue-100 dark:bg-blue-900 rounded-lg"
                   [routerLinkActiveOptions]="{ exact: true }"
                 >
                   <a
                     routerLink="{{ item.route }}"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100/50 transition-colors duration-300"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/60 transition-colors duration-300"
                     (click)="handleClick($event)"
                     [ngClass]="{
-                      'text-blue-600': isActive(item.route),
-                      'text-gray-700': !isActive(item.route)
+                      'text-blue-600 dark:text-blue-400': isActive(item.route),
+                      'text-gray-700 dark:text-gray-200': !isActive(item.route)
                     }"
                   >
                     <app-icon-lib
@@ -46,6 +51,8 @@
                       class="w-5 h-5"
                       [class.text-blue-600]="isActive(item.route)"
                       [class.text-gray-700]="!isActive(item.route)"
+                      [class.dark:text-blue-400]="isActive(item.route)"
+                      [class.dark:text-gray-200]="!isActive(item.route)"
                     ></app-icon-lib>
                     <span class="text-sm font-medium">{{ item.label }}</span>
                   </a>
@@ -90,7 +97,7 @@
                   [(ngModel)]="query"
                   (input)="searchMovies()"
                   (keydown.enter)="searchMovies()"
-                  class="w-full pl-4 pr-16 py-2.5 sm:py-3 lg:py-2.5 rounded-xl border border-gray-200/80 bg-white/90 backdrop-blur-sm focus:border-blue-400 focus:ring-4 focus:ring-blue-100/60 focus:bg-white hover:border-gray-300 transition-all duration-200 outline-none text-gray-800 placeholder-gray-500 text-sm sm:text-base lg:text-sm group-hover:"
+                  class="w-full pl-4 pr-16 py-2.5 sm:py-3 lg:py-2.5 rounded-xl border border-gray-200/80 dark:border-gray-700/80 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm focus:border-blue-400 focus:ring-4 focus:ring-blue-100/60 dark:focus:ring-blue-900/40 focus:bg-white dark:focus:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 outline-none text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base lg:text-sm group-hover:"
                 />
                 <div
                   class="absolute inset-y-0 right-0 flex items-center pr-3 gap-1"
@@ -100,12 +107,12 @@
                     *ngIf="query.length > 0"
                     type="button"
                     (click)="clearSearch(); focusSearchInput()"
-                    class="p-1 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors duration-150 group/clear"
+                    class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors duration-150 group/clear"
                     aria-label="Clear search"
                   >
                     <app-icon-lib
                       ico="clear"
-                      class="h-4 w-4 text-gray-400 group-hover/clear:text-gray-600 transition-colors"
+                      class="h-4 w-4 text-gray-400 dark:text-gray-300 group-hover/clear:text-gray-600 dark:group-hover/clear:text-gray-100 transition-colors"
                     ></app-icon-lib>
                   </button>
 
@@ -113,12 +120,12 @@
                   <button
                     type="button"
                     (click)="searchMovies()"
-                    class="p-1 rounded-md hover:bg-blue-50 active:bg-blue-100 transition-colors duration-150 group/search"
+                    class="p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-800 transition-colors duration-150 group/search"
                     aria-label="Search"
                   >
                     <app-icon-lib
                       ico="search"
-                      class="h-4 w-4 sm:h-5 sm:w-5 lg:h-4 lg:w-4 text-blue-500 group-hover/search:text-blue-600 transition-colors"
+                      class="h-4 w-4 sm:h-5 sm:w-5 lg:h-4 lg:w-4 text-blue-500 dark:text-blue-400 group-hover/search:text-blue-600 dark:group-hover/search:text-blue-300 transition-colors"
                     ></app-icon-lib>
                   </button>
                 </div>
@@ -128,12 +135,14 @@
             <div class="flex items-center gap-2 sm:gap-3">
               <!-- Sources Button -->
               <button
-                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200/80 hover:border-blue-300 active:scale-95 transition-all duration-200"
+                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-gray-800 backdrop-blur-sm border border-gray-200/80 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-400 active:scale-95 transition-all duration-200"
                 routerLink="/table"
                 aria-label="Sources"
                 [ngClass]="{
-                  'bg-blue-50 border-blue-200 ': isActive('/table'),
-                  'bg-white/80 border-gray-200/80': !isActive('/table')
+                  'bg-blue-50 border-blue-200 dark:bg-blue-900 dark:border-blue-700':
+                    isActive('/table'),
+                  'bg-white/80 border-gray-200/80 dark:bg-gray-800 dark:border-gray-700':
+                    !isActive('/table')
                 }"
               >
                 <app-icon-lib
@@ -142,10 +151,13 @@
                   [class.text-blue-600]="isActive('/table')"
                   [class.text-gray-600]="!isActive('/table')"
                   [class.group-hover:text-blue-500]="!isActive('/table')"
+                  [class.dark:text-blue-400]="isActive('/table')"
+                  [class.dark:text-gray-200]="!isActive('/table')"
+                  [class.dark:group-hover:text-blue-300]="!isActive('/table')"
                 ></app-icon-lib>
                 <!-- Badge -->
                 <span
-                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-blue-500 text-xs text-white font-medium flex items-center justify-center rounded-full border-2 border-white"
+                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-blue-500 dark:bg-blue-400 text-xs text-white dark:text-white font-medium flex items-center justify-center rounded-full border-2 border-white dark:border-gray-900"
                 >
                   {{ sources.length }}
                 </span>
@@ -153,12 +165,14 @@
 
               <!-- Settings Button -->
               <button
-                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 backdrop-blur-sm border border-gray-200/80 hover:border-blue-300 active:scale-95 transition-all duration-200"
+                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-gray-800 backdrop-blur-sm border border-gray-200/80 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-400 active:scale-95 transition-all duration-200"
                 routerLink="/settings"
                 aria-label="Settings"
                 [ngClass]="{
-                  'bg-blue-50 border-blue-200 ': isActive('/settings'),
-                  'bg-white/80 border-gray-200/80': !isActive('/settings')
+                  'bg-blue-50 border-blue-200 dark:bg-blue-900 dark:border-blue-700':
+                    isActive('/settings'),
+                  'bg-white/80 border-gray-200/80 dark:bg-gray-800 dark:border-gray-700':
+                    !isActive('/settings')
                 }"
               >
                 <app-icon-lib
@@ -167,6 +181,11 @@
                   [class.text-blue-600]="isActive('/settings')"
                   [class.text-gray-600]="!isActive('/settings')"
                   [class.group-hover:text-blue-500]="!isActive('/settings')"
+                  [class.dark:text-blue-400]="isActive('/settings')"
+                  [class.dark:text-gray-200]="!isActive('/settings')"
+                  [class.dark:group-hover:text-blue-300]="
+                    !isActive('/settings')
+                  "
                 ></app-icon-lib>
               </button>
             </div>

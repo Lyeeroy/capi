@@ -1,27 +1,31 @@
 <div
-  class="h-full w-full flex flex-col bg-gray-50 relative overflow-hidden rounded-xl"
+  class="h-full w-full flex flex-col bg-gray-50 dark:bg-gray-900 relative overflow-hidden rounded-xl"
 >
   <!-- Decorative background patterns -->
-  <div class="absolute inset-0 opacity-5">
+  <div class="absolute inset-0 opacity-5 pointer-events-none select-none">
     <div
-      class="absolute top-0 left-0 w-32 h-32 bg-blue-400 rounded-full blur-3xl"
+      class="absolute top-0 left-0 w-32 h-32 bg-blue-400 dark:bg-blue-800 rounded-full blur-3xl"
     ></div>
     <div
-      class="absolute bottom-0 right-0 w-40 h-40 bg-indigo-400 rounded-full blur-3xl"
+      class="absolute bottom-0 right-0 w-40 h-40 bg-indigo-400 dark:bg-indigo-800 rounded-full blur-3xl"
     ></div>
     <div
-      class="absolute top-1/2 left-1/4 w-24 h-24 bg-purple-400 rounded-full blur-2xl"
+      class="absolute top-1/2 left-1/4 w-24 h-24 bg-purple-400 dark:bg-purple-800 rounded-full blur-2xl"
     ></div>
   </div>
   <!-- Header Section -->
   <div
-    class="relative flex items-center justify-between p-4 xl:p-4 backdrop-blur-md border-b border-gray-200/50 rounded-t-lg"
+    class="relative flex items-center justify-between p-4 xl:p-4 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 rounded-t-lg"
   >
     <div class="flex items-center gap-3 min-w-0 flex-1 pr-4">
       <div class="w-2 h-7 bg-blue-500 rounded-full flex-shrink-0"></div>
       <div class="min-w-0 flex-1">
-        <h2 class="text-base font-bold text-gray-900 truncate">{{ names }}</h2>
-        <div class="text-sm text-gray-500 font-medium">
+        <h2
+          class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+        >
+          {{ names }}
+        </h2>
+        <div class="text-sm text-gray-500 dark:text-gray-300 font-medium">
           {{ filteredEpisodes.length }} episodes
         </div>
       </div>
@@ -30,29 +34,35 @@
       <button
         title="Change layout"
         (click)="onLayoutChange()"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 border border-gray-200 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-200"
       >
-        <app-icon-lib ico="menu" class="w-5 h-5 text-gray-600"></app-icon-lib>
+        <app-icon-lib
+          ico="menu"
+          class="w-5 h-5 text-gray-600 dark:text-gray-300"
+        ></app-icon-lib>
       </button>
       <button
         title="Sort order"
         (click)="onSortToggle()"
         [class.rotate-180]="!isSortedAscending"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 border border-gray-200 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-200"
       >
-        <app-icon-lib ico="sort" class="w-5 h-5 text-gray-600"></app-icon-lib>
+        <app-icon-lib
+          ico="sort"
+          class="w-5 h-5 text-gray-600 dark:text-gray-300"
+        ></app-icon-lib>
       </button>
     </div>
   </div>
 
   <!-- Season Selector and Search -->
   <div
-    class="relative p-2 xl:p-4 bg-white/40 backdrop-blur-sm border-b border-gray-200/50"
+    class="relative p-2 xl:p-4 bg-white/40 dark:bg-gray-800 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50"
   >
     <div class="flex gap-3">
       <div class="relative flex-1">
         <select
-          class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none cursor-pointer"
+          class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none cursor-pointer dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300"
           id="seasonSelect"
           (change)="onSeasonChange($event)"
           [(ngModel)]="currentSeason"
@@ -78,7 +88,7 @@
           placeholder="Ep No."
           [(ngModel)]="searchQuery"
           (input)="onSearchChange(searchQuery)"
-          class="w-full px-4 py-2.5 pl-10 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+          class="w-full px-4 py-2.5 pl-10 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300"
         />
         <app-icon-lib
           ico="search"
@@ -111,15 +121,17 @@
         ico="search"
         class="w-12 h-12 text-gray-400 mb-4"
       ></app-icon-lib>
-      <h3 class="text-lg font-medium text-gray-900 mb-2">No episodes found</h3>
-      <p class="text-sm text-gray-500">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+        No episodes found
+      </h3>
+      <p class="text-sm text-gray-500 dark:text-gray-300">
         <span *ngIf="searchQuery">No episodes match "{{ searchQuery }}"</span>
         <span *ngIf="!searchQuery">No episodes available for this season</span>
       </p>
       <button
         *ngIf="searchQuery"
         (click)="searchQuery = ''; onSearchChange('')"
-        class="mt-4 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+        class="mt-4 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors dark:bg-blue-900 dark:text-blue-100 dark:hover:bg-blue-800"
       >
         Clear search
       </button>
@@ -147,6 +159,10 @@
             [class.text-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
             [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
             [class.hover:bg-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
+            [class.dark:bg-gray-800]="!isEpisodeActiveByFilteredIndex(i)"
+            [class.dark:text-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
+            [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
+            [class.dark:hover:bg-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
           >
             {{ episode.number }}
             <!-- Watched indicator for grid layout - white for currently playing, blue for watched -->
@@ -205,6 +221,10 @@
           [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
           [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
           [class.hover:bg-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:bg-gray-800]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:text-gray-300]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:hover:bg-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
         >
           <div
             class="flex items-center justify-center py-2.5 font-bold text-sm w-12"
@@ -217,6 +237,7 @@
             class="flex-1 min-w-0 text-sm font-medium truncate px-3 py-2.5"
             [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
             [class.text-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
+            [class.dark:text-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
           >
             {{ episode.name }}
           </div>
@@ -271,6 +292,10 @@
           [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
           [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
           [class.hover:bg-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:bg-gray-800]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:text-gray-300]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:hover:bg-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
         >
           <!-- Episode Thumbnail with Overlay (hidden when description expanded) -->
           <div
@@ -289,11 +314,15 @@
             />
             <!-- Episode Number Overlay -->
             <div
-              class="absolute bottom-1 left-1 text-xs font-bold px-1.5 py-0.5 rounded"
+              class="absolute bottom-1 left-1 text-xs font-bold px-1.5 py-0.5 rounded border"
               [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
               [class.text-black]="!isEpisodeActiveByFilteredIndex(i)"
+              [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
               [class.bg-blue-500]="isEpisodeActiveByFilteredIndex(i)"
               [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
+              [class.border-blue-500]="isEpisodeActiveByFilteredIndex(i)"
+              [class.dark:bg-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
+              [class.dark:text-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
             >
               {{ episode.number }}
             </div>
@@ -304,6 +333,7 @@
               class="text-sm font-medium mb-1 truncate"
               [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
               [class.text-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
+              [class.dark:text-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
             >
               {{ episode.name }}
             </div>
@@ -408,6 +438,10 @@
           [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
           [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
           [class.hover:bg-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:bg-gray-800]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:text-gray-300]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:hover:bg-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
         >
           <!-- Compact Poster Image -->
           <div
@@ -430,11 +464,16 @@
             <!-- Compact Episode Number Badge -->
             <div class="absolute top-1 left-1">
               <span
-                class="inline-flex items-center justify-center w-5 h-5 backdrop-blur-sm text-xs font-bold rounded"
+                class="inline-flex items-center justify-center w-5 h-5 backdrop-blur-sm text-xs font-bold rounded border"
                 [class.bg-blue-500]="isEpisodeActiveByFilteredIndex(i)"
                 [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
+                [class.border-blue-500]="isEpisodeActiveByFilteredIndex(i)"
                 [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
                 [class.text-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
+                [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
+                [class.dark:bg-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
+                [class.dark:text-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
+                [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
               >
                 {{ episode.number }}
               </span>
@@ -459,6 +498,7 @@
               class="text-xs font-medium line-clamp-2 leading-tight"
               [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
               [class.text-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
+              [class.dark:text-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
             >
               {{ episode.name }}
             </h4>

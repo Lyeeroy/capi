@@ -4,8 +4,7 @@
   [showName]="true"
   [showDetailsAndPlaylist]="false"
   [mediaType]="mediaType ?? 'tv'"
->
-</app-player-header>
+></app-player-header>
 <app-player-header
   class="lg:hidden"
   [responseData]="responseData"
@@ -21,7 +20,11 @@
   >
     <!-- Main content column: iframe and controls -->
     <div class="flex flex-col" id="iframe-container" #iframeContainer>
-      <div class="aspect-video rounded-xl" id="video-container" #videoContainer>
+      <div
+        class="aspect-video rounded-xl bg-white dark:bg-gray-900"
+        id="video-container"
+        #videoContainer
+      >
         <app-iframe
           [iframeUrl]="iframeUrl"
           [showIframe]="showIframe"
@@ -100,19 +103,27 @@
 
     <!-- Details Section Moved to Bottom -->
     <div class="mt-4 hidden lg:block rounded-xl" id="details-bottom-section">
-      <div class="bg-white rounded-xl border border-gray-200">
+      <div
+        class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700"
+      >
         <!-- Details Header (clickable to expand/collapse) -->
         <div
-          class="bg-gray-50 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+          [ngClass]="{
+            'bg-gray-50 dark:bg-gray-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors': true,
+            'rounded-t-xl': isDetailsExpanded,
+            'rounded-xl': !isDetailsExpanded
+          }"
           (click)="toggleDetailsExpansion()"
         >
           <div class="flex items-center gap-3">
             <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
             <div>
-              <h2 class="text-base font-bold text-gray-900 truncate">
+              <h2
+                class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+              >
                 Details
               </h2>
-              <div class="text-sm text-gray-500 font-medium">
+              <div class="text-sm text-gray-500 dark:text-gray-300 font-medium">
                 {{ responseData?.name || responseData?.title || "Loading..." }}
               </div>
             </div>
@@ -123,7 +134,7 @@
           >
             <app-icon-lib
               ico="chevronDown"
-              class="w-4 h-4 text-gray-500"
+              class="w-4 h-4 text-gray-500 dark:text-gray-300"
             ></app-icon-lib>
           </div>
         </div>
@@ -154,17 +165,23 @@
 
   <!-- Mobile Details Section (visible only on mobile, always shown) -->
   <div class="lg:hidden">
-    <div class="flex-shrink-0 bg-white rounded-xl border border-gray-200 mb-4">
+    <div
+      class="flex-shrink-0 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 mb-4"
+    >
       <!-- Details Header (clickable to expand/collapse) -->
       <div
-        class="bg-gray-50 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+        class="bg-gray-50 dark:bg-gray-800 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         (click)="toggleDetailsExpansion()"
       >
         <div class="flex items-center gap-3">
           <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
           <div>
-            <h2 class="text-base font-bold text-gray-900 truncate">Details</h2>
-            <div class="text-sm text-gray-500 font-medium">
+            <h2
+              class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+            >
+              Details
+            </h2>
+            <div class="text-sm text-gray-500 dark:text-gray-300 font-medium">
               {{ responseData?.name || responseData?.title || "Loading..." }}
             </div>
           </div>
@@ -175,7 +192,7 @@
         >
           <app-icon-lib
             ico="chevronDown"
-            class="w-4 h-4 text-gray-500"
+            class="w-4 h-4 text-gray-500 dark:text-gray-300"
           ></app-icon-lib>
         </div>
       </div>
@@ -221,7 +238,7 @@
         (episodeSelected)="playEpisode($event)"
         (layoutChange)="changeLayout()"
         (sortToggle)="ascOrDescSort()"
-        class="h-full rounded-xl border border-gray-200"
+        class="h-full rounded-xl border border-gray-200 dark:border-gray-700"
       ></app-playlist>
     </div>
   </div>

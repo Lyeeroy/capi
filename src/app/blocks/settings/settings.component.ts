@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { UniversalModalComponent } from '../../forms/universal-modal.component';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { ContinueWatchingService } from '../../services/continue-watching.service';
+import { ThemeService, ThemeMode } from '../../services/theme.service';
+import { inject } from '@angular/core';
 
 // Settings interface for future extensibility
 interface AppSettings {
@@ -45,9 +47,13 @@ export class SettingsComponent implements OnInit {
   isGeneralExpanded = true;
   isPlaylistExpanded = true;
   isDangerExpanded = true;
+  isThemeExpanded = true;
+  currentTheme: { mode: ThemeMode } = { mode: 'system' };
+  private themeService = inject(ThemeService);
 
   constructor(private continueWatchingService: ContinueWatchingService) {
     this.loadSettings();
+    this.currentTheme = this.themeService.getCurrentTheme();
   }
 
   ngOnInit() {
@@ -158,10 +164,23 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  toggleSection(section: 'general' | 'playlist' | 'danger') {
+  toggleSection(section: 'general' | 'playlist' | 'danger' | 'theme') {
     if (section === 'general') this.isGeneralExpanded = !this.isGeneralExpanded;
+    if (section === 'theme') this.isThemeExpanded = !this.isThemeExpanded;
     if (section === 'playlist')
       this.isPlaylistExpanded = !this.isPlaylistExpanded;
     if (section === 'danger') this.isDangerExpanded = !this.isDangerExpanded;
+  }
+
+  onThemeModeChange(mode: ThemeMode) {
+    this.themeService.setThemeMode(mode);
+    this.currentTheme = this.themeService.getCurrentTheme();
+  }
+
+  isDark(): boolean {
+    if (this.currentTheme.mode === 'dark') return true;
+    if (this.currentTheme.mode === 'light') return false;
+    // System: check prefers-color-scheme
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
 }

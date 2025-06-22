@@ -8,23 +8,30 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [IconLibComponent, RouterLink, CommonModule],
   template: `
-    <div class="flex justify-between items-center p-4">
+    <div
+      class="flex justify-between items-center p-4 bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
+    >
       <div class="flex items-center">
         <span
-          class="bg-gray-100 border border-gray-200 rounded-lg p-2 mr-3 flex items-center justify-center"
+          class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mr-3 flex items-center justify-center"
           aria-hidden="true"
         >
-          <app-icon-lib [ico]="icon" class="w-5 h-5"></app-icon-lib>
+          <app-icon-lib
+            [ico]="icon"
+            class="w-5 h-5 text-gray-700 dark:text-gray-200"
+          ></app-icon-lib>
         </span>
         <div>
-          <h2 class="text-base font-semibold">{{ title }}</h2>
-          <p class="text-xs text-gray-600">{{ desc }}</p>
+          <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100">
+            {{ title }}
+          </h2>
+          <p class="text-xs text-gray-600 dark:text-gray-400">{{ desc }}</p>
         </div>
       </div>
       <a
         *ngIf="actionLabel && actionHandler; else defaultAction"
         (click)="actionHandler()"
-        class="text-sm text-gray-500 flex items-center cursor-pointer"
+        class="text-sm text-gray-500 dark:text-gray-300 flex items-center cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
         [attr.aria-label]="actionLabel"
         style="user-select: none;"
       >
@@ -34,7 +41,7 @@ import { CommonModule } from '@angular/common';
       <ng-template #defaultAction>
         <a
           routerLink="/discover"
-          class="text-sm text-gray-500 flex items-center"
+          class="text-sm text-gray-500 dark:text-gray-300 flex items-center hover:text-blue-600 dark:hover:text-blue-400"
           [attr.aria-label]="'View all ' + title"
         >
           View All

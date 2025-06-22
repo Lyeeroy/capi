@@ -1,12 +1,12 @@
 <!-- Settings Content Wrapper (no sidebar) -->
 <div class="w-full max-w-3xl mx-auto mt-16">
+  <!-- General Section -->
   <div
     id="general"
-    class="bg-white rounded-3xl border border-gray-200 p-0 mb-8"
+    class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 p-0 mb-8"
   >
-    <!-- General Section Header (expand/collapse, rounded if collapsed) -->
     <div
-      class="bg-gray-50 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors w-full"
+      class="bg-gray-50 dark:bg-gray-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full"
       [ngClass]="{
         'rounded-t-3xl': isGeneralExpanded,
         'rounded-3xl': !isGeneralExpanded
@@ -16,8 +16,12 @@
       <div class="flex items-center gap-3">
         <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
         <div>
-          <h2 class="text-base font-bold text-gray-900 truncate">General</h2>
-          <div class="text-sm text-gray-500 font-medium">
+          <h2
+            class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+          >
+            General
+          </h2>
+          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
             Basic app features and toggles
           </div>
         </div>
@@ -28,18 +32,18 @@
       >
         <app-icon-lib
           ico="chevronDown"
-          class="w-4 h-4 text-gray-500"
+          class="w-4 h-4 text-gray-500 dark:text-gray-300"
         ></app-icon-lib>
       </div>
     </div>
     <div *ngIf="isGeneralExpanded" class="p-10 pt-6 animate-modal-slide-up">
       <!-- Enable Continue Watching Section -->
       <div
-        class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50"
+        class="border border-gray-200 dark:border-gray-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50 dark:bg-gray-800"
       >
         <div class="flex-1">
           <div
-            class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
           >
             <app-icon-lib
               ico="play"
@@ -47,7 +51,7 @@
             ></app-icon-lib>
             Enable Continue Watching
           </div>
-          <div class="text-sm text-gray-500 mt-2 max-w-xl">
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
             Toggle to enable or disable the Continue Watching feature. If
             disabled, your progress will not be saved and the section will be
             hidden from the home page.
@@ -67,10 +71,10 @@
               "
             />
             <div
-              class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 transition"
+              class="w-11 h-6 bg-gray-200 dark:bg-gray-800 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 dark:peer-checked:bg-blue-700 transition"
             ></div>
             <div
-              class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-5"
+              class="absolute left-1 top-1 bg-white dark:bg-gray-900 w-4 h-4 rounded-full transition peer-checked:translate-x-5"
             ></div>
           </label>
         </div>
@@ -78,11 +82,11 @@
 
       <!-- Enable Scroll to Episode Section -->
       <div
-        class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50"
+        class="border border-gray-200 dark:border-gray-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50 dark:bg-gray-800"
       >
         <div class="flex-1">
           <div
-            class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
           >
             <app-icon-lib
               ico="chevronDown"
@@ -90,7 +94,7 @@
             ></app-icon-lib>
             Auto Scroll to Episode
           </div>
-          <div class="text-sm text-gray-500 mt-2 max-w-xl">
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
             Automatically scroll to the currently playing episode in the
             playlist.
           </div>
@@ -109,10 +113,10 @@
               "
             />
             <div
-              class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 transition"
+              class="w-11 h-6 bg-gray-200 dark:bg-gray-800 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 dark:peer-checked:bg-blue-700 transition"
             ></div>
             <div
-              class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-5"
+              class="absolute left-1 top-1 bg-white dark:bg-gray-900 w-4 h-4 rounded-full transition peer-checked:translate-x-5"
             ></div>
           </label>
         </div>
@@ -120,11 +124,11 @@
 
       <!-- Enable Watched Episodes Section -->
       <div
-        class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50"
+        class="border border-gray-200 dark:border-gray-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50 dark:bg-gray-800"
       >
         <div class="flex-1">
           <div
-            class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
           >
             <app-icon-lib
               ico="eye"
@@ -132,7 +136,7 @@
             ></app-icon-lib>
             Watched Episodes Tracking
           </div>
-          <div class="text-sm text-gray-500 mt-2 max-w-xl">
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
             Track which episodes you've watched with blue indicators. When
             enabled, episodes are automatically marked as watched when you
             switch to a different episode.
@@ -152,23 +156,23 @@
               "
             />
             <div
-              class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 transition"
+              class="w-11 h-6 bg-gray-200 dark:bg-gray-800 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 dark:peer-checked:bg-blue-700 transition"
             ></div>
             <div
-              class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition peer-checked:translate-x-5"
+              class="absolute left-1 top-1 bg-white dark:bg-gray-900 w-4 h-4 rounded-full transition peer-checked:translate-x-5"
             ></div>
           </label>
         </div>
       </div>
     </div>
   </div>
+  <!-- Playlist Section -->
   <div
     id="playlist"
-    class="bg-white rounded-3xl border border-gray-200 p-0 mb-8"
+    class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 p-0 mb-8"
   >
-    <!-- Playlist Section Header (expand/collapse, rounded if collapsed) -->
     <div
-      class="bg-gray-50 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors w-full"
+      class="bg-gray-50 dark:bg-gray-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full"
       [ngClass]="{
         'rounded-t-3xl': isPlaylistExpanded,
         'rounded-3xl': !isPlaylistExpanded
@@ -178,8 +182,12 @@
       <div class="flex items-center gap-3">
         <div class="w-2 h-7 bg-purple-500 rounded-full"></div>
         <div>
-          <h2 class="text-base font-bold text-gray-900 truncate">Playlist</h2>
-          <div class="text-sm text-gray-500 font-medium">
+          <h2
+            class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+          >
+            Playlist
+          </h2>
+          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
             Playlist layout and display options
           </div>
         </div>
@@ -190,18 +198,17 @@
       >
         <app-icon-lib
           ico="chevronDown"
-          class="w-4 h-4 text-gray-500"
+          class="w-4 h-4 text-gray-500 dark:text-gray-300"
         ></app-icon-lib>
       </div>
     </div>
     <div *ngIf="isPlaylistExpanded" class="p-10 pt-6 animate-modal-slide-up">
-      <!-- Playlist Layout Section -->
       <div
-        class="border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50"
+        class="border border-gray-200 dark:border-gray-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50 dark:bg-gray-800"
       >
         <div class="flex-1">
           <div
-            class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
           >
             <app-icon-lib
               ico="menu"
@@ -209,7 +216,7 @@
             ></app-icon-lib>
             Default Playlist Layout
           </div>
-          <div class="text-sm text-gray-500 mt-2 max-w-xl">
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
             Choose how episodes are displayed by default in the playlist.
             Options include List (simple), Grid (episode numbers), Poster
             (thumbnails), and Compact (space-efficient thumbnails). You can
@@ -218,7 +225,7 @@
         </div>
         <div class="w-full md:w-auto mt-4 md:mt-0">
           <select
-            class="w-full md:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            class="w-full md:w-40 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
             [(ngModel)]="settings.playlistLayout"
             (change)="onPlaylistLayoutChange(settings.playlistLayout)"
           >
@@ -231,10 +238,125 @@
       </div>
     </div>
   </div>
-  <div id="danger" class="bg-white rounded-3xl border border-red-200 p-0">
-    <!-- Danger Zone Section Header (expand/collapse, rounded if collapsed) -->
+  <!-- Theme Section -->
+  <div
+    id="theme"
+    class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-700 p-0 mb-8"
+  >
     <div
-      class="bg-red-50 flex items-center justify-between p-4 cursor-pointer hover:bg-red-50 transition-colors w-full"
+      class="bg-gray-50 dark:bg-gray-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full"
+      [ngClass]="{
+        'rounded-t-3xl': isThemeExpanded,
+        'rounded-3xl': !isThemeExpanded
+      }"
+      (click)="toggleSection('theme')"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-2 h-7 bg-indigo-500 rounded-full"></div>
+        <div>
+          <h2
+            class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+          >
+            Theme
+          </h2>
+          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+            Appearance and color customization
+          </div>
+        </div>
+      </div>
+      <div
+        class="transition-transform duration-200"
+        [class.rotate-180]="isThemeExpanded"
+      >
+        <app-icon-lib
+          ico="chevronDown"
+          class="w-4 h-4 text-gray-500 dark:text-gray-300"
+        ></app-icon-lib>
+      </div>
+    </div>
+    <div *ngIf="isThemeExpanded" class="p-10 pt-6 animate-modal-slide-up">
+      <div
+        class="border border-gray-200 dark:border-gray-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50 dark:bg-gray-800"
+      >
+        <div class="flex-1">
+          <div
+            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
+          >
+            <app-icon-lib
+              ico="moon"
+              class="w-6 h-6 text-indigo-500"
+            ></app-icon-lib>
+            Dark Mode
+          </div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
+            Choose your preferred appearance: Light, Dark, or System (auto).
+          </div>
+        </div>
+        <div
+          class="w-full md:w-auto mt-4 md:mt-0 flex items-center gap-4 justify-center"
+        >
+          <label class="inline-flex items-center cursor-pointer gap-2">
+            <input
+              type="radio"
+              class="sr-only"
+              name="themeMode"
+              value="light"
+              [checked]="currentTheme.mode === 'light'"
+              (change)="onThemeModeChange('light')"
+            />
+            <span
+              class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-medium transition cursor-pointer"
+              [class.bg-indigo-50]="currentTheme.mode === 'light' && !isDark()"
+              [class.bg-gray-800]="currentTheme.mode === 'light' && isDark()"
+              [class.border-indigo-500]="currentTheme.mode === 'light'"
+              >Light</span
+            >
+          </label>
+          <label class="inline-flex items-center cursor-pointer gap-2">
+            <input
+              type="radio"
+              class="sr-only"
+              name="themeMode"
+              value="dark"
+              [checked]="currentTheme.mode === 'dark'"
+              (change)="onThemeModeChange('dark')"
+            />
+            <span
+              class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-medium transition cursor-pointer"
+              [class.bg-indigo-50]="currentTheme.mode === 'dark' && !isDark()"
+              [class.bg-gray-800]="currentTheme.mode === 'dark' && isDark()"
+              [class.border-indigo-500]="currentTheme.mode === 'dark'"
+              >Dark</span
+            >
+          </label>
+          <label class="inline-flex items-center cursor-pointer gap-2">
+            <input
+              type="radio"
+              class="sr-only"
+              name="themeMode"
+              value="system"
+              [checked]="currentTheme.mode === 'system'"
+              (change)="onThemeModeChange('system')"
+            />
+            <span
+              class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-medium transition cursor-pointer"
+              [class.bg-indigo-50]="currentTheme.mode === 'system' && !isDark()"
+              [class.bg-gray-800]="currentTheme.mode === 'system' && isDark()"
+              [class.border-indigo-500]="currentTheme.mode === 'system'"
+              >System</span
+            >
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Danger Zone Section -->
+  <div
+    id="danger"
+    class="bg-white dark:bg-gray-900 rounded-3xl border border-red-200 dark:border-red-700 p-0"
+  >
+    <div
+      class="bg-red-50 dark:bg-red-900 flex items-center justify-between p-4 cursor-pointer hover:bg-red-100 dark:hover:bg-red-800 transition-colors w-full"
       [ngClass]="{
         'rounded-t-3xl': isDangerExpanded,
         'rounded-3xl': !isDangerExpanded
@@ -244,10 +366,12 @@
       <div class="flex items-center gap-3">
         <div class="w-2 h-7 bg-red-500 rounded-full"></div>
         <div>
-          <h2 class="text-base font-bold text-gray-900 truncate">
+          <h2
+            class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+          >
             Danger Zone
           </h2>
-          <div class="text-sm text-gray-500 font-medium">
+          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
             Reset or clear your data
           </div>
         </div>
@@ -258,19 +382,21 @@
       >
         <app-icon-lib
           ico="chevronDown"
-          class="w-4 h-4 text-gray-500"
+          class="w-4 h-4 text-gray-500 dark:text-gray-300"
         ></app-icon-lib>
       </div>
     </div>
     <div *ngIf="isDangerExpanded" class="p-10 pt-6 animate-modal-slide-up">
-      <!-- Clear Watched Episodes Section (moved, yellow style) -->
-      <div class="border border-amber-200 rounded-xl p-6 mb-8 bg-amber-50">
+      <!-- Clear Watched Episodes Section -->
+      <div
+        class="border border-amber-200 dark:border-amber-700 rounded-xl p-6 mb-8 bg-amber-50 dark:bg-amber-900"
+      >
         <div
           class="flex flex-col md:flex-row items-center justify-between gap-6"
         >
           <div class="flex-1">
             <div
-              class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+              class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
             >
               <app-icon-lib
                 ico="trash"
@@ -278,9 +404,10 @@
               ></app-icon-lib>
               Clear Watched Episodes
             </div>
-            <div class="text-sm text-gray-500 mt-2 max-w-xl">
-              This will <b class="text-amber-600">reset all</b> blue indicators
-              across all series.
+            <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
+              This will
+              <b class="text-amber-600 dark:text-amber-300">reset all</b>
+              blue indicators across all series.
             </div>
           </div>
           <div
@@ -296,13 +423,15 @@
         </div>
       </div>
       <!-- Clear Continue Watching Section -->
-      <div class="border border-amber-200 rounded-xl p-6 mb-8 bg-amber-50">
+      <div
+        class="border border-amber-200 dark:border-amber-700 rounded-xl p-6 mb-8 bg-amber-50 dark:bg-amber-900"
+      >
         <div
           class="flex flex-col md:flex-row items-center justify-between gap-6"
         >
           <div class="flex-1">
             <div
-              class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+              class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
             >
               <app-icon-lib
                 ico="play"
@@ -310,9 +439,9 @@
               ></app-icon-lib>
               Clear Continue Watching
             </div>
-            <div class="text-sm text-gray-500 mt-2 max-w-xl">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
               This will
-              <span class="font-semibold text-amber-600"
+              <span class="font-semibold text-amber-600 dark:text-amber-300"
                 >permanently delete</span
               >
               your Continue Watching list.
@@ -328,13 +457,15 @@
         </div>
       </div>
       <!-- Clear Cache Section -->
-      <div class="border border-red-200 rounded-xl p-6 mb-8 bg-red-50">
+      <div
+        class="border border-red-200 dark:border-red-700 rounded-xl p-6 mb-8 bg-red-50 dark:bg-red-900"
+      >
         <div
           class="flex flex-col md:flex-row items-center justify-between gap-6"
         >
           <div class="flex-1">
             <div
-              class="font-semibold text-gray-900 flex items-center gap-2 text-lg"
+              class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
             >
               <app-icon-lib
                 ico="trash"
@@ -342,9 +473,11 @@
               ></app-icon-lib>
               Clear Cache
             </div>
-            <div class="text-sm text-gray-500 mt-2 max-w-xl">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
               This will
-              <span class="font-semibold text-red-600">permanently delete</span>
+              <span class="font-semibold text-red-600 dark:text-red-300"
+                >permanently delete</span
+              >
               all your local data (sources, continue watching, settings, etc).
             </div>
           </div>

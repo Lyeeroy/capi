@@ -1,28 +1,32 @@
 <div
-  class="container mx-auto px-4 py-4 sm:px-6 lg:px-8 border border-gray-200 bg-gray-50 backdrop-blur-lg rounded-2xl overflow-hidden mb-4"
+  class="container mx-auto px-4 py-4 sm:px-6 lg:px-8 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 backdrop-blur-lg rounded-2xl overflow-hidden mb-4"
 >
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
     <div class="space-y-3">
-      <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">
+      <h3
+        class="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
+      >
         Genres
       </h3>
       <div class="relative">
         <select
           (change)="onGenreSelected(genreSelect.value)"
           #genreSelect
-          class="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+          class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-700 dark:text-gray-200"
         >
-          <option value="" disabled selected>Select a genre</option>
+          <option value="" disabled selected class="bg-white dark:bg-gray-800">
+            Select a genre
+          </option>
           <option
             *ngFor="let genre of filteredGenres"
             [value]="genre"
-            class="bg-white"
+            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
           >
             {{ genre }}
           </option>
         </select>
         <div
-          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700"
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700 dark:text-gray-300"
         >
           <svg
             class="fill-current h-4 w-4"
@@ -38,24 +42,53 @@
     </div>
 
     <div class="space-y-3">
-      <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider">
+      <h3
+        class="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
+      >
         Sort By
       </h3>
       <div class="relative">
         <select
           (change)="onSortSelected(sortSelect.value)"
           #sortSelect
-          class="w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+          class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-700 dark:text-gray-200"
         >
-          <option value="" disabled selected>Sort results</option>
-          <option value="popularity.desc">Popularity (High to Low)</option>
-          <option value="popularity.asc">Popularity (Low to High)</option>
-          <option value="vote_average.desc">Rating (High to Low)</option>
-          <option value="vote_average.asc">Rating (Low to High)</option>
-          <option value="release_date.desc">Release Date (Newest)</option>
+          <option value="" disabled selected class="bg-white dark:bg-gray-800">
+            Sort results
+          </option>
+          <option
+            value="popularity.desc"
+            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+          >
+            Popularity (High to Low)
+          </option>
+          <option
+            value="popularity.asc"
+            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+          >
+            Popularity (Low to High)
+          </option>
+          <option
+            value="vote_average.desc"
+            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+          >
+            Rating (High to Low)
+          </option>
+          <option
+            value="vote_average.asc"
+            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+          >
+            Rating (Low to High)
+          </option>
+          <option
+            value="release_date.desc"
+            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+          >
+            Release Date (Newest)
+          </option>
         </select>
         <div
-          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700"
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700 dark:text-gray-300"
         >
           <svg
             class="fill-current h-4 w-4"

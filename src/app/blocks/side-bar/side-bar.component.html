@@ -2,13 +2,13 @@
 <nav id="sidebar" class="min-w-[90px] w-max hidden lg:block">
   <div
     id="sidebar-menu"
-    class="h-screen fixed top-0 left-0 overflow-y-auto z-[99] w-[90px] transition-all duration-300 border-r border-gray-200 bg-gray-50"
+    class="h-screen fixed top-0 left-0 overflow-y-auto z-[99] w-[90px] transition-all duration-300 border-r border-theme bg-theme-surface"
   >
     <!-- Logo Section -->
     <div class="py-4 px-2 sticky top-0 min-h-[70px] z-[100]">
       <a routerLink="/" class="outline-none flex flex-col items-center">
         <img src="capi.ico" class="w-8 h-8 mb-1" alt="Capi Logo" />
-        <span class="text-[9px] font-medium text-gray-700 text-center"
+        <span class="text-[9px] font-medium text-theme-primary text-center"
           >Capi</span
         >
       </a>
@@ -26,16 +26,16 @@
         >
           <a
             routerLink="{{ item.route }}"
-            class="menu-item block w-full flex flex-col items-center cursor-pointer py-3 transition-colors duration-300 rounded-lg"
+            class="menu-item block w-full flex flex-col items-center cursor-pointer py-3 transition-colors duration-300 rounded-lg hover:bg-theme-surface-elevated"
             (click)="handleClick($event)"
           >
             <img
               [src]="item.svg"
-              class="w-6 h-6 mb-1.5 text-gray-600"
+              class="w-6 h-6 mb-1.5 text-theme-secondary"
               alt="{{ item.label }}"
             />
             <span
-              class="text-[12px] font-medium text-gray-700 text-center leading-tight"
+              class="text-[12px] font-medium text-theme-secondary text-center leading-tight"
             >
               {{ item.label }}
             </span>
@@ -82,7 +82,7 @@
 <style>
   /* Desktop Styles */
   #sidebar-menu li.selected {
-    background-color: #f0f7ff; /* Light blue background */
+    background-color: #e6e9f8; /* Salte light background */
   }
   #sidebar-menu li.selected::after {
     content: "";
@@ -91,16 +91,16 @@
     top: 0;
     bottom: 0;
     width: 3px;
-    background-color: #2563eb; /* Blue border */
+    background-color: #6c63ff; /* Salte blue border */
     z-index: 10;
     border-radius: 2px 0 0 2px;
   }
   #sidebar-menu li.selected span {
-    color: #2563eb;
+    color: #6c63ff;
   }
   #sidebar-menu li.selected img {
-    filter: brightness(0) saturate(100%) invert(39%) sepia(89%) saturate(1273%)
-      hue-rotate(202deg) brightness(95%) contrast(89%);
+    filter: brightness(0) saturate(100%) invert(48%) sepia(41%) saturate(749%)
+      hue-rotate(210deg) brightness(98%) contrast(92%);
   }
   #sidebar-menu li {
     padding: 0 8px; /* Matches mx-2 spacing */
@@ -109,16 +109,15 @@
     margin: 0 2px;
     padding: 0 8px;
   }
-
   /* Mobile Styles */
   #mobile-nav li.selected {
-    background-color: #f0f7ff; /* Blue background for selected item */
+    background-color: #e6e9f8; /* Salte accent background for selected item */
   }
   #mobile-nav li.selected span {
-    color: #3e7de5;
+    color: #6c63ff;
   }
   #mobile-nav li.selected img {
-    filter: brightness(0) saturate(100%) invert(39%) sepia(89%) saturate(1273%)
-      hue-rotate(202deg) brightness(95%) contrast(89%);
+    filter: brightness(0) saturate(100%) invert(48%) sepia(41%) saturate(749%)
+      hue-rotate(210deg) brightness(98%) contrast(92%);
   }
 </style>

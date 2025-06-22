@@ -1,15 +1,23 @@
 <!-- Sources Component -->
-<div class="bg-white rounded-xl border border-gray-200">
+<div
+  class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700"
+>
   <!-- Sources Header (clickable to expand/collapse) -->
   <div
-    class="bg-gray-50 rounded-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 transition-colors"
+    class="bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
     (click)="toggleSourcesExpansion()"
   >
     <div class="flex items-center gap-3 min-w-0 flex-1">
       <div class="w-2 h-7 bg-green-500 rounded-full"></div>
       <div class="min-w-0 flex-1">
-        <h2 class="text-base font-bold text-gray-900 truncate">Sources</h2>
-        <div class="text-sm text-gray-500 font-medium truncate">
+        <h2
+          class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+        >
+          Sources
+        </h2>
+        <div
+          class="text-sm text-gray-500 dark:text-gray-300 font-medium truncate"
+        >
           {{ getCurrentSourceName() }} •
           {{ getEnabledSources().length }} available
         </div>
@@ -22,11 +30,11 @@
       <button
         title="Previous Source"
         (click)="prevSource(); $event.stopPropagation()"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-green-500 dark:hover:border-green-400 transition-colors duration-200"
       >
         <app-icon-lib
           ico="arrowLeft"
-          class="w-4 h-4 text-gray-600"
+          class="w-4 h-4 text-gray-600 dark:text-gray-200"
         ></app-icon-lib>
       </button>
 
@@ -34,13 +42,14 @@
       <button
         title="Next Source"
         (click)="nextSource(); $event.stopPropagation()"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 border border-gray-200 hover:bg-gray-100 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-green-500 dark:hover:border-green-400 transition-colors duration-200"
       >
         <app-icon-lib
           ico="arrowRight"
-          class="w-4 h-4 text-gray-600"
+          class="w-4 h-4 text-gray-600 dark:text-gray-200"
         ></app-icon-lib>
       </button>
+
       <!-- Expand/Collapse Toggle -->
       <div
         class="transition-transform duration-200"
@@ -48,7 +57,7 @@
       >
         <app-icon-lib
           ico="chevron-down"
-          class="w-4 h-4 text-gray-500"
+          class="w-4 h-4 text-gray-500 dark:text-gray-400"
         ></app-icon-lib>
       </div>
     </div>
@@ -63,28 +72,33 @@
   (click)="toggleSourcesExpansion()"
 >
   <div
-    class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden modal-content"
+    class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden modal-content"
     #modalContent
     (click)="$event.stopPropagation()"
   >
     <!-- Modal Header -->
     <div
-      class="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50 rounded-t-xl"
+      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-xl"
     >
       <div class="flex items-center gap-3">
         <div class="w-2 h-7 bg-green-500 rounded-full"></div>
         <div>
-          <h2 class="text-lg font-bold text-gray-900">Choose Source</h2>
-          <div class="text-sm text-gray-500">
+          <h2 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+            Choose Source
+          </h2>
+          <div class="text-sm text-gray-500 dark:text-gray-300">
             {{ getEnabledSources().length }} sources available
           </div>
         </div>
       </div>
       <button
         (click)="toggleSourcesExpansion()"
-        class="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+        class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-green-500 dark:hover:border-green-400 border border-transparent dark:border-transparent transition-colors"
       >
-        <app-icon-lib ico="close" class="w-5 h-5 text-gray-600"></app-icon-lib>
+        <app-icon-lib
+          ico="close"
+          class="w-5 h-5 text-gray-600 dark:text-gray-200"
+        ></app-icon-lib>
       </button>
     </div>
 
@@ -94,29 +108,36 @@
         <button
           *ngFor="let source of getEnabledSources(); let i = index"
           (click)="onSourceSelect(source); toggleSourcesExpansion()"
-          class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 transition-all duration-200 hover:bg-gray-50"
-          [class.bg-green-50]="currentSourceUrl === source.url"
-          [class.border-green-300]="currentSourceUrl === source.url"
-          [class.ring-2]="currentSourceUrl === source.url"
-          [class.ring-green-500]="currentSourceUrl === source.url"
-          [class.bg-white]="currentSourceUrl !== source.url"
+          class="w-full text-left px-4 py-3 rounded-lg border transition-all duration-200"
+          [ngClass]="[
+            currentSourceUrl === source.url
+              ? 'bg-green-50 dark:bg-green-900 border-green-300 dark:border-green-700 ring-2 ring-green-500'
+              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+            'hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-green-500 dark:hover:border-green-400'
+          ]"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div
                 class="w-3 h-3 rounded-full"
-                [class.bg-green-500]="currentSourceUrl === source.url"
-                [class.bg-gray-300]="currentSourceUrl !== source.url"
+                [ngClass]="
+                  currentSourceUrl === source.url
+                    ? 'bg-green-500'
+                    : 'bg-gray-300 dark:bg-gray-600'
+                "
               ></div>
               <div>
                 <div
                   class="font-medium text-sm"
-                  [class.text-green-700]="currentSourceUrl === source.url"
-                  [class.text-gray-900]="currentSourceUrl !== source.url"
+                  [ngClass]="
+                    currentSourceUrl === source.url
+                      ? 'text-green-700 dark:text-green-300'
+                      : 'text-gray-900 dark:text-gray-100'
+                  "
                 >
                   {{ source.name }}
                 </div>
-                <div class="text-xs text-gray-500">
+                <div class="text-xs text-gray-500 dark:text-gray-400">
                   Source {{ i + 1 }} of {{ getEnabledSources().length }}
                 </div>
               </div>
@@ -139,7 +160,9 @@
           ico="close"
           class="w-8 h-8 text-gray-400 mx-auto mb-2"
         ></app-icon-lib>
-        <p class="text-sm text-gray-500">No sources available</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          No sources available
+        </p>
       </div>
     </div>
   </div>
