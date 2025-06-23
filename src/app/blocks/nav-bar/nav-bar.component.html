@@ -69,7 +69,7 @@
                 <!-- Mobile Menu Button (left) -->
                 <button
                   type="button"
-                  class="mr-2 flex lg:hidden items-center justify-center p-2 text-gray-700 hover:bg-gray-100 focus:outline-none"
+                  class="mr-2 flex lg:hidden items-center justify-center p-2 text-gray-700 dark:hover:bg-gray-800 hover:bg-gray-100 focus:outline-none"
                   (click)="toggleMenu($event)"
                   aria-label="Toggle menu"
                 >
@@ -203,7 +203,7 @@
     style="top: 0"
   >
     <div
-      class="bg-white border border-gray-200 rounded-xl p-2 flex flex-col gap-1 animate-fade-in-down"
+      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-2 flex flex-col gap-1 animate-fade-in-down"
       [ngStyle]="{ width: navBarWidth }"
       (clickOutside)="closeMenu()"
     >
@@ -211,14 +211,19 @@
         <a
           routerLink="{{ item.route }}"
           (click)="handleClick($event); closeMenu()"
-          class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 transition-colors text-gray-700"
-          [ngClass]="{ 'text-blue-600 bg-blue-50': isActive(item.route) }"
+          class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors text-gray-700 dark:text-gray-100"
+          [ngClass]="{
+            'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900':
+              isActive(item.route)
+          }"
         >
           <app-icon-lib
             ico="{{ item.svg }}"
             class="w-5 h-5"
             [class.text-blue-600]="isActive(item.route)"
             [class.text-gray-700]="!isActive(item.route)"
+            [class.dark:text-blue-400]="isActive(item.route)"
+            [class.dark:text-gray-100]="!isActive(item.route)"
           ></app-icon-lib>
           <span class="text-sm font-medium">{{ item.label }}</span>
         </a>
