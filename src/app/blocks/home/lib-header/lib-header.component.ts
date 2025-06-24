@@ -9,11 +9,11 @@ import { CommonModule } from '@angular/common';
   imports: [IconLibComponent, RouterLink, CommonModule],
   template: `
     <div
-      class="flex justify-between items-center p-4 bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
+      class="flex justify-between items-center p-4 bg-white dark:bg-zinc-900 border-gray-100 dark:border-zinc-800"
     >
       <div class="flex items-center">
         <span
-          class="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-2 mr-3 flex items-center justify-center"
+          class="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg p-2 mr-3 flex items-center justify-center"
           aria-hidden="true"
         >
           <app-icon-lib

@@ -1,5 +1,5 @@
 <div
-  class="h-full w-full flex flex-col bg-gray-50 dark:bg-gray-900 relative overflow-hidden rounded-xl"
+  class="h-full w-full flex flex-col bg-gray-50 dark:bg-zinc-900 relative overflow-hidden rounded-xl"
 >
   <!-- Decorative background patterns -->
   <div class="absolute inset-0 opacity-5 pointer-events-none select-none">
@@ -15,7 +15,7 @@
   </div>
   <!-- Header Section -->
   <div
-    class="relative flex items-center justify-between p-4 xl:p-4 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 rounded-t-lg"
+    class="relative flex items-center justify-between p-4 xl:p-4 backdrop-blur-md border-b border-gray-200/50 dark:border-zinc-700/50 rounded-t-lg"
   >
     <div class="flex items-center gap-3 min-w-0 flex-1 pr-4">
       <div class="w-2 h-7 bg-blue-500 rounded-full flex-shrink-0"></div>
@@ -34,7 +34,7 @@
       <button
         title="Change layout"
         (click)="onLayoutChange()"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 border border-gray-200 dark:border-zinc-700 transition-colors duration-200"
       >
         <app-icon-lib
           ico="menu"
@@ -45,7 +45,7 @@
         title="Sort order"
         (click)="onSortToggle()"
         [class.rotate-180]="!isSortedAscending"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-zinc-900 dark:to-zinc-800 border border-gray-200 dark:border-zinc-700 transition-colors duration-200"
       >
         <app-icon-lib
           ico="sort"
@@ -57,12 +57,12 @@
 
   <!-- Season Selector and Search -->
   <div
-    class="relative p-2 xl:p-4 bg-white/40 dark:bg-gray-800 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50"
+    class="relative p-2 xl:p-4 bg-white/40 dark:bg-zinc-800 backdrop-blur-sm border-b border-gray-200/50 dark:border-zinc-700/50"
   >
     <div class="flex gap-3">
       <div class="relative flex-1">
         <select
-          class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none cursor-pointer dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300"
+          class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none cursor-pointer dark:bg-zinc-900 dark:border-zinc-700 dark:text-gray-300"
           id="seasonSelect"
           (change)="onSeasonChange($event)"
           [(ngModel)]="currentSeason"
@@ -88,7 +88,7 @@
           placeholder="Ep No."
           [(ngModel)]="searchQuery"
           (input)="onSearchChange(searchQuery)"
-          class="w-full px-4 py-2.5 pl-10 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300"
+          class="w-full px-4 py-2.5 pl-10 bg-white border border-gray-200 rounded-lg text-gray-700 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all dark:bg-zinc-900 dark:border-zinc-700 dark:text-gray-300"
         />
         <app-icon-lib
           ico="search"
@@ -159,10 +159,10 @@
             [class.text-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
             [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
             [class.hover:bg-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
-            [class.dark:bg-gray-800]="!isEpisodeActiveByFilteredIndex(i)"
+            [class.dark:bg-zinc-800]="!isEpisodeActiveByFilteredIndex(i)"
             [class.dark:text-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
-            [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
-            [class.dark:hover:bg-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
+            [class.dark:border-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
+            [class.dark:hover:bg-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
           >
             {{ episode.number }}
             <!-- Watched indicator for grid layout - white for currently playing, blue for watched -->
@@ -221,10 +221,10 @@
           [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
           [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
           [class.hover:bg-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.dark:bg-gray-800]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:bg-zinc-800]="!isEpisodeActiveByFilteredIndex(i)"
           [class.dark:text-gray-300]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.dark:hover:bg-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:border-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:hover:bg-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
         >
           <div
             class="flex items-center justify-center py-2.5 font-bold text-sm w-12"
@@ -292,10 +292,10 @@
           [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
           [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
           [class.hover:bg-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.dark:bg-gray-800]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:bg-zinc-800]="!isEpisodeActiveByFilteredIndex(i)"
           [class.dark:text-gray-300]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.dark:hover:bg-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:border-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:hover:bg-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
         >
           <!-- Episode Thumbnail with Overlay (hidden when description expanded) -->
           <div
@@ -321,8 +321,8 @@
               [class.bg-blue-500]="isEpisodeActiveByFilteredIndex(i)"
               [class.text-white]="isEpisodeActiveByFilteredIndex(i)"
               [class.border-blue-500]="isEpisodeActiveByFilteredIndex(i)"
-              [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
-              [class.dark:bg-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
+              [class.dark:border-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
+              [class.dark:bg-zinc-900]="!isEpisodeActiveByFilteredIndex(i)"
               [class.dark:text-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
             >
               {{ episode.number }}
@@ -439,10 +439,10 @@
           [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
           [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
           [class.hover:bg-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.dark:bg-gray-800]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:bg-zinc-800]="!isEpisodeActiveByFilteredIndex(i)"
           [class.dark:text-gray-300]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.dark:border-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
-          [class.dark:hover:bg-gray-700]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:border-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
+          [class.dark:hover:bg-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
         >
           <!-- Compact Poster Image -->
           <div
@@ -472,9 +472,9 @@
                 [class.bg-white]="!isEpisodeActiveByFilteredIndex(i)"
                 [class.text-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
                 [class.border-gray-200]="!isEpisodeActiveByFilteredIndex(i)"
-                [class.dark:bg-gray-900]="!isEpisodeActiveByFilteredIndex(i)"
+                [class.dark:bg-zinc-900]="!isEpisodeActiveByFilteredIndex(i)"
                 [class.dark:text-gray-100]="!isEpisodeActiveByFilteredIndex(i)"
-                [class.dark:border-gray-700]="
+                [class.dark:border-zinc-700]="
                   !isEpisodeActiveByFilteredIndex(i)
                 "
               >

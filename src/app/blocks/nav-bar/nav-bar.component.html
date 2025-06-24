@@ -4,7 +4,7 @@
     <!--  px-4 sm:px-6 lg:px-8 -->
     <!-- Island Container -->
     <div
-      class="w-full mx-auto bg-gray-50/95 dark:bg-gray-800 backdrop-blur-lg border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden transition-colors duration-300"
+      class="w-full mx-auto bg-gray-50/95 dark:bg-zinc-800 backdrop-blur-lg border border-gray-200 dark:border-zinc-700 rounded-2xl overflow-hidden transition-colors duration-300"
     >
       <!--  sm:w-4/5 lg:w-2/3 mx-auto -->
       <div class="px-3 py-3 sm:px-4 sm:py-3 lg:px-6 lg:py-3">
@@ -39,7 +39,7 @@
                 >
                   <a
                     routerLink="{{ item.route }}"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/60 transition-colors duration-300"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-zinc-800/60 transition-colors duration-300"
                     (click)="handleClick($event)"
                     [ngClass]="{
                       'text-blue-600 dark:text-blue-400': isActive(item.route),
@@ -69,7 +69,7 @@
                 <!-- Mobile Menu Button (left) -->
                 <button
                   type="button"
-                  class="mr-2 flex lg:hidden items-center justify-center p-2 text-gray-700 dark:hover:bg-gray-700 hover:bg-gray-100 focus:outline-none"
+                  class="mr-2 flex lg:hidden items-center justify-center p-2 text-gray-700 dark:hover:bg-zinc-700 hover:bg-gray-100 focus:outline-none"
                   (click)="toggleMenu($event)"
                   aria-label="Toggle menu"
                 >
@@ -97,7 +97,7 @@
                   [(ngModel)]="query"
                   (input)="searchMovies()"
                   (keydown.enter)="searchMovies()"
-                  class="w-full pl-4 pr-16 py-2.5 sm:py-3 lg:py-2.5 rounded-xl border border-gray-200/80 dark:border-gray-700/80 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm focus:border-blue-400 focus:ring-4 focus:ring-blue-100/60 dark:focus:ring-blue-900/40 focus:bg-white dark:focus:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 outline-none text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base lg:text-sm group-hover:"
+                  class="w-full pl-4 pr-16 py-2.5 sm:py-3 lg:py-2.5 rounded-xl border border-gray-200/80 dark:border-zinc-700/80 bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm focus:border-blue-400 focus:ring-4 focus:ring-blue-100/60 dark:focus:ring-blue-900/40 focus:bg-white dark:focus:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 outline-none text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base lg:text-sm group-hover:"
                 />
                 <div
                   class="absolute inset-y-0 right-0 flex items-center pr-3 gap-1"
@@ -107,7 +107,7 @@
                     *ngIf="query.length > 0"
                     type="button"
                     (click)="clearSearch(); focusSearchInput()"
-                    class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors duration-150 group/clear"
+                    class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors duration-150 group/clear"
                     aria-label="Clear search"
                   >
                     <app-icon-lib
@@ -135,13 +135,13 @@
             <div class="flex items-center gap-2 sm:gap-3">
               <!-- Sources Button -->
               <button
-                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-gray-800 backdrop-blur-sm border border-gray-200/80 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-400 active:scale-95 transition-all duration-200"
+                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-zinc-800 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-400 active:scale-95 transition-all duration-200"
                 routerLink="/table"
                 aria-label="Sources"
                 [ngClass]="{
                   'bg-blue-50 border-blue-200 dark:bg-blue-900 dark:border-blue-700':
                     isActive('/table'),
-                  'bg-white/80 border-gray-200/80 dark:bg-gray-800 dark:border-gray-700':
+                  'bg-white/80 border-gray-200/80 dark:bg-zinc-800 dark:border-zinc-700':
                     !isActive('/table')
                 }"
               >
@@ -157,7 +157,7 @@
                 ></app-icon-lib>
                 <!-- Badge -->
                 <span
-                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-blue-500 dark:bg-blue-400 text-xs text-white dark:text-white font-medium flex items-center justify-center rounded-full border-2 border-white dark:border-gray-900"
+                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-blue-500 dark:bg-blue-400 text-xs text-white dark:text-white font-medium flex items-center justify-center rounded-full border-2 border-white dark:border-zinc-900"
                 >
                   {{ sources.length }}
                 </span>
@@ -165,13 +165,13 @@
 
               <!-- Settings Button -->
               <button
-                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-gray-800 backdrop-blur-sm border border-gray-200/80 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-400 active:scale-95 transition-all duration-200"
+                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-zinc-800 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-400 active:scale-95 transition-all duration-200"
                 routerLink="/settings"
                 aria-label="Settings"
                 [ngClass]="{
                   'bg-blue-50 border-blue-200 dark:bg-blue-900 dark:border-blue-700':
                     isActive('/settings'),
-                  'bg-white/80 border-gray-200/80 dark:bg-gray-800 dark:border-gray-700':
+                  'bg-white/80 border-gray-200/80 dark:bg-zinc-800 dark:border-zinc-700':
                     !isActive('/settings')
                 }"
               >
@@ -203,7 +203,7 @@
     style="top: 0"
   >
     <div
-      class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-2 flex flex-col gap-1 animate-fade-in-down"
+      class="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl p-2 flex flex-col gap-1 animate-fade-in-down"
       [ngStyle]="{ width: navBarWidth }"
       (clickOutside)="closeMenu()"
     >

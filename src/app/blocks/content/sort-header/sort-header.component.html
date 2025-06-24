@@ -1,5 +1,5 @@
 <div
-  class="container mx-auto px-4 py-4 sm:px-6 lg:px-8 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 backdrop-blur-lg rounded-2xl overflow-hidden mb-4"
+  class="container mx-auto px-4 py-4 sm:px-6 lg:px-8 border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-900 backdrop-blur-lg rounded-2xl overflow-hidden mb-4"
 >
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
     <div class="space-y-3">
@@ -12,15 +12,15 @@
         <select
           (change)="onGenreSelected(genreSelect.value)"
           #genreSelect
-          class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-700 dark:text-gray-200"
+          class="w-full bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-700 dark:text-gray-200"
         >
-          <option value="" disabled selected class="bg-white dark:bg-gray-800">
+          <option value="" disabled selected class="bg-white dark:bg-zinc-800">
             Select a genre
           </option>
           <option
             *ngFor="let genre of filteredGenres"
             [value]="genre"
-            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            class="bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200"
           >
             {{ genre }}
           </option>
@@ -51,38 +51,38 @@
         <select
           (change)="onSortSelected(sortSelect.value)"
           #sortSelect
-          class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-700 dark:text-gray-200"
+          class="w-full bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-lg py-3 px-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-700 dark:text-gray-200"
         >
-          <option value="" disabled selected class="bg-white dark:bg-gray-800">
+          <option value="" disabled selected class="bg-white dark:bg-zinc-800">
             Sort results
           </option>
           <option
             value="popularity.desc"
-            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            class="bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200"
           >
             Popularity (High to Low)
           </option>
           <option
             value="popularity.asc"
-            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            class="bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200"
           >
             Popularity (Low to High)
           </option>
           <option
             value="vote_average.desc"
-            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            class="bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200"
           >
             Rating (High to Low)
           </option>
           <option
             value="vote_average.asc"
-            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            class="bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200"
           >
             Rating (Low to High)
           </option>
           <option
             value="release_date.desc"
-            class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+            class="bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200"
           >
             Release Date (Newest)
           </option>

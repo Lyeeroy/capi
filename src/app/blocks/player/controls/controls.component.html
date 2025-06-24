@@ -1,10 +1,10 @@
 <!-- Sources Component -->
 <div
-  class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700"
+  class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700"
 >
   <!-- Sources Header (clickable to expand/collapse) -->
   <div
-    class="bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+    class="bg-gray-50 dark:bg-zinc-800 rounded-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
     (click)="toggleSourcesExpansion()"
   >
     <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -30,7 +30,7 @@
       <button
         title="Previous Source"
         (click)="prevSource(); $event.stopPropagation()"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-green-500 dark:hover:border-green-400 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-zinc-800 dark:to-zinc-900 border border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700 hover:border-green-500 dark:hover:border-green-400 transition-colors duration-200"
       >
         <app-icon-lib
           ico="arrowLeft"
@@ -42,7 +42,7 @@
       <button
         title="Next Source"
         (click)="nextSource(); $event.stopPropagation()"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-green-500 dark:hover:border-green-400 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-zinc-800 dark:to-zinc-900 border border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700 hover:border-green-500 dark:hover:border-green-400 transition-colors duration-200"
       >
         <app-icon-lib
           ico="arrowRight"
@@ -72,13 +72,13 @@
   (click)="toggleSourcesExpansion()"
 >
   <div
-    class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden modal-content"
+    class="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden modal-content"
     #modalContent
     (click)="$event.stopPropagation()"
   >
     <!-- Modal Header -->
     <div
-      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-xl"
+      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 rounded-t-xl"
     >
       <div class="flex items-center gap-3">
         <div class="w-2 h-7 bg-green-500 rounded-full"></div>
@@ -93,7 +93,7 @@
       </div>
       <button
         (click)="toggleSourcesExpansion()"
-        class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-green-500 dark:hover:border-green-400 border border-transparent dark:border-transparent transition-colors"
+        class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 hover:border-green-500 dark:hover:border-green-400 border border-transparent dark:border-transparent transition-colors"
       >
         <app-icon-lib
           ico="close"
@@ -112,8 +112,8 @@
           [ngClass]="[
             currentSourceUrl === source.url
               ? 'bg-green-50 dark:bg-green-900 border-green-300 dark:border-green-700 ring-2 ring-green-500'
-              : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
-            'hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-green-500 dark:hover:border-green-400'
+              : 'bg-white dark:bg-zinc-800 border-gray-200 dark:border-zinc-700',
+            'hover:bg-gray-50 dark:hover:bg-zinc-700 hover:border-green-500 dark:hover:border-green-400'
           ]"
         >
           <div class="flex items-center justify-between">

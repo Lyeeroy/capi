@@ -2,14 +2,14 @@
 <div class="p-6 flex flex-col gap-6">
   <!-- Title and Poster Section -->
   <div
-    class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
+    class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 p-6"
   >
     <div
       class="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start"
     >
       <div class="w-28 h-40 sm:w-24 sm:h-36 flex-shrink-0 mb-3 sm:mb-0">
         <img
-          class="w-full h-full object-cover rounded-lg border-2 border-gray-200 dark:border-gray-700"
+          class="w-full h-full object-cover rounded-lg border-2 border-gray-200 dark:border-zinc-700"
           [src]="
             responseData?.poster_path
               ? 'https://image.tmdb.org/t/p/w300/' + responseData.poster_path
@@ -36,7 +36,7 @@
         <!-- Rating -->
         <div
           *ngIf="responseData?.vote_average"
-          class="flex justify-center sm:justify-start items-center gap-2 mt-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-lg px-3 py-2 w-fit mx-auto sm:mx-0"
+          class="flex justify-center sm:justify-start items-center gap-2 mt-4 bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-lg px-3 py-2 w-fit mx-auto sm:mx-0"
         >
           <app-icon-lib
             ico="star"
@@ -54,7 +54,7 @@
   </div>
   <!-- Info Badges -->
   <div
-    class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
+    class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 p-6"
   >
     <div class="flex items-center gap-2 mb-4">
       <div class="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -214,7 +214,7 @@
   <!-- Overview -->
   <div
     *ngIf="responseData?.overview"
-    class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
+    class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 p-6"
   >
     <div class="flex items-center gap-2 mb-4">
       <div class="w-1 h-6 bg-green-500 rounded-full"></div>
@@ -229,7 +229,7 @@
   <!-- Latest Episode -->
   <div
     *ngIf="responseData?.last_episode_to_air"
-    class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
+    class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 p-6"
   >
     <div class="flex items-center gap-2 mb-4">
       <div class="w-1 h-6 bg-purple-500 rounded-full"></div>
@@ -264,7 +264,7 @@
   <!-- Genres -->
   <div
     *ngIf="responseData?.genres?.length"
-    class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
+    class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 p-6"
   >
     <div class="flex items-center gap-2 mb-4">
       <div class="w-1 h-6 bg-orange-500 rounded-full"></div>
@@ -273,7 +273,7 @@
     <div class="flex flex-wrap gap-2">
       <span
         *ngFor="let genre of responseData.genres"
-        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-100 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-shadow"
+        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-100 bg-white dark:bg-zinc-800 border border-gray-300 dark:border-zinc-600 rounded-lg transition-shadow"
       >
         <app-icon-lib ico="genre" class="w-4 h-4"></app-icon-lib>
         {{ genre.name }}
@@ -282,7 +282,7 @@
   </div>
   <!-- Network & Additional Info -->
   <div
-    class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6"
+    class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 p-6"
   >
     <div class="flex items-center gap-2 mb-4">
       <div class="w-1 h-6 bg-cyan-500 rounded-full"></div>
@@ -293,7 +293,7 @@
     <div class="space-y-4 text-sm">
       <div
         *ngIf="responseData?.networks?.length"
-        class="flex items-center bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-lg p-3"
+        class="flex items-center bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-lg p-3"
       >
         <app-icon-lib
           ico="network"
@@ -315,7 +315,7 @@
 
       <div
         *ngIf="responseData?.created_by?.length"
-        class="flex items-center bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-lg p-3"
+        class="flex items-center bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-lg p-3"
       >
         <app-icon-lib
           ico="production"
@@ -336,7 +336,7 @@
 
       <div
         *ngIf="responseData?.spoken_languages?.length"
-        class="flex items-center bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-lg p-3"
+        class="flex items-center bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-lg p-3"
       >
         <app-icon-lib
           ico="language"
@@ -356,7 +356,7 @@
 
       <div
         *ngIf="responseData?.homepage"
-        class="flex items-center bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-lg p-3"
+        class="flex items-center bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm rounded-lg p-3"
       >
         <app-icon-lib
           ico="sources"

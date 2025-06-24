@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
       (click)="cancel.emit()"
     >
       <div
-        class="bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg max-w-sm w-full p-6"
+        class="bg-gray-100 dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-lg shadow-lg max-w-sm w-full p-6"
         (click)="$event.stopPropagation()"
       >
         <h3 class="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">
@@ -23,7 +23,7 @@ import { CommonModule } from '@angular/common';
         <div *ngIf="!customButtons" class="flex justify-end gap-2 mt-4">
           <button
             (click)="cancel.emit()"
-            class="cursor-pointer px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-700"
+            class="cursor-pointer px-4 py-2 rounded-lg bg-gray-200 dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-zinc-700 border border-gray-300 dark:border-zinc-700"
           >
             {{ cancelLabel }}
           </button>

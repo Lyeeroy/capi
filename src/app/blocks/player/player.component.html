@@ -21,7 +21,7 @@
     <!-- Main content column: iframe and controls -->
     <div class="flex flex-col" id="iframe-container" #iframeContainer>
       <div
-        class="aspect-video rounded-xl bg-white dark:bg-gray-900"
+        class="aspect-video rounded-xl bg-white dark:bg-zinc-900"
         id="video-container"
         #videoContainer
       >
@@ -104,12 +104,12 @@
     <!-- Details Section Moved to Bottom -->
     <div class="mt-4 hidden lg:block rounded-xl" id="details-bottom-section">
       <div
-        class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700"
+        class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700"
       >
         <!-- Details Header (clickable to expand/collapse) -->
         <div
           [ngClass]="{
-            'bg-gray-50 dark:bg-gray-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors': true,
+            'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors': true,
             'rounded-t-xl': isDetailsExpanded,
             'rounded-xl': !isDetailsExpanded
           }"
@@ -166,11 +166,11 @@
   <!-- Mobile Details Section (visible only on mobile, always shown) -->
   <div class="lg:hidden">
     <div
-      class="flex-shrink-0 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 mb-4"
+      class="flex-shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 mb-4"
     >
       <!-- Details Header (clickable to expand/collapse) -->
       <div
-        class="bg-gray-50 dark:bg-gray-800 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        class="bg-gray-50 dark:bg-zinc-800 rounded-t-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors"
         (click)="toggleDetailsExpansion()"
       >
         <div class="flex items-center gap-3">
@@ -238,7 +238,7 @@
         (episodeSelected)="playEpisode($event)"
         (layoutChange)="changeLayout()"
         (sortToggle)="ascOrDescSort()"
-        class="h-full rounded-xl border border-gray-200 dark:border-gray-700"
+        class="h-full rounded-xl border border-gray-200 dark:border-zinc-700"
       ></app-playlist>
     </div>
   </div>

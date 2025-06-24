@@ -1,10 +1,10 @@
 <!-- Episode Navigation Component -->
 <div
-  class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700"
+  class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700"
 >
   <!-- Episode Navigation Header (clickable to expand/collapse) -->
   <div
-    class="bg-gray-50 dark:bg-gray-800 rounded-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+    class="bg-gray-50 dark:bg-zinc-800 rounded-xl flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
     (click)="toggleEpisodeNavExpansion()"
   >
     <div class="flex items-center gap-3 min-w-0 flex-1">
@@ -39,7 +39,7 @@
         (click)="onPreviousEpisode(); $event.stopPropagation()"
         [class.opacity-50]="!hasPreviousEpisode"
         [class.cursor-not-allowed]="!hasPreviousEpisode"
-        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-colors duration-200"
+        class="p-2 rounded-lg bg-gradient-to-br from-white to-gray-50 dark:from-zinc-800 dark:to-zinc-900 border border-gray-200 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-zinc-700 hover:border-blue-500 dark:hover:border-blue-400 transition-colors duration-200"
         [class.cursor-pointer]="hasPreviousEpisode"
       >
         <app-icon-lib
@@ -87,13 +87,13 @@
   (click)="toggleEpisodeNavExpansion()"
 >
   <div
-    class="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden modal-content"
+    class="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden modal-content"
     #modalContent
     (click)="$event.stopPropagation()"
   >
     <!-- Modal Header -->
     <div
-      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-xl"
+      class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 rounded-t-xl"
     >
       <div class="flex items-center gap-3">
         <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
@@ -110,7 +110,7 @@
         <!-- Copy Episode Info Button -->
         <button
           (click)="copyEpisodeInfoToClipboard()"
-          class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 border border-transparent dark:border-transparent transition-colors ml-2"
+          class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 hover:border-blue-500 dark:hover:border-blue-400 border border-transparent dark:border-transparent transition-colors ml-2"
           title="Copy Episode Info"
         >
           <app-icon-lib
@@ -120,7 +120,7 @@
         </button>
         <button
           (click)="toggleEpisodeNavExpansion()"
-          class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 border border-transparent dark:border-transparent transition-colors"
+          class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 hover:border-blue-500 dark:hover:border-blue-400 border border-transparent dark:border-transparent transition-colors"
         >
           <app-icon-lib
             ico="close"
@@ -159,7 +159,7 @@
             [class.opacity-50]="!hasPreviousEpisode"
             [class.cursor-not-allowed]="!hasPreviousEpisode"
             [class.hover:bg-gray-50]="hasPreviousEpisode"
-            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200"
+            class="w-full text-left px-4 py-3 rounded-lg border border-gray-200 dark:border-zinc-700 transition-all duration-200"
             [class.cursor-pointer]="hasPreviousEpisode"
           >
             <div class="flex items-center justify-between">
