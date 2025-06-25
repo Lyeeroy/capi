@@ -120,6 +120,66 @@
   ></app-content-tabs-netflix-like>
 </div>
 
+<!-- Dev's Pick Section -->
+<div class="mt-4">
+  <div
+    class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 p-4"
+  >
+    <div class="flex items-center">
+      <span
+        class="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg p-2 mr-3 flex items-center justify-center"
+        aria-hidden="true"
+      >
+        <app-icon-lib
+          ico="star"
+          class="w-5 h-5 text-gray-700 dark:text-gray-200"
+        ></app-icon-lib>
+      </span>
+      <div>
+        <h2 class="text-base font-semibold">Dev's Pick</h2>
+        <p class="text-xs text-gray-600">Handpicked recommendations</p>
+      </div>
+    </div>
+    <div class="flex gap-2 w-full sm:w-auto">
+      <button
+        class="cursor-pointer whitespace-nowrap flex-1 px-4 py-2 text-sm font-semibold rounded-lg border focus:outline-none transition-colors duration-200 h-[40px]"
+        [ngClass]="
+          selectedDevPickType === 'movie'
+            ? 'bg-gray-200 text-gray-700 border-gray-400 dark:bg-zinc-800 dark:text-gray-100 dark:border-zinc-400'
+            : 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-zinc-900 dark:text-gray-200 dark:border-zinc-700'
+        "
+        (click)="onSelectDevPickType('movie')"
+      >
+        Movies
+      </button>
+      <button
+        class="cursor-pointer whitespace-nowrap flex-1 px-4 py-2 text-sm font-semibold rounded-lg border focus:outline-none transition-colors duration-200 h-[40px]"
+        [ngClass]="
+          selectedDevPickType === 'tv'
+            ? 'bg-gray-200 text-gray-700 border-gray-400 dark:bg-zinc-800 dark:text-gray-100 dark:border-zinc-400'
+            : 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-zinc-900 dark:text-gray-200 dark:border-zinc-700'
+        "
+        (click)="onSelectDevPickType('tv')"
+      >
+        TV Shows
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading state or content -->
+  <div *ngIf="currentDevPicks.length === 0" class="text-center py-4">
+    <div class="text-sm text-gray-500 dark:text-gray-400">
+      Loading recommendations...
+    </div>
+  </div>
+
+  <app-content-tabs-netflix-like
+    *ngIf="currentDevPicks.length > 0"
+    [trending]="currentDevPicks"
+    [tileLimit]="currentDevPicks.length"
+  ></app-content-tabs-netflix-like>
+</div>
+
 <div class="mt-4"></div>
 
 <!-- <lib-header

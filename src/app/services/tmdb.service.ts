@@ -46,4 +46,25 @@ export class TmdbService {
         }))
       );
   }
+
+  // Function for fetching individual items (not collections)
+  fetchItemFromTmdb(
+    endpoint: string,
+    params: Record<string, string | number> = {}
+  ): Observable<any> {
+    let httpParams = new HttpParams().set('api_key', this.API_KEY);
+
+    Object.entries(params).forEach(([key, value]) => {
+      httpParams = httpParams.set(key, value.toString());
+    });
+
+    return this.http
+      .get<any>(`${this.BASE_URL}${endpoint}`, { params: httpParams })
+      .pipe(
+        map((item: any) => ({
+          ...item,
+          media_type: item.media_type || (endpoint.includes('/tv') ? 'tv' : 'movie'),
+        }))
+      );
+  }
 }
