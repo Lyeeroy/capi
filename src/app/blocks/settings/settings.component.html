@@ -36,10 +36,10 @@
         ></app-icon-lib>
       </div>
     </div>
-    <div *ngIf="isGeneralExpanded" class="p-10 pt-6 animate-modal-slide-up">
+    <div *ngIf="isGeneralExpanded" class="p-8 pt-6 animate-modal-slide-up">
       <!-- Enable Continue Watching Section -->
       <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50 dark:bg-zinc-800"
+        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-6 bg-gray-50 dark:bg-zinc-800"
       >
         <div class="flex-1">
           <div
@@ -82,7 +82,7 @@
 
       <!-- Enable Scroll to Episode Section -->
       <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50 dark:bg-zinc-800"
+        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-6 bg-gray-50 dark:bg-zinc-800"
       >
         <div class="flex-1">
           <div
@@ -124,7 +124,7 @@
 
       <!-- Enable Watched Episodes Section -->
       <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50 dark:bg-zinc-800"
+        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50 dark:bg-zinc-800"
       >
         <div class="flex-1">
           <div
@@ -202,7 +202,7 @@
         ></app-icon-lib>
       </div>
     </div>
-    <div *ngIf="isPlaylistExpanded" class="p-10 pt-6 animate-modal-slide-up">
+    <div *ngIf="isPlaylistExpanded" class="p-8 pt-6 animate-modal-slide-up">
       <div
         class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50 dark:bg-zinc-800"
       >
@@ -274,9 +274,9 @@
         ></app-icon-lib>
       </div>
     </div>
-    <div *ngIf="isThemeExpanded" class="p-10 pt-6 animate-modal-slide-up">
+    <div *ngIf="isThemeExpanded" class="p-8 pt-6 animate-modal-slide-up">
       <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 bg-gray-50 dark:bg-zinc-800"
+        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50 dark:bg-zinc-800"
       >
         <div class="flex-1">
           <div
@@ -293,7 +293,7 @@
           </div>
         </div>
         <div
-          class="w-full md:w-auto mt-4 md:mt-0 flex items-center gap-4 justify-center"
+          class="w-full md:w-auto mt-4 md:mt-0 flex items-center gap-3 justify-center"
         >
           <label class="inline-flex items-center cursor-pointer gap-2">
             <input
@@ -305,10 +305,12 @@
               (change)="onThemeModeChange('light')"
             />
             <span
-              class="px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 font-medium transition cursor-pointer"
-              [class.bg-indigo-50]="currentTheme.mode === 'light' && !isDark()"
-              [class.bg-gray-800]="currentTheme.mode === 'light' && isDark()"
-              [class.border-indigo-500]="currentTheme.mode === 'light'"
+              class="px-4 py-2 rounded-lg border font-medium transition cursor-pointer"
+              [class]="
+                currentTheme.mode === 'light'
+                  ? 'bg-blue-100 dark:bg-blue-900 border-blue-500 text-blue-700 dark:text-blue-300'
+                  : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100'
+              "
               >Light</span
             >
           </label>
@@ -322,10 +324,12 @@
               (change)="onThemeModeChange('dark')"
             />
             <span
-              class="px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 font-medium transition cursor-pointer"
-              [class.bg-indigo-50]="currentTheme.mode === 'dark' && !isDark()"
-              [class.bg-gray-800]="currentTheme.mode === 'dark' && isDark()"
-              [class.border-indigo-500]="currentTheme.mode === 'dark'"
+              class="px-4 py-2 rounded-lg border font-medium transition cursor-pointer"
+              [class]="
+                currentTheme.mode === 'dark'
+                  ? 'bg-blue-100 dark:bg-blue-900 border-blue-500 text-blue-700 dark:text-blue-300'
+                  : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100'
+              "
               >Dark</span
             >
           </label>
@@ -339,10 +343,12 @@
               (change)="onThemeModeChange('system')"
             />
             <span
-              class="px-4 py-2 rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 font-medium transition cursor-pointer"
-              [class.bg-indigo-50]="currentTheme.mode === 'system' && !isDark()"
-              [class.bg-gray-800]="currentTheme.mode === 'system' && isDark()"
-              [class.border-indigo-500]="currentTheme.mode === 'system'"
+              class="px-4 py-2 rounded-lg border font-medium transition cursor-pointer"
+              [class]="
+                currentTheme.mode === 'system'
+                  ? 'bg-blue-100 dark:bg-blue-900 border-blue-500 text-blue-700 dark:text-blue-300'
+                  : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100'
+              "
               >System</span
             >
           </label>
@@ -386,10 +392,10 @@
         ></app-icon-lib>
       </div>
     </div>
-    <div *ngIf="isDangerExpanded" class="p-10 pt-6 animate-modal-slide-up">
+    <div *ngIf="isDangerExpanded" class="p-8 pt-6 animate-modal-slide-up">
       <!-- Clear Watched Episodes Section -->
       <div
-        class="border border-amber-200 dark:border-amber-700 rounded-xl p-6 mb-8 bg-amber-50 dark:bg-amber-900"
+        class="border border-amber-200 dark:border-amber-700 rounded-xl p-6 mb-6 bg-amber-50 dark:bg-amber-900"
       >
         <div
           class="flex flex-col md:flex-row items-center justify-between gap-6"
@@ -424,7 +430,7 @@
       </div>
       <!-- Clear Continue Watching Section -->
       <div
-        class="border border-amber-200 dark:border-amber-700 rounded-xl p-6 mb-8 bg-amber-50 dark:bg-amber-900"
+        class="border border-amber-200 dark:border-amber-700 rounded-xl p-6 mb-6 bg-amber-50 dark:bg-amber-900"
       >
         <div
           class="flex flex-col md:flex-row items-center justify-between gap-6"
@@ -458,7 +464,7 @@
       </div>
       <!-- Clear Cache Section -->
       <div
-        class="border border-red-200 dark:border-red-700 rounded-xl p-6 mb-8 bg-red-50 dark:bg-red-900"
+        class="border border-red-200 dark:border-red-700 rounded-xl p-6 bg-red-50 dark:bg-red-900"
       >
         <div
           class="flex flex-col md:flex-row items-center justify-between gap-6"
