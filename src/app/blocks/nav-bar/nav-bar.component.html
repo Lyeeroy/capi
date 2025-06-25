@@ -39,10 +39,10 @@
                 >
                   <a
                     routerLink="{{ item.route }}"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-zinc-800/60 transition-colors duration-300"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-zinc-900/30 transition-colors duration-300"
                     (click)="handleClick($event)"
                     [ngClass]="{
-                      'text-blue-600 dark:text-blue-400': isActive(item.route),
+                      'text-blue-600 dark:text-white': isActive(item.route),
                       'text-gray-700 dark:text-gray-200': !isActive(item.route)
                     }"
                   >
@@ -51,7 +51,7 @@
                       class="w-5 h-5"
                       [class.text-blue-600]="isActive(item.route)"
                       [class.text-gray-700]="!isActive(item.route)"
-                      [class.dark:text-blue-400]="isActive(item.route)"
+                      [class.dark:text-white]="isActive(item.route)"
                       [class.dark:text-gray-200]="!isActive(item.route)"
                     ></app-icon-lib>
                     <span class="text-sm font-medium">{{ item.label }}</span>
