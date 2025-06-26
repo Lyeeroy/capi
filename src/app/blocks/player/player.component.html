@@ -35,8 +35,8 @@
       <div *ngIf="mediaType !== 'movie'" class="block lg:hidden mt-2">
         <app-episode-navigation
           [names]="names || ''"
-          [currentEpisode]="currentEpisode"
-          [currentSeason]="currentSeason"
+          [currentEpisode]="playingEpisode"
+          [currentSeason]="playingSeason"
           [mediaType]="mediaType ?? 'tv'"
           [responseData]="responseData"
           [hasPreviousEpisode]="hasPreviousEpisode()"
@@ -86,8 +86,8 @@
         <div *ngIf="mediaType !== 'movie'" class="flex-shrink-0 ml-auto flex-1">
           <app-episode-navigation
             [names]="names || ''"
-            [currentEpisode]="currentEpisode"
-            [currentSeason]="currentSeason"
+            [currentEpisode]="playingEpisode"
+            [currentSeason]="playingSeason"
             [mediaType]="mediaType ?? 'tv'"
             [responseData]="responseData"
             [hasPreviousEpisode]="hasPreviousEpisode()"

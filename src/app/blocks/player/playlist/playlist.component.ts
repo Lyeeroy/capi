@@ -360,7 +360,7 @@ export class PlaylistComponent
   }
   private markEpisodeAsWatched(episodeIndex: number) {
     if (!this.isWatchedEpisodesEnabled) return;
-    
+
     const episode = this.currentEpisodes[episodeIndex];
     if (!episode) return;
 
@@ -373,7 +373,7 @@ export class PlaylistComponent
 
   isEpisodeWatched(episodeIndex: number): boolean {
     if (!this.isWatchedEpisodesEnabled) return false;
-    
+
     const episode = this.currentEpisodes[episodeIndex];
     if (!episode) return false;
 
@@ -384,7 +384,7 @@ export class PlaylistComponent
 
   isEpisodeWatchedByFilteredIndex(filteredIndex: number): boolean {
     if (!this.isWatchedEpisodesEnabled) return false;
-    
+
     const originalIndex = this.getOriginalIndex(filteredIndex);
     return this.isEpisodeWatched(originalIndex);
   }
@@ -410,7 +410,7 @@ export class PlaylistComponent
 
   private removeEpisodeFromWatched(episodeIndex: number) {
     if (!this.isWatchedEpisodesEnabled) return;
-    
+
     const episode = this.currentEpisodes[episodeIndex];
     if (!episode) return;
 

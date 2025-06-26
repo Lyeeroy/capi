@@ -118,10 +118,14 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   currentPosters: string[] = [];
 
   // Current state
-  currentSeason: number = 1;
-  currentEpisode: number = 1;
+  currentSeason: number = 1; // Season currently being viewed in playlist
+  currentEpisode: number = 1; // Episode currently being viewed in playlist
   activeEpisodeIndex: number = -1;
   activeEpisodeSeason: number = 1;
+  
+  // Actually playing episode/season (separate from viewing)
+  playingEpisode: number = 1;
+  playingSeason: number = 1;
   // UI state
   layoutType: 'list' | 'grid' | 'poster' | 'compact' = 'list';
   onShowPlaylist: boolean = true;
@@ -190,6 +194,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.currentEpisode = queryParams['episode']
         ? Number(queryParams['episode'])
         : 1;
+      
+      // Set the playing episode/season (these represent what's actually playing)
+      this.playingSeason = this.currentSeason;
+      this.playingEpisode = this.currentEpisode;
+      
       // Set the active episode season to current season on load
       this.activeEpisodeSeason = this.currentSeason;
 
@@ -202,8 +211,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
           e.tmdbID === String(this.id) &&
           e.mediaType === this.mediaType &&
           (this.mediaType === 'movie' ||
-            (e.season === this.currentSeason &&
-              e.episode === this.currentEpisode))
+            (e.season === this.playingSeason &&
+              e.episode === this.playingEpisode))
       );
 
       // If exact match not found for TV, check if there's an entry with the next episode
@@ -213,19 +222,20 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
           (e) =>
             e.tmdbID === String(this.id) &&
             e.mediaType === 'tv' &&
-            e.season === this.currentSeason &&
-            e.episode === this.currentEpisode + 1 &&
+            e.season === this.playingSeason &&
+            e.episode === this.playingEpisode + 1 &&
             e.currentTime === 0 // Confirm this is an auto-advanced entry (current time will be 0)
         );
         // If found an auto-advanced entry, update our current episode and use that entry
         if (advancedEntry && typeof advancedEntry.episode === 'number') {
-          this.currentEpisode = advancedEntry.episode;
+          this.playingEpisode = advancedEntry.episode;
+          this.currentEpisode = this.playingEpisode;
           entry = advancedEntry;
 
           // Update URL without reloading to reflect the correct episode
           const newQueryParams = {
             ...queryParams,
-            episode: this.currentEpisode,
+            episode: this.playingEpisode,
           };
           this.router.navigate([], {
             relativeTo: this.route,
@@ -305,9 +315,9 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       if (
         this.mediaType === 'tv' &&
         this.currentEpisodes &&
-        this.currentEpisode < this.currentEpisodes.length
+        this.playingEpisode < this.currentEpisodes.length
       ) {
-        const nextEpisode = this.currentEpisode + 1;
+        const nextEpisode = this.playingEpisode + 1;
 
         // Update URL without reloading to reflect the next episode
         const queryParams = {
@@ -413,8 +423,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       {
         tmdbID: String(this.id),
         mediaType: this.mediaType as 'movie' | 'tv',
-        season: this.mediaType === 'tv' ? this.currentSeason : undefined,
-        episode: this.mediaType === 'tv' ? this.currentEpisode : undefined,
+        season: this.mediaType === 'tv' ? this.playingSeason : undefined,
+        episode: this.mediaType === 'tv' ? this.playingEpisode : undefined,
         currentTime,
         duration,
         poster_path: this.responseData?.poster_path,
@@ -436,17 +446,18 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       if (
         updatedEntry &&
         typeof updatedEntry.episode === 'number' &&
-        updatedEntry.episode > this.currentEpisode
+        updatedEntry.episode > this.playingEpisode
       ) {
         // Update our component state to the next episode
-        this.currentEpisode = updatedEntry.episode;
+        this.playingEpisode = updatedEntry.episode;
+        this.currentEpisode = this.playingEpisode;
         this.videoCurrentTime = 0;
         this.episodeFinished = false;
 
         // Update URL to reflect the next episode
         const queryParams = {
           ...this.route.snapshot.queryParams,
-          episode: this.currentEpisode,
+          episode: this.playingEpisode,
         };
         this.router.navigate([], {
           relativeTo: this.route,
@@ -465,8 +476,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
         e.tmdbID === String(this.id) &&
         e.mediaType === this.mediaType &&
         (this.mediaType === 'movie' ||
-          (e.season === this.currentSeason &&
-            e.episode === this.currentEpisode))
+          (e.season === this.playingSeason &&
+            e.episode === this.playingEpisode))
     );
   }
   nextSource() {
@@ -596,10 +607,10 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   setActiveEpisodeIndex() {
     if (this.currentEpisodes && this.currentEpisodes.length > 0) {
       const idx = this.currentEpisodes.findIndex(
-        (ep) => ep.number === this.currentEpisode
+        (ep) => ep.number === this.playingEpisode
       );
       this.activeEpisodeIndex = idx !== -1 ? idx : -1;
-      this.activeEpisodeSeason = this.currentSeason;
+      this.activeEpisodeSeason = this.playingSeason;
     }
   }
 
@@ -608,6 +619,10 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.currentEpisode = this.currentEpisodes[index].number;
       this.activeEpisodeIndex = index;
       this.activeEpisodeSeason = this.currentSeason;
+      
+      // Update the actually playing episode/season
+      this.playingEpisode = this.currentEpisode;
+      this.playingSeason = this.currentSeason;
     } else {
       this.activeEpisodeIndex = -1;
     }
@@ -627,12 +642,12 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     // Only update activeEpisodeIndex if we're changing to the season of the currently playing episode
     if (newSeason === this.activeEpisodeSeason) {
       const idx = this.currentEpisodes.findIndex(
-        (ep) => ep.number === this.currentEpisode
+        (ep) => ep.number === this.playingEpisode
       );
       this.activeEpisodeIndex = idx !== -1 ? idx : -1;
     } else {
       this.activeEpisodeIndex = -1;
-      // When switching to a different season, don't change currentEpisode
+      // When switching to a different season, don't change playingEpisode
       // or update URL until user actually selects an episode
     }
 
@@ -658,7 +673,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       // Only set active episode index if we're viewing the season of the currently playing episode
       if (seasonNumber === this.activeEpisodeSeason) {
         const idx = this.currentEpisodes.findIndex(
-          (ep) => ep.number === this.currentEpisode
+          (ep) => ep.number === this.playingEpisode
         );
         this.activeEpisodeIndex = idx !== -1 ? idx : -1;
       } else {
@@ -685,7 +700,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     const idx = this.currentEpisodes.findIndex(
-      (ep) => ep.number === this.currentEpisode
+      (ep) => ep.number === this.playingEpisode
     );
     this.activeEpisodeIndex = idx !== -1 ? idx : -1;
   }
@@ -716,16 +731,16 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   private getAbsoluteEpisodeNumber(): number {
     if (
       this.mediaType !== 'tv' ||
-      !this.currentSeason ||
-      !this.currentEpisode
+      !this.playingSeason ||
+      !this.playingEpisode
     ) {
       return 1;
     }
     let total = 0;
-    for (let s = 1; s < this.currentSeason; s++) {
+    for (let s = 1; s < this.playingSeason; s++) {
       total += this.episodeNames[s]?.length || 0;
     }
-    return total + this.currentEpisode;
+    return total + this.playingEpisode;
   }
 
   translateIntoIframe(url: string): SafeResourceUrl {
@@ -757,8 +772,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       // Replace #no (no base, fallback to offset+1)
       newUrl = newUrl.replace(/#no(?![=\w])/g, (absOffset + 1).toString());
       newUrl = newUrl
-        .replace(/#season/g, this.currentSeason.toString())
-        .replace(/#episode/g, this.currentEpisode.toString());
+        .replace(/#season/g, this.playingSeason.toString())
+        .replace(/#episode/g, this.playingEpisode.toString());
     } else {
       newUrl = newUrl
         .replace(/([&?])(s|e|season|episode)=[^&]*/gi, '')
@@ -823,6 +838,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.currentEpisode = nextEpisode.number;
       this.activeEpisodeIndex = nextIndex;
       this.activeEpisodeSeason = this.currentSeason;
+      
+      // Update the actually playing episode/season
+      this.playingEpisode = this.currentEpisode;
+      this.playingSeason = this.currentSeason;
+      
       this.resetVideoState();
       this.updateUrl();
       this.reloadIframe();
@@ -874,6 +894,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.currentEpisode = prevEpisode.number;
       this.activeEpisodeIndex = prevIndex;
       this.activeEpisodeSeason = this.currentSeason;
+      
+      // Update the actually playing episode/season
+      this.playingEpisode = this.currentEpisode;
+      this.playingSeason = this.currentSeason;
+      
       this.resetVideoState();
       this.updateUrl();
       this.reloadIframe();
@@ -882,12 +907,12 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Helper methods for episode navigation
   private getEpisodeToAdvanceFrom(): number {
-    return this.isViewingSameSeasonAsActive() ? this.currentEpisode : 0;
+    return this.isViewingSameSeasonAsActive() ? this.playingEpisode : 0;
   }
 
   private getEpisodeToBackFrom(): number {
     return this.isViewingSameSeasonAsActive()
-      ? this.currentEpisode
+      ? this.playingEpisode
       : this.currentEpisodes.length + 1;
   }
 
@@ -913,6 +938,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
           this.setCurrentEpisode(firstEpisode.number);
         }
       }
+      
+      // Update the actually playing episode/season
+      this.playingEpisode = this.currentEpisode;
+      this.playingSeason = this.currentSeason;
+      
       this.resetVideoState();
       this.updateUrl();
       this.reloadIframe();
@@ -936,6 +966,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
         // Descending: start with episode 1 (last in array)
         this.setCurrentEpisode(1);
       }
+      
+      // Update the actually playing episode/season
+      this.playingEpisode = this.currentEpisode;
+      this.playingSeason = this.currentSeason;
+      
       this.resetVideoState();
       this.updateUrl();
       this.reloadIframe();
@@ -962,8 +997,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   updateUrl(): void {
     const url = new URL(window.location.href);
     const queryParams = new URLSearchParams(url.search);
-    queryParams.set('season', this.currentSeason.toString());
-    queryParams.set('episode', this.currentEpisode.toString());
+    queryParams.set('season', this.playingSeason.toString());
+    queryParams.set('episode', this.playingEpisode.toString());
     const newUrl = `${url.pathname}?${queryParams.toString()}`;
     this.location.replaceState(newUrl);
   }
