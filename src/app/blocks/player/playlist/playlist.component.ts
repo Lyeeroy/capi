@@ -130,11 +130,13 @@ export class PlaylistComponent
         const currentIndex = changes['activeEpisodeIndex'].currentValue;
 
         // If we moved from one episode to another (not initial load), mark previous as watched
+        // Only mark as watched if the previous episode was in the same season as the active episode
         if (
           typeof previousIndex === 'number' &&
           previousIndex >= 0 &&
           previousIndex !== currentIndex &&
-          previousIndex < this.currentEpisodes.length
+          previousIndex < this.currentEpisodes.length &&
+          this.activeEpisodeSeason === this.currentSeason
         ) {
           this.markEpisodeAsWatched(previousIndex);
         }
@@ -316,10 +318,12 @@ export class PlaylistComponent
     const originalIndex = this.getOriginalIndex(filteredIndex);
 
     // Mark the currently playing episode as watched when switching to a different episode (only if feature is enabled)
+    // Only mark as watched if the current active episode is in the same season as the current view
     if (
       this.isWatchedEpisodesEnabled &&
       this.activeEpisodeIndex >= 0 &&
-      this.activeEpisodeIndex !== originalIndex
+      this.activeEpisodeIndex !== originalIndex &&
+      this.activeEpisodeSeason === this.currentSeason
     ) {
       this.markEpisodeAsWatched(this.activeEpisodeIndex);
     }
@@ -355,24 +359,32 @@ export class PlaylistComponent
     }
   }
   private markEpisodeAsWatched(episodeIndex: number) {
+    if (!this.isWatchedEpisodesEnabled) return;
+    
     const episode = this.currentEpisodes[episodeIndex];
     if (!episode) return;
 
     // Use the current season for the episode being marked as watched
+    // currentEpisodes belong to currentSeason
     const episodeKey = `s${this.currentSeason}e${episode.number}`;
     this.watchedEpisodes.add(episodeKey);
     this.saveWatchedEpisodes();
   }
 
   isEpisodeWatched(episodeIndex: number): boolean {
+    if (!this.isWatchedEpisodesEnabled) return false;
+    
     const episode = this.currentEpisodes[episodeIndex];
     if (!episode) return false;
 
+    // Always use the current season since currentEpisodes belong to currentSeason
     const episodeKey = `s${this.currentSeason}e${episode.number}`;
     return this.watchedEpisodes.has(episodeKey);
   }
 
   isEpisodeWatchedByFilteredIndex(filteredIndex: number): boolean {
+    if (!this.isWatchedEpisodesEnabled) return false;
+    
     const originalIndex = this.getOriginalIndex(filteredIndex);
     return this.isEpisodeWatched(originalIndex);
   }
@@ -397,9 +409,12 @@ export class PlaylistComponent
   }
 
   private removeEpisodeFromWatched(episodeIndex: number) {
+    if (!this.isWatchedEpisodesEnabled) return;
+    
     const episode = this.currentEpisodes[episodeIndex];
     if (!episode) return;
 
+    // Use the current season since currentEpisodes belong to currentSeason
     const episodeKey = `s${this.currentSeason}e${episode.number}`;
     this.watchedEpisodes.delete(episodeKey);
     this.saveWatchedEpisodes();
