@@ -126,11 +126,18 @@ export class SettingsComponent implements OnInit {
       // Get all localStorage keys
       const keys = Object.keys(localStorage);
       
-      // Find all series IDs from watched episodes keys
+      // Find all series IDs from any progress-related keys
       const seriesIds = new Set<string>();
       keys.forEach((key) => {
+        // Extract series IDs from various key formats
         if (key.startsWith('watched_episodes_')) {
           const seriesId = key.replace('watched_episodes_', '');
+          seriesIds.add(seriesId);
+        } else if (key.startsWith('episode_progress_')) {
+          const seriesId = key.replace('episode_progress_', '');
+          seriesIds.add(seriesId);
+        } else if (key.startsWith('clicked_episodes_')) {
+          const seriesId = key.replace('clicked_episodes_', '');
           seriesIds.add(seriesId);
         }
       });
@@ -140,9 +147,13 @@ export class SettingsComponent implements OnInit {
         this.continueWatchingService.removeAllWatchedEpisodes(seriesId);
       });
 
-      // Also remove any orphaned keys that might exist
+      // Remove ALL progress-related localStorage keys
       keys.forEach((key) => {
         if (key.startsWith('watched_episodes_') || 
+            key.startsWith('episode_progress_') ||
+            key.startsWith('clicked_episodes_') ||
+            key.startsWith('ep_progress_') ||
+            key.startsWith('ep_session_') ||
             key.startsWith('cw_highest_') || 
             key.startsWith('cw_pending_')) {
           localStorage.removeItem(key);
@@ -151,6 +162,8 @@ export class SettingsComponent implements OnInit {
 
       // Notify that settings changed to refresh components
       this.saveSettings();
+      
+      console.log('All watched episodes and progress data cleared successfully');
     } catch (error) {
       console.error('Error clearing all watched episodes:', error);
     }

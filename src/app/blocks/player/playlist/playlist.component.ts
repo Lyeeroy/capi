@@ -702,6 +702,24 @@ export class PlaylistComponent
     }
   }
 
+  /**
+   * Public method called from settings component to clear all progress data
+   * This ensures the playlist component resets its internal state
+   */
+  public clearAllProgressData(): void {
+    // Clear internal progress data
+    this.seriesProgressData = [];
+    this.baseTimestamp = Date.now();
+    
+    // Clear any expanded descriptions
+    this.expandedDescriptions.clear();
+    
+    // Trigger UI update
+    this.cdr.detectChanges();
+    
+    console.log('Playlist progress data cleared');
+  }
+
   // Add the missing methods from the original file
   private getScrollContainer(): HTMLElement | null {
     // First try to find the episodes container by class
@@ -1009,7 +1027,10 @@ export class PlaylistComponent
     let episodesCleaned = 0;
     
     keys.forEach((key) => {
-      if (key.startsWith('clicked_episodes_') || key.startsWith('watched_episodes_') || 
+      if (key.startsWith('clicked_episodes_') || 
+          key.startsWith('watched_episodes_') || 
+          key.startsWith('ep_progress_') ||
+          key.startsWith('ep_session_') ||
           (key.startsWith('episode_progress_') && !key.includes('_compact'))) {
         const data = localStorage.getItem(key);
         if (data) {
