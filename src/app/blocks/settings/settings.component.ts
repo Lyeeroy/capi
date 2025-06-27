@@ -125,12 +125,30 @@ export class SettingsComponent implements OnInit {
     try {
       // Get all localStorage keys
       const keys = Object.keys(localStorage);
-      // Remove all watched episodes keys
+      
+      // Find all series IDs from watched episodes keys
+      const seriesIds = new Set<string>();
       keys.forEach((key) => {
         if (key.startsWith('watched_episodes_')) {
+          const seriesId = key.replace('watched_episodes_', '');
+          seriesIds.add(seriesId);
+        }
+      });
+
+      // Remove all watched episode data for each series
+      seriesIds.forEach((seriesId) => {
+        this.continueWatchingService.removeAllWatchedEpisodes(seriesId);
+      });
+
+      // Also remove any orphaned keys that might exist
+      keys.forEach((key) => {
+        if (key.startsWith('watched_episodes_') || 
+            key.startsWith('cw_highest_') || 
+            key.startsWith('cw_pending_')) {
           localStorage.removeItem(key);
         }
       });
+
       // Notify that settings changed to refresh components
       this.saveSettings();
     } catch (error) {

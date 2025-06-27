@@ -18,6 +18,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 import { ContinueWatchingService } from '../../../services/continue-watching.service';
+import { CircularProgressComponent } from './circular-progress/circular-progress.component';
 
 export interface Episode {
   number: number;
@@ -28,7 +29,7 @@ export interface Episode {
 @Component({
   selector: 'app-playlist',
   standalone: true,
-  imports: [CommonModule, FormsModule, IconLibComponent],
+  imports: [CommonModule, FormsModule, IconLibComponent, CircularProgressComponent],
   templateUrl: './playlist.component.html',
 })
 export class PlaylistComponent
@@ -754,5 +755,55 @@ export class PlaylistComponent
     const episodesPerRow = Math.max(1, Math.floor(containerWidth / 142));
     const rows = Math.ceil(episodeCount / episodesPerRow);
     return `${rows * 160}px`;
+  }
+
+  /**
+   * Get the watch progress for a specific episode by filtered index
+   * @param filteredIndex The index in the filtered episodes array
+   * @returns Object with progress ratio (0-1) and isWatched flag
+   */
+  getEpisodeProgressByFilteredIndex(filteredIndex: number): {
+    progress: number;
+    isWatched: boolean;
+  } {
+    const episode = this.filteredEpisodes[filteredIndex];
+    if (!episode || !this.seriesId) {
+      return { progress: 0, isWatched: false };
+    }
+
+    const progressData = this.continueWatchingService.getEpisodeProgress(
+      this.seriesId,
+      this.currentSeason,
+      episode.number
+    );
+
+    const isWatched = this.isEpisodeWatchedByFilteredIndex(filteredIndex);
+
+    return {
+      progress: progressData.progress,
+      isWatched: isWatched
+    };
+  }
+
+  /**
+   * Handle click on progress indicator to remove episode progress
+   * @param filteredIndex The index in the filtered episodes array
+   */
+  onProgressClick(filteredIndex: number): void {
+    const episode = this.filteredEpisodes[filteredIndex];
+    if (!episode || !this.seriesId) return;
+
+    // Remove episode progress
+    this.continueWatchingService.removeEpisodeProgress(
+      this.seriesId,
+      this.currentSeason,
+      episode.number
+    );
+
+    // Reload watched episodes to update UI
+    this.loadWatchedEpisodes();
+    
+    // Trigger change detection
+    this.cdr.detectChanges();
   }
 }

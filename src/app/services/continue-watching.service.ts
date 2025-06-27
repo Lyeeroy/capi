@@ -543,4 +543,161 @@ export class ContinueWatchingService {
       console.error('Error processing completed episodes:', error);
     }
   }
+
+  /**
+   * Get the watch progress for a specific episode
+   * @param tmdbID The TMDB ID of the show
+   * @param season The season number
+   * @param episode The episode number
+   * @returns Object with currentTime, duration, and progress ratio (0-1)
+   */
+  getEpisodeProgress(tmdbID: string, season: number, episode: number): {
+    currentTime: number;
+    duration: number;
+    progress: number;
+  } {
+    const defaultResult = { currentTime: 0, duration: 0, progress: 0 };
+
+    if (!this.isEnabled()) return defaultResult;
+
+    try {
+      // Check current continue watching list for this specific episode
+      const cwList = this.getList();
+      const entry = cwList.find(
+        (e) =>
+          e.tmdbID === tmdbID &&
+          e.mediaType === 'tv' &&
+          e.season === season &&
+          e.episode === episode
+      );
+
+      if (entry && entry.duration > 0) {
+        const progress = Math.min(1, Math.max(0, entry.currentTime / entry.duration));
+        return {
+          currentTime: entry.currentTime,
+          duration: entry.duration,
+          progress: progress
+        };
+      }
+
+      // If not in continue watching, check if episode is marked as watched
+      if (this.isEpisodeWatched(tmdbID, season, episode)) {
+        // Return full progress for watched episodes
+        return {
+          currentTime: 0, // We don't store the exact time for completed episodes
+          duration: 0,
+          progress: 1
+        };
+      }
+
+      return defaultResult;
+    } catch {
+      return defaultResult;
+    }
+  }
+
+  /**
+   * Remove episode progress and mark as unwatched
+   * @param tmdbID The TMDB ID of the show
+   * @param season The season number
+   * @param episode The episode number
+   */
+  removeEpisodeProgress(tmdbID: string, season: number, episode: number): void {
+    if (!this.isEnabled()) return;
+
+    try {
+      // Remove from continue watching list
+      let cwList = this.getList();
+      cwList = cwList.filter(
+        (e) => !(
+          e.tmdbID === tmdbID &&
+          e.mediaType === 'tv' &&
+          e.season === season &&
+          e.episode === episode
+        )
+      );
+      localStorage.setItem(this.key, JSON.stringify(cwList));
+
+      // Remove from watched episodes
+      const watchedKey = `watched_episodes_${tmdbID}`;
+      const episodeKey = `s${season}e${episode}`;
+      const watchedData = localStorage.getItem(watchedKey);
+
+      if (watchedData) {
+        const watchedArray = JSON.parse(watchedData);
+        const watchedSet = new Set(watchedArray);
+        watchedSet.delete(episodeKey);
+        
+        if (watchedSet.size > 0) {
+          localStorage.setItem(watchedKey, JSON.stringify(Array.from(watchedSet)));
+        } else {
+          localStorage.removeItem(watchedKey);
+        }
+      }
+
+      // Update highest watched episode tracker if necessary
+      const highestKey = `cw_highest_${tmdbID}_s${season}`;
+      const currentHighest = Number(localStorage.getItem(highestKey)) || 0;
+      
+      // If removing the highest episode, find the new highest
+      if (episode === currentHighest) {
+        const remainingWatchedData = localStorage.getItem(watchedKey);
+        let newHighest = 0;
+        
+        if (remainingWatchedData) {
+          const remainingWatched = JSON.parse(remainingWatchedData);
+          for (const episodeKey of remainingWatched) {
+            const match = episodeKey.match(/^s(\d+)e(\d+)$/);
+            if (match && parseInt(match[1]) === season) {
+              const episodeNum = parseInt(match[2]);
+              if (episodeNum > newHighest) {
+                newHighest = episodeNum;
+              }
+            }
+          }
+        }
+        
+        if (newHighest > 0) {
+          localStorage.setItem(highestKey, String(newHighest));
+        } else {
+          localStorage.removeItem(highestKey);
+        }
+      }
+    } catch (error) {
+      console.error('Error removing episode progress:', error);
+    }
+  }
+
+  /**
+   * Remove all watched episodes for a series
+   * @param tmdbID The TMDB ID of the show
+   */
+  removeAllWatchedEpisodes(tmdbID: string): void {
+    if (!this.isEnabled()) return;
+
+    try {
+      // Remove all continue watching entries for this series
+      let cwList = this.getList();
+      cwList = cwList.filter(
+        (e) => !(e.tmdbID === tmdbID && e.mediaType === 'tv')
+      );
+      localStorage.setItem(this.key, JSON.stringify(cwList));
+
+      // Remove watched episodes
+      const watchedKey = `watched_episodes_${tmdbID}`;
+      localStorage.removeItem(watchedKey);
+
+      // Remove all season highest trackers
+      const keys = Object.keys(localStorage);
+      const highestKeys = keys.filter(key => key.startsWith(`cw_highest_${tmdbID}_s`));
+      highestKeys.forEach(key => localStorage.removeItem(key));
+
+      // Remove pending keys
+      const pendingKeys = keys.filter(key => key.startsWith(`cw_pending_${tmdbID}_s`));
+      pendingKeys.forEach(key => localStorage.removeItem(key));
+
+    } catch (error) {
+      console.error('Error removing all watched episodes:', error);
+    }
+  }
 }

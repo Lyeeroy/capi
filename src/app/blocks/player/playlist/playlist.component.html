@@ -168,39 +168,16 @@
             [class.dark:hover:bg-zinc-700]="!isEpisodeActiveByFilteredIndex(i)"
           >
             {{ episode.number }}
-            <!-- Watched indicator for grid layout - white for currently playing, blue for watched -->
-            <div
-              *ngIf="
-                isEpisodeActiveByFilteredIndex(i) ||
-                (isWatchedEpisodesEnabled && isEpisodeWatchedByFilteredIndex(i))
-              "
-              class="absolute top-1 right-1"
-            >
-              <div
-                class="w-1.5 h-1.5 rounded-full relative group cursor-pointer"
-                [class.bg-white]="isEpisodeActiveByFilteredIndex(i)"
-                [class.bg-blue-500]="
-                  !isEpisodeActiveByFilteredIndex(i) &&
-                  isWatchedEpisodesEnabled &&
-                  isEpisodeWatchedByFilteredIndex(i)
-                "
-                (click)="onWatchedIndicatorClick(i, $event)"
-              >
-                <!-- X mark icon on hover for watched episodes -->
-                <div
-                  *ngIf="
-                    isWatchedEpisodesEnabled &&
-                    !isEpisodeActiveByFilteredIndex(i) &&
-                    isEpisodeWatchedByFilteredIndex(i)
-                  "
-                  class="absolute inset-0 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
-                >
-                  <app-icon-lib
-                    ico="x"
-                    class="w-1 h-1 text-white"
-                  ></app-icon-lib>
-                </div>
-              </div>
+            <!-- Circular progress indicator for grid layout -->
+            <div class="absolute top-1 right-1.5">
+              <app-circular-progress
+                [progress]="getEpisodeProgressByFilteredIndex(i).progress"
+                [isCurrentEpisode]="isEpisodeActiveByFilteredIndex(i)"
+                [isWatched]="getEpisodeProgressByFilteredIndex(i).isWatched"
+                [size]="10"
+                [strokeWidth]="1.5"
+                (progressClick)="onProgressClick(i)"
+              ></app-circular-progress>
             </div>
           </button>
         </div>
@@ -248,34 +225,16 @@
           >
             {{ episode.name }}
           </div>
-          <!-- Episode indicator - white for currently playing, blue for watched -->
+          <!-- Circular progress indicator for list layout -->
           <div class="flex items-center justify-center py-2.5 px-3">
-            <div
-              *ngIf="
-                isEpisodeActiveByFilteredIndex(i) ||
-                (isWatchedEpisodesEnabled && isEpisodeWatchedByFilteredIndex(i))
-              "
-              class="w-2.5 h-2.5 rounded-full relative group cursor-pointer"
-              [class.bg-white]="isEpisodeActiveByFilteredIndex(i)"
-              [class.bg-blue-500]="
-                !isEpisodeActiveByFilteredIndex(i) &&
-                isWatchedEpisodesEnabled &&
-                isEpisodeWatchedByFilteredIndex(i)
-              "
-              (click)="onWatchedIndicatorClick(i, $event)"
-            >
-              <!-- X mark icon on hover for watched episodes -->
-              <div
-                *ngIf="
-                  isWatchedEpisodesEnabled &&
-                  !isEpisodeActiveByFilteredIndex(i) &&
-                  isEpisodeWatchedByFilteredIndex(i)
-                "
-                class="absolute inset-0 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
-              >
-                <app-icon-lib ico="x" class="w-2 h-2 text-white"></app-icon-lib>
-              </div>
-            </div>
+            <app-circular-progress
+              [progress]="getEpisodeProgressByFilteredIndex(i).progress"
+              [isCurrentEpisode]="isEpisodeActiveByFilteredIndex(i)"
+              [isWatched]="getEpisodeProgressByFilteredIndex(i).isWatched"
+              [size]="14"
+              [strokeWidth]="1.5"
+              (progressClick)="onProgressClick(i)"
+            ></app-circular-progress>
           </div>
         </div>
       </div>
@@ -290,7 +249,7 @@
           (click)="onFilteredEpisodeSelected(i)"
           [attr.id]="'episode-poster-' + getOriginalIndex(i)"
           #episodePoster
-          class="flex items-center cursor-pointer transition-all duration-200 border rounded-lg"
+          class="relative flex items-center cursor-pointer transition-all duration-200 border rounded-lg"
           [class.bg-blue-500]="isEpisodeActiveByFilteredIndex(i)"
           [class.dark:bg-blue-900]="isEpisodeActiveByFilteredIndex(i)"
           [class.border-transparent]="isEpisodeActiveByFilteredIndex(i)"
@@ -323,6 +282,18 @@
               [alt]="'Episode ' + episode.number + ': ' + episode.name"
               loading="lazy"
             />
+            <!-- Circular progress indicator for poster layout - overlaid on thumbnail -->
+            <div class="absolute top-1 right-1">
+              <app-circular-progress
+                [progress]="getEpisodeProgressByFilteredIndex(i).progress"
+                [isCurrentEpisode]="isEpisodeActiveByFilteredIndex(i)"
+                [isWatched]="getEpisodeProgressByFilteredIndex(i).isWatched"
+                [size]="14"
+                [strokeWidth]="2"
+                [hasBackground]="true"
+                (progressClick)="onProgressClick(i)"
+              ></app-circular-progress>
+            </div>
             <!-- Episode Number Overlay -->
             <div
               class="absolute bottom-1 left-1 text-xs font-bold px-1.5 py-0.5 rounded border"
@@ -349,41 +320,7 @@
             >
               {{ episode.name }}
             </div>
-            <!-- Watched indicator for poster layout - white for currently playing, blue for watched -->
-            <div
-              *ngIf="
-                isEpisodeActiveByFilteredIndex(i) ||
-                (isWatchedEpisodesEnabled && isEpisodeWatchedByFilteredIndex(i))
-              "
-              class="absolute top-3 right-3"
-            >
-              <div
-                class="w-2 h-2 rounded-full relative group cursor-pointer"
-                [class.bg-white]="isEpisodeActiveByFilteredIndex(i)"
-                [class.bg-blue-500]="
-                  !isEpisodeActiveByFilteredIndex(i) &&
-                  isWatchedEpisodesEnabled &&
-                  isEpisodeWatchedByFilteredIndex(i)
-                "
-                (click)="onWatchedIndicatorClick(i, $event)"
-              >
-                <!-- X mark icon on hover for watched episodes -->
-                <div
-                  *ngIf="
-                    isWatchedEpisodesEnabled &&
-                    !isEpisodeActiveByFilteredIndex(i) &&
-                    isEpisodeWatchedByFilteredIndex(i)
-                  "
-                  class="absolute inset-0 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
-                >
-                  <app-icon-lib
-                    ico="x"
-                    class="w-1.5 h-1.5 text-white"
-                  ></app-icon-lib>
-                </div>
-              </div>
-            </div>
-            <div class="flex items-end gap-2">
+            <div class="flex items-end gap-2 relative">
               <!-- Description text -->
               <div
                 class="text-xs flex-1 min-w-0"
@@ -497,16 +434,17 @@
               </span>
             </div>
 
-            <!-- Compact Play Button -->
+            <!-- Compact Progress Indicator -->
             <div class="absolute top-1 right-1">
-              <div
-                class="w-6 h-6 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-200"
-              >
-                <app-icon-lib
-                  ico="play"
-                  class="w-3 h-3 text-white"
-                ></app-icon-lib>
-              </div>
+              <app-circular-progress
+                [progress]="getEpisodeProgressByFilteredIndex(i).progress"
+                [isCurrentEpisode]="isEpisodeActiveByFilteredIndex(i)"
+                [isWatched]="getEpisodeProgressByFilteredIndex(i).isWatched"
+                [size]="14"
+                [strokeWidth]="2"
+                [hasBackground]="true"
+                (progressClick)="onProgressClick(i)"
+              ></app-circular-progress>
             </div>
           </div>
 
@@ -531,37 +469,6 @@
                   ? episode.description.substring(0, 60) + "..."
                   : episode.description
               }}
-            </div>
-          </div>
-          <!-- Active Episode Indicator - white for currently playing, blue for watched -->
-          <div
-            *ngIf="
-              isEpisodeActiveByFilteredIndex(i) ||
-              (isWatchedEpisodesEnabled && isEpisodeWatchedByFilteredIndex(i))
-            "
-            class="absolute bottom-1 right-1"
-          >
-            <div
-              class="w-1.5 h-1.5 rounded-full relative group cursor-pointer"
-              [class.bg-white]="isEpisodeActiveByFilteredIndex(i)"
-              [class.bg-blue-500]="
-                !isEpisodeActiveByFilteredIndex(i) &&
-                isWatchedEpisodesEnabled &&
-                isEpisodeWatchedByFilteredIndex(i)
-              "
-              (click)="onWatchedIndicatorClick(i, $event)"
-            >
-              <!-- X mark icon on hover for watched episodes -->
-              <div
-                *ngIf="
-                  isWatchedEpisodesEnabled &&
-                  !isEpisodeActiveByFilteredIndex(i) &&
-                  isEpisodeWatchedByFilteredIndex(i)
-                "
-                class="absolute inset-0 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center"
-              >
-                <app-icon-lib ico="x" class="w-1 h-1 text-white"></app-icon-lib>
-              </div>
             </div>
           </div>
         </div>
