@@ -17,6 +17,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
+import { ContinueWatchingService } from '../../../services/continue-watching.service';
 
 export interface Episode {
   number: number;
@@ -67,7 +68,10 @@ export class PlaylistComponent
   // Settings for watched episodes feature
   public isWatchedEpisodesEnabled: boolean = true;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private continueWatchingService: ContinueWatchingService
+  ) {}
 
   ngOnInit() {
     // Load default layout from localStorage if available
@@ -335,12 +339,30 @@ export class PlaylistComponent
     if (!this.seriesId || !this.isWatchedEpisodesEnabled) return;
 
     try {
+      // Load from local storage
       const watchedKey = `watched_episodes_${this.seriesId}`;
       const watchedData = localStorage.getItem(watchedKey);
       if (watchedData) {
         const watchedArray = JSON.parse(watchedData);
         this.watchedEpisodes = new Set(watchedArray);
+      } else {
+        this.watchedEpisodes = new Set();
       }
+
+      // Also sync with continue watching service watched episodes for current season
+      const cwWatchedEpisodes = this.continueWatchingService.getWatchedEpisodes(
+        this.seriesId,
+        this.currentSeason
+      );
+
+      // Add episodes from continue watching service to local watched set
+      cwWatchedEpisodes.forEach((episodeNum) => {
+        const episodeKey = `s${this.currentSeason}e${episodeNum}`;
+        this.watchedEpisodes.add(episodeKey);
+      });
+
+      // Save the merged list back to localStorage
+      this.saveWatchedEpisodes();
     } catch (error) {
       console.error('Error loading watched episodes:', error);
       this.watchedEpisodes = new Set();
@@ -375,11 +397,20 @@ export class PlaylistComponent
     if (!this.isWatchedEpisodesEnabled) return false;
 
     const episode = this.currentEpisodes[episodeIndex];
-    if (!episode) return false;
+    if (!episode || !this.seriesId) return false;
 
-    // Always use the current season since currentEpisodes belong to currentSeason
+    // First check the local watched episodes storage
     const episodeKey = `s${this.currentSeason}e${episode.number}`;
-    return this.watchedEpisodes.has(episodeKey);
+    if (this.watchedEpisodes.has(episodeKey)) {
+      return true;
+    }
+
+    // Also check the continue watching service for watched status
+    return this.continueWatchingService.isEpisodeWatched(
+      this.seriesId,
+      this.currentSeason,
+      episode.number
+    );
   }
 
   isEpisodeWatchedByFilteredIndex(filteredIndex: number): boolean {
@@ -447,6 +478,12 @@ export class PlaylistComponent
     } catch (error) {
       console.error('Error saving watched episodes settings:', error);
     }
+  }
+
+  // Public method to refresh watched episodes (called externally when continue watching changes)
+  public refreshWatchedEpisodes(): void {
+    this.loadWatchedEpisodes();
+    this.cdr.detectChanges();
   }
 
   // Public methods for settings component

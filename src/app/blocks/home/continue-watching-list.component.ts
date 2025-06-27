@@ -40,6 +40,15 @@ export class ContinueWatchingListComponent implements OnInit {
   }
 
   resume(entry: ContinueWatchingEntry) {
+    // Mark episode as accessed when navigating via continue watching
+    if (entry.mediaType === 'tv' && entry.season && entry.episode) {
+      this.continueWatchingService.markEpisodeAsAccessed(
+        entry.tmdbID,
+        entry.season,
+        entry.episode
+      );
+    }
+
     const queryParams: any = {};
     if (entry.mediaType === 'tv') {
       queryParams.season = entry.season;

@@ -122,7 +122,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   currentEpisode: number = 1; // Episode currently being viewed in playlist
   activeEpisodeIndex: number = -1;
   activeEpisodeSeason: number = 1;
-  
+
   // Actually playing episode/season (separate from viewing)
   playingEpisode: number = 1;
   playingSeason: number = 1;
@@ -168,6 +168,9 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.iframeUrl = this.sanitizer.bypassSecurityTrustResourceUrl('');
   }
   ngOnInit() {
+    // Clean up and synchronize continue watching with playlist system
+    this.continueWatchingService.cleanupAndSynchronize();
+
     // Load default layout from settings
     this.loadDefaultSettings();
 
@@ -194,13 +197,22 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.currentEpisode = queryParams['episode']
         ? Number(queryParams['episode'])
         : 1;
-      
+
       // Set the playing episode/season (these represent what's actually playing)
       this.playingSeason = this.currentSeason;
       this.playingEpisode = this.currentEpisode;
-      
+
       // Set the active episode season to current season on load
       this.activeEpisodeSeason = this.currentSeason;
+
+      // Mark episode as accessed when navigating via continue watching (for playlist marking)
+      if (this.mediaType === 'tv' && this.id) {
+        this.continueWatchingService.markEpisodeAsAccessed(
+          String(this.id),
+          this.playingSeason,
+          this.playingEpisode
+        );
+      }
 
       // Try to restore currentTime and check for episode advancement from continue watching
       const cwList = this.continueWatchingService.getList();
@@ -277,6 +289,10 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
   ngOnDestroy() {
     this.saveProgress();
+
+    // Process completed episodes before cleanup
+    this.continueWatchingService.processCompletedEpisodes();
+
     this.cleanup();
   }
 
@@ -431,11 +447,15 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
         title: this.responseData?.title,
         name: this.responseData?.name,
       },
-      totalEpisodesInSeason
+      totalEpisodesInSeason,
+      this.totalSeasons?.length // Pass total number of seasons
     );
 
     // After saving, check if we need to update our UI to the next episode
     if (this.episodeFinished && this.mediaType === 'tv') {
+      // Process completed episodes to advance them
+      this.continueWatchingService.processCompletedEpisodes();
+
       // Get the latest continue watching list to see if the episode number advanced
       const cwList = this.continueWatchingService.getList();
       const updatedEntry = cwList.find(
@@ -466,6 +486,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
           replaceUrl: true, // Don't add to browser history
         });
       }
+    }
+
+    // Refresh playlist watched episodes after saving progress
+    if (this.playlistComponent) {
+      this.playlistComponent.refreshWatchedEpisodes();
     }
   };
 
@@ -619,7 +644,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.currentEpisode = this.currentEpisodes[index].number;
       this.activeEpisodeIndex = index;
       this.activeEpisodeSeason = this.currentSeason;
-      
+
       // Update the actually playing episode/season
       this.playingEpisode = this.currentEpisode;
       this.playingSeason = this.currentSeason;
@@ -705,6 +730,15 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.activeEpisodeIndex = idx !== -1 ? idx : -1;
   }
   resumeFromContinueWatching(entry: any) {
+    // Mark episode as accessed when navigating via continue watching
+    if (entry.mediaType === 'tv' && entry.season && entry.episode) {
+      this.continueWatchingService.markEpisodeAsAccessed(
+        entry.tmdbID,
+        entry.season,
+        entry.episode
+      );
+    }
+
     const queryParams: any = {};
     if (entry.mediaType === 'tv') {
       queryParams.season = entry.season;
@@ -838,11 +872,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.currentEpisode = nextEpisode.number;
       this.activeEpisodeIndex = nextIndex;
       this.activeEpisodeSeason = this.currentSeason;
-      
+
       // Update the actually playing episode/season
       this.playingEpisode = this.currentEpisode;
       this.playingSeason = this.currentSeason;
-      
+
       this.resetVideoState();
       this.updateUrl();
       this.reloadIframe();
@@ -894,11 +928,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.currentEpisode = prevEpisode.number;
       this.activeEpisodeIndex = prevIndex;
       this.activeEpisodeSeason = this.currentSeason;
-      
+
       // Update the actually playing episode/season
       this.playingEpisode = this.currentEpisode;
       this.playingSeason = this.currentSeason;
-      
+
       this.resetVideoState();
       this.updateUrl();
       this.reloadIframe();
@@ -938,11 +972,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
           this.setCurrentEpisode(firstEpisode.number);
         }
       }
-      
+
       // Update the actually playing episode/season
       this.playingEpisode = this.currentEpisode;
       this.playingSeason = this.currentSeason;
-      
+
       this.resetVideoState();
       this.updateUrl();
       this.reloadIframe();
@@ -966,11 +1000,11 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
         // Descending: start with episode 1 (last in array)
         this.setCurrentEpisode(1);
       }
-      
+
       // Update the actually playing episode/season
       this.playingEpisode = this.currentEpisode;
       this.playingSeason = this.currentSeason;
-      
+
       this.resetVideoState();
       this.updateUrl();
       this.reloadIframe();
