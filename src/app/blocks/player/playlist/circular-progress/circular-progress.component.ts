@@ -14,16 +14,17 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div
-      *ngIf="progress > 0"
-      class="relative inline-flex items-center justify-center cursor-pointer"
+      class="relative inline-flex items-center justify-center"
       [ngClass]="{
-        'bg-black/30 backdrop-blur-sm rounded-full': hasBackground
+        'bg-black/30 backdrop-blur-sm rounded-full': hasBackground && progress > 0,
+        'cursor-pointer': progress > 0
       }"
-      [style.width.px]="hasBackground ? size + 8 : 'auto'"
-      [style.height.px]="hasBackground ? size + 8 : 'auto'"
+      [style.width.px]="hasBackground ? size + 8 : size"
+      [style.height.px]="hasBackground ? size + 8 : size"
       (click)="onProgressClick($event)"
     >
       <svg
+        *ngIf="progress > 0"
         class="transform -rotate-90"
         [attr.width]="size"
         [attr.height]="size"
