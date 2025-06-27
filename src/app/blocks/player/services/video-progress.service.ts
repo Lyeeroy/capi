@@ -22,6 +22,9 @@ export class VideoProgressService {
   private currentEpisode: number = 1;
   private seasonNumber: number | null = 0;
 
+  // Reference to playlist component for immediate updates
+  private playlistComponent: any = null;
+
   constructor(
     private continueWatchingService: ContinueWatchingService,
     private router: Router,
@@ -51,6 +54,17 @@ export class VideoProgressService {
 
     // Start progress tracking
     this.startProgressTracking();
+  }
+
+  /**
+   * Register playlist component for immediate progress updates
+   */
+  registerPlaylistComponent(playlistComponent: any): void {
+    this.playlistComponent = playlistComponent;
+    // Mark the current episode as clicked when playback starts
+    if (this.playlistComponent && typeof this.playlistComponent.markActiveEpisodeAsClicked === 'function') {
+      this.playlistComponent.markActiveEpisodeAsClicked();
+    }
   }
 
   /**
@@ -287,6 +301,18 @@ export class VideoProgressService {
     if (!this.responseData) return false;
 
     const { currentTime, duration } = this.getCurrentTimeAndDuration();
+
+    // Immediately update playlist component with current progress
+    if (this.playlistComponent && 
+        typeof this.playlistComponent.updateEpisodeProgressImmediate === 'function' &&
+        this.mediaType === 'tv') {
+      const progress = duration > 0 ? currentTime / duration : 0;
+      this.playlistComponent.updateEpisodeProgressImmediate(
+        this.currentSeason, 
+        this.currentEpisode, 
+        progress
+      );
+    }
 
     // Save progress to continue watching service
     this.continueWatchingService.saveOrAdvance(

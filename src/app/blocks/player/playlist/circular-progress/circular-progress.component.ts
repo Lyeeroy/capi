@@ -14,18 +14,21 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div
-      class="relative inline-flex items-center justify-center"
+      class="relative inline-flex items-center justify-center group"
       [ngClass]="{
         'bg-black/30 backdrop-blur-sm rounded-full': hasBackground && progress > 0,
         'cursor-pointer': progress > 0
       }"
       [style.width.px]="hasBackground ? size + 8 : size"
       [style.height.px]="hasBackground ? size + 8 : size"
+      [title]="getTooltipText()"
       (click)="onProgressClick($event)"
+      (mouseenter)="isHovered = true"
+      (mouseleave)="isHovered = false"
     >
       <svg
         *ngIf="progress > 0"
-        class="transform -rotate-90"
+        class="transform -rotate-90 transition-opacity duration-200"
         [attr.width]="size"
         [attr.height]="size"
       >
@@ -51,8 +54,7 @@ import { CommonModule } from '@angular/common';
           [attr.stroke-dashoffset]="strokeDashoffset"
           stroke-linecap="round"
           [attr.stroke]="getStrokeColor()"
-          class="transition-all duration-200 ease-out hover:opacity-80"
-          opacity="0.9"
+          class="transition-all duration-200 ease-out"
         />
       </svg>
     </div>
@@ -81,6 +83,7 @@ export class CircularProgressComponent implements OnInit, OnChanges {
   circumference: number = 0;
   strokeDashoffset: number = 0;
   strokeLinecap: string = 'round';
+  isHovered: boolean = false;
 
   ngOnInit() {
     this.calculateCircleProperties();
@@ -95,12 +98,26 @@ export class CircularProgressComponent implements OnInit, OnChanges {
   }
 
   getStrokeColor(): string {
-    if (this.isCurrentEpisode) {
-      return '#ffffff';
+    if (this.isHovered && !this.isCurrentEpisode) {
+      return '#ef4444'; // red-500 for delete state
+    } else if (this.isCurrentEpisode) {
+      return '#ffffff'; // white for current episode
     } else if (this.isWatched) {
-      return '#3b82f6'; // green-500
+      return '#10b981'; // green-500 for previously watched episodes
     } else {
-      return '#3b82f6'; // blue-500
+      return '#3b82f6'; // blue-500 for other episodes with progress
+    }
+  }
+
+  getTooltipText(): string {
+    if (this.progress <= 0) return '';
+    
+    if (this.isCurrentEpisode) {
+      return `Currently playing - ${this.getProgressPercentage()}% watched`;
+    } else if (this.isHovered && !this.isCurrentEpisode) {
+      return `${this.getProgressPercentage()}% watched - Click to delete progress`;
+    } else {
+      return `${this.getProgressPercentage()}% watched`;
     }
   }
 

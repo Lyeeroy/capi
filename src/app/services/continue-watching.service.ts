@@ -17,6 +17,11 @@ export class ContinueWatchingService {
   private readonly key = 'continueWatching';
   private readonly maxEntries = 30;
 
+  constructor() {
+    // Run cleanup on service initialization
+    this.cleanupOldSessionData();
+  }
+
   private isEnabled(): boolean {
     try {
       const raw = localStorage.getItem('appSettings');
@@ -80,57 +85,24 @@ export class ContinueWatchingService {
       (e) => !(e.tmdbID === entry.tmdbID && e.mediaType === entry.mediaType)
     );
 
-    // --- Foolproof logic for TV shows ---
-    if (entry.mediaType === 'tv' && entry.episode) {
-      const highestKey = `cw_highest_${entry.tmdbID}_s${entry.season}`;
-      const pendingKey = `cw_pending_${entry.tmdbID}_s${entry.season}`;
-      let highestWatched = 0;
-      try {
-        highestWatched = Number(localStorage.getItem(highestKey)) || 0;
-      } catch {}
-
-      // Check if user has already progressed to next episode via another mechanism
-      // (This prevents overwriting with older episode data)
-      if (
-        originalEpisode &&
-        highestWatched > originalEpisode &&
-        entry.currentTime < entry.duration * 0.9
-      ) {
-        return; // Don't save if user has already moved to a higher episode and this entry isn't nearly complete
-      }
-
-      // If user is going back to a lower episode
-      if (entry.episode < highestWatched) {
-        // Check if grace period is active
-        let pending = null;
-        try {
-          pending = JSON.parse(localStorage.getItem(pendingKey) || 'null');
-        } catch {}
-        const now = Date.now();
-        const GRACE_PERIOD_MS = 3 * 60 * 1000; // 3 minutes
-        const watchedEnough = entry.currentTime > 0.5 * (entry.duration || 1);
-        if (!pending || pending.episode !== entry.episode) {
-          // Start new grace period
-          localStorage.setItem(
-            pendingKey,
-            JSON.stringify({ episode: entry.episode, start: now })
-          );
-          // Do NOT overwrite yet
-          return;
-        } else if (now - pending.start < GRACE_PERIOD_MS && !watchedEnough) {
-          // Still in grace period and not watched enough
-          return;
-        }
-        // If grace period passed or watched enough, allow overwrite
-        localStorage.removeItem(pendingKey);
-      } else if (entry.episode > highestWatched) {
-        // Update highest episode reached
-        try {
-          localStorage.setItem(highestKey, String(entry.episode));
-        } catch {}
+    // --- Enhanced foolproof logic for TV shows ---
+    if (entry.mediaType === 'tv' && entry.episode && entry.season && entry.duration > 30) {
+      // Use the enhanced fool-proof tracking
+      const shouldProceed = this.saveEpisodeProgressFoolproofAndCheck(
+        entry.tmdbID, 
+        entry.season, 
+        entry.episode, 
+        entry.currentTime, 
+        entry.duration
+      );
+      
+      // If fool-proof tracking says don't proceed (regression protection), return early
+      if (!shouldProceed) {
+        console.log(`[Continue Watching] Blocked progress save for ${entry.tmdbID} S${entry.season}E${entry.episode} due to regression protection`);
+        return;
       }
     }
-    // --- End foolproof logic ---
+    // --- End enhanced foolproof logic ---
 
     const shouldRemoveNow = this.shouldRemove(entry);
     if (shouldRemoveNow) {
@@ -263,6 +235,34 @@ export class ContinueWatchingService {
       localStorage.setItem(watchedKey, JSON.stringify(watchedArray));
     } catch (error) {
       console.error('Error marking episode as watched in playlist:', error);
+    }
+  }
+
+  /**
+   * Remove episode from watched list
+   * @param tmdbID The TMDB ID of the show
+   * @param season The season number
+   * @param episode The episode number
+   */
+  private unmarkEpisodeAsWatched(tmdbID: string, season: number, episode: number): void {
+    try {
+      const watchedKey = `watched_episodes_${tmdbID}`;
+      const episodeKey = `s${season}e${episode}`;
+      const watchedData = localStorage.getItem(watchedKey);
+
+      if (watchedData) {
+        const watchedArray = JSON.parse(watchedData);
+        const watchedSet = new Set(watchedArray);
+        watchedSet.delete(episodeKey);
+        
+        if (watchedSet.size > 0) {
+          localStorage.setItem(watchedKey, JSON.stringify(Array.from(watchedSet)));
+        } else {
+          localStorage.removeItem(watchedKey);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to unmark episode as watched:', error);
     }
   }
 
@@ -598,6 +598,7 @@ export class ContinueWatchingService {
 
   /**
    * Remove episode progress and mark as unwatched
+   * Enhanced to clean up all related storage keys
    * @param tmdbID The TMDB ID of the show
    * @param season The season number
    * @param episode The episode number
@@ -618,53 +619,41 @@ export class ContinueWatchingService {
       );
       localStorage.setItem(this.key, JSON.stringify(cwList));
 
+      // Remove dedicated episode progress storage (old system - cleanup)
+      const progressKey = `ep_progress_${tmdbID}_s${season}_e${episode}`;
+      localStorage.removeItem(progressKey);
+
+      // Remove session tracking
+      const sessionKey = `ep_session_${tmdbID}_s${season}_e${episode}`;
+      localStorage.removeItem(sessionKey);
+
       // Remove from watched episodes
-      const watchedKey = `watched_episodes_${tmdbID}`;
-      const episodeKey = `s${season}e${episode}`;
-      const watchedData = localStorage.getItem(watchedKey);
+      this.unmarkEpisodeAsWatched(tmdbID, season, episode);
 
-      if (watchedData) {
-        const watchedArray = JSON.parse(watchedData);
-        const watchedSet = new Set(watchedArray);
-        watchedSet.delete(episodeKey);
-        
-        if (watchedSet.size > 0) {
-          localStorage.setItem(watchedKey, JSON.stringify(Array.from(watchedSet)));
-        } else {
-          localStorage.removeItem(watchedKey);
-        }
-      }
-
-      // Update highest watched episode tracker if necessary
+      // Update highest episode if necessary
       const highestKey = `cw_highest_${tmdbID}_s${season}`;
-      const currentHighest = Number(localStorage.getItem(highestKey)) || 0;
-      
-      // If removing the highest episode, find the new highest
-      if (episode === currentHighest) {
-        const remainingWatchedData = localStorage.getItem(watchedKey);
-        let newHighest = 0;
-        
-        if (remainingWatchedData) {
-          const remainingWatched = JSON.parse(remainingWatchedData);
-          for (const episodeKey of remainingWatched) {
-            const match = episodeKey.match(/^s(\d+)e(\d+)$/);
-            if (match && parseInt(match[1]) === season) {
-              const episodeNum = parseInt(match[2]);
-              if (episodeNum > newHighest) {
-                newHighest = episodeNum;
-              }
+      try {
+        const currentHighest = Number(localStorage.getItem(highestKey)) || 0;
+        if (episode === currentHighest) {
+          // Find the new highest episode that still has progress
+          let newHighest = 0;
+          for (let ep = episode - 1; ep >= 1; ep--) {
+            // Check if episode is watched instead of checking old progress keys
+            if (this.isEpisodeWatched(tmdbID, season, ep)) {
+              newHighest = ep;
+              break;
             }
           }
+          if (newHighest > 0) {
+            localStorage.setItem(highestKey, String(newHighest));
+          } else {
+            localStorage.removeItem(highestKey);
+          }
         }
-        
-        if (newHighest > 0) {
-          localStorage.setItem(highestKey, String(newHighest));
-        } else {
-          localStorage.removeItem(highestKey);
-        }
-      }
+      } catch {}
+
     } catch (error) {
-      console.error('Error removing episode progress:', error);
+      console.warn('Failed to remove episode progress:', error);
     }
   }
 
@@ -699,5 +688,232 @@ export class ContinueWatchingService {
     } catch (error) {
       console.error('Error removing all watched episodes:', error);
     }
+  }
+
+  /**
+   * Enhanced fool-proof progress saving for TV episodes
+   * Prevents accidental overwrites when users jump around episodes
+   * @returns true if the save should proceed, false if it should be blocked
+   */
+  private saveEpisodeProgressFoolproofAndCheck(
+    tmdbID: string,
+    season: number,
+    episode: number,
+    currentTime: number,
+    duration: number
+  ): boolean {
+    if (!this.isEnabled() || !duration || duration < 30) return false;
+
+    // Use simplified tracking - no more per-episode keys
+    const sessionKey = `ep_session_${tmdbID}_s${season}_e${episode}`;
+    const highestKey = `cw_highest_${tmdbID}_s${season}`;
+    
+    try {
+      const now = Date.now();
+      const progress = Math.min(1, Math.max(0, currentTime / duration));
+      
+      // Get existing progress from the compact playlist system
+      let existingProgress = 0;
+      try {
+        const progressData = this.getEpisodeProgress(tmdbID, season, episode);
+        existingProgress = progressData.progress || 0;
+      } catch {}
+
+      // Get highest episode reached in this season
+      let highestEpisode = 0;
+      try {
+        highestEpisode = Number(localStorage.getItem(highestKey)) || 0;
+      } catch {}
+
+      // Check for potential regression (user going back to earlier episode)
+      if (episode < highestEpisode && progress < 0.9) {
+        // User is watching an earlier episode and hasn't nearly finished it
+        // Check if this is a legitimate regression or accidental
+        
+        let sessionData = null;
+        try {
+          const sessionRaw = localStorage.getItem(sessionKey);
+          if (sessionRaw) {
+            sessionData = JSON.parse(sessionRaw);
+          }
+        } catch {}
+
+        const REGRESSION_GRACE_PERIOD = 10 * 60 * 1000; // 10 minutes
+        const MIN_WATCH_TIME = 2 * 60; // 2 minutes of actual watching (reduced from 5 minutes)
+
+        if (!sessionData) {
+          // First time watching this episode in this session
+          sessionData = {
+            startTime: now,
+            totalWatchTime: 0,
+            lastUpdate: now,
+            initialProgress: existingProgress
+          };
+        }
+
+        // Update session watch time
+        const timeSinceLastUpdate = Math.min(now - sessionData.lastUpdate, 30000); // Cap at 30s
+        sessionData.totalWatchTime += timeSinceLastUpdate / 1000;
+        sessionData.lastUpdate = now;
+
+        // Only allow progress update if:
+        // 1. User has been watching for a reasonable time, OR
+        // 2. New progress is higher than existing, OR
+        // 3. User has explicitly chosen to restart this episode
+        const hasWatchedEnough = sessionData.totalWatchTime >= MIN_WATCH_TIME;
+        const isProgressImprovement = progress > existingProgress;
+        const isWithinGracePeriod = (now - sessionData.startTime) <= REGRESSION_GRACE_PERIOD;
+
+        if (!hasWatchedEnough && !isProgressImprovement && isWithinGracePeriod) {
+          // Don't update progress yet, but save session data
+          localStorage.setItem(sessionKey, JSON.stringify(sessionData));
+          console.log(`[Regression Protection] Blocking progress update for S${season}E${episode} - grace period active`);
+          return false; // Block the save
+        }
+
+        // Update session data
+        localStorage.setItem(sessionKey, JSON.stringify(sessionData));
+        console.log(`[Regression Protection] Allowing progress update for S${season}E${episode} - conditions met`);
+      }
+
+      // Save progress only if it's an improvement or user has committed to watching
+      if (progress > existingProgress || episode >= highestEpisode) {
+        // Progress will be saved by the playlist component's compact system
+        // via the video progress service integration
+        
+        // Update highest episode if this is a new high
+        if (episode > highestEpisode) {
+          localStorage.setItem(highestKey, String(episode));
+        }
+
+        // Clean up session data if episode is completed
+        if (progress >= 0.9) {
+          localStorage.removeItem(sessionKey);
+          
+          // Mark as watched if completed
+          this.markEpisodeAsWatchedInPlaylist(tmdbID, season, episode);
+        }
+      }
+
+      return true; // Allow the save to proceed
+    } catch (error) {
+      console.warn('Failed to save episode progress:', error);
+      return true; // If there's an error, allow save to proceed (fail-safe)
+    }
+  }
+
+  /**
+   * Clean up old session data and expired grace periods
+   * Call this periodically to prevent localStorage bloat
+   */
+  cleanupOldSessionData(): void {
+    if (!this.isEnabled()) return;
+
+    try {
+      const now = Date.now();
+      const MAX_SESSION_AGE = 24 * 60 * 60 * 1000; // 24 hours
+      const keysToRemove: string[] = [];
+
+      // Clean up old session tracking data
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('ep_session_')) {
+          try {
+            const sessionData = JSON.parse(localStorage.getItem(key) || '{}');
+            if (sessionData.lastUpdate && (now - sessionData.lastUpdate) > MAX_SESSION_AGE) {
+              keysToRemove.push(key);
+            }
+          } catch {
+            // Corrupted data, remove it
+            keysToRemove.push(key);
+          }
+        }
+      }
+
+      // Clean up old pending data
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('cw_pending_')) {
+          try {
+            const pendingData = JSON.parse(localStorage.getItem(key) || '{}');
+            if (pendingData.start && (now - pendingData.start) > MAX_SESSION_AGE) {
+              keysToRemove.push(key);
+            }
+          } catch {
+            // Corrupted data, remove it
+            keysToRemove.push(key);
+          }
+        }
+      }
+
+      // Clean up old ep_progress_* keys (migration from old system)
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('ep_progress_')) {
+          keysToRemove.push(key);
+        }
+      }
+
+      // Remove identified keys
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      if (keysToRemove.length > 0) {
+        console.log(`Cleaned up ${keysToRemove.length} old session/progress data entries`);
+      }
+    } catch (error) {
+      console.warn('Failed to cleanup old session data:', error);
+    }
+  }
+
+  /**
+   * Test method to verify regression protection is working
+   * This can be called from browser console for testing
+   */
+  testRegressionProtection(tmdbID: string = 'test-123', season: number = 1) {
+    console.log('🧪 Testing Regression Protection System');
+    
+    // Simulate watching episode 3 to completion
+    console.log('📺 Simulating watching Episode 3 to completion...');
+    this.saveOrAdvance({
+      tmdbID,
+      mediaType: 'tv',
+      season,
+      episode: 3,
+      currentTime: 1800, // 30 minutes
+      duration: 2000, // 33 minutes (90% = 1800s)
+      poster_path: '/test.jpg',
+      name: 'Test Series'
+    });
+    
+    // Try to go back to episode 1 (should be blocked initially)
+    console.log('⏪ Trying to go back to Episode 1 (should be blocked)...');
+    const result1 = this.saveOrAdvance({
+      tmdbID,
+      mediaType: 'tv',
+      season,
+      episode: 1,
+      currentTime: 300, // 5 minutes
+      duration: 2000,
+      poster_path: '/test.jpg',
+      name: 'Test Series'
+    });
+    
+    // Try again after some "watch time" (should still be blocked)
+    setTimeout(() => {
+      console.log('⏪ Trying Episode 1 again after short time (should still be blocked)...');
+      this.saveOrAdvance({
+        tmdbID,
+        mediaType: 'tv',
+        season,
+        episode: 1,
+        currentTime: 600, // 10 minutes
+        duration: 2000,
+        poster_path: '/test.jpg',
+        name: 'Test Series'
+      });
+    }, 1000);
+    
+    console.log('✅ Regression protection test initiated. Check console for protection messages.');
+    console.log('🔍 To check stored data, run: Object.keys(localStorage).filter(k => k.includes("test-123"))');
   }
 }

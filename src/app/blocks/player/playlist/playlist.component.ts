@@ -26,6 +26,24 @@ export interface Episode {
   description?: string;
 }
 
+export interface EpisodeProgress {
+  p: number; // progress (0-1) - shortened from 'progress'
+  c: boolean; // isClicked - shortened from 'isClicked'
+  t: number; // timestamp - shortened from 'lastUpdated'
+}
+
+// Ultra-compact storage format: [season, episode, progress_int, clicked_flag, timestamp_offset]
+// progress_int: progress * 100 (0-100 instead of 0.0-1.0)
+// clicked_flag: 1 for clicked, 0 for not clicked
+// timestamp_offset: (timestamp - baseTime) / 1000 (seconds since base time)
+export type CompactEpisodeData = [number, number, number, number, number];
+
+export interface SeriesProgressData {
+  b?: number; // base timestamp for all episodes
+  d?: CompactEpisodeData[]; // compact data array
+  [key: string]: EpisodeProgress | CompactEpisodeData[] | number | undefined; // legacy support
+}
+
 @Component({
   selector: 'app-playlist',
   standalone: true,
@@ -63,9 +81,11 @@ export class PlaylistComponent
   filteredEpisodes: Episode[] = [];
   // Add expand tracking for poster view descriptions
   expandedDescriptions: Set<number> = new Set();
-  // Add watched episodes tracking
-  private watchedEpisodes: Set<string> = new Set();
-
+  
+  // Self-contained progress tracking
+  private seriesProgressData: CompactEpisodeData[] = [];
+  private baseTimestamp: number = Date.now();
+  
   // Settings for watched episodes feature
   public isWatchedEpisodesEnabled: boolean = true;
 
@@ -96,11 +116,14 @@ export class PlaylistComponent
       // Ignore errors, fallback to default
     }
 
-    // Load watched episodes from localStorage
-    this.loadWatchedEpisodes();
+    // Load clicked episodes from localStorage
+    this.loadSeriesProgress();
 
     // Load watched episodes settings
     this.loadWatchedEpisodesSettings();
+
+    // Start background sync for progress data (non-blocking)
+    this.startProgressSync();
 
     // Listen for settings changes
     window.addEventListener(
@@ -109,6 +132,8 @@ export class PlaylistComponent
     );
 
     this.filteredEpisodes = [...this.currentEpisodes];
+
+    this.continueWatchingService.cleanupOldSessionData();
   }
   ngAfterViewInit() {
     // Use longer delay for initial scroll to ensure all elements are rendered
@@ -130,26 +155,9 @@ export class PlaylistComponent
       changes['activeEpisodeSeason']
     ) {
       // Mark previous episode as watched when active episode changes (e.g., next episode button)
-      if (changes['activeEpisodeIndex'] && this.isWatchedEpisodesEnabled) {
-        const previousIndex = changes['activeEpisodeIndex'].previousValue;
-        const currentIndex = changes['activeEpisodeIndex'].currentValue;
-
-        // If we moved from one episode to another (not initial load), mark previous as watched
-        // Only mark as watched if the previous episode was in the same season as the active episode
-        if (
-          typeof previousIndex === 'number' &&
-          previousIndex >= 0 &&
-          previousIndex !== currentIndex &&
-          previousIndex < this.currentEpisodes.length &&
-          this.activeEpisodeSeason === this.currentSeason
-        ) {
-          this.markEpisodeAsWatched(previousIndex);
-        }
-      }
-
-      // Reload watched episodes when season changes
+      // Reload clicked episodes when season changes
       if (changes['currentSeason'] || changes['seriesId']) {
-        this.loadWatchedEpisodes();
+        this.loadSeriesProgress();
       }
 
       this.filteredEpisodes = [...this.currentEpisodes];
@@ -322,103 +330,261 @@ export class PlaylistComponent
   onFilteredEpisodeSelected(filteredIndex: number) {
     const originalIndex = this.getOriginalIndex(filteredIndex);
 
-    // Mark the currently playing episode as watched when switching to a different episode (only if feature is enabled)
-    // Only mark as watched if the current active episode is in the same season as the current view
-    if (
-      this.isWatchedEpisodesEnabled &&
-      this.activeEpisodeIndex >= 0 &&
-      this.activeEpisodeIndex !== originalIndex &&
-      this.activeEpisodeSeason === this.currentSeason
-    ) {
-      this.markEpisodeAsWatched(this.activeEpisodeIndex);
+    // Mark the previous episode as fully watched if it was being played
+    if (this.isWatchedEpisodesEnabled && this.activeEpisodeIndex >= 0 && 
+        this.activeEpisodeIndex !== originalIndex && 
+        this.activeEpisodeSeason === this.currentSeason) {
+      this.markEpisodeAsFullyWatched(this.activeEpisodeIndex);
     }
+
+    // Mark the newly selected episode as clicked
+    if (this.isWatchedEpisodesEnabled) {
+      this.markEpisodeAsClicked(originalIndex);
+    }
+
     this.onEpisodeSelected(originalIndex, originalIndex);
   }
 
-  // Methods for handling watched episodes
-  private loadWatchedEpisodes() {
-    if (!this.seriesId || !this.isWatchedEpisodesEnabled) return;
+  // Self-contained progress tracking - no external dependencies
+  private loadSeriesProgress() {
+    if (!this.seriesId || !this.isWatchedEpisodesEnabled) {
+      this.seriesProgressData = [];
+      this.baseTimestamp = Date.now();
+      return;
+    }
 
     try {
-      // Load from local storage
-      const watchedKey = `watched_episodes_${this.seriesId}`;
-      const watchedData = localStorage.getItem(watchedKey);
-      if (watchedData) {
-        const watchedArray = JSON.parse(watchedData);
-        this.watchedEpisodes = new Set(watchedArray);
+      const progressKey = `episode_progress_${this.seriesId}`;
+      const progressData = localStorage.getItem(progressKey);
+      
+      if (progressData) {
+        const parsed = JSON.parse(progressData);
+        
+        // Check format and migrate if needed
+        if (Array.isArray(parsed.d) && typeof parsed.b === 'number') {
+          // New compact format
+          this.seriesProgressData = parsed.d;
+          this.baseTimestamp = parsed.b;
+        } else if (Array.isArray(parsed)) {
+          // Already in array format
+          this.seriesProgressData = parsed;
+          this.baseTimestamp = Date.now();
+        } else {
+          // Old object format, migrate to compact array
+          this.seriesProgressData = [];
+          this.baseTimestamp = Date.now();
+          
+          Object.keys(parsed).forEach(key => {
+            const match = key.match(/s(\d+)e(\d+)/);
+            if (match) {
+              const season = parseInt(match[1]);
+              const episode = parseInt(match[2]);
+              const data = parsed[key];
+              
+              if (data && typeof data === 'object') {
+                const progress = Math.round((data.progress || data.p || 0) * 100);
+                const clicked = data.isClicked || data.c || false;
+                const timeOffset = Math.round((Date.now() - this.baseTimestamp) / 1000);
+                
+                this.seriesProgressData.push([season, episode, progress, clicked ? 1 : 0, timeOffset]);
+              }
+            }
+          });
+          
+          this.saveSeriesProgress(); // Save in new format
+        }
       } else {
-        this.watchedEpisodes = new Set();
+        this.seriesProgressData = [];
+        this.baseTimestamp = Date.now();
       }
-
-      // Also sync with continue watching service watched episodes for current season
-      const cwWatchedEpisodes = this.continueWatchingService.getWatchedEpisodes(
-        this.seriesId,
-        this.currentSeason
-      );
-
-      // Add episodes from continue watching service to local watched set
-      cwWatchedEpisodes.forEach((episodeNum) => {
-        const episodeKey = `s${this.currentSeason}e${episodeNum}`;
-        this.watchedEpisodes.add(episodeKey);
-      });
-
-      // Save the merged list back to localStorage
-      this.saveWatchedEpisodes();
     } catch (error) {
-      console.error('Error loading watched episodes:', error);
-      this.watchedEpisodes = new Set();
+      console.error('Error loading series progress:', error);
+      this.seriesProgressData = [];
+      this.baseTimestamp = Date.now();
     }
   }
 
-  private saveWatchedEpisodes() {
+  private saveSeriesProgress() {
     if (!this.seriesId) return;
 
     try {
-      const watchedKey = `watched_episodes_${this.seriesId}`;
-      const watchedArray = Array.from(this.watchedEpisodes);
-      localStorage.setItem(watchedKey, JSON.stringify(watchedArray));
+      const progressKey = `episode_progress_${this.seriesId}`;
+      const compactData = {
+        b: this.baseTimestamp,
+        d: this.seriesProgressData
+      };
+      localStorage.setItem(progressKey, JSON.stringify(compactData));
     } catch (error) {
-      console.error('Error saving watched episodes:', error);
+      console.error('Error saving series progress:', error);
     }
   }
-  private markEpisodeAsWatched(episodeIndex: number) {
+
+  // Helper methods for compact array format
+  private findEpisodeData(season: number, episode: number): CompactEpisodeData | null {
+    return this.seriesProgressData.find(item => item[0] === season && item[1] === episode) || null;
+  }
+
+  private updateEpisodeData(season: number, episode: number, progress: number, clicked: boolean): void {
+    const existingIndex = this.seriesProgressData.findIndex(item => item[0] === season && item[1] === episode);
+    const progressInt = Math.round(progress * 100);
+    const timeOffset = Math.round((Date.now() - this.baseTimestamp) / 1000);
+    const newData: CompactEpisodeData = [season, episode, progressInt, clicked ? 1 : 0, timeOffset];
+    
+    if (existingIndex >= 0) {
+      this.seriesProgressData[existingIndex] = newData;
+    } else {
+      this.seriesProgressData.push(newData);
+    }
+  }
+
+  private removeEpisodeData(season: number, episode: number): void {
+    const index = this.seriesProgressData.findIndex(item => item[0] === season && item[1] === episode);
+    if (index >= 0) {
+      this.seriesProgressData.splice(index, 1);
+    }
+  }
+
+  private markEpisodeAsClicked(episodeIndex: number) {
     if (!this.isWatchedEpisodesEnabled) return;
 
     const episode = this.currentEpisodes[episodeIndex];
     if (!episode) return;
 
-    // Use the current season for the episode being marked as watched
-    // currentEpisodes belong to currentSeason
-    const episodeKey = `s${this.currentSeason}e${episode.number}`;
-    this.watchedEpisodes.add(episodeKey);
-    this.saveWatchedEpisodes();
+    const existingData = this.findEpisodeData(this.currentSeason, episode.number);
+    const currentProgress = existingData ? existingData[2] / 100 : 0;
+    
+    this.updateEpisodeData(this.currentSeason, episode.number, currentProgress, true);
+    this.saveSeriesProgress();
   }
 
-  isEpisodeWatched(episodeIndex: number): boolean {
+  private markEpisodeAsFullyWatched(episodeIndex: number) {
+    if (!this.isWatchedEpisodesEnabled) return;
+
+    const episode = this.currentEpisodes[episodeIndex];
+    if (!episode) return;
+
+    this.updateEpisodeData(this.currentSeason, episode.number, 1.0, true);
+    this.saveSeriesProgress();
+    
+    // Trigger immediate UI update
+    this.cdr.detectChanges();
+  }
+
+  private updateEpisodeProgress(season: number, episodeNumber: number, progress: number) {
+    if (!this.isWatchedEpisodesEnabled) return;
+
+    // Only update progress if episode was clicked or is currently active
+    const isCurrentEpisode = season === this.activeEpisodeSeason && 
+                           this.currentEpisodes[this.activeEpisodeIndex]?.number === episodeNumber;
+    
+    const existingData = this.findEpisodeData(season, episodeNumber);
+    const isClicked = existingData ? existingData[3] === 1 : false;
+    
+    if (!isClicked && !isCurrentEpisode) {
+      return; // Don't track progress for non-clicked episodes
+    }
+
+    // Update progress, keeping clicked state
+    this.updateEpisodeData(season, episodeNumber, progress, isClicked || isCurrentEpisode);
+    this.saveSeriesProgress();
+  }
+
+  private getEpisodeProgressData(season: number, episodeNumber: number): EpisodeProgress | null {
+    const data = this.findEpisodeData(season, episodeNumber);
+    if (!data) return null;
+    
+    return {
+      p: data[2] / 100, // Convert back to 0-1 range
+      c: data[3] === 1,
+      t: this.baseTimestamp + (data[4] * 1000) // Convert back to timestamp
+    };
+  }
+
+  private isEpisodeClicked(episodeIndex: number): boolean {
     if (!this.isWatchedEpisodesEnabled) return false;
 
     const episode = this.currentEpisodes[episodeIndex];
-    if (!episode || !this.seriesId) return false;
+    if (!episode) return false;
 
-    // First check the local watched episodes storage
-    const episodeKey = `s${this.currentSeason}e${episode.number}`;
-    if (this.watchedEpisodes.has(episodeKey)) {
-      return true;
+    const progressData = this.getEpisodeProgressData(this.currentSeason, episode.number);
+    return progressData?.c || false;
+  }
+
+  private removeEpisodeProgress(episodeIndex: number) {
+    if (!this.isWatchedEpisodesEnabled) return;
+
+    const episode = this.currentEpisodes[episodeIndex];
+    if (!episode) return;
+
+    this.removeEpisodeData(this.currentSeason, episode.number);
+    this.saveSeriesProgress();
+  }
+
+  // Background sync for progress data - runs asynchronously to not block UI
+  private progressSyncInterval: any;
+
+  private startProgressSync() {
+    // Clear any existing interval
+    if (this.progressSyncInterval) {
+      clearInterval(this.progressSyncInterval);
     }
 
-    // Also check the continue watching service for watched status
-    return this.continueWatchingService.isEpisodeWatched(
-      this.seriesId,
-      this.currentSeason,
-      episode.number
-    );
+    // Sync progress every 30 seconds in the background
+    this.progressSyncInterval = setInterval(() => {
+      this.syncProgressInBackground();
+    }, 30000);
+
+    // Also sync immediately but asynchronously
+    setTimeout(() => this.syncProgressInBackground(), 1000);
+  }
+
+  private syncProgressInBackground() {
+    if (!this.seriesId || !this.isWatchedEpisodesEnabled) return;
+
+    // Only sync progress for episodes that have been clicked
+    this.seriesProgressData.forEach(episodeData => {
+      if (episodeData[3] === 0) return; // Not clicked
+      
+      const season = episodeData[0];
+      const episodeNumber = episodeData[1];
+      const currentProgress = episodeData[2] / 100;
+
+      // Get latest progress from continue watching service
+      try {
+        const liveProgress = this.continueWatchingService.getEpisodeProgress(
+          this.seriesId,
+          season,
+          episodeNumber
+        );
+        
+        if (liveProgress.progress > currentProgress) {
+          // Update our local data with newer progress
+          this.updateEpisodeProgress(season, episodeNumber, liveProgress.progress);
+        }
+      } catch (error) {
+        // Silently ignore sync errors to not affect UI
+      }
+    });
+  }
+
+  // Public method for external services to update progress immediately
+  public updateEpisodeProgressImmediate(season: number, episodeNumber: number, progress: number): void {
+    this.updateEpisodeProgress(season, episodeNumber, progress);
+    this.cdr.detectChanges(); // Trigger immediate UI update
+  }
+
+  // Public method to mark current active episode as clicked when playback starts
+  public markActiveEpisodeAsClicked(): void {
+    if (this.activeEpisodeIndex >= 0 && this.activeEpisodeIndex < this.currentEpisodes.length) {
+      this.markEpisodeAsClicked(this.activeEpisodeIndex);
+    }
   }
 
   isEpisodeWatchedByFilteredIndex(filteredIndex: number): boolean {
     if (!this.isWatchedEpisodesEnabled) return false;
 
     const originalIndex = this.getOriginalIndex(filteredIndex);
-    return this.isEpisodeWatched(originalIndex);
+    return this.isEpisodeClicked(originalIndex);
   }
 
   // Handle clicking on watched indicator (for removing watched status)
@@ -441,15 +607,7 @@ export class PlaylistComponent
   }
 
   private removeEpisodeFromWatched(episodeIndex: number) {
-    if (!this.isWatchedEpisodesEnabled) return;
-
-    const episode = this.currentEpisodes[episodeIndex];
-    if (!episode) return;
-
-    // Use the current season since currentEpisodes belong to currentSeason
-    const episodeKey = `s${this.currentSeason}e${episode.number}`;
-    this.watchedEpisodes.delete(episodeKey);
-    this.saveWatchedEpisodes();
+    this.removeEpisodeProgress(episodeIndex);
   }
 
   // Settings management methods
@@ -481,9 +639,9 @@ export class PlaylistComponent
     }
   }
 
-  // Public method to refresh watched episodes (called externally when continue watching changes)
+  // Public method to refresh clicked episodes (called externally when continue watching changes)
   public refreshWatchedEpisodes(): void {
-    this.loadWatchedEpisodes();
+    this.loadSeriesProgress();
     this.cdr.detectChanges();
   }
 
@@ -493,7 +651,7 @@ export class PlaylistComponent
     this.saveWatchedEpisodesSettings();
   }
 
-  // Public method to mark current episode as watched (called from external components like next episode button)
+  // Public method to mark current episode as clicked (called from external components like next episode button)
   public markCurrentEpisodeAsWatched() {
     if (!this.isWatchedEpisodesEnabled) return;
 
@@ -501,7 +659,7 @@ export class PlaylistComponent
       this.activeEpisodeIndex >= 0 &&
       this.activeEpisodeIndex < this.currentEpisodes.length
     ) {
-      this.markEpisodeAsWatched(this.activeEpisodeIndex);
+      this.markEpisodeAsFullyWatched(this.activeEpisodeIndex);
     }
   }
 
@@ -509,9 +667,16 @@ export class PlaylistComponent
     if (!this.seriesId) return;
 
     try {
+      // Clear the progress data
+      this.seriesProgressData = [];
+      this.saveSeriesProgress();
+      
+      // Also clear old storage formats for backward compatibility
+      const clickedKey = `clicked_episodes_${this.seriesId}`;
+      localStorage.removeItem(clickedKey);
       const watchedKey = `watched_episodes_${this.seriesId}`;
       localStorage.removeItem(watchedKey);
-      this.watchedEpisodes.clear();
+      
     } catch (error) {
       console.error('Error clearing watched episodes:', error);
     }
@@ -529,8 +694,9 @@ export class PlaylistComponent
         }
       });
 
-      // Clear current series watched episodes
-      this.watchedEpisodes.clear();
+      // Clear current series progress data
+      this.seriesProgressData = [];
+      this.saveSeriesProgress();
     } catch (error) {
       console.error('Error clearing all watched episodes:', error);
     }
@@ -671,9 +837,9 @@ export class PlaylistComponent
     const settings = event.detail;
     if (typeof settings.enableWatchedEpisodes === 'boolean') {
       this.isWatchedEpisodesEnabled = settings.enableWatchedEpisodes;
-      // Reload watched episodes if the feature was re-enabled
+      // Reload clicked episodes if the feature was re-enabled
       if (this.isWatchedEpisodesEnabled) {
-        this.loadWatchedEpisodes();
+        this.loadSeriesProgress();
       }
     }
   }
@@ -759,6 +925,7 @@ export class PlaylistComponent
 
   /**
    * Get the watch progress for a specific episode by filtered index
+   * Instant response with no external dependencies to eliminate delays
    * @param filteredIndex The index in the filtered episodes array
    * @returns Object with progress ratio (0-1) and isWatched flag
    */
@@ -767,21 +934,37 @@ export class PlaylistComponent
     isWatched: boolean;
   } {
     const episode = this.filteredEpisodes[filteredIndex];
-    if (!episode || !this.seriesId) {
+    if (!episode || !this.seriesId || !this.isWatchedEpisodesEnabled) {
       return { progress: 0, isWatched: false };
     }
 
-    const progressData = this.continueWatchingService.getEpisodeProgress(
-      this.seriesId,
-      this.currentSeason,
-      episode.number
-    );
+    const isClicked = this.isEpisodeWatchedByFilteredIndex(filteredIndex);
+    const isActive = this.isEpisodeActiveByFilteredIndex(filteredIndex);
 
-    const isWatched = this.isEpisodeWatchedByFilteredIndex(filteredIndex);
+    // Show progress indicator only if episode has been clicked OR is currently active
+    if (!isClicked && !isActive) {
+      return { progress: 0, isWatched: false };
+    }
+
+    // Get progress from our local storage - instant response
+    const progressData = this.getEpisodeProgressData(this.currentSeason, episode.number);
+    
+    // Use stored progress immediately, no external calls
+    let currentProgress = progressData?.p || 0;
+
+    // For active episode with no stored progress, start with minimal progress to show the indicator
+    if (isActive && currentProgress === 0) {
+      currentProgress = 0.01; // Minimal progress to show the circle
+    }
+
+    // Only show progress if there's actual progress > 0
+    if (currentProgress <= 0) {
+      return { progress: 0, isWatched: false };
+    }
 
     return {
-      progress: progressData.progress,
-      isWatched: isWatched
+      progress: currentProgress,
+      isWatched: isClicked
     };
   }
 
@@ -793,17 +976,81 @@ export class PlaylistComponent
     const episode = this.filteredEpisodes[filteredIndex];
     if (!episode || !this.seriesId) return;
 
-    // Remove episode progress
+    const originalIndex = this.getOriginalIndex(filteredIndex);
+    const isCurrentEpisode = this.isEpisodeActiveByFilteredIndex(filteredIndex);
+    
+    // Don't allow deletion of currently playing episode's progress
+    if (isCurrentEpisode) return;
+
+    // Remove episode progress from local storage
+    this.removeEpisodeData(this.currentSeason, episode.number);
+    this.saveSeriesProgress();
+
+    // Also remove from continue watching service
     this.continueWatchingService.removeEpisodeProgress(
       this.seriesId,
       this.currentSeason,
       episode.number
     );
-
-    // Reload watched episodes to update UI
-    this.loadWatchedEpisodes();
     
-    // Trigger change detection
+    // Trigger change detection to update UI immediately
     this.cdr.detectChanges();
+  }
+
+  /**
+   * Clean up old localStorage format and optimize storage
+   * This method can be called periodically to maintain clean storage
+   */
+  public optimizeLocalStorage(): { before: number; after: number; saved: string; episodes: number } {
+    const before = this.getLocalStorageSize();
+    
+    // Clean up old format keys for all series
+    const keys = Object.keys(localStorage);
+    let episodesCleaned = 0;
+    
+    keys.forEach((key) => {
+      if (key.startsWith('clicked_episodes_') || key.startsWith('watched_episodes_') || 
+          (key.startsWith('episode_progress_') && !key.includes('_compact'))) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed.d)) {
+              episodesCleaned += Object.keys(parsed).length;
+            }
+          } catch (e) {
+            // Invalid data, remove it
+          }
+        }
+        localStorage.removeItem(key);
+      }
+    });
+    
+    // Re-save current data in optimized format
+    this.saveSeriesProgress();
+    
+    const after = this.getLocalStorageSize();
+    const savedBytes = before - after;
+    const savedKB = (savedBytes / 1024).toFixed(2);
+    
+    return {
+      before,
+      after,
+      saved: `${savedKB} KB`,
+      episodes: episodesCleaned
+    };
+  }
+
+  /**
+   * Get approximate size of localStorage in bytes
+   */
+  private getLocalStorageSize(): number {
+    let total = 0;
+    for (let key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        total += localStorage[key].length + key.length;
+      }
+    }
+    return total;
   }
 }

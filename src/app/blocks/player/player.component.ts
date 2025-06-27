@@ -278,6 +278,14 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     });
     window.addEventListener('beforeunload', this.saveProgress);
     this.progressInterval = setInterval(() => this.saveProgress(), 5000);
+    
+    // Mark the current episode as clicked immediately when playback starts
+    setTimeout(() => {
+      if (this.playlistComponent && this.mediaType === 'tv' && 
+          typeof this.playlistComponent.markActiveEpisodeAsClicked === 'function') {
+        this.playlistComponent.markActiveEpisodeAsClicked();
+      }
+    }, 100);
   }
   ngAfterViewInit() {
     // Match playlist height to iframe after view initialization
@@ -286,6 +294,19 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     // Also try again after a longer delay in case content is still loading
     setTimeout(() => this.matchPlaylistHeight(), 500);
     setTimeout(() => this.matchPlaylistHeight(), 1000);
+
+    // Optimize localStorage periodically (once per session)
+    if (this.playlistComponent && !sessionStorage.getItem('storageOptimized')) {
+      try {
+        const result = this.playlistComponent.optimizeLocalStorage();
+        if (result.saved !== '0.00 KB' || result.episodes > 0) {
+          console.log(`📦 Storage optimized: Saved ${result.saved} of space by cleaning up ${result.episodes} old episode entries`);
+        }
+        sessionStorage.setItem('storageOptimized', 'true');
+      } catch (error) {
+        console.warn('Storage optimization failed:', error);
+      }
+    }
   }
   ngOnDestroy() {
     this.saveProgress();
@@ -434,6 +455,19 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       totalEpisodesInSeason = this.currentEpisodes.length;
     }
 
+    // Calculate progress for immediate playlist update
+    const progress = duration > 0 ? currentTime / duration : 0;
+
+    // Immediately update playlist component with current progress (no delay)
+    if (this.playlistComponent && this.mediaType === 'tv' && 
+        typeof this.playlistComponent.updateEpisodeProgressImmediate === 'function') {
+      this.playlistComponent.updateEpisodeProgressImmediate(
+        this.playingSeason, 
+        this.playingEpisode, 
+        progress
+      );
+    }
+
     // Save progress to continue watching service
     this.continueWatchingService.saveOrAdvance(
       {
@@ -453,6 +487,16 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // After saving, check if we need to update our UI to the next episode
     if (this.episodeFinished && this.mediaType === 'tv') {
+      // Mark the current episode as fully watched immediately before advancing
+      if (this.playlistComponent && 
+          typeof this.playlistComponent.updateEpisodeProgressImmediate === 'function') {
+        this.playlistComponent.updateEpisodeProgressImmediate(
+          this.playingSeason, 
+          this.playingEpisode, 
+          1.0 // 100% watched
+        );
+      }
+
       // Process completed episodes to advance them
       this.continueWatchingService.processCompletedEpisodes();
 
@@ -488,7 +532,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     }
 
-    // Refresh playlist watched episodes after saving progress
+    // Refresh playlist watched episodes after saving progress (fallback for background sync)
     if (this.playlistComponent) {
       this.playlistComponent.refreshWatchedEpisodes();
     }
@@ -656,6 +700,14 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.episodeFinished = false;
     if (!this.progressInterval) {
       this.progressInterval = setInterval(() => this.saveProgress(), 5000);
+      
+      // Mark the current episode as clicked immediately when episode changes
+      setTimeout(() => {
+        if (this.playlistComponent && this.mediaType === 'tv' && 
+            typeof this.playlistComponent.markActiveEpisodeAsClicked === 'function') {
+          this.playlistComponent.markActiveEpisodeAsClicked();
+        }
+      }, 100);
     }
     this.updateUrl();
     this.reloadIframe();
@@ -1026,6 +1078,14 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.episodeFinished = false;
     if (!this.progressInterval) {
       this.progressInterval = setInterval(() => this.saveProgress(), 5000);
+      
+      // Mark the current episode as clicked immediately when video state resets
+      setTimeout(() => {
+        if (this.playlistComponent && this.mediaType === 'tv' && 
+            typeof this.playlistComponent.markActiveEpisodeAsClicked === 'function') {
+          this.playlistComponent.markActiveEpisodeAsClicked();
+        }
+      }, 100);
     }
   }
   updateUrl(): void {
