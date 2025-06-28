@@ -39,7 +39,7 @@
                 >
                   <a
                     routerLink="{{ item.route }}"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
                     (click)="handleClick($event)"
                     [ngClass]="{
                       'text-blue-600 dark:text-white': isActive(item.route),
