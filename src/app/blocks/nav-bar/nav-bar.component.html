@@ -39,7 +39,7 @@
                 >
                   <a
                     routerLink="{{ item.route }}"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-zinc-900/30 transition-colors duration-300"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
                     (click)="handleClick($event)"
                     [ngClass]="{
                       'text-blue-600 dark:text-white': isActive(item.route),
@@ -48,7 +48,7 @@
                   >
                     <app-icon-lib
                       ico="{{ item.svg }}"
-                      class="w-5 h-5"
+                      class="w-5 h-5 transition-colors duration-200"
                       [class.text-blue-600]="isActive(item.route)"
                       [class.text-gray-700]="!isActive(item.route)"
                       [class.dark:text-white]="isActive(item.route)"
@@ -69,7 +69,7 @@
                 <!-- Mobile Menu Button (left) -->
                 <button
                   type="button"
-                  class="mr-2 flex lg:hidden items-center justify-center p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 focus:outline-none"
+                  class="mr-2 flex lg:hidden items-center justify-center p-2 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-400 rounded-lg outline-none"
                   (click)="toggleMenu($event)"
                   aria-label="Toggle menu"
                 >
@@ -107,7 +107,7 @@
                     *ngIf="query.length > 0"
                     type="button"
                     (click)="clearSearch(); focusSearchInput()"
-                    class="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-zinc-800 active:bg-gray-200 dark:active:bg-gray-700 transition-colors duration-150 group/clear"
+                    class="p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-800 transition-colors duration-150 group/clear focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
                     aria-label="Clear search"
                   >
                     <app-icon-lib
@@ -120,7 +120,7 @@
                   <button
                     type="button"
                     (click)="searchMovies()"
-                    class="p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-800 transition-colors duration-150 group/search"
+                    class="p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-800 transition-colors duration-150 group/search focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
                     aria-label="Search"
                   >
                     <app-icon-lib
@@ -135,7 +135,7 @@
             <div class="flex items-center gap-2 sm:gap-3">
               <!-- Sources Button -->
               <button
-                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-zinc-800 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-400 active:scale-95 transition-all duration-200"
+                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-zinc-800 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700 hover:bg-blue-50 dark:hover:bg-blue-900 active:scale-95 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
                 routerLink="/table"
                 aria-label="Sources"
                 [ngClass]="{
@@ -150,14 +150,12 @@
                   class="w-4 h-4 sm:w-5 sm:h-5 lg:w-4 lg:h-4 transition-colors duration-200"
                   [class.text-blue-600]="isActive('/table')"
                   [class.text-gray-600]="!isActive('/table')"
-                  [class.group-hover:text-blue-500]="!isActive('/table')"
                   [class.dark:text-white]="isActive('/table')"
                   [class.dark:text-gray-200]="!isActive('/table')"
-                  [class.dark:group-hover:text-blue-300]="!isActive('/table')"
                 ></app-icon-lib>
                 <!-- Badge -->
                 <span
-                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-blue-500 dark:bg-blue-400 text-xs text-white dark:text-white font-medium flex items-center justify-center rounded-full border-2 border-white dark:border-zinc-900"
+                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-blue-500 dark:bg-blue-900 text-xs text-white dark:text-white font-medium flex items-center justify-center rounded-full border-2 border-white dark:border-blue-700"
                 >
                   {{ sources.length }}
                 </span>
@@ -165,7 +163,7 @@
 
               <!-- Settings Button -->
               <button
-                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-zinc-800 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-400 active:scale-95 transition-all duration-200"
+                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-zinc-800 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700 hover:bg-blue-50 dark:hover:bg-blue-900 active:scale-95 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
                 routerLink="/settings"
                 aria-label="Settings"
                 [ngClass]="{
@@ -180,12 +178,8 @@
                   class="w-4 h-4 sm:w-5 sm:h-5 lg:w-4 lg:h-4 transition-all duration-200 group-hover:rotate-90 group-active:rotate-180"
                   [class.text-blue-600]="isActive('/settings')"
                   [class.text-gray-600]="!isActive('/settings')"
-                  [class.group-hover:text-blue-500]="!isActive('/settings')"
                   [class.dark:text-white]="isActive('/settings')"
                   [class.dark:text-gray-200]="!isActive('/settings')"
-                  [class.dark:group-hover:text-blue-300]="
-                    !isActive('/settings')
-                  "
                 ></app-icon-lib>
               </button>
             </div>
