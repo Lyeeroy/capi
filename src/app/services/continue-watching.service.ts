@@ -16,9 +16,16 @@ export interface ContinueWatchingEntry {
 export class ContinueWatchingService {
   private readonly key = 'continueWatching';
   private readonly maxEntries = 30;
+  private memoryCache: ContinueWatchingEntry[] | null = null;
+  private cacheTimestamp = 0;
+  private readonly CACHE_TTL = 10000; // 10 seconds
+  private readonly PROGRESS_THRESHOLD = 0.9;
+  private readonly TV_MIN_DURATION = 900;
+  private readonly MOVIE_MIN_DURATION = 4200;
+
+  private sessionCache: { [key: string]: any } = {};
 
   constructor() {
-    // Run cleanup on service initialization
     this.cleanupOldSessionData();
   }
 
@@ -33,35 +40,71 @@ export class ContinueWatchingService {
     return true;
   }
 
+  /**
+   * Get the continue watching list, using in-memory cache for speed.
+   */
   getList(): ContinueWatchingEntry[] {
     if (!this.isEnabled()) return [];
+    const now = Date.now();
+    if (this.memoryCache && now - this.cacheTimestamp < this.CACHE_TTL) {
+      return this.memoryCache;
+    }
     try {
       const raw = localStorage.getItem(this.key);
-      if (!raw) return [];
+      if (!raw) {
+        this.memoryCache = [];
+        this.cacheTimestamp = now;
+        return [];
+      }
       let parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) throw new Error('Corrupted');
-
-      // Only filter out completed movies, don't auto-advance TV episodes here
-      // Auto-advancement should only happen during explicit progress saving
       parsed = parsed.filter((entry: ContinueWatchingEntry) => {
         if (!entry.duration) return true;
         if (entry.currentTime >= entry.duration) {
-          // For movies, remove from list when completed
           if (entry.mediaType === 'movie') {
             return false;
           }
-          // For TV shows, keep the entry but don't auto-advance here
-          // Auto-advancement will happen in saveOrAdvance method
           return true;
         }
         return true;
       });
+      this.memoryCache = parsed;
+      this.cacheTimestamp = now;
       return parsed;
-    } catch {
+    } catch (e) {
+      console.warn(
+        'ContinueWatchingService: Corrupted localStorage, resetting.',
+        e
+      );
       localStorage.removeItem(this.key);
+      this.memoryCache = [];
+      this.cacheTimestamp = now;
       return [];
     }
   }
+
+  /**
+   * Save the continue watching list to localStorage and update cache.
+   */
+  private saveList(list: ContinueWatchingEntry[]): void {
+    this.memoryCache = list;
+    this.cacheTimestamp = Date.now();
+    localStorage.setItem(this.key, JSON.stringify(list));
+  }
+
+  /**
+   * Remove all entries for a given tmdbID and mediaType.
+   */
+  private filterOutEntry(
+    list: ContinueWatchingEntry[],
+    tmdbID: string,
+    mediaType: string
+  ): ContinueWatchingEntry[] {
+    return list.filter(
+      (e) => !(e.tmdbID === tmdbID && e.mediaType === mediaType)
+    );
+  }
+
   /**
    * Save or update the continue watching entry.
    * For TV: If finished, advance to next episode.
@@ -75,117 +118,106 @@ export class ContinueWatchingService {
     totalSeasons?: number
   ) {
     if (!this.isEnabled()) return;
+    // Clean up old episode data for previous episodes in this season
+    if (entry.mediaType === 'tv' && entry.episode && entry.season) {
+      this.cleanupOldEpisodeData(entry.tmdbID, entry.season, entry.episode);
+    }
     let list = this.getList();
-
-    // Store the original episode number before any potential changes
-    const originalEpisode = entry.episode;
-
-    // Remove all entries for this series/movie (not just episode)
-    list = list.filter(
-      (e) => !(e.tmdbID === entry.tmdbID && e.mediaType === entry.mediaType)
-    );
-
-    // --- Enhanced foolproof logic for TV shows ---
-    if (entry.mediaType === 'tv' && entry.episode && entry.season && entry.duration > 30) {
-      // Use the enhanced fool-proof tracking
+    list = this.filterOutEntry(list, entry.tmdbID, entry.mediaType);
+    if (
+      entry.mediaType === 'tv' &&
+      entry.episode &&
+      entry.season &&
+      entry.duration > 30
+    ) {
       const shouldProceed = this.saveEpisodeProgressFoolproofAndCheck(
-        entry.tmdbID, 
-        entry.season, 
-        entry.episode, 
-        entry.currentTime, 
+        entry.tmdbID,
+        entry.season,
+        entry.episode,
+        entry.currentTime,
         entry.duration
       );
-      
-      // If fool-proof tracking says don't proceed (regression protection), return early
       if (!shouldProceed) {
-        console.log(`[Continue Watching] Blocked progress save for ${entry.tmdbID} S${entry.season}E${entry.episode} due to regression protection`);
+        console.log(
+          `[Continue Watching] Blocked progress save for ${entry.tmdbID} S${entry.season}E${entry.episode} due to regression protection`
+        );
         return;
       }
     }
-    // --- End enhanced foolproof logic ---
-
     const shouldRemoveNow = this.shouldRemove(entry);
     if (shouldRemoveNow) {
-      // Mark the completed episode as watched in playlist system
       if (entry.mediaType === 'tv' && entry.episode && entry.season) {
         this.markEpisodeAsWatchedInPlaylist(
           entry.tmdbID,
           entry.season,
           entry.episode
         );
+        // Remove session/progress data for this episode
+        const sessionKey = `ep_session_${entry.tmdbID}_s${entry.season}_e${entry.episode}`;
+        const progressKey = `ep_progress_${entry.tmdbID}_s${entry.season}_e${entry.episode}`;
+        this.removeSessionData(sessionKey);
+        localStorage.removeItem(progressKey);
       }
-
       if (entry.mediaType === 'tv' && entry.episode && totalEpisodesInSeason) {
         if (entry.episode < totalEpisodesInSeason) {
-          // Advance to next episode in same season, keep in continue watching
           const nextEntry: ContinueWatchingEntry = {
             ...entry,
             episode: entry.episode + 1,
             currentTime: 0,
-            // duration will be updated by the player on next watch
           };
           list.unshift(nextEntry);
-        } else {
-          // Last episode of season - check if there's a next season
-          if (totalSeasons && entry.season && entry.season < totalSeasons) {
-            // Advance to next season's first episode
-            const nextSeasonEntry: ContinueWatchingEntry = {
-              ...entry,
-              season: entry.season + 1,
-              episode: 1,
-              currentTime: 0,
-              // duration will be updated by the player on next watch
-            };
-            list.unshift(nextSeasonEntry);
-          }
-          // If no next season or season info not available, remove from continue watching
+        } else if (
+          totalSeasons &&
+          entry.season &&
+          entry.season < totalSeasons
+        ) {
+          const nextSeasonEntry: ContinueWatchingEntry = {
+            ...entry,
+            season: entry.season + 1,
+            episode: 1,
+            currentTime: 0,
+          };
+          list.unshift(nextSeasonEntry);
         }
       }
-      // If last episode or movie finished, do not add anything (removes from continue watching)
     } else {
-      // Not finished, just update/add entry
       list.unshift(entry);
     }
-    // Limit size
     if (list.length > this.maxEntries) list = list.slice(0, this.maxEntries);
-    localStorage.setItem(this.key, JSON.stringify(list));
+    this.saveList(list);
   }
 
   shouldRemove(entry: ContinueWatchingEntry): boolean {
-    // Use 900s for TV, 4200s for movies
-    const minDuration = entry.mediaType === 'tv' ? 900 : 4200;
+    const minDuration =
+      entry.mediaType === 'tv' ? this.TV_MIN_DURATION : this.MOVIE_MIN_DURATION;
     if (!entry.duration || entry.duration < minDuration) return false;
-    // Only check if currentTime >= duration (hardcoded time)
     return entry.currentTime >= entry.duration;
   }
 
   removeEntry(index: number) {
     if (!this.isEnabled()) return;
-    const list = this.getList();
-    // Removed playlist_last_played_{tmdbID} cleanup (obsolete)
+    let list = this.getList();
     list.splice(index, 1);
-    localStorage.setItem(this.key, JSON.stringify(list));
+    this.saveList(list);
   }
 
   remove(tmdbID: string, mediaType: string) {
     if (!this.isEnabled()) return;
-    // Remove from continue watching list
     let list = this.getList();
-    list = list.filter(
-      (e) => !(e.tmdbID === tmdbID && e.mediaType === mediaType)
-    );
-    localStorage.setItem(this.key, JSON.stringify(list));
-    // Removed playlist_last_played_{tmdbID} cleanup (obsolete)
+    list = this.filterOutEntry(list, tmdbID, mediaType);
+    this.saveList(list);
   }
 
   clearAll() {
     if (!this.isEnabled()) return;
+    this.memoryCache = [];
+    this.cacheTimestamp = Date.now();
     localStorage.removeItem(this.key);
   }
 
   overwriteList(newList: ContinueWatchingEntry[]) {
     if (!this.isEnabled()) return;
-    localStorage.setItem(this.key, JSON.stringify(newList));
+    this.saveList(newList);
   }
 
   /**
@@ -231,7 +263,11 @@ export class ContinueWatchingService {
    * @param season The season number
    * @param episode The episode number
    */
-  private unmarkEpisodeAsWatched(tmdbID: string, season: number, episode: number): void {
+  private unmarkEpisodeAsWatched(
+    tmdbID: string,
+    season: number,
+    episode: number
+  ): void {
     try {
       const watchedKey = `watched_episodes_${tmdbID}`;
       const episodeKey = `s${season}e${episode}`;
@@ -241,9 +277,12 @@ export class ContinueWatchingService {
         const watchedArray = JSON.parse(watchedData);
         const watchedSet = new Set(watchedArray);
         watchedSet.delete(episodeKey);
-        
+
         if (watchedSet.size > 0) {
-          localStorage.setItem(watchedKey, JSON.stringify(Array.from(watchedSet)));
+          localStorage.setItem(
+            watchedKey,
+            JSON.stringify(Array.from(watchedSet))
+          );
         } else {
           localStorage.removeItem(watchedKey);
         }
@@ -291,7 +330,7 @@ export class ContinueWatchingService {
       if (
         entry &&
         entry.duration > 0 &&
-        entry.currentTime >= entry.duration * 0.9
+        entry.currentTime >= entry.duration * this.PROGRESS_THRESHOLD
       ) {
         return true;
       }
@@ -352,7 +391,7 @@ export class ContinueWatchingService {
           entry.season === season &&
           typeof entry.episode === 'number' &&
           entry.duration > 0 &&
-          entry.currentTime >= entry.duration * 0.9 &&
+          entry.currentTime >= entry.duration * this.PROGRESS_THRESHOLD &&
           !watchedEpisodes.includes(entry.episode)
         ) {
           watchedEpisodes.push(entry.episode);
@@ -390,7 +429,7 @@ export class ContinueWatchingService {
         entry.season === season &&
         entry.episode === episode &&
         entry.duration > 0 &&
-        entry.currentTime >= entry.duration * 0.9
+        entry.currentTime >= entry.duration * this.PROGRESS_THRESHOLD
     );
 
     if (hasCompletedEntry) {
@@ -446,7 +485,7 @@ export class ContinueWatchingService {
         }
       });
     } catch (error) {
-      console.error('Error during cleanup and synchronization:', error);
+      console.error('Error during cleanup and synchronization:', error as any);
     }
   }
 
@@ -517,7 +556,11 @@ export class ContinueWatchingService {
    * @param episode The episode number
    * @returns Object with currentTime, duration, and progress ratio (0-1)
    */
-  getEpisodeProgress(tmdbID: string, season: number, episode: number): {
+  getEpisodeProgress(
+    tmdbID: string,
+    season: number,
+    episode: number
+  ): {
     currentTime: number;
     duration: number;
     progress: number;
@@ -538,11 +581,14 @@ export class ContinueWatchingService {
       );
 
       if (entry && entry.duration > 0) {
-        const progress = Math.min(1, Math.max(0, entry.currentTime / entry.duration));
+        const progress = Math.min(
+          1,
+          Math.max(0, entry.currentTime / entry.duration)
+        );
         return {
           currentTime: entry.currentTime,
           duration: entry.duration,
-          progress: progress
+          progress: progress,
         };
       }
 
@@ -552,7 +598,7 @@ export class ContinueWatchingService {
         return {
           currentTime: 0, // We don't store the exact time for completed episodes
           duration: 0,
-          progress: 1
+          progress: 1,
         };
       }
 
@@ -576,12 +622,13 @@ export class ContinueWatchingService {
       // Remove from continue watching list
       let cwList = this.getList();
       cwList = cwList.filter(
-        (e) => !(
-          e.tmdbID === tmdbID &&
-          e.mediaType === 'tv' &&
-          e.season === season &&
-          e.episode === episode
-        )
+        (e) =>
+          !(
+            e.tmdbID === tmdbID &&
+            e.mediaType === 'tv' &&
+            e.season === season &&
+            e.episode === episode
+          )
       );
       localStorage.setItem(this.key, JSON.stringify(cwList));
 
@@ -591,7 +638,7 @@ export class ContinueWatchingService {
 
       // Remove session tracking
       const sessionKey = `ep_session_${tmdbID}_s${season}_e${episode}`;
-      localStorage.removeItem(sessionKey);
+      this.removeSessionData(sessionKey);
 
       // Remove from watched episodes
       this.unmarkEpisodeAsWatched(tmdbID, season, episode);
@@ -615,7 +662,6 @@ export class ContinueWatchingService {
           }
         }
       } catch {}
-
     } catch (error) {
       console.warn('Failed to remove episode progress:', error);
     }
@@ -643,8 +689,10 @@ export class ContinueWatchingService {
       this.removeAllHighestWatched(tmdbID);
       // Remove pending keys
       const keys = Object.keys(localStorage);
-      const pendingKeys = keys.filter(key => key.startsWith(`cw_pending_${tmdbID}_s`));
-      pendingKeys.forEach(key => localStorage.removeItem(key));
+      const pendingKeys = keys.filter((key) =>
+        key.startsWith(`cw_pending_${tmdbID}_s`)
+      );
+      pendingKeys.forEach((key) => localStorage.removeItem(key));
     } catch (error) {
       console.error('Error removing all watched episodes:', error);
     }
@@ -679,15 +727,8 @@ export class ContinueWatchingService {
       if (episode < highestEpisode && progress < 0.9) {
         // User is watching an earlier episode and hasn't nearly finished it
         // Check if this is a legitimate regression or accidental
-        
-        let sessionData = null;
-        try {
-          const sessionRaw = localStorage.getItem(sessionKey);
-          if (sessionRaw) {
-            sessionData = JSON.parse(sessionRaw);
-          }
-        } catch {}
 
+        let sessionData = this.getSessionData(sessionKey);
         const REGRESSION_GRACE_PERIOD = 10 * 60 * 1000; // 10 minutes
         const MIN_WATCH_TIME = 2 * 60; // 2 minutes of actual watching (reduced from 5 minutes)
 
@@ -697,12 +738,15 @@ export class ContinueWatchingService {
             startTime: now,
             totalWatchTime: 0,
             lastUpdate: now,
-            initialProgress: existingProgress
+            initialProgress: existingProgress,
           };
         }
 
         // Update session watch time
-        const timeSinceLastUpdate = Math.min(now - sessionData.lastUpdate, 30000); // Cap at 30s
+        const timeSinceLastUpdate = Math.min(
+          now - sessionData.lastUpdate,
+          30000
+        ); // Cap at 30s
         sessionData.totalWatchTime += timeSinceLastUpdate / 1000;
         sessionData.lastUpdate = now;
 
@@ -712,18 +756,26 @@ export class ContinueWatchingService {
         // 3. User has explicitly chosen to restart this episode
         const hasWatchedEnough = sessionData.totalWatchTime >= MIN_WATCH_TIME;
         const isProgressImprovement = progress > existingProgress;
-        const isWithinGracePeriod = (now - sessionData.startTime) <= REGRESSION_GRACE_PERIOD;
+        const isWithinGracePeriod =
+          now - sessionData.startTime <= REGRESSION_GRACE_PERIOD;
 
-        if (!hasWatchedEnough && !isProgressImprovement && isWithinGracePeriod) {
+        if (
+          !hasWatchedEnough &&
+          !isProgressImprovement &&
+          isWithinGracePeriod
+        ) {
           // Don't update progress yet, but save session data
-          localStorage.setItem(sessionKey, JSON.stringify(sessionData));
-          console.log(`[Regression Protection] Blocking progress update for S${season}E${episode} - grace period active`);
+          this.setSessionData(sessionKey, sessionData);
+          console.log(
+            `[Regression Protection] Blocking progress update for S${season}E${episode} - grace period active`
+          );
           return false; // Block the save
         }
-
         // Update session data
-        localStorage.setItem(sessionKey, JSON.stringify(sessionData));
-        console.log(`[Regression Protection] Allowing progress update for S${season}E${episode} - conditions met`);
+        this.setSessionData(sessionKey, sessionData);
+        console.log(
+          `[Regression Protection] Allowing progress update for S${season}E${episode} - conditions met`
+        );
       }
 
       // Save progress only if it's an improvement or user has committed to watching
@@ -732,7 +784,7 @@ export class ContinueWatchingService {
           this.setHighestWatched(tmdbID, season, episode);
         }
         if (progress >= 0.9) {
-          localStorage.removeItem(sessionKey);
+          this.removeSessionData(sessionKey);
           this.markEpisodeAsWatchedInPlaylist(tmdbID, season, episode);
         }
       }
@@ -742,6 +794,32 @@ export class ContinueWatchingService {
       console.warn('Failed to save episode progress:', error);
       return true;
     }
+  }
+
+  // In-memory session cache helpers
+  private getSessionData(sessionKey: string): any {
+    if (this.sessionCache[sessionKey]) {
+      return this.sessionCache[sessionKey];
+    }
+    try {
+      const sessionRaw = localStorage.getItem(sessionKey);
+      if (sessionRaw) {
+        const data = JSON.parse(sessionRaw);
+        this.sessionCache[sessionKey] = data;
+        return data;
+      }
+    } catch {}
+    return null;
+  }
+
+  private setSessionData(sessionKey: string, data: any): void {
+    this.sessionCache[sessionKey] = data;
+    localStorage.setItem(sessionKey, JSON.stringify(data));
+  }
+
+  private removeSessionData(sessionKey: string): void {
+    delete this.sessionCache[sessionKey];
+    localStorage.removeItem(sessionKey);
   }
 
   /**
@@ -757,18 +835,23 @@ export class ContinueWatchingService {
       const keysToRemove: string[] = [];
 
       // Clean up old session tracking data
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
+      for (let j = 0; j < localStorage.length; j++) {
+        const key = localStorage.key(j);
         if (key && key.startsWith('ep_session_')) {
           try {
             const sessionData = JSON.parse(localStorage.getItem(key) || '{}');
-            if (sessionData.lastUpdate && (now - sessionData.lastUpdate) > MAX_SESSION_AGE) {
+            if (
+              sessionData.lastUpdate &&
+              now - sessionData.lastUpdate > MAX_SESSION_AGE
+            ) {
               keysToRemove.push(key);
             }
           } catch {
             // Corrupted data, remove it
             keysToRemove.push(key);
           }
+          // Remove from cache as well
+          delete this.sessionCache[key];
         }
       }
 
@@ -778,7 +861,10 @@ export class ContinueWatchingService {
         if (key && key.startsWith('cw_pending_')) {
           try {
             const pendingData = JSON.parse(localStorage.getItem(key) || '{}');
-            if (pendingData.start && (now - pendingData.start) > MAX_SESSION_AGE) {
+            if (
+              pendingData.start &&
+              now - pendingData.start > MAX_SESSION_AGE
+            ) {
               keysToRemove.push(key);
             }
           } catch {
@@ -797,10 +883,12 @@ export class ContinueWatchingService {
       }
 
       // Remove identified keys
-      keysToRemove.forEach(key => localStorage.removeItem(key));
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
 
       if (keysToRemove.length > 0) {
-        console.log(`Cleaned up ${keysToRemove.length} old session/progress data entries`);
+        console.log(
+          `Cleaned up ${keysToRemove.length} old session/progress data entries`
+        );
       }
     } catch (error) {
       console.warn('Failed to cleanup old session data:', error);
@@ -813,7 +901,7 @@ export class ContinueWatchingService {
    */
   testRegressionProtection(tmdbID: string = 'test-123', season: number = 1) {
     console.log('🧪 Testing Regression Protection System');
-    
+
     // Simulate watching episode 3 to completion
     console.log('📺 Simulating watching Episode 3 to completion...');
     this.saveOrAdvance({
@@ -824,9 +912,9 @@ export class ContinueWatchingService {
       currentTime: 1800, // 30 minutes
       duration: 2000, // 33 minutes (90% = 1800s)
       poster_path: '/test.jpg',
-      name: 'Test Series'
+      name: 'Test Series',
     });
-    
+
     // Try to go back to episode 1 (should be blocked initially)
     console.log('⏪ Trying to go back to Episode 1 (should be blocked)...');
     const result1 = this.saveOrAdvance({
@@ -837,12 +925,14 @@ export class ContinueWatchingService {
       currentTime: 300, // 5 minutes
       duration: 2000,
       poster_path: '/test.jpg',
-      name: 'Test Series'
+      name: 'Test Series',
     });
-    
+
     // Try again after some "watch time" (should still be blocked)
     setTimeout(() => {
-      console.log('⏪ Trying Episode 1 again after short time (should still be blocked)...');
+      console.log(
+        '⏪ Trying Episode 1 again after short time (should still be blocked)...'
+      );
       this.saveOrAdvance({
         tmdbID,
         mediaType: 'tv',
@@ -851,12 +941,16 @@ export class ContinueWatchingService {
         currentTime: 600, // 10 minutes
         duration: 2000,
         poster_path: '/test.jpg',
-        name: 'Test Series'
+        name: 'Test Series',
       });
     }, 1000);
-    
-    console.log('✅ Regression protection test initiated. Check console for protection messages.');
-    console.log('🔍 To check stored data, run: Object.keys(localStorage).filter(k => k.includes("test-123"))');
+
+    console.log(
+      '✅ Regression protection test initiated. Check console for protection messages.'
+    );
+    console.log(
+      '🔍 To check stored data, run: Object.keys(localStorage).filter(k => k.includes("test-123"))'
+    );
   }
 
   // Helper methods for new cw_highest structure
@@ -871,7 +965,11 @@ export class ContinueWatchingService {
     }
   }
 
-  private setHighestWatched(tmdbID: string, season: number, episode: number): void {
+  private setHighestWatched(
+    tmdbID: string,
+    season: number,
+    episode: number
+  ): void {
     try {
       const raw = localStorage.getItem('cw_highest');
       const obj = raw ? JSON.parse(raw) : {};
@@ -904,5 +1002,25 @@ export class ContinueWatchingService {
         localStorage.setItem('cw_highest', JSON.stringify(obj));
       }
     } catch {}
+  }
+
+  /**
+   * Remove all session/progress data for previous episodes in a season
+   */
+  private cleanupOldEpisodeData(
+    tmdbID: string,
+    season: number,
+    currentEpisode: number
+  ): void {
+    const keysToRemove: string[] = [];
+    for (let i = 1; i < currentEpisode; i++) {
+      const sessionKey = `ep_session_${tmdbID}_s${season}_e${i}`;
+      const progressKey = `ep_progress_${tmdbID}_s${season}_e${i}`;
+      keysToRemove.push(sessionKey, progressKey);
+    }
+    keysToRemove.forEach((key) => {
+      this.removeSessionData(key);
+      localStorage.removeItem(key);
+    });
   }
 }
