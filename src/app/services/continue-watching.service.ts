@@ -162,14 +162,7 @@ export class ContinueWatchingService {
   removeEntry(index: number) {
     if (!this.isEnabled()) return;
     const list = this.getList();
-    const entry = list[index];
-    if (entry && entry.tmdbID) {
-      try {
-        localStorage.removeItem(`playlist_last_played_${entry.tmdbID}`);
-      } catch (e) {
-        // Optionally log error or ignore
-      }
-    }
+    // Removed playlist_last_played_{tmdbID} cleanup (obsolete)
     list.splice(index, 1);
     localStorage.setItem(this.key, JSON.stringify(list));
   }
@@ -182,13 +175,7 @@ export class ContinueWatchingService {
       (e) => !(e.tmdbID === tmdbID && e.mediaType === mediaType)
     );
     localStorage.setItem(this.key, JSON.stringify(list));
-
-    // Also remove playlist_last_played_{tmdbID} from localStorage
-    try {
-      localStorage.removeItem(`playlist_last_played_${tmdbID}`);
-    } catch (e) {
-      // Optionally log error or ignore
-    }
+    // Removed playlist_last_played_{tmdbID} cleanup (obsolete)
   }
 
   clearAll() {
@@ -275,13 +262,11 @@ export class ContinueWatchingService {
    */
   isEpisodeWatched(tmdbID: string, season: number, episode: number): boolean {
     if (!this.isEnabled()) return false;
-
     try {
       // First check the playlist system (watched_episodes)
       const watchedKey = `watched_episodes_${tmdbID}`;
       const episodeKey = `s${season}e${episode}`;
       const watchedData = localStorage.getItem(watchedKey);
-
       if (watchedData) {
         const watchedArray = JSON.parse(watchedData);
         const watchedSet = new Set(watchedArray);
@@ -289,16 +274,11 @@ export class ContinueWatchingService {
           return true;
         }
       }
-
       // Check the highest watched episode tracker
-      const highestKey = `cw_highest_${tmdbID}_s${season}`;
-      const highestWatched = Number(localStorage.getItem(highestKey)) || 0;
-
-      // If we've watched a higher episode, this one must be completed
+      const highestWatched = this.getHighestWatched(tmdbID, season);
       if (highestWatched > episode) {
         return true;
       }
-
       // Check current continue watching list for this episode
       const cwList = this.getList();
       const entry = cwList.find(
@@ -308,8 +288,6 @@ export class ContinueWatchingService {
           e.season === season &&
           e.episode === episode
       );
-
-      // If the entry exists and currentTime is at least 90% of duration, consider it watched
       if (
         entry &&
         entry.duration > 0 &&
@@ -317,7 +295,6 @@ export class ContinueWatchingService {
       ) {
         return true;
       }
-
       return false;
     } catch {
       return false;
@@ -359,10 +336,7 @@ export class ContinueWatchingService {
       }
 
       // Get highest watched episode from continue watching system
-      const highestKey = `cw_highest_${tmdbID}_s${season}`;
-      const highestWatched = Number(localStorage.getItem(highestKey)) || 0;
-
-      // All episodes up to highest watched are considered watched
+      const highestWatched = this.getHighestWatched(tmdbID, season);
       for (let i = 1; i < highestWatched; i++) {
         if (!watchedEpisodes.includes(i)) {
           watchedEpisodes.push(i);
@@ -402,10 +376,7 @@ export class ContinueWatchingService {
     if (!this.isEnabled()) return;
 
     // Check if this episode was previously completed
-    const highestKey = `cw_highest_${tmdbID}_s${season}`;
-    const highestWatched = Number(localStorage.getItem(highestKey)) || 0;
-
-    // If this episode is lower than the highest watched, mark it as watched in playlist
+    const highestWatched = this.getHighestWatched(tmdbID, season);
     if (episode < highestWatched) {
       this.markEpisodeAsWatchedInPlaylist(tmdbID, season, episode);
     }
@@ -458,14 +429,9 @@ export class ContinueWatchingService {
                 if (match) {
                   const season = parseInt(match[1]);
                   const episode = parseInt(match[2]);
-
-                  // Update the highest watched episode tracker
-                  const highestKey = `cw_highest_${tmdbID}_s${season}`;
-                  const currentHighest =
-                    Number(localStorage.getItem(highestKey)) || 0;
-
+                  const currentHighest = this.getHighestWatched(tmdbID, season);
                   if (episode > currentHighest) {
-                    localStorage.setItem(highestKey, String(episode));
+                    this.setHighestWatched(tmdbID, season, episode);
                   }
                 }
               }
@@ -631,23 +597,21 @@ export class ContinueWatchingService {
       this.unmarkEpisodeAsWatched(tmdbID, season, episode);
 
       // Update highest episode if necessary
-      const highestKey = `cw_highest_${tmdbID}_s${season}`;
       try {
-        const currentHighest = Number(localStorage.getItem(highestKey)) || 0;
+        const currentHighest = this.getHighestWatched(tmdbID, season);
         if (episode === currentHighest) {
           // Find the new highest episode that still has progress
           let newHighest = 0;
           for (let ep = episode - 1; ep >= 1; ep--) {
-            // Check if episode is watched instead of checking old progress keys
             if (this.isEpisodeWatched(tmdbID, season, ep)) {
               newHighest = ep;
               break;
             }
           }
           if (newHighest > 0) {
-            localStorage.setItem(highestKey, String(newHighest));
+            this.setHighestWatched(tmdbID, season, newHighest);
           } else {
-            localStorage.removeItem(highestKey);
+            this.removeHighestWatched(tmdbID, season);
           }
         }
       } catch {}
@@ -675,16 +639,12 @@ export class ContinueWatchingService {
       // Remove watched episodes
       const watchedKey = `watched_episodes_${tmdbID}`;
       localStorage.removeItem(watchedKey);
-
-      // Remove all season highest trackers
-      const keys = Object.keys(localStorage);
-      const highestKeys = keys.filter(key => key.startsWith(`cw_highest_${tmdbID}_s`));
-      highestKeys.forEach(key => localStorage.removeItem(key));
-
+      // Remove all season highest trackers (now single-key)
+      this.removeAllHighestWatched(tmdbID);
       // Remove pending keys
+      const keys = Object.keys(localStorage);
       const pendingKeys = keys.filter(key => key.startsWith(`cw_pending_${tmdbID}_s`));
       pendingKeys.forEach(key => localStorage.removeItem(key));
-
     } catch (error) {
       console.error('Error removing all watched episodes:', error);
     }
@@ -703,27 +663,17 @@ export class ContinueWatchingService {
     duration: number
   ): boolean {
     if (!this.isEnabled() || !duration || duration < 30) return false;
-
-    // Use simplified tracking - no more per-episode keys
     const sessionKey = `ep_session_${tmdbID}_s${season}_e${episode}`;
-    const highestKey = `cw_highest_${tmdbID}_s${season}`;
-    
     try {
       const now = Date.now();
       const progress = Math.min(1, Math.max(0, currentTime / duration));
-      
-      // Get existing progress from the compact playlist system
       let existingProgress = 0;
       try {
         const progressData = this.getEpisodeProgress(tmdbID, season, episode);
         existingProgress = progressData.progress || 0;
       } catch {}
-
       // Get highest episode reached in this season
-      let highestEpisode = 0;
-      try {
-        highestEpisode = Number(localStorage.getItem(highestKey)) || 0;
-      } catch {}
+      let highestEpisode = this.getHighestWatched(tmdbID, season);
 
       // Check for potential regression (user going back to earlier episode)
       if (episode < highestEpisode && progress < 0.9) {
@@ -778,27 +728,19 @@ export class ContinueWatchingService {
 
       // Save progress only if it's an improvement or user has committed to watching
       if (progress > existingProgress || episode >= highestEpisode) {
-        // Progress will be saved by the playlist component's compact system
-        // via the video progress service integration
-        
-        // Update highest episode if this is a new high
         if (episode > highestEpisode) {
-          localStorage.setItem(highestKey, String(episode));
+          this.setHighestWatched(tmdbID, season, episode);
         }
-
-        // Clean up session data if episode is completed
         if (progress >= 0.9) {
           localStorage.removeItem(sessionKey);
-          
-          // Mark as watched if completed
           this.markEpisodeAsWatchedInPlaylist(tmdbID, season, episode);
         }
       }
 
-      return true; // Allow the save to proceed
+      return true;
     } catch (error) {
       console.warn('Failed to save episode progress:', error);
-      return true; // If there's an error, allow save to proceed (fail-safe)
+      return true;
     }
   }
 
@@ -915,5 +857,52 @@ export class ContinueWatchingService {
     
     console.log('✅ Regression protection test initiated. Check console for protection messages.');
     console.log('🔍 To check stored data, run: Object.keys(localStorage).filter(k => k.includes("test-123"))');
+  }
+
+  // Helper methods for new cw_highest structure
+  private getHighestWatched(tmdbID: string, season: number): number {
+    try {
+      const raw = localStorage.getItem('cw_highest');
+      if (!raw) return 0;
+      const obj = JSON.parse(raw);
+      return obj?.[tmdbID]?.[season] || 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  private setHighestWatched(tmdbID: string, season: number, episode: number): void {
+    try {
+      const raw = localStorage.getItem('cw_highest');
+      const obj = raw ? JSON.parse(raw) : {};
+      if (!obj[tmdbID]) obj[tmdbID] = {};
+      obj[tmdbID][season] = episode;
+      localStorage.setItem('cw_highest', JSON.stringify(obj));
+    } catch {}
+  }
+
+  private removeHighestWatched(tmdbID: string, season: number): void {
+    try {
+      const raw = localStorage.getItem('cw_highest');
+      if (!raw) return;
+      const obj = JSON.parse(raw);
+      if (obj[tmdbID]) {
+        delete obj[tmdbID][season];
+        if (Object.keys(obj[tmdbID]).length === 0) delete obj[tmdbID];
+        localStorage.setItem('cw_highest', JSON.stringify(obj));
+      }
+    } catch {}
+  }
+
+  private removeAllHighestWatched(tmdbID: string): void {
+    try {
+      const raw = localStorage.getItem('cw_highest');
+      if (!raw) return;
+      const obj = JSON.parse(raw);
+      if (obj[tmdbID]) {
+        delete obj[tmdbID];
+        localStorage.setItem('cw_highest', JSON.stringify(obj));
+      }
+    } catch {}
   }
 }
