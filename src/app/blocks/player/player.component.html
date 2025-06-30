@@ -1,86 +1,35 @@
 <!-- Player Container with Mobile Padding -->
 <div class="px-2 sm:px-0">
-<app-player-header
-  class="hidden lg:block"
-  [responseData]="responseData"
-  [showName]="true"
-  [showDetailsAndPlaylist]="false"
-  [mediaType]="mediaType ?? 'tv'"
-></app-player-header>
-<app-player-header
-  class="lg:hidden"
-  [responseData]="responseData"
-  [showName]="true"
-  [showDetailsAndPlaylist]="false"
-></app-player-header>
-<div class="flex flex-col lg:flex-row gap-3 lg:gap-4">
-  <div class="w-full lg:w-[70%] xl:w-[75%] flex flex-col">
-    <!-- Main content column: iframe and controls -->
-    <div class="flex flex-col" id="iframe-container" #iframeContainer>
-      <div
-        class="aspect-video rounded-xl bg-white dark:bg-zinc-900"
-        id="video-container"
-        #videoContainer
-      >
-        <app-iframe
-          [iframeUrl]="iframeUrl"
-          [showIframe]="showIframe"
-        ></app-iframe>
-      </div>
-
-      <!-- Mobile Episode Navigation - Show first on mobile -->
-      <div *ngIf="mediaType !== 'movie'" class="block lg:hidden mt-3">
-        <app-episode-navigation
-          [names]="names || ''"
-          [currentEpisode]="playingEpisode"
-          [currentSeason]="playingSeason"
-          [mediaType]="mediaType ?? 'tv'"
-          [responseData]="responseData"
-          [hasPreviousEpisode]="hasPreviousEpisode()"
-          [hasNextEpisode]="hasNextEpisode()"
-          [previousEpisodeLabel]="getPreviousEpisodeLabel()"
-          [nextEpisodeLabel]="getNextEpisodeLabel()"
-          (previousEpisodeClick)="prevEpisode(currentEpisode)"
-          (nextEpisodeClick)="nextEpisode(currentEpisode)"
-        ></app-episode-navigation>
-      </div>
-
-      <!-- Mobile Source Controls -->
-      <div class="block lg:hidden mt-3">
-        <app-controls
-          [currentSourceUrl]="currentSourceUrl"
-          [sources]="sources"
-          [currentEpisode]="currentEpisode"
-          [mediaType]="mediaType ?? 'tv'"
-          (sourceChange)="onSourceChange($event)"
-          (prevSourceClick)="prevSource()"
-          (nextSourceClick)="nextSource()"
-        ></app-controls>
-      </div>
-
-      <!-- Desktop Controls Row - Sources on left, Episode navigation on right -->
-      <div
-        class="hidden lg:flex items-start justify-between mt-2 gap-4"
-        id="desktop-controls"
-      >
-        <!-- Source Controls on the left -->
+  <app-player-header
+    class="hidden lg:block"
+    [responseData]="responseData"
+    [showName]="true"
+    [showDetailsAndPlaylist]="false"
+    [mediaType]="mediaType ?? 'tv'"
+  ></app-player-header>
+  <app-player-header
+    class="lg:hidden"
+    [responseData]="responseData"
+    [showName]="true"
+    [showDetailsAndPlaylist]="false"
+  ></app-player-header>
+  <div class="flex flex-col lg:flex-row gap-3 lg:gap-4">
+    <div class="w-full lg:w-[70%] xl:w-[75%] flex flex-col">
+      <!-- Main content column: iframe and controls -->
+      <div class="flex flex-col" id="iframe-container" #iframeContainer>
         <div
-          [ngClass]="
-            mediaType === 'movie' ? 'w-full' : 'flex-1 min-w-0 max-w-2xl'
-          "
+          class="aspect-video rounded-xl bg-white dark:bg-zinc-900"
+          id="video-container"
+          #videoContainer
         >
-          <app-controls
-            [currentSourceUrl]="currentSourceUrl"
-            [sources]="sources"
-            [currentEpisode]="currentEpisode"
-            [mediaType]="mediaType ?? 'tv'"
-            (sourceChange)="onSourceChange($event)"
-            (prevSourceClick)="prevSource()"
-            (nextSourceClick)="nextSource()"
-          ></app-controls>
+          <app-iframe
+            [iframeUrl]="iframeUrl"
+            [showIframe]="showIframe"
+          ></app-iframe>
         </div>
-        <!-- Episode Navigation on the right -->
-        <div *ngIf="mediaType !== 'movie'" class="flex-shrink-0 ml-auto flex-1">
+
+        <!-- Mobile Episode Navigation - Show first on mobile -->
+        <div *ngIf="mediaType !== 'movie'" class="block lg:hidden mt-3">
           <app-episode-navigation
             [names]="names || ''"
             [currentEpisode]="playingEpisode"
@@ -95,167 +44,234 @@
             (nextEpisodeClick)="nextEpisode(currentEpisode)"
           ></app-episode-navigation>
         </div>
-      </div>
-    </div>
 
-    <!-- Details Section Moved to Bottom -->
-    <div class="mt-4 hidden lg:block rounded-xl" id="details-bottom-section">
-      <div
-        class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700"
-      >
-        <!-- Details Header (clickable to expand/collapse) -->
+        <!-- Mobile Source Controls -->
+        <div class="block lg:hidden mt-3">
+          <app-controls
+            [currentSourceUrl]="currentSourceUrl"
+            [sources]="sources"
+            [currentEpisode]="currentEpisode"
+            [mediaType]="mediaType ?? 'tv'"
+            (sourceChange)="onSourceChange($event)"
+            (prevSourceClick)="prevSource()"
+            (nextSourceClick)="nextSource()"
+          ></app-controls>
+        </div>
+
+        <!-- Desktop Controls Row - Sources on left, Episode navigation on right -->
         <div
-          [ngClass]="{
-            'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors': true,
-            'rounded-t-xl': isDetailsExpanded,
-            'rounded-xl': !isDetailsExpanded
-          }"
-          (click)="toggleDetailsExpansion()"
+          class="hidden lg:flex items-start justify-between mt-2 gap-4"
+          id="desktop-controls"
         >
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
-            <div>
-              <h2
-                class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
-              >
-                Details
-              </h2>
-              <div class="text-sm text-gray-500 dark:text-gray-300 font-medium">
-                {{ responseData?.name || responseData?.title || "Loading..." }}
+          <!-- Source Controls on the left -->
+          <div
+            [ngClass]="
+              mediaType === 'movie' ? 'w-full' : 'flex-1 min-w-0 max-w-2xl'
+            "
+          >
+            <app-controls
+              [currentSourceUrl]="currentSourceUrl"
+              [sources]="sources"
+              [currentEpisode]="currentEpisode"
+              [mediaType]="mediaType ?? 'tv'"
+              (sourceChange)="onSourceChange($event)"
+              (prevSourceClick)="prevSource()"
+              (nextSourceClick)="nextSource()"
+            ></app-controls>
+          </div>
+          <!-- Episode Navigation on the right -->
+          <div
+            *ngIf="mediaType !== 'movie'"
+            class="flex-shrink-0 ml-auto flex-1"
+          >
+            <app-episode-navigation
+              [names]="names || ''"
+              [currentEpisode]="playingEpisode"
+              [currentSeason]="playingSeason"
+              [mediaType]="mediaType ?? 'tv'"
+              [responseData]="responseData"
+              [hasPreviousEpisode]="hasPreviousEpisode()"
+              [hasNextEpisode]="hasNextEpisode()"
+              [previousEpisodeLabel]="getPreviousEpisodeLabel()"
+              [nextEpisodeLabel]="getNextEpisodeLabel()"
+              (previousEpisodeClick)="prevEpisode(currentEpisode)"
+              (nextEpisodeClick)="nextEpisode(currentEpisode)"
+            ></app-episode-navigation>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Section Moved to Bottom -->
+      <div class="mt-4 hidden lg:block rounded-xl" id="details-bottom-section">
+        <div
+          class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700"
+        >
+          <!-- Details Header (clickable to expand/collapse) -->
+          <div
+            [ngClass]="{
+              'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors': true,
+              'rounded-t-xl': isDetailsExpanded,
+              'rounded-xl': !isDetailsExpanded
+            }"
+            (click)="toggleDetailsExpansion()"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
+              <div>
+                <h2
+                  class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+                >
+                  Details
+                </h2>
+                <div
+                  class="text-sm text-gray-500 dark:text-gray-300 font-medium"
+                >
+                  {{
+                    responseData?.name || responseData?.title || "Loading..."
+                  }}
+                </div>
               </div>
             </div>
+            <div
+              class="transition-transform duration-200"
+              [class.rotate-180]="isDetailsExpanded"
+            >
+              <app-icon-lib
+                ico="chevronDown"
+                class="w-4 h-4 text-gray-500 dark:text-gray-300"
+              ></app-icon-lib>
+            </div>
           </div>
-          <div
-            class="transition-transform duration-200"
-            [class.rotate-180]="isDetailsExpanded"
-          >
-            <app-icon-lib
-              ico="chevronDown"
-              class="w-4 h-4 text-gray-500 dark:text-gray-300"
-            ></app-icon-lib>
+          <!-- Expandable Details Content -->
+          <div *ngIf="isDetailsExpanded" class="animate-modal-slide-up">
+            <app-info
+              class="block"
+              [names]="names || ''"
+              [currentSeason]="currentSeason"
+              [currentEpisodes]="currentEpisodes"
+              [currentPosters]="currentPosters"
+              [responseData]="responseData"
+              [mediaType]="mediaType ?? 'tv'"
+            ></app-info>
           </div>
-        </div>
-        <!-- Expandable Details Content -->
-        <div *ngIf="isDetailsExpanded" class="animate-modal-slide-up">
-          <app-info
-            class="block"
-            [names]="names || ''"
-            [currentSeason]="currentSeason"
-            [currentEpisodes]="currentEpisodes"
-            [currentPosters]="currentPosters"
-            [responseData]="responseData"
-            [mediaType]="mediaType ?? 'tv'"
-          ></app-info>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Mobile player header - shown only on mobile -->
-  <app-player-header
-    class="block lg:hidden mt-4"
-    [responseData]="responseData"
-    [showName]="false"
-    [showDetailsAndPlaylist]="false"
-    [mediaType]="mediaType ?? 'tv'"
-  ></app-player-header>
+    <!-- Mobile player header - shown only on mobile -->
+    <app-player-header
+      class="block lg:hidden mt-4"
+      [responseData]="responseData"
+      [showName]="false"
+      [showDetailsAndPlaylist]="false"
+      [mediaType]="mediaType ?? 'tv'"
+    ></app-player-header>
 
-  <!-- Right Side: Playlist and/or Recommendations -->
-  <div
-    class="w-full lg:w-[30%] xl:w-[25%] flex flex-col rounded-xl px-1 lg:px-0"
-    id="playlist-container"
-    #playlistContainer
-  >
-    <!-- Playlist Section - Only for TV shows -->
+    <!-- Right Side: Playlist and/or Recommendations -->
     <div
-      *ngIf="mediaType !== 'movie'"
-      class="h-full flex flex-col"
-      [style.height.px]="playlistHeight"
+      class="w-full lg:w-[30%] xl:w-[25%] flex flex-col rounded-xl px-1 lg:px-0"
+      id="playlist-container"
+      #playlistContainer
     >
-      <app-playlist
-        *ngIf="mediaType == 'tv'"
-        [names]="names || ''"
-        [totalSeasons]="totalSeasons"
-        [currentSeason]="currentSeason"
-        [currentEpisodes]="currentEpisodes"
-        [currentPosters]="currentPosters"
-        [layoutType]="layoutType"
-        [isSortedAscending]="isSortedAscending"
-        [activeEpisodeIndex]="activeEpisodeIndex"
-        [activeEpisodeSeason]="activeEpisodeSeason"
-        [seriesId]="id?.toString() || ''"
-        [currentEpisode]="currentEpisode"
-        [isDetailsExpanded]="isDetailsExpanded"
-        (seasonChange)="onSeasonChange($event)"
-        (episodeSelected)="playEpisode($event)"
-        (layoutChange)="changeLayout()"
-        (sortToggle)="ascOrDescSort()"
-        class="h-full rounded-xl border border-gray-200 dark:border-zinc-700"
-      ></app-playlist>
-    </div>
-
-    <!-- Recommendations Section - For both TV shows and movies -->
-    <div [ngClass]="{ 'mt-4': mediaType !== 'movie', 'mt-3 lg:mt-0': mediaType === 'movie' }">
-      <app-recommendations
-        [seriesId]="id?.toString() || ''"
-        [mediaType]="mediaType || 'tv'"
-        [isExpanded]="mediaType === 'movie'"
-      ></app-recommendations>
-    </div>
-
-    <!-- Mobile Details Section (visible only on mobile, moved after playlist) -->
-    <div class="lg:hidden mt-4">
+      <!-- Playlist Section - Only for TV shows -->
       <div
-        class="flex-shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 mb-6"
+        *ngIf="mediaType !== 'movie'"
+        class="h-full flex flex-col"
+        [style.height.px]="getResponsivePlaylistHeight()"
       >
-        <!-- Details Header (clickable to expand/collapse) -->
+        <app-playlist
+          *ngIf="mediaType == 'tv'"
+          [names]="names || ''"
+          [totalSeasons]="totalSeasons"
+          [currentSeason]="currentSeason"
+          [currentEpisodes]="currentEpisodes"
+          [currentPosters]="currentPosters"
+          [layoutType]="layoutType"
+          [isSortedAscending]="isSortedAscending"
+          [activeEpisodeIndex]="activeEpisodeIndex"
+          [activeEpisodeSeason]="activeEpisodeSeason"
+          [seriesId]="id?.toString() || ''"
+          [currentEpisode]="currentEpisode"
+          [isDetailsExpanded]="isDetailsExpanded"
+          (seasonChange)="onSeasonChange($event)"
+          (episodeSelected)="playEpisode($event)"
+          (layoutChange)="changeLayout()"
+          (sortToggle)="ascOrDescSort()"
+          class="h-full rounded-xl border border-gray-200 dark:border-zinc-700"
+        ></app-playlist>
+      </div>
+
+      <!-- Recommendations Section - For both TV shows and movies -->
+      <div
+        [ngClass]="{
+          'mt-4': mediaType !== 'movie',
+          'mt-3 lg:mt-0': mediaType === 'movie'
+        }"
+      >
+        <app-recommendations
+          [seriesId]="id?.toString() || ''"
+          [mediaType]="mediaType || 'tv'"
+          [isExpanded]="mediaType === 'movie'"
+        ></app-recommendations>
+      </div>
+
+      <!-- Mobile Details Section (visible only on mobile, moved after playlist) -->
+      <div class="lg:hidden mt-4">
         <div
-          [ngClass]="{
-            'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors': true,
-            'rounded-t-xl': isDetailsExpanded,
-            'rounded-xl': !isDetailsExpanded
-          }"
-          (click)="toggleDetailsExpansion()"
+          class="flex-shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 mb-6"
         >
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
-            <div>
-              <h2
-                class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
-              >
-                Details
-              </h2>
-              <div class="text-sm text-gray-500 dark:text-gray-300 font-medium">
-                {{ responseData?.name || responseData?.title || "Loading..." }}
+          <!-- Details Header (clickable to expand/collapse) -->
+          <div
+            [ngClass]="{
+              'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors': true,
+              'rounded-t-xl': isDetailsExpanded,
+              'rounded-xl': !isDetailsExpanded
+            }"
+            (click)="toggleDetailsExpansion()"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
+              <div>
+                <h2
+                  class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+                >
+                  Details
+                </h2>
+                <div
+                  class="text-sm text-gray-500 dark:text-gray-300 font-medium"
+                >
+                  {{
+                    responseData?.name || responseData?.title || "Loading..."
+                  }}
+                </div>
               </div>
             </div>
+            <div
+              class="transition-transform duration-200"
+              [class.rotate-180]="isDetailsExpanded"
+            >
+              <app-icon-lib
+                ico="chevronDown"
+                class="w-4 h-4 text-gray-500 dark:text-gray-300"
+              ></app-icon-lib>
+            </div>
           </div>
-          <div
-            class="transition-transform duration-200"
-            [class.rotate-180]="isDetailsExpanded"
-          >
-            <app-icon-lib
-              ico="chevronDown"
-              class="w-4 h-4 text-gray-500 dark:text-gray-300"
-            ></app-icon-lib>
+          <!-- Expandable Details Content -->
+          <div *ngIf="isDetailsExpanded" class="animate-modal-slide-up">
+            <app-info
+              class="block"
+              [names]="names || ''"
+              [currentSeason]="currentSeason"
+              [currentEpisodes]="currentEpisodes"
+              [currentPosters]="currentPosters"
+              [responseData]="responseData"
+              [mediaType]="mediaType ?? 'tv'"
+            ></app-info>
           </div>
-        </div>
-        <!-- Expandable Details Content -->
-        <div *ngIf="isDetailsExpanded" class="animate-modal-slide-up">
-          <app-info
-            class="block"
-            [names]="names || ''"
-            [currentSeason]="currentSeason"
-            [currentEpisodes]="currentEpisodes"
-            [currentPosters]="currentPosters"
-            [responseData]="responseData"
-            [mediaType]="mediaType ?? 'tv'"
-          ></app-info>
         </div>
       </div>
     </div>
   </div>
-</div>
-<div class="hidden lg:block m-4"></div>
+  <div class="hidden lg:block m-4"></div>
 </div>
 <!-- End Player Container -->

@@ -1259,6 +1259,19 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     window.addEventListener('resize', this.resizeListener);
   }
+
+  getResponsivePlaylistHeight(): number {
+    if (typeof window === 'undefined') return 500; // Default fallback
+    
+    if (window.innerWidth < 1024) {
+      // Mobile: Return fixed height based on media type to match recommendations component
+      return this.mediaType === 'tv' ? 700 : 800;
+    } else {
+      // Desktop: Use dynamic height matching video container
+      return this.playlistHeight || 500; // Fallback to 500 if not set yet
+    }
+  }
+
   private loadDefaultSettings(): void {
     try {
       const settings = localStorage.getItem('appSettings');

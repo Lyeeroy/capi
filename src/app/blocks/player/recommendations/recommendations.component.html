@@ -5,7 +5,7 @@
   <!-- Header (clickable to expand/collapse) -->
   <div
     [ngClass]="{
-      'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-3 lg:p-4 transition-colors': true,
+      'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 lg:p-4 transition-colors': true,
       'cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700':
         mediaType !== 'movie',
       'rounded-t-xl': isExpanded,
@@ -47,7 +47,11 @@
   <!-- Expandable Content -->
   <div *ngIf="isExpanded" class="animate-modal-slide-up">
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="p-4 lg:p-6">
+    <div
+      *ngIf="isLoading"
+      class="p-4 lg:p-6 flex items-center justify-center"
+      [style.height]="mediaType === 'movie' ? '600px' : '500px'"
+    >
       <div class="flex items-center justify-center">
         <div
           class="animate-spin rounded-full h-5 w-5 lg:h-6 lg:w-6 border-b-2 border-blue-500"
@@ -59,21 +63,25 @@
     </div>
 
     <!-- Error State -->
-    <div *ngIf="error && !isLoading" class="p-4 lg:p-6">
+    <div
+      *ngIf="error && !isLoading"
+      class="p-4 lg:p-6 flex items-center justify-center"
+      [style.height]="mediaType === 'movie' ? '600px' : '500px'"
+    >
       <div class="text-center text-red-500 text-xs lg:text-sm">
         {{ error }}
       </div>
     </div>
 
     <!-- Recommendations List -->
-    <div *ngIf="!isLoading && !error && recommendations.length > 0" class="p-3 lg:p-4">
+    <div
+      *ngIf="!isLoading && !error && recommendations.length > 0"
+      class="p-3 lg:p-4"
+    >
       <div
-        [ngClass]="{
-          'flex flex-col gap-2 lg:gap-3': true,
-          'overflow-y-auto scrollbar-thin scrollbar-track-gray-100 dark:scrollbar-track-zinc-800 scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-600':
-            mediaType === 'movie'
-        }"
-        [style.max-height]="mediaType === 'movie' ? '60vh' : 'none'"
+        class="flex flex-col gap-2 lg:gap-3 overflow-y-auto scrollbar-thin scrollbar-track-gray-100 dark:scrollbar-track-zinc-800 scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-600"
+        [style.height]="mediaType === 'movie' ? '800px' : '700px'"
+        [style.max-height]="mediaType === 'movie' ? '800px' : '700px'"
       >
         <div
           *ngFor="let item of recommendations; trackBy: trackByFn"
@@ -165,9 +173,12 @@
     <!-- Empty State -->
     <div
       *ngIf="!isLoading && !error && recommendations.length === 0"
-      class="p-4 lg:p-6"
+      class="p-4 lg:p-6 flex items-center justify-center"
+      [style.height]="mediaType === 'movie' ? '600px' : '500px'"
     >
-      <div class="text-center text-gray-500 dark:text-gray-400 text-xs lg:text-sm">
+      <div
+        class="text-center text-gray-500 dark:text-gray-400 text-xs lg:text-sm"
+      >
         No recommendations available
       </div>
     </div>
