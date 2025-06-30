@@ -1,6 +1,19 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Color variables for light and dark mode */
+:root {
+  --grid-bg: #fff;
+  --grid-line: rgba(0, 0, 0, 0.04);
+  --grid-line-hex: 0000000A;
+}
+
+.dark {
+  --grid-bg: #18181b;
+  --grid-line: rgba(255, 255, 255, 0.06);
+  --grid-line-hex: FFFFFF10;
+}
+
 /* Modal animations */
 @keyframes fade-in {
   from {
@@ -68,4 +81,19 @@
 
 .animate-component-scale {
   animation: component-scale 0.2s ease-out forwards;
+}
+
+/* bg pulse animation */
+@keyframes slow-pulse {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.1;
+  }
+}
+
+.animate-slow-pulse {
+  animation: slow-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

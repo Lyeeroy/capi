@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   imports: [IconLibComponent, RouterLink, CommonModule],
   template: `
     <div
-      class="flex justify-between items-center p-4 bg-white dark:bg-zinc-900 border-gray-100 dark:border-zinc-800"
+      class="flex justify-between items-center p-4  border-gray-100 dark:border-zinc-800"
     >
       <div class="flex items-center">
         <span

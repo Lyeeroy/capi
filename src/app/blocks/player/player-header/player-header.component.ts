@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
     >
       <!-- Back Button -->
       <div
-        class="flex items-center px-4 py-2.5 text-gray-700 dark:text-gray-200 rounded-xl bg-white dark:bg-zinc-900 w-full lg:w-fit max-w-full"
+        class="flex items-center px-4 py-2.5 text-gray-700 dark:text-gray-200 rounded-xl  w-full lg:w-fit max-w-full"
         [class.hidden]="!showName"
         [class.flex]="showName"
       >

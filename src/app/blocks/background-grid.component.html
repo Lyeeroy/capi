@@ -1,0 +1,78 @@
+<div
+  class="fixed inset-0 -z-10 pointer-events-none w-full h-full overflow-hidden"
+>
+  <!-- Base gradient background -->
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-blue-950/30"
+  ></div>
+
+  <!-- Animated gradient orbs -->
+  <div
+    class="absolute top-1/3 left-1/3 w-[30rem] h-[30rem] bg-gradient-to-r from-blue-400/20 to-purple-400/20 dark:from-blue-500/10 dark:to-purple-500/10 rounded-full blur-3xl animate-slow-pulse"
+  ></div>
+  <div
+    class="absolute top-2/5 right-1/3 w-[25rem] h-[25rem] bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 dark:from-emerald-500/10 dark:to-cyan-500/10 rounded-full blur-3xl animate-slow-pulse"
+    style="animation-delay: 2s"
+  ></div>
+  <div
+    class="absolute bottom-2/5 left-2/5 w-[28rem] h-[28rem] bg-gradient-to-r from-pink-400/15 to-orange-400/15 dark:from-pink-500/8 dark:to-orange-500/8 rounded-full blur-3xl animate-slow-pulse"
+    style="animation-delay: 4s"
+  ></div>
+
+  <!-- Dotted grid pattern -->
+  <div
+    class="absolute inset-0 dark:hidden"
+    style="
+      background-image: url('data:image/svg+xml;utf8,<svg width=\'96\' height=\'96\' viewBox=\'0 0 96 96\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><g stroke=\'rgba(0,0,0,0.10)\' stroke-width=\'1\' stroke-dasharray=\'2 12\'><line x1=\'0\' y1=\'0.5\' x2=\'96\' y2=\'0.5\'/><line x1=\'0\' y1=\'48.5\' x2=\'96\' y2=\'48.5\'/><line x1=\'0\' y1=\'95.5\' x2=\'96\' y2=\'95.5\'/><line x1=\'0.5\' y1=\'0\' x2=\'0.5\' y2=\'96\'/><line x1=\'48.5\' y1=\'0\' x2=\'48.5\' y2=\'96\'/><line x1=\'95.5\' y1=\'0\' x2=\'95.5\' y2=\'96\'/></g></svg>');
+      background-size: 96px 96px;
+    "
+  ></div>
+  <div
+    class="absolute inset-0 hidden dark:block"
+    style="
+      background-image: url('data:image/svg+xml;utf8,<svg width=\'96\' height=\'96\' viewBox=\'0 0 96 96\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><g stroke=\'rgba(255,255,255,0.13)\' stroke-width=\'1\' stroke-dasharray=\'2 12\'><line x1=\'0\' y1=\'0.5\' x2=\'96\' y2=\'0.5\'/><line x1=\'0\' y1=\'48.5\' x2=\'96\' y2=\'48.5\'/><line x1=\'0\' y1=\'95.5\' x2=\'96\' y2=\'95.5\'/><line x1=\'0.5\' y1=\'0\' x2=\'0.5\' y2=\'96\'/><line x1=\'48.5\' y1=\'0\' x2=\'48.5\' y2=\'96\'/><line x1=\'95.5\' y1=\'0\' x2=\'95.5\' y2=\'96\'/></g></svg>');
+      background-size: 96px 96px;
+    "
+  ></div>
+
+  <!-- Subtle radial fade from center -->
+  <div
+    class="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-white/40 dark:to-zinc-900/40"
+  ></div>
+
+  <!-- Edge vignette -->
+  <div
+    class="absolute inset-0 dark:hidden"
+    style="
+      background: radial-gradient(
+          ellipse 80% 50% at 50% 50%,
+          transparent 60%,
+          rgba(255, 255, 255, 0.8) 100%
+        ),
+        linear-gradient(
+          to right,
+          rgba(255, 255, 255, 0.6),
+          transparent 20%,
+          transparent 80%,
+          rgba(255, 255, 255, 0.6)
+        );
+    "
+  ></div>
+  <div
+    class="absolute inset-0 hidden dark:block"
+    style="
+      background: radial-gradient(
+          ellipse 80% 50% at 50% 50%,
+          transparent 60%,
+          rgba(24, 24, 27, 0.8) 100%
+        ),
+        linear-gradient(
+          to right,
+          rgba(24, 24, 27, 0.6),
+          transparent 20%,
+          transparent 80%,
+          rgba(24, 24, 27, 0.6)
+        );
+    "
+  ></div>
+</div>

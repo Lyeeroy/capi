@@ -5,10 +5,17 @@ import { HeaderComponent } from './blocks/header/header.component';
 import { NavBarComponent } from './blocks/nav-bar/nav-bar.component';
 import { SourceSubscriptionService } from './services/source-subscription.service';
 import { ThemeService } from './services/theme.service';
+import { BackgroundGridComponent } from './blocks/background-grid.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SideBarComponent, HeaderComponent, NavBarComponent],
+  imports: [
+    RouterOutlet,
+    SideBarComponent,
+    HeaderComponent,
+    NavBarComponent,
+    BackgroundGridComponent,
+  ],
   templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {

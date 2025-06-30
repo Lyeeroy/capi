@@ -21,11 +21,12 @@
         </h2>
         <div class="text-sm text-gray-500 dark:text-gray-300 font-medium">
           <ng-container *ngIf="recommendations.length > 0; else noRec">
-            Try
+            <!-- Try
             <span class="text-blue-600 dark:text-blue-400">
               {{ getDisplayTitle(recommendations[0]) }}
             </span>
-            next
+            next -->
+            What to watch next?
           </ng-container>
           <ng-template #noRec> No recommendations yet </ng-template>
         </div>
