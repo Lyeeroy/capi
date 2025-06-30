@@ -5,7 +5,7 @@
   <!-- Header (clickable to expand/collapse) -->
   <div
     [ngClass]="{
-      'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 transition-colors': true,
+      'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-3 lg:p-4 transition-colors': true,
       'cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700':
         mediaType !== 'movie',
       'rounded-t-xl': isExpanded,
@@ -13,7 +13,7 @@
     }"
     (click)="mediaType !== 'movie' ? toggleExpansion() : null"
   >
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 lg:gap-3">
       <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
       <div>
         <h2 class="text-base font-bold text-gray-900 dark:text-gray-100">
@@ -47,29 +47,29 @@
   <!-- Expandable Content -->
   <div *ngIf="isExpanded" class="animate-modal-slide-up">
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="p-6">
+    <div *ngIf="isLoading" class="p-4 lg:p-6">
       <div class="flex items-center justify-center">
         <div
-          class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"
+          class="animate-spin rounded-full h-5 w-5 lg:h-6 lg:w-6 border-b-2 border-blue-500"
         ></div>
-        <span class="ml-2 text-sm text-gray-600 dark:text-gray-300"
+        <span class="ml-2 text-xs lg:text-sm text-gray-600 dark:text-gray-300"
           >Loading recommendations...</span
         >
       </div>
     </div>
 
     <!-- Error State -->
-    <div *ngIf="error && !isLoading" class="p-6">
-      <div class="text-center text-red-500 text-sm">
+    <div *ngIf="error && !isLoading" class="p-4 lg:p-6">
+      <div class="text-center text-red-500 text-xs lg:text-sm">
         {{ error }}
       </div>
     </div>
 
     <!-- Recommendations List -->
-    <div *ngIf="!isLoading && !error && recommendations.length > 0" class="p-4">
+    <div *ngIf="!isLoading && !error && recommendations.length > 0" class="p-3 lg:p-4">
       <div
         [ngClass]="{
-          'space-y-3': true,
+          'flex flex-col gap-2 lg:gap-3': true,
           'overflow-y-auto scrollbar-thin scrollbar-track-gray-100 dark:scrollbar-track-zinc-800 scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-600':
             mediaType === 'movie'
         }"
@@ -87,10 +87,10 @@
             (item.media_type === 'tv' ? 'TV' : 'Movie') +
             ')'
           "
-          class="cursor-pointer group flex gap-3 p-3 rounded-lg bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-all duration-200 border border-gray-200/50 dark:border-zinc-700/50 hover:border-blue-300 dark:hover:border-blue-600"
+          class="cursor-pointer group flex gap-2 lg:gap-3 p-2 lg:p-3 rounded-lg bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-all duration-200 border border-gray-200/50 dark:border-zinc-700/50 hover:border-blue-300 dark:hover:border-blue-600"
         >
           <!-- Poster -->
-          <div class="w-12 h-16 flex-shrink-0">
+          <div class="w-10 h-14 lg:w-12 lg:h-16 flex-shrink-0">
             <img
               [src]="
                 item.poster_path
@@ -107,13 +107,13 @@
           <div class="flex-1 min-w-0">
             <!-- Title -->
             <h3
-              class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"
+              class="text-xs lg:text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"
             >
               {{ getDisplayTitle(item) }}
             </h3>
 
             <!-- Meta information -->
-            <div class="flex items-center gap-2 mt-1">
+            <div class="flex items-center gap-1 lg:gap-2 mt-1">
               <!-- Rating -->
               <div
                 *ngIf="item.vote_average > 0"
@@ -153,7 +153,7 @@
             <!-- Overview (truncated) -->
             <p
               *ngIf="item.overview"
-              class="text-xs text-gray-600 dark:text-gray-400 mt-2 line-clamp-2"
+              class="text-xs text-gray-600 dark:text-gray-400 mt-1 lg:mt-2 line-clamp-2"
             >
               {{ item.overview }}
             </p>
@@ -165,9 +165,9 @@
     <!-- Empty State -->
     <div
       *ngIf="!isLoading && !error && recommendations.length === 0"
-      class="p-6"
+      class="p-4 lg:p-6"
     >
-      <div class="text-center text-gray-500 dark:text-gray-400 text-sm">
+      <div class="text-center text-gray-500 dark:text-gray-400 text-xs lg:text-sm">
         No recommendations available
       </div>
     </div>
