@@ -280,17 +280,6 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     });
     window.addEventListener('beforeunload', this.saveProgress);
     this.progressInterval = setInterval(() => this.saveProgress(), 5000);
-
-    // Mark the current episode as clicked immediately when playback starts
-    setTimeout(() => {
-      if (
-        this.playlistComponent &&
-        this.mediaType === 'tv' &&
-        typeof this.playlistComponent.markActiveEpisodeAsClicked === 'function'
-      ) {
-        this.playlistComponent.markActiveEpisodeAsClicked();
-      }
-    }, 100);
   }
   ngAfterViewInit() {
     // Match playlist height to iframe after view initialization
@@ -496,56 +485,6 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
       this.totalSeasons?.length // Pass total number of seasons
     );
 
-    // After saving, check if we need to update our UI to the next episode
-    if (this.episodeFinished && this.mediaType === 'tv') {
-      // Mark the current episode as fully watched immediately before advancing
-      if (
-        this.playlistComponent &&
-        typeof this.playlistComponent.updateEpisodeProgressImmediate ===
-          'function'
-      ) {
-        this.playlistComponent.updateEpisodeProgressImmediate(
-          this.playingSeason,
-          this.playingEpisode,
-          1.0 // 100% watched
-        );
-      }
-
-      // Process completed episodes to advance them
-      this.continueWatchingService.processCompletedEpisodes();
-
-      // Get the latest continue watching list to see if the episode number advanced
-      const cwList = this.continueWatchingService.getList();
-      const updatedEntry = cwList.find(
-        (e) => e.tmdbID === String(this.id) && e.mediaType === 'tv'
-      );
-
-      // If the entry exists and the episode number advanced
-      if (
-        updatedEntry &&
-        typeof updatedEntry.episode === 'number' &&
-        updatedEntry.episode > this.playingEpisode
-      ) {
-        // Update our component state to the next episode
-        this.playingEpisode = updatedEntry.episode;
-        this.currentEpisode = this.playingEpisode;
-        this.videoCurrentTime = 0;
-        this.episodeFinished = false;
-
-        // Update URL to reflect the next episode
-        const queryParams = {
-          ...this.route.snapshot.queryParams,
-          episode: this.playingEpisode,
-        };
-        this.router.navigate([], {
-          relativeTo: this.route,
-          queryParams: queryParams,
-          queryParamsHandling: 'merge',
-          replaceUrl: true, // Don't add to browser history
-        });
-      }
-    }
-
     // Refresh playlist watched episodes after saving progress (fallback for background sync)
     if (this.playlistComponent) {
       this.playlistComponent.refreshWatchedEpisodes();
@@ -698,6 +637,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   playEpisode(index: number) {
+    this.saveProgress(); // Save progress of the current episode before switching
+
     if (this.currentEpisodes[index]) {
       this.currentEpisode = this.currentEpisodes[index].number;
       this.activeEpisodeIndex = index;
@@ -714,18 +655,6 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.episodeFinished = false;
     if (!this.progressInterval) {
       this.progressInterval = setInterval(() => this.saveProgress(), 5000);
-
-      // Mark the current episode as clicked immediately when episode changes
-      setTimeout(() => {
-        if (
-          this.playlistComponent &&
-          this.mediaType === 'tv' &&
-          typeof this.playlistComponent.markActiveEpisodeAsClicked ===
-            'function'
-        ) {
-          this.playlistComponent.markActiveEpisodeAsClicked();
-        }
-      }, 100);
     }
     this.updateUrl();
     this.reloadIframe();
@@ -899,11 +828,6 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   nextEpisode(index: number) {
     if (!this.isViewingSameSeasonAsActive()) {
       return;
-    }
-
-    // Mark current episode as watched before switching to next
-    if (this.playlistComponent) {
-      this.playlistComponent.markCurrentEpisodeAsWatched();
     }
 
     // Get current episode index in the (possibly sorted) array
@@ -1096,18 +1020,6 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.episodeFinished = false;
     if (!this.progressInterval) {
       this.progressInterval = setInterval(() => this.saveProgress(), 5000);
-
-      // Mark the current episode as clicked immediately when video state resets
-      setTimeout(() => {
-        if (
-          this.playlistComponent &&
-          this.mediaType === 'tv' &&
-          typeof this.playlistComponent.markActiveEpisodeAsClicked ===
-            'function'
-        ) {
-          this.playlistComponent.markActiveEpisodeAsClicked();
-        }
-      }, 100);
     }
   }
   updateUrl(): void {
