@@ -162,8 +162,8 @@ export class ContentTabsNetflixLikeComponent
 
   onTileClick(event: MouseEvent, index: number): void {
     // For touch events, also check timing to differentiate from quick taps
-    const isQuickTap = this.isTouch && (Date.now() - this.touchStartTime) < 200;
-    
+    const isQuickTap = this.isTouch && Date.now() - this.touchStartTime < 200;
+
     if (this.dragDistance > this.DRAG_THRESHOLD && !isQuickTap) {
       event.preventDefault();
       event.stopPropagation();

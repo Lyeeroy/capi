@@ -7,6 +7,7 @@ import { HighlightSlectedMenuRoute } from '../side-bar/side-bar.service';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { TmdbService } from '../../services/tmdb.service'; // Import TmdbService
 import { ClickOutsideDirective } from './click-outside.directive'; // Import ClickOutsideDirective
+import { WatchlistService } from '../../services/watchlist.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -33,13 +34,15 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
     { label: 'TV Shows', route: '/tvshows', svg: 'tvshow' },
     { label: 'Movies', route: '/movies', svg: 'movie' },
     { label: 'Anime', route: '/discover/anime', svg: 'anime' }, // changed route
+    { label: 'Watchlist', route: '/watchlist', svg: 'bookmarks' },
   ];
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private highlightSlectedMenuRoute: HighlightSlectedMenuRoute,
-    private tmdbService: TmdbService // Inject TmdbService
+    private tmdbService: TmdbService, // Inject TmdbService
+    public watchlistService: WatchlistService // Inject WatchlistService
   ) {}
 
   ngAfterViewInit() {

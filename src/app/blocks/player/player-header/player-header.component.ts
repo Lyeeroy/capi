@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 import { CommonModule } from '@angular/common';
+import { WatchlistButtonComponent } from '../../../components/watchlist-button/watchlist-button.component';
 
 @Component({
   selector: 'app-player-header',
@@ -9,9 +10,9 @@ import { CommonModule } from '@angular/common';
     <div
       class="py-2 flex flex-col lg:flex-row justify-start lg:justify-between items-start lg:items-center gap-2 lg:gap-0"
     >
-      <!-- Back Button -->
+      <!-- Back Button and Watchlist -->
       <div
-        class="flex items-center px-4 py-2.5 text-gray-700 dark:text-gray-200 rounded-xl  w-full lg:w-fit max-w-full"
+        class="flex items-center justify-between px-4 py-2.5 text-gray-700 dark:text-gray-200 rounded-xl w-full lg:w-fit max-w-full"
         [class.hidden]="!showName"
         [class.flex]="showName"
       >
@@ -22,6 +23,25 @@ import { CommonModule } from '@angular/common';
           <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
           Go Back
         </button>
+
+        <!-- Watchlist Button -->
+        <div *ngIf="responseData" class="ml-4">
+          <app-watchlist-button
+            [tmdbID]="responseData.id?.toString() || ''"
+            [mediaType]="mediaType === 'tv' ? 'tv' : 'movie'"
+            [title]="responseData.title"
+            [name]="responseData.name"
+            [poster_path]="responseData.poster_path"
+            [overview]="responseData.overview"
+            [release_date]="responseData.release_date"
+            [first_air_date]="responseData.first_air_date"
+            [vote_average]="responseData.vote_average"
+            [genre_ids]="responseData.genre_ids"
+            [customClass]="'flex items-center bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white px-2 py-1.5 rounded text-sm font-medium cursor-pointer transition-colors'"
+          >
+            <app-icon-lib ico="bookmark" class="w-4 h-4 text-white"></app-icon-lib>
+          </app-watchlist-button>
+        </div>
       </div>
 
       <!-- Toggle Switch for Playlist/Details -->
@@ -67,7 +87,7 @@ import { CommonModule } from '@angular/common';
       </div>
     </div>
   `,
-  imports: [IconLibComponent, CommonModule],
+  imports: [IconLibComponent, CommonModule, WatchlistButtonComponent],
 })
 export class PlayerHeader implements OnInit {
   constructor() {}

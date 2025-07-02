@@ -7,6 +7,7 @@ import { TableComponent } from './blocks/table/table.component';
 import { SettingsComponent } from './blocks/settings/settings.component';
 import { HomeComponent } from './blocks/home/home.component';
 import { DiscoverComponent } from './blocks/content/discover/discover.component';
+import { WatchlistComponent } from './blocks/watchlist/watchlist.component';
 
 export const routes: Routes = [
   {
@@ -29,6 +30,7 @@ export const routes: Routes = [
   { path: 'player/:id/:mediaType', component: PlayerComponent },
   { path: 'table', component: TableComponent },
   { path: 'settings', component: SettingsComponent },
+  { path: 'watchlist', component: WatchlistComponent },
   { path: 'discover', component: DiscoverComponent },
   {
     path: 'table/docs',

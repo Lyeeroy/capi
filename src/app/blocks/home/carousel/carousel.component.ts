@@ -13,11 +13,12 @@ import { CommonModule } from '@angular/common';
 import { Subscription, forkJoin } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
+import { WatchlistButtonComponent } from '../../../components/watchlist-button/watchlist-button.component';
 
 @Component({
   selector: 'app-carousel',
   templateUrl: './carousel.component.html',
-  imports: [CommonModule, RouterLink, IconLibComponent],
+  imports: [CommonModule, RouterLink, IconLibComponent, WatchlistButtonComponent],
   standalone: true,
 })
 export class CarouselComponent implements OnInit, OnDestroy {

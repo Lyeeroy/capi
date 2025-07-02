@@ -313,7 +313,12 @@ export class ContinueWatchingService {
           return true;
         }
       }
-      // Only consider as watched if progress is 100%
+      // Check the highest watched episode tracker
+      const highestWatched = this.getHighestWatched(tmdbID, season);
+      if (highestWatched > episode) {
+        return true;
+      }
+      // Check current continue watching list for this episode
       const cwList = this.getList();
       const entry = cwList.find(
         (e) =>
@@ -325,7 +330,7 @@ export class ContinueWatchingService {
       if (
         entry &&
         entry.duration > 0 &&
-        entry.currentTime >= entry.duration // Only 100% watched
+        entry.currentTime >= entry.duration * this.PROGRESS_THRESHOLD
       ) {
         return true;
       }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { UniversalModalComponent } from '../../forms/universal-modal.component';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 import { ContinueWatchingService } from '../../services/continue-watching.service';
+import { WatchlistService } from '../../services/watchlist.service';
 import { ThemeService, ThemeMode } from '../../services/theme.service';
 import { inject } from '@angular/core';
 
@@ -13,6 +14,7 @@ interface AppSettings {
   enableContinueWatching: boolean;
   enableScrollToEpisode: boolean;
   enableWatchedEpisodes: boolean;
+  enableWatchlist: boolean;
   // Add more settings here (e.g., darkMode: boolean)
 }
 
@@ -41,6 +43,7 @@ export class SettingsComponent implements OnInit {
     enableContinueWatching: true,
     enableScrollToEpisode: true,
     enableWatchedEpisodes: true,
+    enableWatchlist: true,
     // Add more defaults here
   };
 
@@ -51,7 +54,10 @@ export class SettingsComponent implements OnInit {
   currentTheme: { mode: ThemeMode } = { mode: 'system' };
   private themeService = inject(ThemeService);
 
-  constructor(private continueWatchingService: ContinueWatchingService) {
+  constructor(
+    private continueWatchingService: ContinueWatchingService,
+    private watchlistService: WatchlistService
+  ) {
     this.loadSettings();
     this.currentTheme = this.themeService.getCurrentTheme();
   }
@@ -206,6 +212,24 @@ export class SettingsComponent implements OnInit {
   onThemeModeChange(mode: ThemeMode) {
     this.themeService.setThemeMode(mode);
     this.currentTheme = this.themeService.getCurrentTheme();
+  }
+
+  // Handler for watchlist feature toggle
+  onEnableWatchlistChange(value: boolean) {
+    this.settings.enableWatchlist = value;
+    this.saveSettings();
+  }
+
+  // Clear entire watchlist
+  clearWatchlist() {
+    if (confirm('Are you sure you want to clear your entire watchlist? This cannot be undone.')) {
+      this.watchlistService.clearWatchlist();
+    }
+  }
+
+  // Get watchlist count for display
+  getWatchlistCount(): number {
+    return this.watchlistService.getWatchlistCount();
   }
 
   isDark(): boolean {

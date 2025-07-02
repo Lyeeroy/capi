@@ -105,17 +105,35 @@
                 {{ item.media_type === "tv" ? "TV Show" : item.media_type }}
               </span>
             </div>
-            <button
-              [routerLink]="['/player', item.id, item.media_type]"
-              class="flex items-center gap-2 w-fit mt-3 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer transition-colors"
-              (click)="$event.stopPropagation()"
-            >
-              <app-icon-lib
-                ico="play"
-                class="w-4 h-4 text-white"
-              ></app-icon-lib>
-              <span class="hidden sm:inline">Play</span>
-            </button>
+            <div class="flex items-center gap-2 mt-3">
+              <button
+                [routerLink]="['/player', item.id, item.media_type]"
+                class="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer transition-colors"
+                (click)="$event.stopPropagation()"
+              >
+                <app-icon-lib
+                  ico="play"
+                  class="w-4 h-4 text-white"
+                ></app-icon-lib>
+                <span class="hidden sm:inline">Play</span>
+              </button>
+              <app-watchlist-button
+                [tmdbID]="item.id.toString()"
+                [mediaType]="item.media_type"
+                [title]="item.title"
+                [name]="item.name"
+                [poster_path]="item.poster_path"
+                [overview]="item.overview"
+                [release_date]="item.release_date"
+                [first_air_date]="item.first_air_date"
+                [vote_average]="item.vote_average"
+                [genre_ids]="item.genre_ids"
+                [customClass]="
+                  'flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer transition-colors'
+                "
+              >
+              </app-watchlist-button>
+            </div>
           </div>
         </div>
       </div>
