@@ -4,7 +4,7 @@ import { WatchlistService } from '../../services/watchlist.service';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 
 @Component({
-  selector: 'app-watchlist-button',
+  selector: 'app-watchlist-button-old',
   standalone: true,
   imports: [CommonModule, IconLibComponent],
   template: `
@@ -12,19 +12,19 @@ import { IconLibComponent } from '../../svg-icons/icon-lib.component';
       type="button"
       (click)="toggleWatchlist($event)"
       [title]="isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'"
-      [ngClass]="getBreadcrumbClasses()"
-      style="background:none;border:none;box-shadow:none;"
+      [ngClass]="buttonClass + ' px-4 py-1.5'"
     >
       <app-icon-lib
         [ico]="isInWatchlist ? 'bookmarks' : 'bookmarks'"
-        [ngClass]="getIconClasses()"
-        class="w-4 h-4"
+        [ngClass]="
+          isInWatchlist ? 'text-blue-600 dark:text-blue-400' : 'text-white'
+        "
+        class="w-5 h-5 mx-auto my-auto"
       ></app-icon-lib>
-      <span [ngClass]="getTextClasses()">Watchlist</span>
     </button>
   `,
 })
-export class WatchlistButtonComponent implements OnInit {
+export class WatchlistButtonOldComponent implements OnInit {
   @Input() tmdbID!: string;
   @Input() mediaType!: 'movie' | 'tv';
   @Input() title?: string;
@@ -92,38 +92,5 @@ export class WatchlistButtonComponent implements OnInit {
         : 'bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-600 dark:text-gray-400',
       this.customClass,
     ].join(' ');
-  }
-
-  getBreadcrumbClasses() {
-    const baseClasses =
-      'flex items-center gap-1 text-sm bg-transparent border-none shadow-none focus:outline-none transition-colors duration-200';
-
-    if (this.customClass.includes('breadcrumb-style')) {
-      return baseClasses + ' text-gray-400 hover:text-white focus:text-white';
-    }
-
-    return baseClasses + ' ' + this.customClass;
-  }
-
-  getIconClasses() {
-    if (this.customClass.includes('breadcrumb-style')) {
-      return this.isInWatchlist
-        ? 'text-blue-400 fill-current'
-        : 'text-gray-400';
-    }
-
-    return this.isInWatchlist
-      ? 'text-blue-600 dark:text-blue-400 fill-current'
-      : 'text-white';
-  }
-
-  getTextClasses() {
-    if (this.customClass.includes('breadcrumb-style')) {
-      return this.isInWatchlist ? 'text-blue-400' : 'text-gray-400';
-    }
-
-    return this.isInWatchlist
-      ? 'text-blue-600 dark:text-blue-400'
-      : 'text-white';
   }
 }

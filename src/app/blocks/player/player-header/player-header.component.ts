@@ -12,20 +12,19 @@ import { WatchlistButtonComponent } from '../../../components/watchlist-button/w
     >
       <!-- Back Button and Watchlist -->
       <div
-        class="flex items-center justify-between px-4 py-2.5 text-gray-700 dark:text-gray-200 rounded-xl w-full lg:w-fit max-w-full"
+        class="flex items-center gap-1 px-4 py-2.5 w-full lg:w-fit max-w-full"
         [class.hidden]="!showName"
         [class.flex]="showName"
       >
         <button
           (click)="onGoBack()"
-          class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 bg-transparent hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg px-2 py-1"
+          class="flex items-center gap-1 text-sm text-gray-400 hover:text-white transition-colors duration-200 focus:outline-none focus:text-white"
         >
           <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
-          Go Back
+          <span>Go Back</span>
         </button>
-
-        <!-- Watchlist Button -->
-        <div *ngIf="responseData" class="ml-4">
+        <span class="text-gray-500 mx-2">/</span>
+        <div *ngIf="responseData">
           <app-watchlist-button
             [tmdbID]="responseData.id?.toString() || ''"
             [mediaType]="mediaType === 'tv' ? 'tv' : 'movie'"
@@ -37,10 +36,8 @@ import { WatchlistButtonComponent } from '../../../components/watchlist-button/w
             [first_air_date]="responseData.first_air_date"
             [vote_average]="responseData.vote_average"
             [genre_ids]="responseData.genre_ids"
-            [customClass]="'flex items-center bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white px-2 py-1.5 rounded text-sm font-medium cursor-pointer transition-colors'"
-          >
-            <app-icon-lib ico="bookmark" class="w-4 h-4 text-white"></app-icon-lib>
-          </app-watchlist-button>
+            [customClass]="'breadcrumb-style'"
+          ></app-watchlist-button>
         </div>
       </div>
 

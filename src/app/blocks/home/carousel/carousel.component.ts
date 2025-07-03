@@ -14,11 +14,18 @@ import { Subscription, forkJoin } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 import { WatchlistButtonComponent } from '../../../components/watchlist-button/watchlist-button.component';
+import { WatchlistButtonOldComponent } from '../../../components/watchlist-button/watchlist-button-old.component';
 
 @Component({
   selector: 'app-carousel',
   templateUrl: './carousel.component.html',
-  imports: [CommonModule, RouterLink, IconLibComponent, WatchlistButtonComponent],
+  imports: [
+    CommonModule,
+    RouterLink,
+    IconLibComponent,
+    WatchlistButtonComponent,
+    WatchlistButtonOldComponent,
+  ],
   standalone: true,
 })
 export class CarouselComponent implements OnInit, OnDestroy {
