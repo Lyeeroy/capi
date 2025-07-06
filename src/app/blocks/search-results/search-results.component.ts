@@ -103,8 +103,8 @@ export class SearchResultsComponent
     } else if (this.mediaType === 'tv') {
       endpoint = '/search/tv';
     } else if (this.mediaType === 'anime') {
-      // If you have a specific anime endpoint, set it here. Otherwise, filter results in the UI.
-      endpoint = '/search/anime'; // fallback, adjust as needed
+      // Use TV search endpoint but filter for anime-like content
+      endpoint = '/search/tv';
     }
     this.url = `${endpoint}?query=${encodeURIComponent(currentQuery)}`;
     this.tileLimit = INITIAL_SEARCH_TILE_LIMIT;
@@ -119,7 +119,20 @@ export class SearchResultsComponent
       const data = await firstValueFrom(
         this.tmdbService.fetchFromTmdb(endpoint, params)
       );
-      this.totalResults = data.total_results || 0;
+      
+      // Filter results for anime if needed
+      let filteredResults = data.results || [];
+      if (this.mediaType === 'anime') {
+        filteredResults = data.results.filter((item: any) => {
+          // Filter for Japanese content or animation genre
+          const isJapanese = item.origin_country?.includes('JP') || 
+                           item.original_language === 'ja';
+          const hasAnimeGenre = item.genre_ids?.includes(16); // Animation genre
+          return isJapanese || hasAnimeGenre;
+        });
+      }
+      
+      this.totalResults = this.mediaType === 'anime' ? filteredResults.length : (data.total_results || 0);
       if (this.totalResults === 0) {
         this.tileLimit = 0;
       } else {

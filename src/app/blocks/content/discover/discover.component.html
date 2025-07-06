@@ -95,7 +95,6 @@
       Discover
     </button>
     <button
-      *ngIf="mediaType !== 'anime'"
       class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
       [ngClass]="{
         'bg-blue-500 text-white border-blue-500 dark:bg-blue-700 dark:border-blue-700':
@@ -108,7 +107,6 @@
       Trending
     </button>
     <button
-      *ngIf="mediaType !== 'anime'"
       class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
       [ngClass]="{
         'bg-blue-500 text-white border-blue-500 dark:bg-blue-700 dark:border-blue-700':
@@ -147,7 +145,7 @@
       Upcoming
     </button>
     <button
-      *ngIf="mediaType === 'tv'"
+      *ngIf="mediaType === 'tv' || mediaType === 'anime'"
       class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
       [ngClass]="{
         'bg-blue-500 text-white border-blue-500 dark:bg-blue-700 dark:border-blue-700':
@@ -160,7 +158,7 @@
       Airing Today
     </button>
     <button
-      *ngIf="mediaType === 'tv'"
+      *ngIf="mediaType === 'tv' || mediaType === 'anime'"
       class="px-3 py-1 rounded-lg text-sm font-medium border transition-colors cursor-pointer"
       [ngClass]="{
         'bg-blue-500 text-white border-blue-500 dark:bg-blue-700 dark:border-blue-700':
@@ -190,6 +188,8 @@
     [genreId]="
       mediaType === 'anime' ? 16 : sortMode === 'discover' ? genreId : 0
     "
+    [isAnime]="mediaType === 'anime'"
+    [excludeAnime]="mediaType === 'tv'"
   ></app-content-tabs>
 
   <div

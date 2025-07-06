@@ -64,7 +64,7 @@
       <app-icon-lib ico="tvshow" class="w-4 h-4"></app-icon-lib>
       TV Shows
     </button>
-    <!-- <button
+    <button
       (click)="onMediaTypeChange('anime')"
       class="px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors duration-200 flex items-center gap-2"
       [ngClass]="{
@@ -76,7 +76,7 @@
     >
       <app-icon-lib ico="anime" class="w-4 h-4"></app-icon-lib>
       Anime
-    </button> -->
+    </button>
   </div>
 </div>
 
@@ -85,6 +85,8 @@
     *ngIf="url"
     [apiEndpoint]="url"
     [tileLimit]="tileLimit"
+    [isAnime]="mediaType === 'anime'"
+    [excludeAnime]="mediaType === 'tv'"
   ></app-content-tabs>
 
   <!-- Message for when there's no query -->

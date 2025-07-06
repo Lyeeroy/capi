@@ -93,6 +93,7 @@
     [sortBy]="selectedGenreId ? 'popularity.desc' : undefined"
     [tileLimit]="20"
     [genreId]="selectedGenreId"
+    [excludeAnime]="selectedMediaType === 'tv'"
   ></app-content-tabs-netflix-like>
 </div>
 
@@ -119,6 +120,7 @@
   <app-content-tabs-netflix-like
     [apiEndpoint]="'/trending/' + 'tv' + '/week'"
     [tileLimit]="14"
+    [excludeAnime]="true"
   ></app-content-tabs-netflix-like>
 </div>
 

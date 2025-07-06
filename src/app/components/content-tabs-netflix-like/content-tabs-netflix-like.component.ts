@@ -27,6 +27,8 @@ export class ContentTabsNetflixLikeComponent
   @Input() apiEndpoint?: string;
   @Input() genreId: number = 0;
   @Input() sortBy?: string;
+  @Input() isAnime: boolean = false;
+  @Input() excludeAnime: boolean = false;
   private _tileLimit = 20;
   @Input() set tileLimit(value: number) {
     this._tileLimit = value;
@@ -51,7 +53,9 @@ export class ContentTabsNetflixLikeComponent
       changes['apiEndpoint'] ||
       changes['genreId'] ||
       changes['sortBy'] ||
-      changes['tileLimit']
+      changes['tileLimit'] ||
+      changes['isAnime'] ||
+      changes['excludeAnime']
     ) {
       this.fetchData();
     }
@@ -62,9 +66,24 @@ export class ContentTabsNetflixLikeComponent
   private fetchData(): void {
     if (!this.apiEndpoint) return;
     this.subscription?.unsubscribe();
-    const params: { with_genres?: number; sort_by?: string } = {};
+    const params: {
+      with_genres?: number;
+      sort_by?: string;
+      with_origin_country?: string;
+      with_original_language?: string;
+    } = {};
     if (this.genreId !== 0) params.with_genres = this.genreId;
     if (this.sortBy) params.sort_by = this.sortBy;
+
+    // Add anime-specific filters
+    if (this.isAnime) {
+      params.with_origin_country = 'JP';
+      params.with_original_language = 'ja';
+      // Also ensure we're getting Animation genre
+      if (this.genreId === 0) {
+        params.with_genres = 16; // Force Animation genre if no genre specified
+      }
+    }
     const itemsPerPage = 20;
     const pagesNeeded = Math.ceil(this._tileLimit / itemsPerPage);
     const requests = Array.from({ length: pagesNeeded }, (_, i) =>
@@ -74,10 +93,58 @@ export class ContentTabsNetflixLikeComponent
       })
     );
     this.subscription = forkJoin(requests).subscribe((pagesData) => {
-      this.trending = pagesData
+      let allResults = pagesData
         .reduce((acc, page) => acc.concat(page.results), [])
-        .filter((item: { poster_path: any }) => item.poster_path)
-        .slice(0, this._tileLimit);
+        .filter((item: { poster_path: any }) => item.poster_path);
+
+      // Additional anime filtering for non-discover endpoints (trending, top_rated, etc.) or search results
+      if (
+        this.isAnime &&
+        (this.apiEndpoint?.includes('/search/') ||
+          !this.apiEndpoint?.includes('/discover/'))
+      ) {
+        allResults = allResults.filter((item: any) => {
+          const isJapanese =
+            item.origin_country?.includes('JP') ||
+            item.original_language === 'ja';
+          const hasAnimeGenre = item.genre_ids?.includes(16); // Animation genre
+
+          // More strict anime filtering - require Japanese origin AND animation genre
+          const isLikelyAnime =
+            isJapanese &&
+            hasAnimeGenre &&
+            // Check for anime-style keywords in title/name
+            (this.hasAnimeKeywords(item.title || item.name || '') ||
+              // Or if it's a TV series (not a movie) from Japan with animation
+              ((item.media_type === 'tv' || !item.media_type) &&
+                !this.isLikelyMovie(item)));
+
+          return isLikelyAnime;
+        });
+      }
+
+      // Exclude anime content when excludeAnime is true (for TV Shows tab)
+      if (this.excludeAnime) {
+        allResults = allResults.filter((item: any) => {
+          const isJapanese =
+            item.origin_country?.includes('JP') ||
+            item.original_language === 'ja';
+          const hasAnimeGenre = item.genre_ids?.includes(16); // Animation genre
+
+          // Check if this looks like anime content
+          const isLikelyAnime =
+            isJapanese &&
+            hasAnimeGenre &&
+            (this.hasAnimeKeywords(item.title || item.name || '') ||
+              ((item.media_type === 'tv' || !item.media_type) &&
+                !this.isLikelyMovie(item)));
+
+          // Return items that are NOT anime
+          return !isLikelyAnime;
+        });
+      }
+
+      this.trending = allResults.slice(0, this._tileLimit);
     });
   }
   redirectToPlayer(index: number): void {
@@ -87,6 +154,8 @@ export class ContentTabsNetflixLikeComponent
   }
   private getMediaType(item: any): string {
     if (item.media_type) return item.media_type;
+    // If this is anime content, treat it as TV
+    if (this.isAnime) return 'tv';
     return this.apiEndpoint?.includes('/tv/') ? 'tv' : 'movie';
   }
   trackByFn(index: number, item: any): number {
@@ -170,5 +239,87 @@ export class ContentTabsNetflixLikeComponent
       return;
     }
     this.redirectToPlayer(index);
+  }
+
+  // Helper method to detect anime-like keywords
+  private hasAnimeKeywords(title: string): boolean {
+    const animeKeywords = [
+      // Common anime suffixes/patterns
+      '～',
+      '〜',
+      '！',
+      '？', // Japanese punctuation
+      // Common anime title patterns
+      'season',
+      'part',
+      'episode', // Series indicators
+      // Japanese words commonly in anime titles
+      'no ',
+      'wa ',
+      'ni ',
+      'to ',
+      'ga ',
+      'de ',
+      'wo ', // Japanese particles
+      // Anime-specific terms
+      'sensei',
+      'senpai',
+      'chan',
+      'kun',
+      'sama',
+      'san',
+      'anime',
+      'manga',
+      'otaku',
+      'shounen',
+      'shoujo',
+      'seinen',
+      'josei',
+      // Common anime genres/themes
+      'mecha',
+      'isekai',
+      'magical girl',
+      'slice of life',
+      // Japanese cultural elements
+      'tokyo',
+      'kyoto',
+      'osaka',
+      'shibuya',
+      'harajuku',
+      'high school',
+      'academy',
+      'club',
+    ];
+
+    const lowerTitle = title.toLowerCase();
+    return animeKeywords.some((keyword) =>
+      lowerTitle.includes(keyword.toLowerCase())
+    );
+  }
+
+  // Helper method to exclude obvious movies
+  private isLikelyMovie(item: any): boolean {
+    const title = (item.title || item.name || '').toLowerCase();
+    const overview = (item.overview || '').toLowerCase();
+
+    // Check for movie indicators
+    const movieIndicators = [
+      'movie',
+      'film',
+      'cinema',
+      'studio ghibli', // Ghibli films are movies, not series
+      'makoto shinkai', // Known for anime movies
+      'mamoru hosoda', // Known for anime movies
+    ];
+
+    const hasMovieIndicators = movieIndicators.some(
+      (indicator) => title.includes(indicator) || overview.includes(indicator)
+    );
+
+    // Check if it has episode count (series indicator)
+    const hasEpisodeCount =
+      item.number_of_episodes && item.number_of_episodes > 1;
+
+    return hasMovieIndicators && !hasEpisodeCount;
   }
 }
