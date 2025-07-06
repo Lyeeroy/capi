@@ -2,6 +2,8 @@ import {
   Component,
   OnInit,
   Input,
+  Output,
+  EventEmitter,
   OnDestroy,
   OnChanges,
   SimpleChanges,
@@ -24,6 +26,13 @@ export class ContentTabsComponent implements OnInit, OnDestroy, OnChanges {
   @Input() sortBy?: string;
   @Input() isAnime: boolean = false;
   @Input() excludeAnime: boolean = false;
+
+  // Output event to notify parent when filtering results in fewer items than expected
+  @Output() itemsFiltered = new EventEmitter<{
+    requested: number;
+    received: number;
+    displayed: number;
+  }>();
 
   private _tileLimit = 12;
   @Input() set tileLimit(value: number) {
@@ -81,19 +90,44 @@ export class ContentTabsComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
 
+    this.fetchDataWithPages(params, 1, [], 0);
+  }
+
+  private fetchDataWithPages(
+    params: any,
+    attempt: number,
+    accumulatedResults: any[] = [],
+    totalReceived: number = 0
+  ): void {
     const itemsPerPage = 20;
-    const pagesNeeded = Math.ceil(this._tileLimit / itemsPerPage); // Removed unnecessary Math.max(1, ...)
+    const maxAttempts = 10; // Prevent infinite loops
+
+    // Calculate how many pages we need, with extra buffer for filtering
+    const basePages = Math.ceil(this._tileLimit / itemsPerPage);
+    const bufferMultiplier = this.isAnime || this.excludeAnime ? 3 : 1; // Extra pages for heavy filtering
+    const pagesNeeded = Math.min(basePages * bufferMultiplier, 5); // Cap at 5 pages per attempt
+
     const requests = Array.from({ length: pagesNeeded }, (_, i) =>
       this.tmdbService.fetchFromTmdb(this.apiEndpoint!, {
         ...params,
-        page: i + 1,
+        page: (attempt - 1) * pagesNeeded + i + 1,
       })
     );
 
     this.subscription = forkJoin(requests).subscribe((pagesData) => {
-      let allResults = pagesData
-        .reduce((acc, page) => acc.concat(page.results), [])
-        .filter((item: { poster_path: any }) => item.poster_path); // Filter out items with no poster
+      const newResultsCount = pagesData.reduce(
+        (acc, page) => acc + (page.results?.length || 0),
+        0
+      );
+
+      const currentTotalReceived = totalReceived + newResultsCount;
+
+      let allResults = [
+        ...accumulatedResults,
+        ...pagesData
+          .reduce((acc, page) => acc.concat(page.results), [])
+          .filter((item: { poster_path: any }) => item.poster_path),
+      ];
 
       // Additional anime filtering for non-discover endpoints (trending, top_rated, etc.) or search results
       if (
@@ -142,7 +176,47 @@ export class ContentTabsComponent implements OnInit, OnDestroy, OnChanges {
         });
       }
 
-      this.trending = allResults.slice(0, this._tileLimit); // Simplified data concatenation and slicing
+      // If we don't have enough results and can try again, fetch more pages
+      if (
+        allResults.length < this._tileLimit &&
+        attempt < maxAttempts &&
+        newResultsCount > 0
+      ) {
+        console.log(
+          `Not enough results after filtering (${allResults.length}/${
+            this._tileLimit
+          }). Fetching more pages (attempt ${attempt + 1}).`
+        );
+        this.fetchDataWithPages(
+          params,
+          attempt + 1,
+          allResults,
+          currentTotalReceived
+        );
+        return;
+      }
+
+      // If we still don't have enough results after multiple attempts,
+      // and we're heavily filtering, consider relaxing the filters slightly
+      if (
+        allResults.length < this._tileLimit * 0.3 && // Less than 30% of desired results
+        attempt >= 3 && // After several attempts
+        (this.isAnime || this.excludeAnime)
+      ) {
+        console.warn(
+          `Very few results after heavy filtering. Consider adjusting filter criteria.`
+        );
+      }
+
+      const finalResults = allResults.slice(0, this._tileLimit);
+      this.trending = finalResults;
+
+      // Emit filtering information to parent component
+      this.itemsFiltered.emit({
+        requested: this._tileLimit,
+        received: currentTotalReceived,
+        displayed: finalResults.length,
+      });
     });
   }
 

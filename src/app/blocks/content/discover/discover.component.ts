@@ -146,6 +146,34 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
   }
 
   // New: Handle sort mode change from UI
+  // Handle filtering feedback from content-tabs component
+  onItemsFiltered(event: {
+    requested: number;
+    received: number;
+    displayed: number;
+  }): void {
+    console.log('onItemsFiltered:', event);
+
+    // If we requested items but got significantly fewer displayed items due to filtering,
+    // and we're not already loading, try to load more
+    const filteringReduction = event.requested - event.displayed;
+    const significantReduction = filteringReduction > event.requested * 0.5; // More than 50% filtered out
+
+    if (
+      significantReduction &&
+      !this.isLoading &&
+      event.displayed < event.requested
+    ) {
+      console.log(
+        `Filtering reduced items significantly (${filteringReduction} items filtered out). Loading more to fill screen.`
+      );
+      // Schedule a fill check after a short delay to allow for rendering
+      setTimeout(() => {
+        this.fillScreenIfNeeded();
+      }, 200);
+    }
+  }
+
   onSortModeChange(mode: string) {
     this.sortMode = mode as any;
     this.updateEndpoint();
@@ -268,10 +296,14 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
         console.warn(
           'fillScreenIfNeeded: Screen still not full, but max initial fill attempts reached. Further automatic loading for fill is stopped.'
         );
+        // Reset attempts so user can manually trigger more loads by scrolling
+        this.initialFillAttempts = 0;
       }
     } else {
       // Screen is full or scrollable, no action needed from this method.
       console.log('fillScreenIfNeeded: Screen is already full or scrollable.');
+      // Reset attempts since screen is now full
+      this.initialFillAttempts = 0;
     }
   }
 

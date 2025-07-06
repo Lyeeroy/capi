@@ -190,6 +190,7 @@
     "
     [isAnime]="mediaType === 'anime'"
     [excludeAnime]="mediaType === 'tv'"
+    (itemsFiltered)="onItemsFiltered($event)"
   ></app-content-tabs>
 
   <div

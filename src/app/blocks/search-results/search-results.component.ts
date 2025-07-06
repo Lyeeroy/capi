@@ -119,20 +119,24 @@ export class SearchResultsComponent
       const data = await firstValueFrom(
         this.tmdbService.fetchFromTmdb(endpoint, params)
       );
-      
+
       // Filter results for anime if needed
       let filteredResults = data.results || [];
       if (this.mediaType === 'anime') {
         filteredResults = data.results.filter((item: any) => {
           // Filter for Japanese content or animation genre
-          const isJapanese = item.origin_country?.includes('JP') || 
-                           item.original_language === 'ja';
+          const isJapanese =
+            item.origin_country?.includes('JP') ||
+            item.original_language === 'ja';
           const hasAnimeGenre = item.genre_ids?.includes(16); // Animation genre
           return isJapanese || hasAnimeGenre;
         });
       }
-      
-      this.totalResults = this.mediaType === 'anime' ? filteredResults.length : (data.total_results || 0);
+
+      this.totalResults =
+        this.mediaType === 'anime'
+          ? filteredResults.length
+          : data.total_results || 0;
       if (this.totalResults === 0) {
         this.tileLimit = 0;
       } else {
@@ -226,7 +230,13 @@ export class SearchResultsComponent
         if (this.initialFillAttempts < this.initialFillMaxAttempts) {
           this.initialFillAttempts++;
           this.loadMoreItems(true);
+        } else {
+          // Reset attempts so user can manually trigger more loads
+          this.initialFillAttempts = 0;
         }
+      } else {
+        // Reset attempts since screen is now full
+        this.initialFillAttempts = 0;
       }
     });
   }
@@ -273,6 +283,52 @@ export class SearchResultsComponent
       }
       this.scheduleFillCheck(); // Schedule a check after loading more
     }, currentCooldown);
+  }
+
+  // Handle filtering feedback from content-tabs component
+  onItemsFiltered(event: {
+    requested: number;
+    received: number;
+    displayed: number;
+  }): void {
+    console.log('Search onItemsFiltered:', event);
+
+    // Update totalResults to reflect the actual number of items that can be displayed
+    // This is important for showing the correct "All X results shown" message
+    if (event.displayed < event.requested && event.received > event.displayed) {
+      // If filtering is happening, we need to estimate the total available results
+      // based on the filtering ratio
+      const filteringRatio = event.displayed / event.received;
+      const estimatedTotal = Math.floor(this.totalResults * filteringRatio);
+
+      // Only update if the estimate makes sense (is positive and less than original)
+      if (estimatedTotal > 0 && estimatedTotal <= this.totalResults) {
+        this.totalResults = Math.max(estimatedTotal, event.displayed);
+      }
+    } else if (event.displayed <= event.requested) {
+      // If we're showing all requested items, the total is at least the displayed amount
+      this.totalResults = Math.max(this.totalResults, event.displayed);
+    }
+
+    // If we requested items but got significantly fewer displayed items due to filtering,
+    // and we're not already loading, try to load more
+    const filteringReduction = event.requested - event.displayed;
+    const significantReduction = filteringReduction > event.requested * 0.5; // More than 50% filtered out
+
+    if (
+      significantReduction &&
+      !this.isLoadingMore &&
+      !this.isLoadingQuery &&
+      event.displayed < event.requested
+    ) {
+      console.log(
+        `Search filtering reduced items significantly (${filteringReduction} items filtered out). Loading more to fill screen.`
+      );
+      // Schedule a fill check after a short delay to allow for rendering
+      setTimeout(() => {
+        this.fillScreenIfNeeded();
+      }, 200);
+    }
   }
 
   private scheduleFillCheck(): void {

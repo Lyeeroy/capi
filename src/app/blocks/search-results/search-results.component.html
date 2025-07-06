@@ -87,6 +87,7 @@
     [tileLimit]="tileLimit"
     [isAnime]="mediaType === 'anime'"
     [excludeAnime]="mediaType === 'tv'"
+    (itemsFiltered)="onItemsFiltered($event)"
   ></app-content-tabs>
 
   <!-- Message for when there's no query -->
