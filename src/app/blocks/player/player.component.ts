@@ -5,6 +5,7 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
+  HostListener,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location, CommonModule } from '@angular/common';
@@ -147,6 +148,9 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   private progressInterval: any;
   private episodeFinished = false;
   private readonly HARDCODED_DURATION = 900;
+
+  // Fullscreen state
+  isFullscreen: boolean = false;
 
   // Subscriptions for cleanup
   private routeSubscription?: Subscription;
@@ -294,6 +298,9 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // Process completed episodes before cleanup
     this.continueWatchingService.processCompletedEpisodes();
+
+    // Restore body overflow if component is destroyed while in fullscreen
+    document.body.style.overflow = 'auto';
 
     this.cleanup();
   }
@@ -1226,5 +1233,32 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
         console.log('Playlist container not found');
       }
     }, 100);
+  }
+
+  // Fullscreen functionality
+  toggleFullscreen(): void {
+    this.isFullscreen = !this.isFullscreen;
+    
+    if (this.isFullscreen) {
+      // Prevent scrolling when in fullscreen
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restore scrolling when exiting fullscreen
+      document.body.style.overflow = 'auto';
+    }
+  }
+
+  exitFullscreen(): void {
+    this.isFullscreen = false;
+    // Restore scrolling when exiting fullscreen
+    document.body.style.overflow = 'auto';
+  }
+
+  // Listen for Escape key to exit fullscreen
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.isFullscreen) {
+      this.exitFullscreen();
+    }
   }
 }

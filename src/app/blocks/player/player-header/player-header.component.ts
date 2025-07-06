@@ -39,6 +39,15 @@ import { WatchlistButtonComponent } from '../../../components/watchlist-button/w
             [customClass]="'breadcrumb-style'"
           ></app-watchlist-button>
         </div>
+        <span class="text-gray-500 mx-2">/</span>
+        <button
+          (click)="onToggleFullscreen()"
+          class="flex items-center gap-1 text-sm text-gray-400 hover:text-white transition-colors duration-200 focus:outline-none focus:text-white"
+          title="Toggle Fullscreen"
+        >
+          <app-icon-lib ico="fullscreen" class="w-4 h-4"></app-icon-lib>
+          <span>Fullscreen</span>
+        </button>
       </div>
 
       <!-- Toggle Switch for Playlist/Details -->
@@ -103,6 +112,7 @@ export class PlayerHeader implements OnInit {
 
   @Output() showPlaylist = new EventEmitter<void>();
   @Output() showDetails = new EventEmitter<void>();
+  @Output() toggleFullscreen = new EventEmitter<void>();
 
   highlightPlaylist: boolean = true;
   highlightDetails: boolean = false;
@@ -127,6 +137,10 @@ export class PlayerHeader implements OnInit {
       this.highlightPlaylist = false;
     }
     // If it's a movie and details are already selected, do nothing
+  }
+
+  onToggleFullscreen() {
+    this.toggleFullscreen.emit();
   }
 
   ngOnInit() {
