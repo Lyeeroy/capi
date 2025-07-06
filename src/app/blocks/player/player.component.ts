@@ -288,21 +288,6 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     // Also try again after a longer delay in case content is still loading
     setTimeout(() => this.matchPlaylistHeight(), 500);
     setTimeout(() => this.matchPlaylistHeight(), 1000);
-
-    // Optimize localStorage periodically (once per session)
-    if (this.playlistComponent && !sessionStorage.getItem('storageOptimized')) {
-      try {
-        const result = this.playlistComponent.optimizeLocalStorage();
-        if (result.saved !== '0.00 KB' || result.episodes > 0) {
-          console.log(
-            `📦 Storage optimized: Saved ${result.saved} of space by cleaning up ${result.episodes} old episode entries`
-          );
-        }
-        sessionStorage.setItem('storageOptimized', 'true');
-      } catch (error) {
-        console.warn('Storage optimization failed:', error);
-      }
-    }
   }
   ngOnDestroy() {
     this.saveProgress();
@@ -1174,7 +1159,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   getResponsivePlaylistHeight(): number {
     if (typeof window === 'undefined') return 500; // Default fallback
-    
+
     if (window.innerWidth < 1024) {
       // Mobile: Return fixed height based on media type to match recommendations component
       return this.mediaType === 'tv' ? 700 : 800;
