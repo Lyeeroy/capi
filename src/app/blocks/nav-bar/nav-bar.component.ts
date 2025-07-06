@@ -31,9 +31,7 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
 
   menuItems = [
     { label: 'Home', route: '', svg: 'home' },
-    { label: 'TV Shows', route: '/tvshows', svg: 'tvshow' },
-    { label: 'Movies', route: '/movies', svg: 'movie' },
-    { label: 'Anime', route: '/discover/anime', svg: 'anime' }, // changed route
+    { label: 'Discover', route: '/discover', svg: 'search' },
     { label: 'Watchlist', route: '/watchlist', svg: 'bookmarks' },
   ];
 
@@ -126,6 +124,17 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
   }
 
   isActive(route: string): boolean {
+    // Special handling for discover route to include legacy routes
+    if (route === '/discover' || route === 'discover') {
+      return (
+        this.router.url.startsWith('/discover') ||
+        this.router.url === '/movies' ||
+        this.router.url === '/tvshows' ||
+        this.router.url.startsWith('/movies') ||
+        this.router.url.startsWith('/tvshows')
+      );
+    }
+
     // Use Angular's router.isActive for robust matching
     const normalizedRoute = route.startsWith('/') ? route : '/' + route;
     return this.router.isActive(normalizedRoute, {

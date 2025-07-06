@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { ContentTabsComponent } from '../../components/content-tabs/content-tabs.component';
 import { TmdbService } from '../../services/tmdb.service';
 import { Subscription, firstValueFrom } from 'rxjs';
+import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 
 const INITIAL_SEARCH_TILE_LIMIT = 14;
 const SEARCH_TILE_INCREMENT = 7;
@@ -20,7 +21,7 @@ const DEBOUNCE_INTERVAL = 500; // 500 milliseconds
   selector: 'app-search-results',
   templateUrl: './search-results.component.html',
   standalone: true,
-  imports: [CommonModule, ContentTabsComponent],
+  imports: [CommonModule, ContentTabsComponent, IconLibComponent],
 })
 export class SearchResultsComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -40,6 +41,7 @@ export class SearchResultsComponent
   private paramMapSubscription: Subscription | undefined;
   searchResults: any[] = [];
   private lastLoadTime: number = 0;
+  mediaType: string = 'all';
 
   constructor(
     private route: ActivatedRoute,
@@ -93,7 +95,18 @@ export class SearchResultsComponent
       return;
     }
 
-    this.url = `/search/multi?query=${encodeURIComponent(currentQuery)}`;
+    // Build endpoint based on mediaType
+    let endpoint = '/search/multi';
+    let params: any = { query: currentQuery };
+    if (this.mediaType === 'movie') {
+      endpoint = '/search/movie';
+    } else if (this.mediaType === 'tv') {
+      endpoint = '/search/tv';
+    } else if (this.mediaType === 'anime') {
+      // If you have a specific anime endpoint, set it here. Otherwise, filter results in the UI.
+      endpoint = '/search/anime'; // fallback, adjust as needed
+    }
+    this.url = `${endpoint}?query=${encodeURIComponent(currentQuery)}`;
     this.tileLimit = INITIAL_SEARCH_TILE_LIMIT;
     this.totalResults = 0;
     this.searchResults = [];
@@ -104,11 +117,9 @@ export class SearchResultsComponent
 
     try {
       const data = await firstValueFrom(
-        this.tmdbService.fetchFromTmdb('/search/multi', { query: currentQuery })
+        this.tmdbService.fetchFromTmdb(endpoint, params)
       );
-
       this.totalResults = data.total_results || 0;
-
       if (this.totalResults === 0) {
         this.tileLimit = 0;
       } else {
@@ -262,6 +273,13 @@ export class SearchResultsComponent
         this.fillScreenIfNeeded();
       }
     }, 500);
+  }
+
+  onMediaTypeChange(type: string) {
+    if (this.mediaType !== type) {
+      this.mediaType = type;
+      this.performSearch(this.query);
+    }
   }
 
   ngOnDestroy(): void {

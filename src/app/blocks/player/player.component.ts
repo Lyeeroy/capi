@@ -1238,7 +1238,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   // Fullscreen functionality
   toggleFullscreen(): void {
     this.isFullscreen = !this.isFullscreen;
-    
+
     if (this.isFullscreen) {
       // Prevent scrolling when in fullscreen
       document.body.style.overflow = 'hidden';

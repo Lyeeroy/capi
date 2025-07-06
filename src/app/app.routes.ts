@@ -11,14 +11,20 @@ import { WatchlistComponent } from './blocks/watchlist/watchlist.component';
 
 export const routes: Routes = [
   {
-    path: 'movies',
+    path: 'discover',
     component: DiscoverComponent,
-    data: { mediaType: 'movie' },
+    data: { mediaType: 'movie' }, // Default to movies
+  },
+  // Legacy routes for backward compatibility (redirects)
+  {
+    path: 'movies',
+    redirectTo: '/discover',
+    pathMatch: 'full',
   },
   {
     path: 'tvshows',
-    component: DiscoverComponent,
-    data: { mediaType: 'tv' },
+    redirectTo: '/discover',
+    pathMatch: 'full',
   },
   {
     path: 'discover/anime',
@@ -31,7 +37,6 @@ export const routes: Routes = [
   { path: 'table', component: TableComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'watchlist', component: WatchlistComponent },
-  { path: 'discover', component: DiscoverComponent },
   {
     path: 'table/docs',
     loadComponent: () =>

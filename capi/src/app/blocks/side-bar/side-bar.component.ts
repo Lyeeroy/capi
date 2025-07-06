@@ -10,22 +10,20 @@ import { RouterModule } from '@angular/router';
 export class SideBarComponent {
   menuItems = [
     {
-      label: 'TV Shows',
-      route: '/tvshows',
-      svg: `assets/side-bar/tvshow.svg`,
+      label: 'Discover',
+      route: '/discover',
+      svg: `assets/side-bar/movie.svg`,
     },
-    { label: 'Movies', route: '/movies', svg: `assets/side-bar/tvshow.svg` },
-    { label: 'Anime', route: '/anime', svg: `assets/side-bar/tvshow.svg` },
-    { label: 'History', route: '/history', svg: `assets/side-bar/tvshow.svg` },
+    { label: 'History', route: '/history', svg: `assets/side-bar/history.svg` },
     {
       label: 'Watchlist',
       route: '/watchlist',
-      svg: `assets/side-bar/tvshow.svg`,
+      svg: `assets/side-bar/save.svg`,
     },
     {
       label: 'Settings',
       route: '/settings',
-      svg: `assets/side-bar/tvshow.svg`,
+      svg: `assets/side-bar/settings.svg`,
     },
   ];
 }

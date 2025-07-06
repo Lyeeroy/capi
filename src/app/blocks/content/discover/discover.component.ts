@@ -5,7 +5,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ContentTabsComponent } from '../../../components/content-tabs/content-tabs.component';
 import { SortHeaderComponent } from '../sort-header/sort-header.component';
 import { CommonModule } from '@angular/common';
@@ -60,7 +60,11 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
   private initialFillAttempts = 0;
   private initialSetupDone = false; // Flag to ensure ngAfterViewInit logic runs only once for the very first load
 
-  constructor(private route: ActivatedRoute, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) {}
 
   // New: Map sortMode to endpoint
   private getEndpoint(): string {
@@ -159,6 +163,27 @@ export class DiscoverComponent implements OnInit, AfterViewInit {
     if (this.sortValue === sortValue) return; // No change
     console.log('Sort value changed, resetting state and refilling.');
     this.sortValue = sortValue;
+    this.resetStateAndRefill();
+  }
+
+  // New: Handle media type change from UI
+  onMediaTypeChange(newMediaType: 'movie' | 'tv' | 'anime') {
+    if (this.mediaType === newMediaType) return; // No change
+
+    console.log('Media type changed to:', newMediaType);
+    this.mediaType = newMediaType;
+
+    // If anime, always set genreId to 16 (TMDB anime genre)
+    if (this.mediaType === 'anime') {
+      this.genreId = 16;
+    } else {
+      // Reset genre when switching from anime to other types
+      if (this.genreId === 16) {
+        this.genreId = 0;
+      }
+    }
+
+    this.updateEndpoint();
     this.resetStateAndRefill();
   }
 

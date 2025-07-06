@@ -11,12 +11,10 @@ export class SideBarComponent {
   menuItems = [
     { label: 'Home', route: '', svg: `assets/side-bar/home.svg` },
     {
-      label: 'TV Shows',
-      route: '/tvshows',
-      svg: `assets/side-bar/tvshow.svg`,
+      label: 'Discover',
+      route: '/discover',
+      svg: `assets/side-bar/movie.svg`,
     },
-    { label: 'Movies', route: '/movies', svg: `assets/side-bar/movie.svg` },
-    { label: 'Anime', route: '/anime', svg: `assets/side-bar/anime.svg` },
   ];
 
   constructor(private highlightSlectedMenuRoute: HighlightSlectedMenuRoute) {}
