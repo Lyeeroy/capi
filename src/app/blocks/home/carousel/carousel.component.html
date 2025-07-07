@@ -118,6 +118,7 @@
                 <span class="hidden sm:inline">Play</span>
               </button>
               <app-watchlist-button-old
+                *ngIf="watchlistService.isEnabled()"
                 [tmdbID]="item.id.toString()"
                 [mediaType]="item.media_type"
                 [title]="item.title"

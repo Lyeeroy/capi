@@ -26,7 +26,7 @@
             <nav class="hidden lg:flex items-center gap-2">
               <ul class="flex whitespace-nowrap space-x-2">
                 <li
-                  *ngFor="let item of menuItems"
+                  *ngFor="let item of filteredMenuItems"
                   id="li-menu-{{ item.route }}"
                   class="relative"
                   [ngClass]="{
@@ -201,7 +201,7 @@
       [ngStyle]="{ width: navBarWidth }"
       (clickOutside)="closeMenu()"
     >
-      <ng-container *ngFor="let item of menuItems">
+      <ng-container *ngFor="let item of filteredMenuItems">
         <a
           routerLink="{{ item.route }}"
           (click)="handleClick($event); closeMenu()"

@@ -9,11 +9,11 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { TmdbService } from '../../../services/tmdb.service';
+import { WatchlistService } from '../../../services/watchlist.service';
 import { CommonModule } from '@angular/common';
 import { Subscription, forkJoin } from 'rxjs';
 import { RouterLink } from '@angular/router';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
-import { WatchlistButtonComponent } from '../../../components/watchlist-button/watchlist-button.component';
 import { WatchlistButtonOldComponent } from '../../../components/watchlist-button/watchlist-button-old.component';
 
 @Component({
@@ -23,7 +23,6 @@ import { WatchlistButtonOldComponent } from '../../../components/watchlist-butto
     CommonModule,
     RouterLink,
     IconLibComponent,
-    WatchlistButtonComponent,
     WatchlistButtonOldComponent,
   ],
   standalone: true,
@@ -43,6 +42,7 @@ export class CarouselComponent implements OnInit, OnDestroy {
 
   constructor(
     private tmdbService: TmdbService,
+    public watchlistService: WatchlistService,
     private el: ElementRef,
     private renderer: Renderer2,
     private cdRef: ChangeDetectorRef

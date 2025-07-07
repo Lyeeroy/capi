@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IconLibComponent } from '../../../svg-icons/icon-lib.component';
 import { CommonModule } from '@angular/common';
 import { WatchlistButtonComponent } from '../../../components/watchlist-button/watchlist-button.component';
+import { WatchlistService } from '../../../services/watchlist.service';
 
 @Component({
   selector: 'app-player-header',
@@ -23,22 +24,24 @@ import { WatchlistButtonComponent } from '../../../components/watchlist-button/w
           <app-icon-lib ico="arrowLeft" class="w-4 h-4"></app-icon-lib>
           <span>Go Back</span>
         </button>
-        <span class="text-gray-500 mx-2">/</span>
-        <div *ngIf="responseData">
-          <app-watchlist-button
-            [tmdbID]="responseData.id?.toString() || ''"
-            [mediaType]="mediaType === 'tv' ? 'tv' : 'movie'"
-            [title]="responseData.title"
-            [name]="responseData.name"
-            [poster_path]="responseData.poster_path"
-            [overview]="responseData.overview"
-            [release_date]="responseData.release_date"
-            [first_air_date]="responseData.first_air_date"
-            [vote_average]="responseData.vote_average"
-            [genre_ids]="responseData.genre_ids"
-            [customClass]="'breadcrumb-style'"
-          ></app-watchlist-button>
-        </div>
+        <ng-container *ngIf="responseData && watchlistService.isEnabled()">
+          <span class="text-gray-500 mx-2">/</span>
+          <div>
+            <app-watchlist-button
+              [tmdbID]="responseData.id?.toString() || ''"
+              [mediaType]="mediaType === 'tv' ? 'tv' : 'movie'"
+              [title]="responseData.title"
+              [name]="responseData.name"
+              [poster_path]="responseData.poster_path"
+              [overview]="responseData.overview"
+              [release_date]="responseData.release_date"
+              [first_air_date]="responseData.first_air_date"
+              [vote_average]="responseData.vote_average"
+              [genre_ids]="responseData.genre_ids"
+              [customClass]="'breadcrumb-style'"
+            ></app-watchlist-button>
+          </div>
+        </ng-container>
         <span class="text-gray-500 mx-2">/</span>
         <button
           (click)="onToggleFullscreen()"
@@ -96,7 +99,7 @@ import { WatchlistButtonComponent } from '../../../components/watchlist-button/w
   imports: [IconLibComponent, CommonModule, WatchlistButtonComponent],
 })
 export class PlayerHeader implements OnInit {
-  constructor() {}
+  constructor(public watchlistService: WatchlistService) {}
 
   @Input() responseData: any = null;
 

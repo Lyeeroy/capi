@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { WatchlistService, WatchlistItem } from '../../services/watchlist.service';
+import {
+  WatchlistService,
+  WatchlistItem,
+} from '../../services/watchlist.service';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
 
 @Component({
@@ -9,7 +12,7 @@ import { IconLibComponent } from '../../svg-icons/icon-lib.component';
   standalone: true,
   imports: [CommonModule, IconLibComponent],
   templateUrl: './watchlist.component.html',
-  styleUrls: ['./watchlist.component.css']
+  styleUrls: ['./watchlist.component.css'],
 })
 export class WatchlistComponent implements OnInit {
   watchlist: WatchlistItem[] = [];
@@ -19,10 +22,19 @@ export class WatchlistComponent implements OnInit {
 
   constructor(
     private watchlistService: WatchlistService,
-    private router: Router
+    public router: Router
   ) {}
 
+  get isWatchlistEnabled(): boolean {
+    return this.watchlistService.isEnabled();
+  }
+
   ngOnInit() {
+    if (!this.watchlistService.isEnabled()) {
+      // If watchlist is disabled, redirect to home or show disabled message
+      this.isLoading = false;
+      return;
+    }
     this.loadWatchlist();
   }
 
@@ -42,7 +54,9 @@ export class WatchlistComponent implements OnInit {
     if (this.currentFilter === 'all') {
       this.filteredWatchlist = this.watchlist;
     } else {
-      this.filteredWatchlist = this.watchlist.filter(item => item.mediaType === this.currentFilter);
+      this.filteredWatchlist = this.watchlist.filter(
+        (item) => item.mediaType === this.currentFilter
+      );
     }
   }
 
@@ -53,8 +67,11 @@ export class WatchlistComponent implements OnInit {
 
   removeFromWatchlist(item: WatchlistItem, event: Event) {
     event.stopPropagation();
-    
-    const success = this.watchlistService.removeFromWatchlist(item.tmdbID, item.mediaType);
+
+    const success = this.watchlistService.removeFromWatchlist(
+      item.tmdbID,
+      item.mediaType
+    );
     if (success) {
       this.loadWatchlist(); // Reload to update the list
     }
@@ -65,7 +82,11 @@ export class WatchlistComponent implements OnInit {
   }
 
   clearAllWatchlist() {
-    if (confirm('Are you sure you want to clear your entire watchlist? This cannot be undone.')) {
+    if (
+      confirm(
+        'Are you sure you want to clear your entire watchlist? This cannot be undone.'
+      )
+    ) {
       this.watchlistService.clearWatchlist();
       this.loadWatchlist();
     }
@@ -101,7 +122,7 @@ export class WatchlistComponent implements OnInit {
     if (filter === 'all') {
       return this.watchlist.length;
     }
-    return this.watchlist.filter(item => item.mediaType === filter).length;
+    return this.watchlist.filter((item) => item.mediaType === filter).length;
   }
 
   trackByFn(index: number, item: WatchlistItem): string {

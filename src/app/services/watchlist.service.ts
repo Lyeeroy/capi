@@ -15,7 +15,7 @@ export interface WatchlistItem {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WatchlistService {
   private readonly key = 'userWatchlist';
@@ -29,7 +29,7 @@ export class WatchlistService {
   /**
    * Check if watchlist feature is enabled
    */
-  private isEnabled(): boolean {
+  isEnabled(): boolean {
     try {
       const settings = localStorage.getItem('appSettings');
       if (settings) {
@@ -47,7 +47,7 @@ export class WatchlistService {
    */
   getWatchlist(): WatchlistItem[] {
     if (!this.isEnabled()) return [];
-    
+
     const now = Date.now();
     if (this.memoryCache && now - this.cacheTimestamp < this.CACHE_TTL) {
       return this.memoryCache;
@@ -84,7 +84,7 @@ export class WatchlistService {
    */
   private saveWatchlist(list: WatchlistItem[]): void {
     if (!this.isEnabled()) return;
-    
+
     this.memoryCache = list;
     this.cacheTimestamp = Date.now();
     localStorage.setItem(this.key, JSON.stringify(list));
@@ -98,10 +98,12 @@ export class WatchlistService {
 
     try {
       let watchlist = this.getWatchlist();
-      
+
       // Check if item already exists
       const exists = watchlist.some(
-        existing => existing.tmdbID === item.tmdbID && existing.mediaType === item.mediaType
+        (existing) =>
+          existing.tmdbID === item.tmdbID &&
+          existing.mediaType === item.mediaType
       );
 
       if (exists) {
@@ -111,7 +113,7 @@ export class WatchlistService {
       // Add new item at the beginning
       const newItem: WatchlistItem = {
         ...item,
-        addedAt: Date.now()
+        addedAt: Date.now(),
       };
 
       watchlist.unshift(newItem);
@@ -138,9 +140,9 @@ export class WatchlistService {
     try {
       let watchlist = this.getWatchlist();
       const originalLength = watchlist.length;
-      
+
       watchlist = watchlist.filter(
-        item => !(item.tmdbID === tmdbID && item.mediaType === mediaType)
+        (item) => !(item.tmdbID === tmdbID && item.mediaType === mediaType)
       );
 
       if (watchlist.length < originalLength) {
@@ -163,7 +165,7 @@ export class WatchlistService {
     try {
       const watchlist = this.getWatchlist();
       return watchlist.some(
-        item => item.tmdbID === tmdbID && item.mediaType === mediaType
+        (item) => item.tmdbID === tmdbID && item.mediaType === mediaType
       );
     } catch {
       return false;
@@ -182,7 +184,7 @@ export class WatchlistService {
    */
   clearWatchlist(): void {
     if (!this.isEnabled()) return;
-    
+
     this.memoryCache = [];
     this.cacheTimestamp = Date.now();
     localStorage.removeItem(this.key);
@@ -192,7 +194,7 @@ export class WatchlistService {
    * Get watchlist filtered by media type
    */
   getWatchlistByType(mediaType: 'movie' | 'tv'): WatchlistItem[] {
-    return this.getWatchlist().filter(item => item.mediaType === mediaType);
+    return this.getWatchlist().filter((item) => item.mediaType === mediaType);
   }
 
   /**
@@ -213,11 +215,12 @@ export class WatchlistService {
       if (!Array.isArray(imported)) return false;
 
       // Validate structure
-      const valid = imported.every(item => 
-        item.tmdbID && 
-        item.mediaType && 
-        ['movie', 'tv'].includes(item.mediaType) &&
-        typeof item.addedAt === 'number'
+      const valid = imported.every(
+        (item) =>
+          item.tmdbID &&
+          item.mediaType &&
+          ['movie', 'tv'].includes(item.mediaType) &&
+          typeof item.addedAt === 'number'
       );
 
       if (!valid) return false;

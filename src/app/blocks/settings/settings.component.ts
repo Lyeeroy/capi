@@ -131,7 +131,7 @@ export class SettingsComponent implements OnInit {
     try {
       // Get all localStorage keys
       const keys = Object.keys(localStorage);
-      
+
       // Find all series IDs from any progress-related keys
       const seriesIds = new Set<string>();
       keys.forEach((key) => {
@@ -155,21 +155,25 @@ export class SettingsComponent implements OnInit {
 
       // Remove ALL progress-related localStorage keys
       keys.forEach((key) => {
-        if (key.startsWith('watched_episodes_') || 
-            key.startsWith('episode_progress_') ||
-            key.startsWith('clicked_episodes_') ||
-            key.startsWith('ep_progress_') ||
-            key.startsWith('ep_session_') ||
-            key.startsWith('cw_highest_') || 
-            key.startsWith('cw_pending_')) {
+        if (
+          key.startsWith('watched_episodes_') ||
+          key.startsWith('episode_progress_') ||
+          key.startsWith('clicked_episodes_') ||
+          key.startsWith('ep_progress_') ||
+          key.startsWith('ep_session_') ||
+          key.startsWith('cw_highest_') ||
+          key.startsWith('cw_pending_')
+        ) {
           localStorage.removeItem(key);
         }
       });
 
       // Notify that settings changed to refresh components
       this.saveSettings();
-      
-      console.log('All watched episodes and progress data cleared successfully');
+
+      console.log(
+        'All watched episodes and progress data cleared successfully'
+      );
     } catch (error) {
       console.error('Error clearing all watched episodes:', error);
     }
@@ -222,7 +226,11 @@ export class SettingsComponent implements OnInit {
 
   // Clear entire watchlist
   clearWatchlist() {
-    if (confirm('Are you sure you want to clear your entire watchlist? This cannot be undone.')) {
+    if (
+      confirm(
+        'Are you sure you want to clear your entire watchlist? This cannot be undone.'
+      )
+    ) {
       this.watchlistService.clearWatchlist();
     }
   }

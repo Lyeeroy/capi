@@ -35,6 +35,15 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
     { label: 'Watchlist', route: '/watchlist', svg: 'bookmarks' },
   ];
 
+  get filteredMenuItems() {
+    return this.menuItems.filter((item) => {
+      if (item.route === '/watchlist') {
+        return this.watchlistService.isEnabled();
+      }
+      return true;
+    });
+  }
+
   constructor(
     private http: HttpClient,
     private router: Router,
