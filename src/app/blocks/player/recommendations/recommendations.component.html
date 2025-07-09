@@ -1,19 +1,18 @@
 <!-- Recommendations Section -->
 <div
-  class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700"
+  class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 h-full flex flex-col"
   [style.height.px]="panelHeight"
-  [ngStyle]="mediaType === 'movie' ? { 'overflow-y': 'auto' } : {}"
 >
-  <!-- Header (clickable to expand/collapse) -->
+  <!-- Header (always visible) -->
   <div
     [ngClass]="{
       'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 lg:p-4 transition-colors': true,
-      'cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700':
-        mediaType !== 'movie',
+      'cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700': mediaType !== 'movie',
       'rounded-t-xl': isExpanded,
       'rounded-xl': !isExpanded
     }"
     (click)="mediaType !== 'movie' ? toggleExpansion() : null"
+    style="position:sticky;top:0;z-index:2"
   >
     <div class="flex items-center gap-2 lg:gap-3">
       <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
@@ -23,11 +22,6 @@
         </h2>
         <div class="text-sm text-gray-500 dark:text-gray-300 font-medium">
           <ng-container *ngIf="recommendations.length > 0; else noRec">
-            <!-- Try
-            <span class="text-blue-600 dark:text-blue-400">
-              {{ getDisplayTitle(recommendations[0]) }}
-            </span>
-            next -->
             What to watch next?
           </ng-container>
           <ng-template #noRec> No recommendations yet </ng-template>
@@ -46,8 +40,8 @@
     </div>
   </div>
 
-  <!-- Expandable Content -->
-  <div *ngIf="isExpanded" class="animate-modal-slide-up">
+  <!-- Expandable Content (scrollable) -->
+  <div *ngIf="isExpanded" class="animate-modal-slide-up overflow-y-auto flex-1 min-h-0" >
     <!-- Loading State -->
     <div
       *ngIf="isLoading"
