@@ -247,6 +247,7 @@
           [seriesId]="id?.toString() || ''"
           [mediaType]="mediaType || 'tv'"
           [isExpanded]="mediaType === 'movie'"
+          [panelHeight]="getResponsivePlaylistHeight()"
         ></app-recommendations>
       </div>
 

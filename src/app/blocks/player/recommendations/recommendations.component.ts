@@ -34,6 +34,7 @@ export class RecommendationsComponent implements OnInit, OnChanges {
   @Input() seriesId: string = '';
   @Input() mediaType: 'tv' | 'movie' = 'tv';
   @Input() isExpanded: boolean = false;
+  @Input() panelHeight?: number;
 
   recommendations: RecommendationItem[] = [];
   isLoading: boolean = false;

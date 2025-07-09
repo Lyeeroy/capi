@@ -1,9 +1,8 @@
 <!-- Recommendations Section -->
 <div
   class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700"
-  [ngStyle]="
-    mediaType === 'movie' ? { 'max-height': '70vh', 'overflow-y': 'auto' } : {}
-  "
+  [style.height.px]="panelHeight"
+  [ngStyle]="mediaType === 'movie' ? { 'overflow-y': 'auto' } : {}"
 >
   <!-- Header (clickable to expand/collapse) -->
   <div
