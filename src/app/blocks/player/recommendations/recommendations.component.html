@@ -1,23 +1,33 @@
 <!-- Recommendations Section -->
 <div
-  class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-700 h-full flex flex-col"
-  [style.height.px]="panelHeight"
+  [ngClass]="{
+    'bg-white dark:bg-zinc-900 shadow-lg': isExpanded,
+    'bg-transparent shadow-none': !isExpanded,
+    'border border-gray-200 dark:border-zinc-700 rounded-xl flex flex-col': true
+  }"
+  [style.height.px]="isExpanded ? panelHeight : null"
+  [style.overflow]="isExpanded ? null : 'visible'"
 >
   <!-- Header (always visible) -->
   <div
     [ngClass]="{
-      'bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 lg:p-4 transition-colors': true,
-      'cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700': mediaType !== 'movie',
+      'bg-gray-50/90 dark:bg-zinc-800/90 flex items-center justify-between p-4 lg:p-4 transition-colors': true,
+      'cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700':
+        mediaType !== 'movie',
       'rounded-t-xl': isExpanded,
-      'rounded-xl': !isExpanded
+      'rounded-xl': !isExpanded,
+      'backdrop-blur-sm': isExpanded,
+      'border-b border-gray-200/60 dark:border-zinc-700/60': isExpanded
     }"
     (click)="mediaType !== 'movie' ? toggleExpansion() : null"
-    style="position:sticky;top:0;z-index:2"
+    style="position: sticky; top: 0; z-index: 10"
   >
     <div class="flex items-center gap-2 lg:gap-3">
       <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
       <div>
-        <h2 class="text-base font-bold text-gray-900 dark:text-gray-100">
+        <h2
+          class="text-base font-bold text-gray-900 dark:text-gray-100 tracking-tight"
+        >
           Recommendations
         </h2>
         <div class="text-sm text-gray-500 dark:text-gray-300 font-medium">
@@ -41,7 +51,10 @@
   </div>
 
   <!-- Expandable Content (scrollable) -->
-  <div *ngIf="isExpanded" class="animate-modal-slide-up overflow-y-auto flex-1 min-h-0" >
+  <div
+    *ngIf="isExpanded"
+    class="animate-modal-slide-up overflow-y-auto flex-1 min-h-0 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 scrollbar-track-gray-100 dark:scrollbar-track-zinc-900"
+  >
     <!-- Loading State -->
     <div
       *ngIf="isLoading"
@@ -87,12 +100,14 @@
             (item.media_type === 'tv' ? 'TV' : 'Movie') +
             ')'
           "
-          class="cursor-pointer group flex flex-col p-3 lg:p-4 rounded-lg bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-all duration-200 border border-gray-200/50 dark:border-zinc-700/50 hover:border-blue-300 dark:hover:border-blue-600"
+          class="cursor-pointer group flex flex-col p-3 lg:p-4 rounded-lg bg-gray-50 dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-zinc-700 transition-all duration-200 border border-gray-200/50 dark:border-zinc-700/50 hover:border-blue-300 dark:hover:border-blue-600 shadow-sm"
         >
           <!-- Top Section: Poster + Content -->
           <div class="flex gap-3 lg:gap-4 mb-3">
             <!-- Poster -->
-            <div class="w-12 h-16 lg:w-14 lg:h-20 flex-shrink-0">
+            <div
+              class="w-12 h-16 lg:w-14 lg:h-20 flex-shrink-0 rounded-md overflow-hidden shadow"
+            >
               <img
                 [src]="
                   item.poster_path
@@ -101,7 +116,7 @@
                 "
                 [alt]="getDisplayTitle(item) + ' Poster'"
                 loading="lazy"
-                class="w-full h-full object-cover rounded-md border border-gray-200 dark:border-zinc-600 group-hover:brightness-110 transition-all duration-200"
+                class="w-full h-full object-cover border border-gray-200 dark:border-zinc-600 group-hover:brightness-110 transition-all duration-200"
               />
             </div>
 
