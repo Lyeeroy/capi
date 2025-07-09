@@ -20,6 +20,8 @@ interface RecommendationItem {
   release_date?: string;
   first_air_date?: string;
   overview: string;
+  genre_ids?: number[];
+  genres?: string[];
 }
 
 @Component({
@@ -36,6 +38,49 @@ export class RecommendationsComponent implements OnInit, OnChanges {
   recommendations: RecommendationItem[] = [];
   isLoading: boolean = false;
   error: string = '';
+  expandedDescriptions: Set<number> = new Set();
+
+  // Genre mappings for TMDB
+  private movieGenres: { [key: number]: string } = {
+    28: 'Action',
+    12: 'Adventure',
+    16: 'Animation',
+    35: 'Comedy',
+    80: 'Crime',
+    99: 'Documentary',
+    18: 'Drama',
+    10751: 'Family',
+    14: 'Fantasy',
+    36: 'History',
+    27: 'Horror',
+    10402: 'Music',
+    9648: 'Mystery',
+    10749: 'Romance',
+    878: 'Sci-Fi',
+    10770: 'TV Movie',
+    53: 'Thriller',
+    10752: 'War',
+    37: 'Western',
+  };
+
+  private tvGenres: { [key: number]: string } = {
+    10759: 'Action & Adventure',
+    16: 'Animation',
+    35: 'Comedy',
+    80: 'Crime',
+    99: 'Documentary',
+    18: 'Drama',
+    10751: 'Family',
+    10762: 'Kids',
+    9648: 'Mystery',
+    10763: 'News',
+    10764: 'Reality',
+    10765: 'Sci-Fi & Fantasy',
+    10766: 'Soap',
+    10767: 'Talk',
+    10768: 'War & Politics',
+    37: 'Western',
+  };
 
   constructor(private tmdbService: TmdbService, private router: Router) {}
 
@@ -74,6 +119,10 @@ export class RecommendationsComponent implements OnInit, OnChanges {
           .map((item: any) => ({
             ...item,
             media_type: item.media_type || this.mediaType,
+            genres: this.mapGenres(
+              item.genre_ids || [],
+              item.media_type || this.mediaType
+            ),
           }));
         this.isLoading = false;
       },
@@ -110,5 +159,25 @@ export class RecommendationsComponent implements OnInit, OnChanges {
 
   trackByFn(index: number, item: RecommendationItem): number {
     return item.id;
+  }
+
+  mapGenres(genreIds: number[], mediaType: string): string[] {
+    const genreMap = mediaType === 'movie' ? this.movieGenres : this.tvGenres;
+    return genreIds
+      .slice(0, 3)
+      .map((id) => genreMap[id])
+      .filter(Boolean);
+  }
+
+  toggleDescription(itemId: number): void {
+    if (this.expandedDescriptions.has(itemId)) {
+      this.expandedDescriptions.delete(itemId);
+    } else {
+      this.expandedDescriptions.add(itemId);
+    }
+  }
+
+  isDescriptionExpanded(itemId: number): boolean {
+    return this.expandedDescriptions.has(itemId);
   }
 }
