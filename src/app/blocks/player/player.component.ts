@@ -191,10 +191,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
           ? mediaTypeParam
           : null;
 
-      // If media type is movie, expand details by default
-      if (this.mediaType === 'movie') {
-        this.isDetailsExpanded = true;
-      }
+      // Details are collapsed by default for all media types
       this.names = this.route.snapshot.queryParams['name'];
       const queryParams = this.route.snapshot.queryParams;
       this.currentSeason = queryParams['season']
