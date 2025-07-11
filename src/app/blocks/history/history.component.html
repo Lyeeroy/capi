@@ -1,0 +1,170 @@
+<!-- History Page -->
+<div class="min-h-screen py-6">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+            Watch History
+          </h1>
+          <p class="mt-2 text-gray-600 dark:text-gray-400">
+            Start watching something to build your history!
+          </p>
+        </div>
+        <button
+          *ngIf="dateKeys.length > 0"
+          (click)="clearAllHistory()"
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-2"
+        >
+          <app-icon-lib ico="trash" class="w-4 h-4"></app-icon-lib>
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-20">
+      <div class="flex items-center gap-3">
+        <div
+          class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"
+        ></div>
+        <span class="text-gray-600 dark:text-gray-400">Loading history...</span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && dateKeys.length === 0" class="text-center py-20">
+      <div
+        class="mx-auto w-24 h-24 bg-gray-200 dark:bg-zinc-700 rounded-full flex items-center justify-center mb-6"
+      >
+        <app-icon-lib
+          ico="history"
+          class="w-12 h-12 text-gray-400 dark:text-gray-500"
+        ></app-icon-lib>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+        No history yet
+      </h3>
+      <p class="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+        Start watching something to build your history!
+      </p>
+    </div>
+
+    <!-- History Content -->
+    <div *ngIf="!isLoading && dateKeys.length > 0" class="space-y-8">
+      <!-- Date Groups -->
+      <div *ngFor="let dateKey of dateKeys" class="space-y-4">
+        <!-- Date Header -->
+        <div
+          class="sticky top-0 z-10 bg-gray-50/90 dark:bg-zinc-900/90 backdrop-blur-sm py-3"
+        >
+          <h2
+            class="text-lg font-semibold text-gray-900 dark:text-white border-l-4 border-blue-500 pl-3"
+          >
+            {{ formatDate(dateKey) }}
+          </h2>
+        </div>
+
+        <!-- History Items for this date -->
+        <div class="grid gap-3">
+          <div
+            *ngFor="let entry of groupedHistory[dateKey]; trackBy: trackByFn"
+            class="group bg-white dark:bg-zinc-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-zinc-700 overflow-hidden"
+          >
+            <div class="flex items-center gap-4 p-4">
+              <!-- Thumbnail -->
+              <div
+                class="w-16 h-20 flex-shrink-0 rounded-lg overflow-hidden shadow-sm cursor-pointer"
+                (click)="navigateToItem(entry)"
+              >
+                <img
+                  [src]="
+                    entry.poster_path
+                      ? 'https://image.tmdb.org/t/p/w154' + entry.poster_path
+                      : './assets/placeholder.png'
+                  "
+                  [alt]="getDisplayTitle(entry) + ' Poster'"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:brightness-110 transition-all duration-200"
+                />
+              </div>
+
+              <!-- Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="min-w-0 flex-1">
+                    <!-- Title -->
+                    <h3
+                      class="text-lg font-semibold text-gray-900 dark:text-white truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                      (click)="navigateToItem(entry)"
+                      [title]="getDisplayTitle(entry)"
+                    >
+                      {{ getDisplayTitle(entry) }}
+                    </h3>
+
+                    <!-- Meta Information -->
+                    <div
+                      class="flex items-center gap-3 mt-1 text-sm text-gray-500 dark:text-gray-400"
+                    >
+                      <!-- Media Type -->
+                      <span class="capitalize">
+                        {{ entry.mediaType === "tv" ? "TV Series" : "Movie" }}
+                      </span>
+
+                      <!-- Watched Percentage -->
+                      <span
+                        *ngIf="entry.watchedPercentage"
+                        class="text-green-600 dark:text-green-400 font-medium"
+                      >
+                        {{ getWatchedPercentageText(entry.watchedPercentage) }}
+                      </span>
+                    </div>
+
+                    <!-- Removal Info -->
+                    <div class="flex items-center gap-2 mt-2">
+                      <div
+                        class="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500"
+                      >
+                        <app-icon-lib
+                          [ico]="getReasonIcon(entry.reason)"
+                          class="w-3 h-3"
+                        ></app-icon-lib>
+                        <span>{{ getReasonText(entry.reason) }}</span>
+                      </div>
+                      <span class="text-gray-300 dark:text-gray-600">•</span>
+                      <span class="text-xs text-gray-400 dark:text-gray-500">
+                        {{ getTimeAgo(entry.deletedAt) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="flex items-center gap-2">
+                    <!-- Remove from History -->
+                    <button
+                      (click)="removeFromHistory(entry, dateKey)"
+                      class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
+                      [title]="'Remove from history'"
+                    >
+                      <app-icon-lib ico="times" class="w-4 h-4"></app-icon-lib>
+                    </button>
+
+                    <!-- Play/View Button -->
+                    <!-- <button
+                      (click)="navigateToItem(entry)"
+                      class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors duration-200 flex items-center gap-1"
+                    >
+                      <app-icon-lib ico="play" class="w-3 h-3"></app-icon-lib>
+                      <span>Watch</span>
+                    </button> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -33,6 +33,7 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
     { label: 'Home', route: '', svg: 'home' },
     { label: 'Discover', route: '/discover', svg: 'search' },
     { label: 'Watchlist', route: '/watchlist', svg: 'bookmarks' },
+    { label: 'History', route: '/history', svg: 'history' },
   ];
 
   get filteredMenuItems() {

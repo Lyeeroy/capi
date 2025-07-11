@@ -8,6 +8,7 @@ import { SettingsComponent } from './blocks/settings/settings.component';
 import { HomeComponent } from './blocks/home/home.component';
 import { DiscoverComponent } from './blocks/content/discover/discover.component';
 import { WatchlistComponent } from './blocks/watchlist/watchlist.component';
+import { HistoryComponent } from './blocks/history/history.component';
 
 export const routes: Routes = [
   {
@@ -37,6 +38,7 @@ export const routes: Routes = [
   { path: 'table', component: TableComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'watchlist', component: WatchlistComponent },
+  { path: 'history', component: HistoryComponent },
   {
     path: 'table/docs',
     loadComponent: () =>

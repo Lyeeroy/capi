@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HistoryService } from './history.service';
 
 export interface ContinueWatchingEntry {
   tmdbID: string;
@@ -24,6 +25,7 @@ export class ContinueWatchingService {
   private readonly MOVIE_MIN_DURATION = 4200;
 
   private sessionCache: { [key: string]: any } = {};
+  private historyService = inject(HistoryService);
 
   constructor() {
     this.cleanupOldSessionData();
@@ -59,7 +61,13 @@ export class ContinueWatchingService {
       let parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) throw new Error('Corrupted');
       parsed = parsed.filter((entry: ContinueWatchingEntry) => {
+        // Keep entries without duration (just started)
         if (!entry.duration) return true;
+
+        // Keep entries with currentTime = 0 (restarts)
+        if (entry.currentTime === 0) return true;
+
+        // Remove completed movies, keep completed TV episodes for advancement
         if (entry.currentTime >= entry.duration) {
           if (entry.mediaType === 'movie') {
             return false;
@@ -110,6 +118,9 @@ export class ContinueWatchingService {
    * For TV: If finished, advance to next episode.
    * For Movie: If finished, remove from list.
    *
+   * RESTART SUPPORT: Setting currentTime = 0 will restart the episode from the beginning,
+   * bypassing regression protection to allow legitimate restarts.
+   *
    * Foolproof: Prevent accidental overwrite if user goes back to a lower episode.
    */
   saveOrAdvance(
@@ -146,6 +157,23 @@ export class ContinueWatchingService {
     }
     const shouldRemoveNow = this.shouldRemove(entry);
     if (shouldRemoveNow) {
+      // Save to history before removing (completion)
+      const watchedPercentage = entry.duration
+        ? (entry.currentTime / entry.duration) * 100
+        : 100;
+
+      this.historyService.addEntry({
+        tmdbID: entry.tmdbID,
+        mediaType: entry.mediaType,
+        season: entry.season,
+        episode: entry.episode,
+        poster_path: entry.poster_path,
+        title: entry.title,
+        name: entry.name,
+        watchedPercentage: watchedPercentage,
+        reason: 'completed',
+      });
+
       if (entry.mediaType === 'tv' && entry.episode && entry.season) {
         this.markEpisodeAsWatchedInPlaylist(
           entry.tmdbID,
@@ -183,33 +211,130 @@ export class ContinueWatchingService {
     } else {
       list.unshift(entry);
     }
-    if (list.length > this.maxEntries) list = list.slice(0, this.maxEntries);
+
+    // Handle overflow - save removed items to history
+    if (list.length > this.maxEntries) {
+      const removedItems = list.slice(this.maxEntries);
+      removedItems.forEach((removedEntry) => {
+        const watchedPercentage = removedEntry.duration
+          ? (removedEntry.currentTime / removedEntry.duration) * 100
+          : 0;
+
+        this.historyService.addEntry({
+          tmdbID: removedEntry.tmdbID,
+          mediaType: removedEntry.mediaType,
+          season: removedEntry.season,
+          episode: removedEntry.episode,
+          poster_path: removedEntry.poster_path,
+          title: removedEntry.title,
+          name: removedEntry.name,
+          watchedPercentage: watchedPercentage,
+          reason: 'overflow',
+        });
+      });
+
+      list = list.slice(0, this.maxEntries);
+    }
+
     this.saveList(list);
   }
 
   shouldRemove(entry: ContinueWatchingEntry): boolean {
     const minDuration =
       entry.mediaType === 'tv' ? this.TV_MIN_DURATION : this.MOVIE_MIN_DURATION;
+
+    // Don't remove if duration is not set or too small (likely just started)
     if (!entry.duration || entry.duration < minDuration) return false;
+
+    // Don't remove if currentTime is 0 (restart scenario)
+    if (entry.currentTime === 0) return false;
+
+    // Remove if completed (currentTime >= duration)
     return entry.currentTime >= entry.duration;
   }
 
   removeEntry(index: number) {
     if (!this.isEnabled()) return;
     let list = this.getList();
-    list.splice(index, 1);
-    this.saveList(list);
+
+    // Save to history before removing
+    if (index >= 0 && index < list.length) {
+      const entry = list[index];
+      const watchedPercentage = entry.duration
+        ? (entry.currentTime / entry.duration) * 100
+        : 0;
+
+      this.historyService.addEntry({
+        tmdbID: entry.tmdbID,
+        mediaType: entry.mediaType,
+        season: entry.season,
+        episode: entry.episode,
+        poster_path: entry.poster_path,
+        title: entry.title,
+        name: entry.name,
+        watchedPercentage: watchedPercentage,
+        reason: 'manual',
+      });
+
+      list.splice(index, 1);
+      this.saveList(list);
+    }
   }
 
   remove(tmdbID: string, mediaType: string) {
     if (!this.isEnabled()) return;
     let list = this.getList();
+
+    // Save items to history before removing
+    const itemsToRemove = list.filter(
+      (entry) => entry.tmdbID === tmdbID && entry.mediaType === mediaType
+    );
+
+    itemsToRemove.forEach((entry) => {
+      const watchedPercentage = entry.duration
+        ? (entry.currentTime / entry.duration) * 100
+        : 0;
+
+      this.historyService.addEntry({
+        tmdbID: entry.tmdbID,
+        mediaType: entry.mediaType,
+        season: entry.season,
+        episode: entry.episode,
+        poster_path: entry.poster_path,
+        title: entry.title,
+        name: entry.name,
+        watchedPercentage: watchedPercentage,
+        reason: 'manual',
+      });
+    });
+
     list = this.filterOutEntry(list, tmdbID, mediaType);
     this.saveList(list);
   }
 
   clearAll() {
     if (!this.isEnabled()) return;
+
+    // Save all items to history before clearing
+    const list = this.getList();
+    list.forEach((entry) => {
+      const watchedPercentage = entry.duration
+        ? (entry.currentTime / entry.duration) * 100
+        : 0;
+
+      this.historyService.addEntry({
+        tmdbID: entry.tmdbID,
+        mediaType: entry.mediaType,
+        season: entry.season,
+        episode: entry.episode,
+        poster_path: entry.poster_path,
+        title: entry.title,
+        name: entry.name,
+        watchedPercentage: watchedPercentage,
+        reason: 'manual',
+      });
+    });
+
     this.memoryCache = [];
     this.cacheTimestamp = Date.now();
     localStorage.removeItem(this.key);
@@ -720,17 +845,38 @@ export class ContinueWatchingService {
         const progressData = this.getEpisodeProgress(tmdbID, season, episode);
         existingProgress = progressData.progress || 0;
       } catch {}
+
       // Get highest episode reached in this season
       let highestEpisode = this.getHighestWatched(tmdbID, season);
 
+      // EXPLICIT RESTART DETECTION: Always allow currentTime = 0 (restart)
+      if (currentTime === 0) {
+        console.log(
+          `[Continue Watching] Explicit restart detected for S${season}E${episode} - allowing restart`
+        );
+        // Clear session data for clean restart
+        this.removeSessionData(sessionKey);
+
+        // Update highest episode if this is a new episode
+        if (episode > highestEpisode) {
+          this.setHighestWatched(tmdbID, season, episode);
+        }
+        return true;
+      }
+
       // Check for potential regression (user going back to earlier episode)
-      if (episode < highestEpisode && progress < 0.9) {
-        // User is watching an earlier episode and hasn't nearly finished it
+      // Only apply regression protection when currentTime > 0 and going backwards
+      if (
+        episode < highestEpisode &&
+        progress < 0.9 &&
+        progress < existingProgress
+      ) {
+        // User is watching an earlier episode with backwards progress
         // Check if this is a legitimate regression or accidental
 
         let sessionData = this.getSessionData(sessionKey);
         const REGRESSION_GRACE_PERIOD = 10 * 60 * 1000; // 10 minutes
-        const MIN_WATCH_TIME = 2 * 60; // 2 minutes of actual watching (reduced from 5 minutes)
+        const MIN_WATCH_TIME = 2 * 60; // 2 minutes of actual watching
 
         if (!sessionData) {
           // First time watching this episode in this session
@@ -767,7 +913,9 @@ export class ContinueWatchingService {
           // Don't update progress yet, but save session data
           this.setSessionData(sessionKey, sessionData);
           console.log(
-            `[Regression Protection] Blocking progress update for S${season}E${episode} - grace period active`
+            `[Regression Protection] Blocking progress update for S${season}E${episode} - grace period active (current: ${currentTime}s, existing: ${(
+              existingProgress * duration
+            ).toFixed(1)}s)`
           );
           return false; // Block the save
         }
@@ -778,8 +926,8 @@ export class ContinueWatchingService {
         );
       }
 
-      // Save progress only if it's an improvement or user has committed to watching
-      if (progress > existingProgress || episode >= highestEpisode) {
+      // Save progress - allow all forward progress and restarts
+      if (progress >= existingProgress || episode >= highestEpisode) {
         if (episode > highestEpisode) {
           this.setHighestWatched(tmdbID, season, episode);
         }
@@ -953,6 +1101,75 @@ export class ContinueWatchingService {
     );
   }
 
+  /**
+   * Test method to verify the restart functionality works correctly
+   * This can be called from browser console for testing
+   */
+  testRestartFunctionality(tmdbID: string = 'test-456', season: number = 1) {
+    console.log('🧪 Testing Restart Functionality');
+
+    // First, simulate watching episode 1 to 50% completion
+    console.log('📺 Simulating watching Episode 1 to 50% completion...');
+    this.saveOrAdvance({
+      tmdbID,
+      mediaType: 'tv',
+      season,
+      episode: 1,
+      currentTime: 900, // 15 minutes
+      duration: 1800, // 30 minutes total (50% = 900s)
+      poster_path: '/test.jpg',
+      name: 'Test Series',
+    });
+
+    let list = this.getList();
+    let episode1Entry = list.find(
+      (e) => e.tmdbID === tmdbID && e.episode === 1
+    );
+    console.log('Episode 1 after 50% watch:', episode1Entry);
+
+    // Now try to restart episode 1 (currentTime = 0)
+    console.log('🔄 Trying to restart Episode 1 (currentTime = 0)...');
+    this.saveOrAdvance({
+      tmdbID,
+      mediaType: 'tv',
+      season,
+      episode: 1,
+      currentTime: 0, // Restart from beginning
+      duration: 1800,
+      poster_path: '/test.jpg',
+      name: 'Test Series',
+    });
+
+    list = this.getList();
+    episode1Entry = list.find((e) => e.tmdbID === tmdbID && e.episode === 1);
+    console.log('Episode 1 after restart attempt:', episode1Entry);
+
+    // Test explicit restart method
+    console.log('🔄 Testing explicit restart method...');
+    this.restartEpisode(
+      tmdbID,
+      season,
+      1,
+      '/test.jpg',
+      'Test Series',
+      'Test Series'
+    );
+
+    list = this.getList();
+    episode1Entry = list.find((e) => e.tmdbID === tmdbID && e.episode === 1);
+    console.log('Episode 1 after explicit restart:', episode1Entry);
+
+    if (episode1Entry && episode1Entry.currentTime === 0) {
+      console.log('✅ Restart functionality working correctly!');
+    } else {
+      console.log('❌ Restart functionality failed!');
+    }
+
+    console.log(
+      '🔍 To clean up test data, run: localStorage.removeItem("continueWatching")'
+    );
+  }
+
   // Helper methods for new cw_highest structure
   private getHighestWatched(tmdbID: string, season: number): number {
     try {
@@ -1022,5 +1239,94 @@ export class ContinueWatchingService {
       this.removeSessionData(key);
       localStorage.removeItem(key);
     });
+  }
+
+  /**
+   * Explicitly restart an episode from the beginning (currentTime = 0)
+   * This bypasses regression protection and clears any existing progress
+   * @param tmdbID The TMDB ID of the show
+   * @param season The season number
+   * @param episode The episode number
+   * @param poster_path Optional poster path
+   * @param title Optional title
+   * @param name Optional name
+   */
+  restartEpisode(
+    tmdbID: string,
+    season: number,
+    episode: number,
+    poster_path?: string,
+    title?: string,
+    name?: string
+  ): void {
+    if (!this.isEnabled()) return;
+
+    console.log(
+      `[Continue Watching] Explicitly restarting S${season}E${episode}`
+    );
+
+    // Create a restart entry with currentTime = 0
+    const restartEntry: ContinueWatchingEntry = {
+      tmdbID,
+      mediaType: 'tv',
+      season,
+      episode,
+      currentTime: 0,
+      duration: 0, // Will be updated when the player loads
+      poster_path,
+      title,
+      name,
+    };
+
+    // Remove any existing entry for this episode
+    let list = this.getList();
+    list = list.filter(
+      (e) =>
+        !(
+          e.tmdbID === tmdbID &&
+          e.mediaType === 'tv' &&
+          e.season === season &&
+          e.episode === episode
+        )
+    );
+
+    // Add the restart entry at the beginning
+    list.unshift(restartEntry);
+
+    // Clean up session data for fresh start
+    const sessionKey = `ep_session_${tmdbID}_s${season}_e${episode}`;
+    this.removeSessionData(sessionKey);
+
+    // Don't mark as unwatched in playlist - user might want to restart a watched episode
+
+    this.saveList(list);
+  }
+
+  /**
+   * Check if a specific episode is currently in the continue watching list
+   * @param tmdbID The TMDB ID of the show
+   * @param season The season number
+   * @param episode The episode number
+   * @returns boolean indicating if the episode is in continue watching
+   */
+  isInContinueWatching(
+    tmdbID: string,
+    season: number,
+    episode: number
+  ): boolean {
+    if (!this.isEnabled()) return false;
+
+    try {
+      const list = this.getList();
+      return list.some(
+        (entry) =>
+          entry.tmdbID === tmdbID &&
+          entry.mediaType === 'tv' &&
+          entry.season === season &&
+          entry.episode === episode
+      );
+    } catch {
+      return false;
+    }
   }
 }
