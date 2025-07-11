@@ -40,6 +40,7 @@ export class RecommendationsComponent implements OnInit, OnChanges {
   isLoading: boolean = false;
   error: string = '';
   expandedDescriptions: Set<number> = new Set();
+  expandedItems: Set<number> = new Set();
 
   // Genre mappings for TMDB
   private movieGenres: { [key: number]: string } = {
@@ -180,5 +181,17 @@ export class RecommendationsComponent implements OnInit, OnChanges {
 
   isDescriptionExpanded(itemId: number): boolean {
     return this.expandedDescriptions.has(itemId);
+  }
+
+  toggleItemExpansion(itemId: number): void {
+    if (this.expandedItems.has(itemId)) {
+      this.expandedItems.delete(itemId);
+    } else {
+      this.expandedItems.add(itemId);
+    }
+  }
+
+  isItemExpanded(itemId: number): boolean {
+    return this.expandedItems.has(itemId);
   }
 }
