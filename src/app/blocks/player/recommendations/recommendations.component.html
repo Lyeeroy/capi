@@ -104,7 +104,9 @@
             "
           >
             <!-- Thumbnail -->
-            <div class="w-10 h-14 flex-shrink-0 rounded-md overflow-hidden shadow">
+            <div
+              class="w-10 h-14 flex-shrink-0 rounded-md overflow-hidden shadow"
+            >
               <img
                 [src]="
                   item.poster_path
@@ -120,16 +122,25 @@
             <!-- Title -->
             <div class="flex-1 min-w-0">
               <h3
-                class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200"
+                class="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200 leading-tight"
+                [class.truncate]="!isItemExpanded(item.id)"
+                [class.line-clamp-none]="isItemExpanded(item.id)"
               >
                 {{ getDisplayTitle(item) }}
               </h3>
               <div class="text-xs text-gray-500 dark:text-gray-400">
-                <ng-container *ngIf="item.genres && item.genres.length > 0; else showMediaType">
+                <ng-container
+                  *ngIf="
+                    item.genres && item.genres.length > 0;
+                    else showMediaType
+                  "
+                >
                   {{ item.genres[0] }}
                 </ng-container>
                 <ng-template #showMediaType>
-                  <span class="capitalize">{{ item.media_type === "tv" ? "TV Series" : "Movie" }}</span>
+                  <span class="capitalize">{{
+                    item.media_type === "tv" ? "TV Series" : "Movie"
+                  }}</span>
                 </ng-template>
               </div>
             </div>
