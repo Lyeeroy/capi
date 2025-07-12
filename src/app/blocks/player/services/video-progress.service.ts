@@ -62,7 +62,10 @@ export class VideoProgressService {
   registerPlaylistComponent(playlistComponent: any): void {
     this.playlistComponent = playlistComponent;
     // Mark the current episode as clicked when playback starts
-    if (this.playlistComponent && typeof this.playlistComponent.markActiveEpisodeAsClicked === 'function') {
+    if (
+      this.playlistComponent &&
+      typeof this.playlistComponent.markActiveEpisodeAsClicked === 'function'
+    ) {
       this.playlistComponent.markActiveEpisodeAsClicked();
     }
   }
@@ -296,20 +299,23 @@ export class VideoProgressService {
    * Save progress to continue watching service
    */
   saveProgress = (totalEpisodesInSeason?: number): boolean => {
-    if (!this.id || !this.mediaType) return false;
-    // Only skip saving if API response is not loaded yet
-    if (!this.responseData) return false;
+    if (!this.id || !this.mediaType || !this.responseData) {
+      return false;
+    }
 
     const { currentTime, duration } = this.getCurrentTimeAndDuration();
 
-    // Immediately update playlist component with current progress
-    if (this.playlistComponent && 
-        typeof this.playlistComponent.updateEpisodeProgressImmediate === 'function' &&
-        this.mediaType === 'tv') {
+    // Optimized playlist update for TV only
+    if (
+      this.playlistComponent &&
+      this.mediaType === 'tv' &&
+      typeof this.playlistComponent.updateEpisodeProgressImmediate ===
+        'function'
+    ) {
       const progress = duration > 0 ? currentTime / duration : 0;
       this.playlistComponent.updateEpisodeProgressImmediate(
-        this.currentSeason, 
-        this.currentEpisode, 
+        this.currentSeason,
+        this.currentEpisode,
         progress
       );
     }

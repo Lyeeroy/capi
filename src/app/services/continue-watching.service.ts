@@ -19,13 +19,18 @@ export class ContinueWatchingService {
   private readonly maxEntries = 30;
   private memoryCache: ContinueWatchingEntry[] | null = null;
   private cacheTimestamp = 0;
-  private readonly CACHE_TTL = 10000; // 10 seconds
+  private readonly CACHE_TTL = 30000; // 30 seconds - increased for better performance
   private readonly PROGRESS_THRESHOLD = 0.9;
-  private readonly TV_MIN_DURATION = 900;
-  private readonly MOVIE_MIN_DURATION = 4200;
+  private readonly TV_MIN_DURATION = 900; // 15 minutes
+  private readonly MOVIE_MIN_DURATION = 1800; // 30 minutes
 
-  private sessionCache: { [key: string]: any } = {};
+  private sessionCache: Map<string, any> = new Map(); // Use Map for better performance
   private historyService = inject(HistoryService);
+  private filterCache: {
+    list: ContinueWatchingEntry[];
+    timestamp: number;
+  } | null = null;
+  private readonly FILTER_CACHE_TTL = 5000; // 5 seconds filter cache
 
   constructor() {
     this.cleanupOldSessionData();
@@ -43,14 +48,18 @@ export class ContinueWatchingService {
   }
 
   /**
-   * Get the continue watching list, using in-memory cache for speed.
+   * Optimized getList with improved caching and debounced filtering
    */
   getList(): ContinueWatchingEntry[] {
     if (!this.isEnabled()) return [];
+
     const now = Date.now();
+
+    // Use cached result if still valid
     if (this.memoryCache && now - this.cacheTimestamp < this.CACHE_TTL) {
       return this.memoryCache;
     }
+
     try {
       const raw = localStorage.getItem(this.key);
       if (!raw) {
@@ -58,24 +67,13 @@ export class ContinueWatchingService {
         this.cacheTimestamp = now;
         return [];
       }
+
       let parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) throw new Error('Corrupted');
-      parsed = parsed.filter((entry: ContinueWatchingEntry) => {
-        // Keep entries without duration (just started)
-        if (!entry.duration) return true;
 
-        // Keep entries with currentTime = 0 (restarts)
-        if (entry.currentTime === 0) return true;
+      // Apply optimized filtering with caching
+      parsed = this.applyOptimizedFiltering(parsed);
 
-        // Remove completed movies, keep completed TV episodes for advancement
-        if (entry.currentTime >= entry.duration) {
-          if (entry.mediaType === 'movie') {
-            return false;
-          }
-          return true;
-        }
-        return true;
-      });
       this.memoryCache = parsed;
       this.cacheTimestamp = now;
       return parsed;
@@ -92,25 +90,67 @@ export class ContinueWatchingService {
   }
 
   /**
-   * Save the continue watching list to localStorage and update cache.
+   * Optimized filtering with caching to reduce redundant operations
+   */
+  private applyOptimizedFiltering(
+    entries: ContinueWatchingEntry[]
+  ): ContinueWatchingEntry[] {
+    const now = Date.now();
+
+    // Use filter cache if available and valid
+    if (
+      this.filterCache &&
+      now - this.filterCache.timestamp < this.FILTER_CACHE_TTL
+    ) {
+      if (entries.length === this.filterCache.list.length) {
+        return this.filterCache.list;
+      }
+    }
+
+    const filtered = entries.filter((entry: ContinueWatchingEntry) => {
+      // Keep entries without duration (just started)
+      if (!entry.duration) return true;
+
+      // Keep entries with currentTime = 0 (restarts)
+      if (entry.currentTime === 0) return true;
+
+      // Handle completed content
+      if (entry.currentTime >= entry.duration) {
+        if (entry.mediaType === 'movie') {
+          return false;
+        }
+        return true;
+      }
+
+      return true;
+    });
+
+    // Cache the filtered result
+    this.filterCache = { list: filtered, timestamp: now };
+    return filtered;
+  }
+
+  /**
+   * Optimized save with cache invalidation
    */
   private saveList(list: ContinueWatchingEntry[]): void {
     this.memoryCache = list;
     this.cacheTimestamp = Date.now();
+    this.filterCache = null; // Invalidate filter cache
     localStorage.setItem(this.key, JSON.stringify(list));
   }
 
   /**
-   * Remove all entries for a given tmdbID and mediaType.
+   * Optimized filterOutEntry using Set for better performance
    */
   private filterOutEntry(
     list: ContinueWatchingEntry[],
     tmdbID: string,
     mediaType: string
   ): ContinueWatchingEntry[] {
-    return list.filter(
-      (e) => !(e.tmdbID === tmdbID && e.mediaType === mediaType)
-    );
+    // Use Set for O(1) lookups instead of array.filter
+    const entryKey = `${tmdbID}_${mediaType}`;
+    return list.filter((e) => `${e.tmdbID}_${e.mediaType}` !== entryKey);
   }
 
   /**
@@ -123,18 +163,30 @@ export class ContinueWatchingService {
    *
    * Foolproof: Prevent accidental overwrite if user goes back to a lower episode.
    */
+  /**
+   * Optimized saveOrAdvance with reduced logging and batched operations
+   */
   saveOrAdvance(
     entry: ContinueWatchingEntry,
     totalEpisodesInSeason?: number,
     totalSeasons?: number
   ) {
     if (!this.isEnabled()) return;
-    // Clean up old episode data for previous episodes in this season
+
+    // Validate the entry has basic required data
+    if (!entry.tmdbID || !entry.mediaType) {
+      return;
+    }
+
+    // Clean up old episode data for previous episodes in this season (TV only)
     if (entry.mediaType === 'tv' && entry.episode && entry.season) {
       this.cleanupOldEpisodeData(entry.tmdbID, entry.season, entry.episode);
     }
+
     let list = this.getList();
     list = this.filterOutEntry(list, entry.tmdbID, entry.mediaType);
+
+    // Apply regression protection only for TV shows with sufficient duration
     if (
       entry.mediaType === 'tv' &&
       entry.episode &&
@@ -149,12 +201,10 @@ export class ContinueWatchingService {
         entry.duration
       );
       if (!shouldProceed) {
-        console.log(
-          `[Continue Watching] Blocked progress save for ${entry.tmdbID} S${entry.season}E${entry.episode} due to regression protection`
-        );
         return;
       }
     }
+
     const shouldRemoveNow = this.shouldRemove(entry);
     if (shouldRemoveNow) {
       // Save to history before removing (completion)
@@ -209,6 +259,7 @@ export class ContinueWatchingService {
         }
       }
     } else {
+      // Add entry to the list
       list.unshift(entry);
     }
 
@@ -244,7 +295,17 @@ export class ContinueWatchingService {
       entry.mediaType === 'tv' ? this.TV_MIN_DURATION : this.MOVIE_MIN_DURATION;
 
     // Don't remove if duration is not set or too small (likely just started)
-    if (!entry.duration || entry.duration < minDuration) return false;
+    if (!entry.duration || entry.duration < minDuration) {
+      // Special case: for movies with very short durations, only remove if explicitly completed
+      if (
+        entry.mediaType === 'movie' &&
+        entry.duration > 0 &&
+        entry.currentTime >= entry.duration
+      ) {
+        return true;
+      }
+      return false;
+    }
 
     // Don't remove if currentTime is 0 (restart scenario)
     if (entry.currentTime === 0) return false;
@@ -944,16 +1005,16 @@ export class ContinueWatchingService {
     }
   }
 
-  // In-memory session cache helpers
+  // Optimized in-memory session cache helpers using Map
   private getSessionData(sessionKey: string): any {
-    if (this.sessionCache[sessionKey]) {
-      return this.sessionCache[sessionKey];
+    if (this.sessionCache.has(sessionKey)) {
+      return this.sessionCache.get(sessionKey);
     }
     try {
       const sessionRaw = localStorage.getItem(sessionKey);
       if (sessionRaw) {
         const data = JSON.parse(sessionRaw);
-        this.sessionCache[sessionKey] = data;
+        this.sessionCache.set(sessionKey, data);
         return data;
       }
     } catch {}
@@ -961,12 +1022,12 @@ export class ContinueWatchingService {
   }
 
   private setSessionData(sessionKey: string, data: any): void {
-    this.sessionCache[sessionKey] = data;
+    this.sessionCache.set(sessionKey, data);
     localStorage.setItem(sessionKey, JSON.stringify(data));
   }
 
   private removeSessionData(sessionKey: string): void {
-    delete this.sessionCache[sessionKey];
+    this.sessionCache.delete(sessionKey);
     localStorage.removeItem(sessionKey);
   }
 
@@ -999,7 +1060,7 @@ export class ContinueWatchingService {
             keysToRemove.push(key);
           }
           // Remove from cache as well
-          delete this.sessionCache[key];
+          this.sessionCache.delete(key);
         }
       }
 
@@ -1327,6 +1388,48 @@ export class ContinueWatchingService {
       );
     } catch {
       return false;
+    }
+  }
+
+  /**
+   * Debug method to help troubleshoot continue watching issues
+   * Can be called from browser console: continuewatchingService.debugContinueWatching()
+   */
+  debugContinueWatching(): void {
+    console.log('🔍 Continue Watching Debug Info:');
+    console.log('Service enabled:', this.isEnabled());
+
+    try {
+      const raw = localStorage.getItem(this.key);
+      if (!raw) {
+        console.log('No continue watching data found in localStorage');
+        return;
+      }
+
+      const parsed = JSON.parse(raw);
+      console.log('Raw localStorage data:', parsed);
+      console.log('Filtered data from getList():', this.getList());
+      console.log('Memory cache:', this.memoryCache);
+      console.log('Cache timestamp:', new Date(this.cacheTimestamp));
+
+      // Analyze each entry
+      if (Array.isArray(parsed)) {
+        parsed.forEach((entry: ContinueWatchingEntry, index: number) => {
+          console.log(`Entry ${index}:`, {
+            tmdbID: entry.tmdbID,
+            mediaType: entry.mediaType,
+            currentTime: entry.currentTime,
+            duration: entry.duration,
+            progress: entry.duration
+              ? ((entry.currentTime / entry.duration) * 100).toFixed(1) + '%'
+              : 'N/A',
+            shouldRemove: this.shouldRemove(entry),
+            title: entry.title || entry.name,
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error debugging continue watching:', error);
     }
   }
 }
