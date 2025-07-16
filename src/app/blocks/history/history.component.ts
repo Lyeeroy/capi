@@ -34,7 +34,9 @@ export class HistoryComponent implements OnInit {
   }
 
   navigateToItem(entry: HistoryEntry) {
-    this.router.navigate(['/player', entry.tmdbID, entry.mediaType]);
+    this.router.navigate(['/player', entry.tmdbID, entry.mediaType], {
+      queryParams: { season: entry.season || 0, episode: entry.episode || 0 },
+    });
   }
 
   removeFromHistory(entry: HistoryEntry, dateKey: string) {
