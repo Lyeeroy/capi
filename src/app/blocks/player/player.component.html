@@ -184,7 +184,7 @@
             (click)="closeDetailsModal()"
           >
             <div
-              class="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden modal-content relative"
+              class="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden modal-content relative"
               (click)="$event.stopPropagation()"
             >
               <!-- Modal Header -->
@@ -219,7 +219,7 @@
                 </button>
               </div>
               <!-- Modal Content -->
-              <div class="p-4 max-h-[60vh] overflow-y-auto">
+              <div class="p-4 max-h-[80vh] overflow-y-auto">
                 <app-info
                   class="block"
                   [names]="names || ''"
@@ -287,79 +287,120 @@
         }"
       >
         <!-- Recommendations Header (clickable to open modal) -->
-        <div
-          class="bg-gray-50 border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors rounded-xl mb-2"
-          (click)="openRecommendationsModal()"
-        >
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-7 bg-purple-500 rounded-full"></div>
-            <div>
-              <h2
-                class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
-              >
-                Recommendations
-              </h2>
-              <div class="text-sm text-gray-500 dark:text-gray-300 font-medium">
-                For you
-              </div>
-            </div>
-          </div>
-          <div class="transition-transform duration-200">
-            <app-icon-lib
-              ico="chevronDown"
-              class="w-4 h-4 text-gray-500 dark:text-gray-300 rotate-270"
-            ></app-icon-lib>
-          </div>
-        </div>
-        <!-- Modal for Recommendations -->
-        <div
-          *ngIf="isRecommendationsModalOpen"
-          class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50 p-4 modal-overlay"
-          (click)="closeRecommendationsModal()"
-        >
+        <!-- Expanded Recommendations for movies, modal for others -->
+        <ng-container *ngIf="mediaType === 'movie'; else recommendationsModal">
           <div
-            class="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden modal-content relative"
-            (click)="$event.stopPropagation()"
+            class="rounded-xl mb-2 border border-gray-200 dark:border-zinc-700"
           >
-            <!-- Modal Header -->
+            <!-- Brighter header -->
             <div
-              class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 rounded-t-xl"
+              class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-zinc-800 rounded-t-xl"
             >
-              <div class="flex items-center gap-3">
-                <div class="w-2 h-7 bg-purple-500 rounded-full"></div>
-                <div>
-                  <h2
-                    class="text-lg font-bold text-gray-900 dark:text-gray-100"
-                  >
-                    Recommendations
-                  </h2>
-                  <div class="text-sm text-gray-500 dark:text-gray-300">
-                    For you
-                  </div>
+              <div class="w-2 h-7 bg-purple-500 rounded-full"></div>
+              <div>
+                <h2
+                  class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+                >
+                  Recommendations
+                </h2>
+                <div
+                  class="text-sm text-gray-500 dark:text-gray-300 font-medium"
+                >
+                  For you
                 </div>
               </div>
-              <button
-                (click)="closeRecommendationsModal()"
-                class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 hover:border-purple-500 dark:hover:border-purple-400 border border-transparent dark:border-transparent transition-colors"
-              >
-                <app-icon-lib
-                  ico="close"
-                  class="w-5 h-5 text-gray-600 dark:text-gray-200"
-                ></app-icon-lib>
-              </button>
             </div>
-            <!-- Modal Content -->
-            <div class="p-4">
+            <!-- Darker content area, no inner border, with subtle top/bottom spacing -->
+            <div class="bg-gray-100 dark:bg-zinc-900 rounded-b-xl pt-2 pb-2">
               <app-recommendations
                 [seriesId]="id?.toString() || ''"
                 [mediaType]="mediaType || 'tv'"
                 [isExpanded]="true"
                 [panelHeight]="getResponsivePlaylistHeight()"
                 [hideHeader]="true"
+                class="border-none"
               ></app-recommendations>
             </div>
           </div>
-        </div>
+        </ng-container>
+        <ng-template #recommendationsModal>
+          <div
+            class="bg-gray-50 border border-gray-200 dark:border-zinc-700 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors rounded-xl mb-2"
+            (click)="openRecommendationsModal()"
+          >
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-7 bg-purple-500 rounded-full"></div>
+              <div>
+                <h2
+                  class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
+                >
+                  Recommendations
+                </h2>
+                <div
+                  class="text-sm text-gray-500 dark:text-gray-300 font-medium"
+                >
+                  For you
+                </div>
+              </div>
+            </div>
+            <div class="transition-transform duration-200">
+              <app-icon-lib
+                ico="chevronDown"
+                class="w-4 h-4 text-gray-500 dark:text-gray-300 rotate-270"
+              ></app-icon-lib>
+            </div>
+          </div>
+          <!-- Modal for Recommendations -->
+          <div
+            *ngIf="isRecommendationsModalOpen"
+            class="fixed inset-0 bg-black/20 bg-opacity-50 flex items-center justify-center z-50 p-4 modal-overlay"
+            (click)="closeRecommendationsModal()"
+          >
+            <div
+              class="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden modal-content relative"
+              (click)="$event.stopPropagation()"
+            >
+              <!-- Modal Header -->
+              <div
+                class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 rounded-t-xl"
+              >
+                <div class="flex items-center gap-3">
+                  <div class="w-2 h-7 bg-purple-500 rounded-full"></div>
+                  <div>
+                    <h2
+                      class="text-lg font-bold text-gray-900 dark:text-gray-100"
+                    >
+                      Recommendations
+                    </h2>
+                    <div class="text-sm text-gray-500 dark:text-gray-300">
+                      For you
+                    </div>
+                  </div>
+                </div>
+                <button
+                  (click)="closeRecommendationsModal()"
+                  class="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-zinc-700 hover:border-purple-500 dark:hover:border-purple-400 border border-transparent dark:border-transparent transition-colors"
+                >
+                  <app-icon-lib
+                    ico="close"
+                    class="w-5 h-5 text-gray-600 dark:text-gray-200"
+                  ></app-icon-lib>
+                </button>
+              </div>
+              <!-- Modal Content -->
+              <div>
+                <app-recommendations
+                  [seriesId]="id?.toString() || ''"
+                  [mediaType]="mediaType || 'tv'"
+                  [isExpanded]="true"
+                  [panelHeight]="getResponsivePlaylistHeight()"
+                  [hideHeader]="true"
+                  (itemSelected)="closeRecommendationsModal()"
+                ></app-recommendations>
+              </div>
+            </div>
+          </div>
+        </ng-template>
       </div>
 
       <!-- Mobile Details Section (visible only on mobile, moved after playlist) -->
@@ -410,7 +451,7 @@
             (click)="closeDetailsModal()"
           >
             <div
-              class="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden modal-content relative"
+              class="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden modal-content relative"
               (click)="$event.stopPropagation()"
             >
               <!-- Modal Header -->

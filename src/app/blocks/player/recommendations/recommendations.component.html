@@ -3,7 +3,7 @@
   [ngClass]="{
     'bg-white dark:bg-zinc-900 shadow-lg': isExpanded,
     'bg-transparent shadow-none': !isExpanded,
-    'border border-gray-200 dark:border-zinc-700 rounded-xl flex flex-col': true
+    ' rounded-xl flex flex-col': true
   }"
   [style.height.px]="isExpanded ? panelHeight : null"
   [style.overflow]="isExpanded ? null : 'visible'"
@@ -86,16 +86,16 @@
     <!-- Recommendations List -->
     <div
       *ngIf="!isLoading && !error && recommendations.length > 0"
-      class="p-2 lg:p-3"
+      class="px-2 lg:px-3"
     >
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2 w-full">
         <div
           *ngFor="let item of recommendations; trackBy: trackByFn"
-          class="group rounded-lg bg-gray-50 dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-zinc-700 transition-all duration-200 border border-gray-200/50 dark:border-zinc-700/50 hover:border-blue-300 dark:hover:border-blue-600 shadow-sm overflow-hidden"
+          class="group rounded-lg bg-gray-50 dark:bg-zinc-800 hover:bg-blue-50 dark:hover:bg-zinc-700 transition-all duration-200 border border-gray-200/50 dark:border-zinc-700/50 hover:border-blue-300 dark:hover:border-blue-600 shadow-sm overflow-hidden w-full"
         >
           <!-- Compact Main Row -->
           <div
-            class="flex items-center gap-3 p-2 cursor-pointer"
+            class="flex items-center gap-3 p-2 cursor-pointer w-full"
             (click)="navigateToItem(item)"
             [title]="
               getDisplayTitle(item) +
@@ -172,7 +172,7 @@
           <!-- Expandable Details -->
           <div
             *ngIf="isItemExpanded(item.id)"
-            class="border-t border-gray-200/50 dark:border-zinc-700/50 p-3 bg-gray-25 dark:bg-zinc-800/50 animate-modal-slide-up"
+            class="border-t border-gray-200/50 dark:border-zinc-700/50 p-3 bg-gray-25 dark:bg-zinc-800/50 animate-modal-slide-up w-full"
           >
             <!-- Meta information -->
             <div class="flex items-center gap-2 mb-2">

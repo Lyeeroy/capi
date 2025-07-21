@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   Input,
+  Output,
+  EventEmitter,
   OnInit,
   OnChanges,
   SimpleChanges,
@@ -31,6 +33,7 @@ interface RecommendationItem {
   templateUrl: './recommendations.component.html',
 })
 export class RecommendationsComponent implements OnInit, OnChanges {
+  @Output() itemSelected = new EventEmitter<RecommendationItem>();
   @Input() hideHeader: boolean = false;
   @Input() seriesId: string = '';
   @Input() mediaType: 'tv' | 'movie' = 'tv';
@@ -142,6 +145,7 @@ export class RecommendationsComponent implements OnInit, OnChanges {
   }
 
   navigateToItem(item: RecommendationItem) {
+    this.itemSelected.emit(item);
     if (item.media_type === 'movie') {
       this.router.navigate([`/player/${item.id}/movie`]);
     } else {
