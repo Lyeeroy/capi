@@ -102,6 +102,16 @@ interface TMDBResponse {
   providers: [LoadSourcesService],
 })
 export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
+  isRecommendationsModalOpen: boolean = false;
+  openRecommendationsModal(): void {
+    this.isRecommendationsModalOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeRecommendationsModal(): void {
+    this.isRecommendationsModalOpen = false;
+    document.body.style.overflow = 'auto';
+  }
   @ViewChild('playlistContainer') playlistContainer!: ElementRef;
   @ViewChild('videoContainer') videoContainer!: ElementRef;
   @ViewChild(PlaylistComponent) playlistComponent!: PlaylistComponent;
@@ -134,7 +144,8 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   onShowPlaylist: boolean = true;
   onShowDetails: boolean = false;
   showIframe: boolean = true;
-  isDetailsExpanded: boolean = false;
+  isDetailsExpanded: boolean = false; // legacy, not used for modal
+  isDetailsModalOpen: boolean = false;
   playlistHeight: number = 0;
 
   // Video sources
@@ -512,8 +523,14 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.onShowDetails = true;
   }
 
-  toggleDetailsExpansion(): void {
-    this.isDetailsExpanded = !this.isDetailsExpanded;
+  openDetailsModal(): void {
+    this.isDetailsModalOpen = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeDetailsModal(): void {
+    this.isDetailsModalOpen = false;
+    document.body.style.overflow = 'auto';
   }
 
   cancel(): void {

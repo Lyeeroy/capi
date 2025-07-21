@@ -8,8 +8,9 @@
   [style.height.px]="isExpanded ? panelHeight : null"
   [style.overflow]="isExpanded ? null : 'visible'"
 >
-  <!-- Header (always visible) -->
+  <!-- Header (conditionally visible) -->
   <div
+    *ngIf="!hideHeader"
     [ngClass]="{
       'bg-gray-50/90 dark:bg-zinc-800/90 flex items-center justify-between p-4 lg:p-4 transition-colors': true,
       'cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700':

@@ -31,6 +31,7 @@ interface RecommendationItem {
   templateUrl: './recommendations.component.html',
 })
 export class RecommendationsComponent implements OnInit, OnChanges {
+  @Input() hideHeader: boolean = false;
   @Input() seriesId: string = '';
   @Input() mediaType: 'tv' | 'movie' = 'tv';
   @Input() isExpanded: boolean = false;
