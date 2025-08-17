@@ -1,12 +1,14 @@
 <!-- Recommendations Section -->
 <div
   [ngClass]="{
-    'bg-white dark:bg-zinc-900 shadow-lg': isExpanded,
+    'bg-white dark:bg-zinc-900 shadow-sm': isExpanded,
     'bg-transparent shadow-none': !isExpanded,
-    ' rounded-xl flex flex-col': true
+    'rounded-xl flex flex-col': true
   }"
   [style.height.px]="isExpanded ? panelHeight : null"
   [style.overflow]="isExpanded ? null : 'visible'"
+  class="w-[98vw] sm:w-[95vw] md:w-[90vw] lg:w-[600px] xl:w-[700px] 2xl:w-[800px] max-w-full mx-auto min-w-0"
+  style="contain: layout"
 >
   <!-- Header (conditionally visible) -->
   <div
@@ -54,7 +56,8 @@
   <!-- Expandable Content (scrollable) -->
   <div
     *ngIf="isExpanded"
-    class="animate-modal-slide-up overflow-y-auto flex-1 min-h-0 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 scrollbar-track-gray-100 dark:scrollbar-track-zinc-900"
+    class="animate-modal-slide-up overflow-y-auto flex-1 min-h-0 pt-2 pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 scrollbar-track-gray-100 dark:scrollbar-track-zinc-900"
+    style="max-height: calc(85vh - 64px); margin-bottom: 2px"
   >
     <!-- Loading State -->
     <div
