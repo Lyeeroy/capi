@@ -34,11 +34,13 @@ export class CarouselComponent implements OnInit, OnDestroy {
   currentSlide = 0;
   slideInterval: any;
   private fetchSubscription: Subscription | null = null;
+  private slideChangeDebounceTimer: any;
 
   isDragging = false;
   startX = 0;
   currentTranslateX = 0;
   isMouseOver = false;
+  preloadedImages: Set<string> = new Set();
 
   constructor(
     private tmdbService: TmdbService,
@@ -57,6 +59,10 @@ export class CarouselComponent implements OnInit, OnDestroy {
     this.stopAutoplay();
     this.unsubscribeFetch();
     this.removeDragListeners();
+    if (this.slideChangeDebounceTimer) {
+      clearTimeout(this.slideChangeDebounceTimer);
+    }
+    this.preloadedImages.clear();
   }
 
   fetchData(): void {
@@ -115,17 +121,51 @@ export class CarouselComponent implements OnInit, OnDestroy {
     this.slideInterval = null;
   }
 
+  private preloadImages(currentIndex: number): void {
+    if (this.items.length === 0) return;
+    
+    // Preload next and previous images
+    const nextIndex = (currentIndex + 1) % this.items.length;
+    const prevIndex = (currentIndex - 1 + this.items.length) % this.items.length;
+    
+    [nextIndex, prevIndex].forEach(index => {
+      const item = this.items[index];
+      if (item && item.backdrop_path) {
+        const imageUrl = 'https://image.tmdb.org/t/p/w1280' + item.backdrop_path;
+        if (!this.preloadedImages.has(imageUrl)) {
+          const img = new Image();
+          img.src = imageUrl;
+          this.preloadedImages.add(imageUrl);
+        }
+      }
+    });
+  }
+
+  private debounceSlideChange(callback: () => void): void {
+    if (this.slideChangeDebounceTimer) {
+      clearTimeout(this.slideChangeDebounceTimer);
+    }
+    this.slideChangeDebounceTimer = setTimeout(callback, 50);
+  }
+
   nextSlide(): void {
     if (this.items.length === 0) return;
-    this.currentSlide = (this.currentSlide + 1) % this.items.length;
-    this.cdRef.detectChanges();
+    
+    this.debounceSlideChange(() => {
+      this.currentSlide = (this.currentSlide + 1) % this.items.length;
+      this.preloadImages(this.currentSlide);
+      this.cdRef.detectChanges();
+    });
   }
 
   prevSlide(): void {
     if (this.items.length === 0) return;
-    this.currentSlide =
-      (this.currentSlide - 1 + this.items.length) % this.items.length;
-    this.cdRef.detectChanges();
+    
+    this.debounceSlideChange(() => {
+      this.currentSlide = (this.currentSlide - 1 + this.items.length) % this.items.length;
+      this.preloadImages(this.currentSlide);
+      this.cdRef.detectChanges();
+    });
   }
 
   onMouseEnter(): void {
@@ -169,9 +209,22 @@ export class CarouselComponent implements OnInit, OnDestroy {
   onDragging(event: MouseEvent | TouchEvent): void {
     if (!this.isDragging) return;
 
+    const currentX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+    const deltaX = currentX - this.startX;
+    const containerWidth = this.el.nativeElement.offsetWidth;
+    
+    // Convert pixel offset to percentage
+    this.currentTranslateX = (deltaX / containerWidth) * 100;
+
+    // Limit the drag range
+    const maxDrag = 100;  // percentage
+    this.currentTranslateX = Math.max(Math.min(this.currentTranslateX, maxDrag), -maxDrag);
+
     if (event instanceof TouchEvent) {
       event.preventDefault();
     }
+
+    this.cdRef.detectChanges();
   }
 
   onDragEnd(event: MouseEvent | TouchEvent): void {
