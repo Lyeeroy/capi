@@ -1,8 +1,8 @@
 <!-- Unified Navigation Bar -->
 <header
-  class="sticky top-0 z-50 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800"
+  class="sticky top-0 z-50 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700"
 >
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Left: Mobile Menu, Logo and Navigation -->
       <div class="flex items-center gap-3 lg:gap-8">
@@ -67,43 +67,43 @@
         </nav>
       </div>
 
-      <!-- Center: Search Bar (Desktop) -->
-      <div class="hidden lg:block flex-1 max-w-2xl mx-8">
-        <div class="relative">
-          <div
-            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
-          >
-            <app-icon-lib
-              ico="search"
-              class="h-5 w-5 text-gray-400"
-            ></app-icon-lib>
+      <!-- Right: Search Bar (Desktop) + Action Buttons -->
+      <div class="flex items-center gap-3">
+        <!-- Search Bar (Desktop only) -->
+        <div class="hidden lg:block w-94">
+          <div class="relative">
+            <div
+              class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+            >
+              <app-icon-lib
+                ico="search"
+                class="h-5 w-5 text-gray-400"
+              ></app-icon-lib>
+            </div>
+            <input
+              id="search"
+              type="text"
+              placeholder="Search movies, TV shows..."
+              [(ngModel)]="query"
+              (input)="searchMovies()"
+              (keydown.enter)="searchMovies()"
+              class="block w-full pl-10 pr-10 py-2 bg-gray-100 dark:bg-zinc-800 border-0 rounded-full text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-zinc-700"
+            />
+            <button
+              *ngIf="query.length > 0"
+              type="button"
+              (click)="clearSearch(); focusSearchInput()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center"
+              aria-label="Clear search"
+            >
+              <app-icon-lib
+                ico="clear"
+                class="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              ></app-icon-lib>
+            </button>
           </div>
-          <input
-            id="search"
-            type="text"
-            placeholder="Search movies, TV shows..."
-            [(ngModel)]="query"
-            (input)="searchMovies()"
-            (keydown.enter)="searchMovies()"
-            class="block w-full pl-10 pr-10 py-2 bg-gray-100 dark:bg-zinc-800 border-0 rounded-full text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-zinc-700"
-          />
-          <button
-            *ngIf="query.length > 0"
-            type="button"
-            (click)="clearSearch(); focusSearchInput()"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center"
-            aria-label="Clear search"
-          >
-            <app-icon-lib
-              ico="clear"
-              class="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            ></app-icon-lib>
-          </button>
         </div>
-      </div>
 
-      <!-- Right: Action Buttons -->
-      <div class="flex items-center gap-2">
         <!-- Sources Button -->
         <button
           class="relative p-2 rounded-lg transition-colors outline-none focus:ring-2 focus:ring-blue-500"
