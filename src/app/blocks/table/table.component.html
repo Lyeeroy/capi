@@ -1,268 +1,326 @@
 <div class="font-[sans-serif] flex flex-col min-h-screen">
   <div class="flex-1 p-3 sm:p-4 w-full max-w-7xl mx-auto pb-24">
     <!-- pb-24 for save bar -->
-    <!-- Top Action Bar -->
-    <!-- Main component container -->
-    <div
-      class="mb-4 p-3 bg-gray-50 dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-700"
-    >
-      <!-- 
-    CHANGE: The main flex container now switches to a row on `lg` screens instead of `sm`.
-    This gives the layout much more room on tablets.
-  -->
-      <div
-        class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
-      >
-        <!-- Left Actions: This group was already well-structured with flex-wrap -->
-        <div class="flex flex-wrap gap-2">
-          <!-- <button
-            type="button"
-            (click)="startAdd()"
-            class="cursor-pointer px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-blue-500 text-white hover:bg-blue-600 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
-          >
-            <app-icon-lib ico="plus" class="h-5 w-5"></app-icon-lib>
-            Add New
-          </button> -->
+   <!-- Top Action Bar -->
+<div class="mb-4 p-3 bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-700 shadow-sm">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    
+    <!-- Left: Search -->
+    <div class="flex-grow lg:max-w-md">
+      <div class="relative">
+        <app-icon-lib
+          ico="search"
+          class="absolute left-2 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500"
+        ></app-icon-lib>
+        <input
+          type="search"
+          class="w-full px-4 py-2.5 pl-10 pr-4 border border-gray-300 dark:border-zinc-600 bg-gray-50 dark:bg-zinc-800 rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent focus:bg-white dark:focus:bg-zinc-800 transition-all text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+          placeholder="Filter sources..."
+          [(ngModel)]="searchInput"
+        />
+      </div>
+    </div>
 
-          <button
-            *ngIf="!isSubscribed"
-            type="button"
-            (click)="subscribeToDefaultSources()"
-            class="cursor-pointer px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-white dark:bg-zinc-800 text-black dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-700 border-gray-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-green-300 dark:focus:ring-green-700"
-          >
-            <app-icon-lib ico="sync" class="h-5 w-5"></app-icon-lib>
-            Subscribe to Capi sources
-          </button>
-          <button
-            *ngIf="isSubscribed"
-            type="button"
-            (click)="unsubscribeFromDefaultSources()"
-            class="cursor-pointer px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-white dark:bg-zinc-800 text-black dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-700 border-gray-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-700"
-          >
-            <app-icon-lib ico="sync" class="h-5 w-5"></app-icon-lib>
-            Unsubscribe to Capi sources
-          </button>
-
-          <!-- Only show Edit Selected and Delete Selected if any rows are selected -->
-          <ng-container *ngIf="anyRowsSelected()">
-            <button
-              type="button"
-              (click)="toggleBulkEditSelected()"
-              class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors focus:outline-none focus:ring-2"
-              [ngClass]="{
-                'bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-700 border-gray-300 dark:border-zinc-600 focus:ring-gray-300 dark:focus:ring-gray-600':
-                  !isBulkEditingSelected,
-                'bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-800 border-green-300 dark:border-green-700 focus:ring-green-300 dark:focus:ring-green-700':
-                  isBulkEditingSelected
-              }"
-            >
-              <app-icon-lib
-                [ico]="isBulkEditingSelected ? 'check' : 'edit'"
-                class="h-5 w-5"
-              ></app-icon-lib>
-              {{
-                isBulkEditingSelected
-                  ? "Done Editing Selected"
-                  : "Edit Selected"
-              }}
-            </button>
-            <button
-              type="button"
-              (click)="deleteSelectedSources()"
-              class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-colors bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-800 border-red-200 dark:border-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-700"
-            >
-              <app-icon-lib ico="trash" class="h-5 w-5"></app-icon-lib>
-              Delete Selected
-            </button>
-          </ng-container>
-        </div>
-
-        <!-- Right Actions (Search & Menu) -->
-        <!-- 
-      CHANGE: This group now switches to a row at the `md` breakpoint. 
-      On large screens, it will be part of the parent `lg:flex-row`.
-    -->
-        <div
-          class="flex flex-col md:flex-row gap-2 items-stretch md:items-center"
+    <!-- Right: Action Buttons -->
+    <div class="flex flex-wrap items-center gap-2">
+      
+      <!-- Conditional Actions for Selected Items -->
+      <ng-container *ngIf="anyRowsSelected()">
+        <button
+          type="button"
+          (click)="toggleBulkEditSelected()"
+          class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-all hover:shadow-md focus:outline-none focus:ring-2"
+          [ngClass]="{
+            'bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-700 border-gray-300 dark:border-zinc-600 focus:ring-gray-300':
+              !isBulkEditingSelected,
+            'bg-blue-600 text-white hover:bg-blue-700 border-blue-600 focus:ring-blue-300':
+              isBulkEditingSelected
+          }"
         >
-          <!-- 
-        CHANGE: Removed fixed width (`sm:w-64`) and `sm:flex-grow-0`. `flex-grow` is now the default, 
-        allowing the search bar to fluidly take up available space. `lg:flex-shrink-0` and `lg:w-64` 
-        are added to give it a defined width on large desktop layouts if desired.
-      -->
-          <div class="relative flex-grow lg:flex-shrink-0 lg:w-64">
-            <input
-              type="search"
-              class="w-full px-4 py-2 pl-10 border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 rounded-lg focus:ring-2 focus:ring-purple-500 dark:focus:ring-purple-700 focus:border-purple-500 dark:focus:border-purple-700 transition-all text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400"
-              placeholder="Filter sources..."
-              [(ngModel)]="searchInput"
-            />
-            <app-icon-lib
-              ico="search"
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500"
-            ></app-icon-lib>
-          </div>
+          <app-icon-lib
+            [ico]="isBulkEditingSelected ? 'check' : 'edit'"
+            class="h-4 w-4"
+          ></app-icon-lib>
+          {{ isBulkEditingSelected ? "Done" : "Edit Selected" }}
+        </button>
 
-          <div class="relative">
-            <!-- 
-          CHANGE: Switched from `sm:w-auto` to `md:w-auto` to match its parent container's breakpoint.
-        -->
-            <button
-              id="quickActionsButton"
-              type="button"
-              (mouseenter)="showMenu()"
-              (mouseleave)="hideMenu()"
-              (click)="toggleMenu($event)"
-              class="w-full md:w-auto px-4 py-2 text-sm font-medium rounded-lg border flex items-center justify-center gap-2 transition-colors bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-700 border-gray-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
-            >
-              <app-icon-lib ico="quickActions" class="h-5 w-5"></app-icon-lib>
-              <span>Quick Actions</span>
-              <app-icon-lib
-                ico="chevronDown"
-                class="h-4 w-4 ml-1"
-              ></app-icon-lib>
-            </button>
-            <!-- 
-          CHANGE: The dropdown's position now respects the `md` breakpoint for consistency.
-          It aligns to the left of the button on screens `md` and wider.
-        -->
-            <div
-              id="quickActionsMenu"
-              *ngIf="isMenuOpen"
-              (mouseenter)="showMenu()"
-              (mouseleave)="hideMenu()"
-              class="absolute mt-1 w-56 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg shadow-lg z-20 right-0 md:left-0 md:right-auto"
-            >
-              <div class="p-1">
-                <a
-                  (click)="editAllSources(); closeMenuOutside()"
-                  class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-md cursor-pointer"
+        <button
+          type="button"
+          (click)="deleteSelectedSources()"
+          class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-all bg-white dark:bg-zinc-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border-gray-300 dark:border-zinc-600 hover:border-red-300 dark:hover:border-red-800 focus:outline-none focus:ring-2 focus:ring-red-300 hover:shadow-md"
+        >
+          <app-icon-lib ico="trash" class="h-4 w-4"></app-icon-lib>
+          Delete Selected
+        </button>
+
+        <div class="w-px h-6 bg-gray-300 dark:bg-zinc-600 mx-1"></div>
+      </ng-container>
+
+      <!-- Main Actions -->
+      <button
+        type="button"
+        (click)="editAllSources()"
+        class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-all bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-700 border-gray-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-gray-300 hover:shadow-md"
+        [ngClass]="{
+          'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700': isEditingAllVisible
+        }"
+      >
+        <app-icon-lib ico="edit" class="h-4 w-4"></app-icon-lib>
+        <span class="hidden sm:inline">{{ isEditingAllVisible ? "Done Editing" : "Edit All" }}</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="isImportModalOpen = true"
+        class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-all bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-700 border-gray-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-gray-300 hover:shadow-md"
+      >
+        <app-icon-lib ico="upload" class="h-4 w-4"></app-icon-lib>
+        <span class="hidden sm:inline">Import</span>
+      </button>
+
+      <button
+        type="button"
+        (click)="isExportModalOpen = true"
+        class="px-4 py-2 text-sm font-medium rounded-lg border flex items-center gap-2 transition-all bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-700 border-gray-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-gray-300 hover:shadow-md"
+      >
+        <app-icon-lib ico="download" class="h-4 w-4"></app-icon-lib>
+        <span class="hidden sm:inline">Export</span>
+      </button>
+
+      <div class="w-px h-6 bg-gray-300 dark:bg-zinc-600 mx-1"></div>
+
+      <!-- More Menu (Only destructive/advanced actions) -->
+      <div class="relative">
+        <button
+          type="button"
+          (click)="toggleMenu($event)"
+          class="p-2 text-sm font-medium rounded-lg border flex items-center gap-1 transition-all bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-700 border-gray-300 dark:border-zinc-600 focus:outline-none focus:ring-2 focus:ring-gray-300 hover:shadow-md"
+          [class.bg-gray-100]="isMenuOpen"
+          [class.dark:bg-zinc-700]="isMenuOpen"
+        >
+          <app-icon-lib ico="dotsVertical" class="h-5 w-5"></app-icon-lib>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div
+          *ngIf="isMenuOpen"
+          (clickOutside)="closeMenuOutside()"
+          class="absolute right-0 mt-2 w-64 bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-lg z-20 overflow-hidden"
+        >
+          <div class="py-2">
+            <!-- Subscription Status & Action -->
+            <div class="px-4 py-2 border-b border-gray-100 dark:border-zinc-700">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                  Capi Sources
+                </span>
+                <span 
+                  class="text-xs px-2 py-0.5 rounded-full"
+                  [ngClass]="{
+                    'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400': isSubscribed,
+                    'bg-gray-100 dark:bg-zinc-700 text-gray-600 dark:text-gray-400': !isSubscribed
+                  }"
                 >
-                  {{
-                    isEditingAllVisible
-                      ? "Done Editing All Visible"
-                      : "Edit All Visible"
-                  }}
-                </a>
-                <a
-                  (click)="isImportModalOpen = true; closeMenuOutside()"
-                  class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-md cursor-pointer"
-                  >Import Data</a
-                >
-                <a
-                  (click)="isExportModalOpen = true; closeMenuOutside()"
-                  class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-md cursor-pointer"
-                  >Export Data</a
-                >
-                <a
-                  [routerLink]="['/table/docs']"
-                  (click)="closeMenuOutside()"
-                  class="block px-3 py-2 text-sm text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900 rounded-md cursor-pointer transition-colors"
-                >
-                  <span class="font-semibold">Table Docs</span>
-                  <span
-                    class="block text-xs mt-0.5 text-gray-500 dark:text-gray-300"
-                    >How to use, import, and manage sources</span
-                  >
-                </a>
-                <div
-                  class="my-1 border-t border-gray-100 dark:border-zinc-700"
-                ></div>
-                <a
-                  (click)="removeIsNewcomerFromLocalStorage()"
-                  class="block px-3 py-2 text-sm text-blue-700 dark:text-blue-400 hover:bg-gray-100 dark:hover:bg-zinc-700 rounded-md cursor-pointer"
-                  >Default Capi Data</a
-                >
-                <a
-                  (click)="isUniversalOpenDelete = true; closeMenuOutside()"
-                  class="block px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-md cursor-pointer"
-                  >Delete All Sources</a
-                >
+                  {{ isSubscribed ? 'Subscribed' : 'Not subscribed' }}
+                </span>
               </div>
+              <button
+                type="button"
+                (click)="isSubscribed ? unsubscribeFromDefaultSources() : subscribeToDefaultSources(); closeMenuOutside()"
+                class="w-full px-3 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
+                [ngClass]="{
+                  'bg-blue-600 hover:bg-blue-700 text-white': !isSubscribed,
+                  'bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 text-gray-700 dark:text-gray-200': isSubscribed
+                }"
+              >
+                <app-icon-lib 
+                  [ico]="isSubscribed ? 'x' : 'sync'" 
+                  class="h-4 w-4"
+                ></app-icon-lib>
+                {{ isSubscribed ? 'Unsubscribe' : 'Subscribe' }}
+              </button>
             </div>
+
+            <a
+              [routerLink]="['/table/docs']"
+              (click)="closeMenuOutside()"
+              class="flex items-start px-4 py-3 text-sm hover:bg-gray-50 dark:hover:bg-zinc-700/50 cursor-pointer transition-colors"
+            >
+              <app-icon-lib ico="book" class="h-5 w-5  mr-3 mt-0.5"></app-icon-lib>
+              <div>
+                <div class="font-medium text-gray-900 dark:text-gray-100">Documentation</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Learn how to manage sources
+                </div>
+              </div>
+            </a>
+
+            <a
+              (click)="removeIsNewcomerFromLocalStorage(); closeMenuOutside()"
+              class="flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-zinc-700/50 cursor-pointer transition-colors"
+            >
+              <app-icon-lib ico="refresh" class="h-4 w-4 mr-3"></app-icon-lib>
+              Reset to Default Data
+            </a>
+
+            <div class="my-1 border-t border-gray-100 dark:border-zinc-700"></div>
+
+            <a
+              (click)="isUniversalOpenDelete = true; closeMenuOutside()"
+              class="flex items-center px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer transition-colors"
+            >
+              <app-icon-lib ico="trash" class="h-4 w-4 mr-3"></app-icon-lib>
+              Delete All Sources
+            </a>
           </div>
         </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    <!-- Add New Source Form (Google Material Style - Mobile Responsive) -->
+<div class="mb-6">
+  <!-- Collapsed State - Add Button -->
+  <div
+    *ngIf="!isAdding"
+    class="group w-full bg-white dark:bg-zinc-800 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden"
+    (click)="startAdd()"
+    role="button"
+    tabindex="0"
+    aria-label="Add new source"
+  >
+    <div class="flex items-center px-4 sm:px-6 py-3 sm:py-4">
+      <div class="flex items-center gap-3 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+        <app-icon-lib
+          ico="plus"
+          class="h-5 w-5"
+        ></app-icon-lib>
+        <span class="text-sm font-medium">Add new source</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expanded State - Form -->
+  <div
+    *ngIf="isAdding"
+    class="bg-white dark:bg-zinc-800 rounded-lg shadow-md"
+  >
+    <!-- Header -->
+    <div class="px-4 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4 border-b border-gray-100 dark:border-zinc-700">
+      <h3 class="text-base font-medium text-gray-900 dark:text-gray-100">
+        Add new source
+      </h3>
+    </div>
+
+    <!-- Form Content -->
+    <div class="px-4 sm:px-6 py-4 sm:py-5 space-y-4">
+      <!-- Name Input -->
+      <div class="w-full">
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+          Name <span class="text-gray-400 font-normal">(optional)</span>
+        </label>
+        <input
+          type="text"
+          class="w-full px-3 py-2.5 text-sm bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-zinc-800 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-50 dark:focus:ring-blue-900/50 transition-all"
+          placeholder="Enter source name"
+          [(ngModel)]="newName"
+          (keyup.enter)="confirmAdd()"
+        />
+      </div>
+
+      <!-- URL Input -->
+      <div class="w-full">
+        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+          URL
+        </label>
+        <input
+          type="text"
+          class="w-full px-3 py-2.5 text-sm bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:bg-white dark:focus:bg-zinc-800 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-50 dark:focus:ring-blue-900/50 transition-all"
+          placeholder="https://example.com/#season:number/#episode:number"
+          [(ngModel)]="newUrl"
+          (keyup.enter)="confirmAdd()"
+        />
+        <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+          Use #season:number, #episode:number, #id:tmdbID, #type:tv/movie as placeholders
+        </p>
       </div>
     </div>
 
-    <!-- Add New Source Form (Inline) -->
-    <div class="mb-4 p-0">
-      <div
-        *ngIf="!isAdding"
-        class="w-full p-4 border-2 border-dashed border-gray-300 dark:border-zinc-600 rounded-lg bg-gray-50 dark:bg-zinc-900 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors cursor-pointer min-h-[60px] group"
-        (click)="startAdd()"
-        role="button"
-        tabindex="0"
-        aria-label="Add new source"
-      >
-        <div class="flex items-center justify-between h-full">
-          <div class="flex items-center justify-center flex-1">
-            <app-icon-lib
-              ico="plus"
-              class="h-6 w-6 text-gray-400 group-hover:text-blue-500 dark:text-gray-500 dark:group-hover:text-blue-400"
-            ></app-icon-lib>
-            <span
-              class="ml-2 text-gray-500 group-hover:text-blue-500 dark:text-gray-400 dark:group-hover:text-blue-400"
-              >Add a new source</span
-            >
-          </div>
+    <!-- Actions Footer - RESPONSIVE -->
+    <div class="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 dark:bg-zinc-900/50 rounded-b-lg">
+      <!-- Mobile: Stack vertically -->
+      <div class="flex flex-col sm:hidden gap-2">
+        <div class="flex gap-2">
+          <button
+            type="button"
+            class="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+            (click)="cancelAdd()"
+            aria-label="Cancel adding source"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-lg shadow-sm hover:shadow transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            (click)="confirmAdd()"
+            [disabled]="!newUrl.trim()"
+            aria-label="Confirm add source"
+          >
+            Add source
+          </button>
         </div>
+        <button
+          type="button"
+          class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 border border-purple-100 dark:border-purple-900/50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+          (click)="openAdvancedSourceModal(); cancelAdd()"
+          title="Open Advanced Source Editor"
+          aria-label="Open Advanced Source Editor"
+        >
+          <app-icon-lib ico="maximize" class="h-4 w-4"></app-icon-lib>
+          <span>Advanced Editor</span>
+        </button>
       </div>
-      <div
-        *ngIf="isAdding"
-        class="p-4 border-2 border-dashed border-blue-200 dark:border-blue-700 rounded-lg bg-blue-50/50 dark:bg-blue-900/50"
-      >
-        <div class="flex justify-between items-center mb-3">
-          <h3 class="text-lg font-medium text-gray-800 dark:text-gray-100">
-            Add New Source
-          </h3>
-        </div>
-        <div class="flex flex-col sm:flex-row gap-3 items-start">
-          <input
-            type="text"
-            class="border border-gray-300 dark:border-zinc-600 rounded-md p-2 text-sm w-full sm:w-1/3 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400"
-            placeholder="Name (optional)"
-            [(ngModel)]="newName"
-            (keyup.enter)="confirmAdd()"
-          />
-          <input
-            type="text"
-            class="border border-gray-300 dark:border-zinc-600 rounded-md p-2 text-sm w-full sm:flex-grow bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400"
-            placeholder="URL (e.g., https://example.com/ #season:number / #episode:number / #id:tmdbID / #type:tv/movie))"
-            [(ngModel)]="newUrl"
-            (keyup.enter)="confirmAdd()"
-          />
-          <div class="flex gap-2 self-stretch sm:self-auto">
-            <button
-              type="button"
-              class="px-3 py-2 text-sm font-medium text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900 hover:bg-purple-200 dark:hover:bg-purple-800 rounded-md border border-purple-300 dark:border-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400 dark:focus:ring-purple-700 flex items-center justify-center"
-              (click)="openAdvancedSourceModal(); cancelAdd()"
-              title="Open Advanced Source Editor"
-              aria-label="Open Advanced Source Editor"
-            >
-              <app-icon-lib ico="maximize" class="h-4 w-4"></app-icon-lib>
-            </button>
-            <button
-              type="button"
-              class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-100 bg-white dark:bg-zinc-800 rounded-md border border-gray-300 dark:border-zinc-600 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
-              (click)="cancelAdd()"
-              aria-label="Cancel adding source"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="px-3 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 dark:focus:ring-blue-700 disabled:opacity-60"
-              (click)="confirmAdd()"
-              [disabled]="!newUrl.trim()"
-              aria-label="Confirm add source"
-            >
-              Add
-            </button>
-          </div>
+
+      <!-- Desktop: Horizontal layout -->
+      <div class="hidden sm:flex items-center justify-between gap-3">
+        <!-- Advanced Button (Left) -->
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-800"
+          (click)="openAdvancedSourceModal(); cancelAdd()"
+          title="Open Advanced Source Editor"
+          aria-label="Open Advanced Source Editor"
+        >
+          <app-icon-lib ico="maximize" class="h-4 w-4"></app-icon-lib>
+          <span>Advanced</span>
+        </button>
+
+        <!-- Right Actions -->
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600"
+            (click)="cancelAdd()"
+            aria-label="Cancel adding source"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="px-5 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-lg shadow-sm hover:shadow transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-sm"
+            (click)="confirmAdd()"
+            [disabled]="!newUrl.trim()"
+            aria-label="Confirm add source"
+          >
+            Add source
+          </button>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
     <!-- Table Container -->
     <div
