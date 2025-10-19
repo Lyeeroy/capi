@@ -1,26 +1,26 @@
-<div class="flex flex-col">
+<div class="carousel-wrapper">
   <div
-    class="relative w-full overflow-hidden rounded-2xl"
+    class="carousel-container"
     (mouseenter)="onMouseEnter()"
     (mouseleave)="onMouseLeave()"
   >
+    <!-- Slides Track -->
     <div
-      class="flex transition-transform duration-700 ease-out slide-container"
-      [ngStyle]="{ 
-        transform: isDragging 
-          ? 'translateX(' + (currentTranslateX - currentSlide * 100) + '%)' 
+      class="slides-track"
+      [ngStyle]="{
+        transform: isDragging
+          ? 'translateX(' + (currentTranslateX - currentSlide * 100) + '%)'
           : 'translateX(-' + currentSlide * 100 + '%)'
       }"
-      [class.grabbing]="isDragging"
-      [class.grab]="!isDragging"
+      [class.dragging]="isDragging"
       role="region"
-      aria-label="Image Carousel"
+      aria-label="Trending Content Carousel"
       (mousedown)="onDragStart($event)"
       (touchstart)="onDragStart($event)"
     >
       <div
         *ngFor="let item of items; let i = index; trackBy: trackByFn"
-        class="flex-shrink-0 w-full"
+        class="slide"
         role="group"
         aria-roledescription="slide"
         [attr.aria-label]="
@@ -32,165 +32,190 @@
           (item.title || item.name)
         "
       >
-        <div class="relative w-full h-auto rounded-2xl overflow-hidden">
-          <img
-            [src]="'https://image.tmdb.org/t/p/w1280' + item.backdrop_path"
-            [alt]="item.title || item.name"
-            class="object-cover w-full h-64 md:h-80 lg:h-[50vh] rounded-2xl pointer-events-none select-none"
-            loading="lazy"
-            draggable="false"
-          />
-          <div
-            class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end rounded-2xl"
-          >
-            <div
-              class="mb-3 w-20 h-28 sm:w-24 sm:h-32 md:w-28 md:h-36 lg:w-42 lg:h-54 shadow-lg rounded overflow-hidden shadow-gray-900/50"
-            >
-              <img
-                *ngIf="item.poster_path"
-                [src]="'https://image.tmdb.org/t/p/w1280' + item.poster_path"
-                [alt]="(item.title || item.name) + ' Poster'"
-                class="w-full h-full object-cover pointer-events-none select-none"
-                loading="lazy"
-                draggable="false"
-              />
-              <div
-                *ngIf="!item.poster_path"
-                class="w-full h-full bg-gray-800/50 flex items-center justify-center text-gray-400"
-              >
-                <svg
-                  class="w-10 h-10"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1"
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
+        <div class="slide-content">
+          <!-- Background Image -->
+          <div class="slide-image-container">
+            <img
+              [src]="'https://image.tmdb.org/t/p/w1280' + item.backdrop_path"
+              [alt]="item.title || item.name"
+              class="slide-image"
+              loading="lazy"
+              draggable="false"
+            />
+          </div>
+
+          <!-- Gradient Overlay -->
+          <div class="slide-overlay"></div>
+
+          <!-- Content Container -->
+          <div class="slide-info">
+            <div class="info-container">
+              <!-- Poster Card -->
+              <div class="poster-card">
+                <img
+                  *ngIf="item.poster_path"
+                  [src]="'https://image.tmdb.org/t/p/w342' + item.poster_path"
+                  [alt]="(item.title || item.name) + ' Poster'"
+                  class="poster-image"
+                  loading="lazy"
+                  draggable="false"
+                />
+                <div *ngIf="!item.poster_path" class="poster-placeholder">
+                  <svg
+                    class="placeholder-icon"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="1.5"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
               </div>
-            </div>
-            <h3 class="text-white text-lg font-bold mb-1 select-none">
-              {{ item.title || item.name }}
-            </h3>
-            <div
-              class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm select-none"
-            >
-              <span
-                class="flex items-center text-gray-300"
-                *ngIf="item.vote_average > 0"
-              >
-                <svg
-                  class="w-3.5 h-3.5 text-amber-400 mr-1 shrink-0"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+
+              <!-- Text Content -->
+              <div class="text-content">
+                <h2 class="title">{{ item.title || item.name }}</h2>
+
+                <div class="metadata">
+                  <span class="rating" *ngIf="item.vote_average > 0">
+                    <svg
+                      class="star-icon"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                      />
+                    </svg>
+                    {{ item.vote_average | number : "1.1-1" }}
+                  </span>
+
+                  <span
+                    class="separator"
+                    *ngIf="
+                      item.vote_average > 0 &&
+                      (item.release_date || item.first_air_date)
+                    "
+                    >•</span
+                  >
+
+                  <span
+                    class="year"
+                    *ngIf="item.release_date || item.first_air_date"
+                  >
+                    {{
+                      item.release_date || item.first_air_date | date : "yyyy"
+                    }}
+                  </span>
+
+                  <span
+                    class="separator"
+                    *ngIf="
+                      item.media_type &&
+                      (item.release_date ||
+                        item.first_air_date ||
+                        item.vote_average > 0)
+                    "
+                    >•</span
+                  >
+
+                  <span *ngIf="item.media_type" class="media-type">
+                    {{ item.media_type === "tv" ? "TV" : "Movie" }}
+                  </span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="actions">
+                  <button
+                    [routerLink]="['/player', item.id, item.media_type]"
+                    class="btn btn-filled"
+                    (click)="$event.stopPropagation()"
+                  >
+                    <app-icon-lib ico="play" class="btn-icon"></app-icon-lib>
+                    <span class="btn-text">Play</span>
+                  </button>
+
+                  <app-watchlist-button-old
+                    *ngIf="watchlistService.isEnabled()"
+                    [tmdbID]="item.id.toString()"
+                    [mediaType]="item.media_type"
+                    [title]="item.title"
+                    [name]="item.name"
+                    [poster_path]="item.poster_path"
+                    [overview]="item.overview"
+                    [release_date]="item.release_date"
+                    [first_air_date]="item.first_air_date"
+                    [vote_average]="item.vote_average"
+                    [genre_ids]="item.genre_ids"
                   />
-                </svg>
-                <span class="font-medium">
-                  {{ item.vote_average | number : "1.1-1" }}
-                </span>
-              </span>
-              <span
-                class="font-medium text-gray-300"
-                *ngIf="item.release_date || item.first_air_date"
-              >
-                {{ item.release_date || item.first_air_date | date : "yyyy" }}
-              </span>
-              <span
-                *ngIf="item.media_type"
-                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-500/30 text-gray-300 border border-gray-500/50 capitalize"
-              >
-                {{ item.media_type === "tv" ? "TV Show" : item.media_type }}
-              </span>
-            </div>
-            <div class="flex items-center gap-2 mt-3">
-              <button
-                [routerLink]="['/player', item.id, item.media_type]"
-                class="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white h-9 px-4 rounded text-sm font-medium cursor-pointer transition-colors min-w-[64px]"
-                (click)="$event.stopPropagation()"
-              >
-                <app-icon-lib
-                  ico="play"
-                  class="w-4 h-4 text-white"
-                ></app-icon-lib>
-                <span class="hidden sm:inline">Play</span>
-              </button>
-              <app-watchlist-button-old
-                *ngIf="watchlistService.isEnabled()"
-                [tmdbID]="item.id.toString()"
-                [mediaType]="item.media_type"
-                [title]="item.title"
-                [name]="item.name"
-                [poster_path]="item.poster_path"
-                [overview]="item.overview"
-                [release_date]="item.release_date"
-                [first_air_date]="item.first_air_date"
-                [vote_average]="item.vote_average"
-                [genre_ids]="item.genre_ids"
-                [customClass]="
-                  'flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white px-4 py-1.5 rounded text-sm font-medium cursor-pointer transition-colors'
-                "
-              >
-              </app-watchlist-button-old>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div
-      class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/40 backdrop-blur-sm border border-white/20 text-white px-3 py-1.5 rounded-full flex items-center space-x-3 z-10"
+    <!-- Navigation Arrows -->
+    <button
+      *ngIf="items.length > 1"
+      class="nav-arrow nav-prev"
+      [class.visible]="isMouseOver"
+      (click)="prevSlide()"
+      aria-label="Previous slide"
     >
-      <button
-        (click)="prevSlide()"
-        class="cursor-pointer text-white hover:text-gray-300 transition-colors"
-        aria-label="Previous Slide"
+      <svg
+        class="nav-icon"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
           stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-      </button>
-      <span class="text-sm font-medium tabular-nums">
-        {{ currentSlide + 1 }}/{{ items.length }}
-      </span>
-      <button
-        (click)="nextSlide()"
-        class="cursor-pointer text-white hover:text-gray-300 transition-colors"
-        aria-label="Next Slide"
+          d="M15 19l-7-7 7-7"
+        />
+      </svg>
+    </button>
+
+    <button
+      *ngIf="items.length > 1"
+      class="nav-arrow nav-next"
+      [class.visible]="isMouseOver"
+      (click)="nextSlide()"
+      aria-label="Next slide"
+    >
+      <svg
+        class="nav-icon"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
           stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </button>
-    </div>
+          d="M9 5l7 7-7 7"
+        />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Dot Indicators (Outside carousel on mobile, inside on desktop) -->
+  <div class="indicators" *ngIf="items.length > 1">
+    <button
+      *ngFor="let item of items; let i = index"
+      class="dot"
+      [class.active]="i === currentSlide"
+      (click)="goToSlide(i)"
+      [attr.aria-label]="'Go to slide ' + (i + 1)"
+      [attr.aria-current]="i === currentSlide"
+    ></button>
   </div>
 </div>

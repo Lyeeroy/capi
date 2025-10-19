@@ -12,17 +12,149 @@ import { IconLibComponent } from '../../svg-icons/icon-lib.component';
       type="button"
       (click)="toggleWatchlist($event)"
       [title]="isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'"
-      [ngClass]="buttonClass + ' px-4 py-1.5'"
+      [ngClass]="getButtonClasses()"
+      class="btn"
     >
       <app-icon-lib
-        [ico]="isInWatchlist ? 'bookmarks' : 'bookmarks'"
-        [ngClass]="
-          isInWatchlist ? 'text-blue-600 dark:text-blue-400' : 'text-white'
-        "
-        class="w-5 h-5 mx-auto my-auto"
+        [ico]="isInWatchlist ? 'check' : 'plus'"
+        class="btn-icon"
       ></app-icon-lib>
+      <span class="btn-text">{{ isInWatchlist ? 'Added' : 'Watchlist' }}</span>
     </button>
   `,
+  styles: [
+    `
+      /* Material Design 3 Button Base */
+      .btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        height: 36px;
+        padding: 0 1rem;
+        border-radius: 0.75rem; /* rounded-xl = 12px */
+        font-size: 0.875rem;
+        font-weight: 500;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        outline: none;
+        text-decoration: none;
+        white-space: nowrap;
+        user-select: none;
+        overflow: hidden;
+      }
+
+      @media (min-width: 640px) {
+        .btn {
+          height: 40px;
+          padding: 0 1.25rem;
+          font-size: 0.9375rem;
+        }
+      }
+
+      @media (min-width: 768px) {
+        .btn {
+          height: 44px;
+          padding: 0 1.5rem;
+          font-size: 1rem;
+        }
+      }
+
+      /* Ripple effect */
+      .btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: currentColor;
+        opacity: 0;
+        transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: inherit;
+      }
+
+      .btn:hover::before {
+        opacity: 0.08;
+      }
+
+      .btn:active::before {
+        opacity: 0.12;
+      }
+
+      .btn:focus-visible {
+        outline: 2px solid rgba(255, 255, 255, 0.5);
+        outline-offset: 2px;
+      }
+
+      /* Filled Button - When in watchlist */
+      .btn-filled {
+        background: #fff;
+        color: #1a1a1a;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-filled:hover {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.25);
+        transform: translateY(-1px);
+      }
+
+      .btn-filled:active {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 0 1px rgba(0, 0, 0, 0.2);
+        transform: translateY(0);
+      }
+
+      /* Outlined Button - When not in watchlist */
+      .btn-outlined {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-outlined:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+        transform: translateY(-1px);
+      }
+
+      .btn-outlined:active {
+        background: rgba(255, 255, 255, 0.16);
+        transform: translateY(0);
+      }
+
+      /* Icon sizing */
+      .btn-icon {
+        width: 1.125rem;
+        height: 1.125rem;
+        flex-shrink: 0;
+      }
+
+      @media (min-width: 768px) {
+        .btn-icon {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+      }
+
+      /* Text visibility */
+      .btn-text {
+        display: none;
+      }
+
+      @media (min-width: 480px) {
+        .btn-text {
+          display: inline;
+        }
+      }
+
+      /* Custom class support */
+      .btn.custom-override {
+        /* Allow custom classes to override if needed */
+      }
+    `,
+  ],
 })
 export class WatchlistButtonOldComponent implements OnInit {
   @Input() tmdbID!: string;
@@ -84,13 +216,13 @@ export class WatchlistButtonOldComponent implements OnInit {
     }
   }
 
-  get buttonClass() {
-    return [
-      'flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
-      this.isInWatchlist
-        ? 'bg-blue-500 hover:bg-blue-600 text-white'
-        : 'bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-600 dark:text-gray-400',
-      this.customClass,
-    ].join(' ');
+  getButtonClasses(): string[] {
+    const classes = [this.isInWatchlist ? 'btn-filled' : 'btn-outlined'];
+
+    if (this.customClass) {
+      classes.push('custom-override', this.customClass);
+    }
+
+    return classes;
   }
 }

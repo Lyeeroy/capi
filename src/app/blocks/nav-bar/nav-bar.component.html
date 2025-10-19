@@ -1,227 +1,220 @@
 <!-- Unified Navigation Bar -->
-<header class="top-0 z-50 pt-4 bg-transparent">
-  <div class="mx-auto">
-    <!--  px-4 sm:px-6 lg:px-8 -->
-    <!-- Island Container -->
-    <div
-      class="w-full mx-auto bg-gray-50/95 dark:bg-zinc-800 backdrop-blur-lg border border-gray-200 dark:border-zinc-700 rounded-2xl overflow-hidden transition-colors duration-300"
-    >
-      <!--  sm:w-4/5 lg:w-2/3 mx-auto -->
-      <div class="px-3 py-3 sm:px-4 sm:py-3 lg:px-6 lg:py-3">
-        <div
-          class="flex flex-col lg:flex-row lg:items-center lg:justify-between"
+<header
+  class="sticky top-0 z-50 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <!-- Left: Mobile Menu, Logo and Navigation -->
+      <div class="flex items-center gap-3 lg:gap-8">
+        <!-- Mobile Menu Button (far left) -->
+        <button
+          type="button"
+          class="lg:hidden p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors outline-none focus:ring-2 focus:ring-blue-500"
+          (click)="toggleMenu($event)"
+          aria-label="Toggle menu"
         >
-          <!-- Left: Logo and Menu (Desktop/Tablet) -->
-          <div class="hidden lg:flex items-center gap-4 sm:gap-6">
-            <a
-              routerLink="/"
-              class="items-center gap-2 outline-none hidden md:flex"
-            >
-              <img
-                src="capi.ico"
-                class="w-16 h-8 sm:w-18 sm:h-10 rounded-lg transition duration-200 dark:grayscale dark:filter dark:invert dark:brightness-0 filter-none"
-                alt="Capi Logo"
-              />
-            </a>
-            <nav class="hidden lg:flex items-center gap-2">
-              <ul class="flex whitespace-nowrap space-x-2">
-                <li
-                  *ngFor="let item of filteredMenuItems"
-                  id="li-menu-{{ item.route }}"
-                  class="relative"
-                  [ngClass]="{
-                    'bg-blue-100 dark:bg-blue-900 rounded-lg': isActive(
-                      item.route
-                    )
-                  }"
-                  routerLinkActive="bg-blue-100 dark:bg-blue-900 rounded-lg"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                >
-                  <a
-                    routerLink="{{ item.route }}"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-blue-400 outline-none relative"
-                    (click)="handleClick($event)"
-                    [ngClass]="{
-                      'text-blue-600 dark:text-white': isActive(item.route),
-                      'text-gray-700 dark:text-gray-200': !isActive(item.route)
-                    }"
-                  >
-                    <app-icon-lib
-                      ico="{{ item.svg }}"
-                      class="w-5 h-5 transition-colors duration-200"
-                      [class.text-blue-600]="isActive(item.route)"
-                      [class.text-gray-700]="!isActive(item.route)"
-                      [class.dark:text-white]="isActive(item.route)"
-                      [class.dark:text-gray-200]="!isActive(item.route)"
-                    ></app-icon-lib>
-                    <span class="text-sm font-medium">{{ item.label }}</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
 
-          <!-- Right: Search and Actions -->
-          <div class="flex items-center gap-2 w-full lg:w-auto lg:gap-3">
-            <!-- Search Bar -->
-            <div class="flex-1 relative">
-              <div class="group flex items-center relative">
-                <!-- Mobile Menu Button (left) -->
-                <button
-                  type="button"
-                  class="mr-2 flex lg:hidden items-center justify-center p-2 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-blue-400 rounded-lg outline-none"
-                  (click)="toggleMenu($event)"
-                  aria-label="Toggle menu"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-6 h-6"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                    />
-                  </svg>
-                </button>
-                <input
-                  id="search"
-                  type="text"
-                  [placeholder]="
-                    isMobile ? 'Search...' : 'Search movies, TV shows...'
-                  "
-                  [(ngModel)]="query"
-                  (input)="searchMovies()"
-                  (keydown.enter)="searchMovies()"
-                  class="w-full pl-4 pr-16 py-2.5 sm:py-3 lg:py-2.5 rounded-xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 focus:border-zinc-300/80 focus:dark:border-zinc-600/80 transition-colors duration-200 outline-none text-gray-800 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base lg:text-sm"
-                />
-                <div
-                  class="absolute inset-y-0 right-0 flex items-center pr-3 gap-1"
-                >
-                  <!-- Clear Button -->
-                  <button
-                    *ngIf="query.length > 0"
-                    type="button"
-                    (click)="clearSearch(); focusSearchInput()"
-                    class="p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-800 transition-colors duration-150 group/clear focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
-                    aria-label="Clear search"
-                  >
-                    <app-icon-lib
-                      ico="clear"
-                      class="h-4 w-4 text-gray-500 dark:text-gray-300 group-hover/clear:text-gray-600 dark:group-hover/clear:text-gray-100 transition-colors"
-                    ></app-icon-lib>
-                  </button>
+        <!-- Logo -->
+        <a
+          routerLink="/"
+          class="flex items-center outline-none focus:outline-none"
+          tabindex="-1"
+        >
+          <img
+            src="capi.ico"
+            class="w-16 h-8 sm:w-18 sm:h-10 rounded-lg dark:grayscale dark:invert"
+            alt="Capi Logo"
+          />
+        </a>
 
-                  <!-- Search Button -->
-                  <button
-                    type="button"
-                    (click)="searchMovies()"
-                    class="p-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 active:bg-blue-100 dark:active:bg-blue-800 transition-colors duration-150 group/search focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
-                    aria-label="Search"
-                  >
-                    <app-icon-lib
-                      ico="search"
-                      class="h-4 w-4 sm:h-5 sm:w-5 lg:h-4 lg:w-4 text-gray-500 dark:text-gray-300"
-                    ></app-icon-lib>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <!-- Action Icons -->
-            <div class="flex items-center gap-2 sm:gap-3">
-              <!-- Sources Button -->
-              <button
-                class="relative group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-zinc-800 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700 hover:bg-blue-50 dark:hover:bg-blue-900 active:scale-95 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
-                routerLink="/table"
-                aria-label="Sources"
+        <!-- Desktop Navigation -->
+        <nav class="hidden lg:block">
+          <ul class="flex items-center gap-1">
+            <li *ngFor="let item of filteredMenuItems">
+              <a
+                routerLink="{{ item.route }}"
+                class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors outline-none focus:ring-2 focus:ring-blue-500"
                 [ngClass]="{
-                  'bg-blue-50 border-blue-200 dark:bg-blue-900 dark:border-blue-700':
-                    isActive('/table'),
-                  'bg-white/80 border-gray-200/80 dark:bg-zinc-800 dark:border-zinc-700':
-                    !isActive('/table')
+                  'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950':
+                    isActive(item.route),
+                  'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800':
+                    !isActive(item.route)
                 }"
+                (click)="handleClick($event)"
               >
                 <app-icon-lib
-                  ico="sources"
-                  class="w-4 h-4 sm:w-5 sm:h-5 lg:w-4 lg:h-4 transition-colors duration-200"
-                  [class.text-blue-600]="isActive('/table')"
-                  [class.text-gray-600]="!isActive('/table')"
-                  [class.dark:text-white]="isActive('/table')"
-                  [class.dark:text-gray-200]="!isActive('/table')"
+                  ico="{{ item.svg }}"
+                  class="w-5 h-5"
                 ></app-icon-lib>
-                <!-- Badge -->
-                <span
-                  class="absolute -top-1 -right-2 min-w-[20px] h-[20px] px-1 py-0.5 bg-blue-500 dark:bg-blue-900 text-xs text-white dark:text-white font-medium flex items-center justify-center rounded-full border-2 border-white dark:border-blue-700"
-                >
-                  {{ sources.length }}
-                </span>
-              </button>
+                <span>{{ item.label }}</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
 
-              <!-- Settings Button -->
-              <button
-                class="group p-2 sm:p-2.5 lg:p-2 rounded-xl bg-white/80 dark:bg-zinc-800 backdrop-blur-sm border border-gray-200/80 dark:border-zinc-700 hover:bg-blue-50 hover:border-blue-300 dark:hover:bg-blue-900 dark:hover:border-zinc-700 active:scale-95 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-blue-400 outline-none"
-                routerLink="/settings"
-                aria-label="Settings"
-                [ngClass]="{
-                  'bg-blue-50 border-blue-200 dark:bg-blue-900 dark:border-blue-700':
-                    isActive('/settings'),
-                  'bg-white/80 border-gray-200/80 dark:bg-zinc-800 dark:border-zinc-700':
-                    !isActive('/settings')
-                }"
-              >
-                <app-icon-lib
-                  ico="settings"
-                  class="w-4 h-4 sm:w-5 sm:h-5 lg:w-4 lg:h-4 transition-all duration-200 group-hover:rotate-90 group-active:rotate-180"
-                  [class.text-blue-600]="isActive('/settings')"
-                  [class.text-gray-600]="!isActive('/settings')"
-                  [class.dark:text-white]="isActive('/settings')"
-                  [class.dark:text-gray-200]="!isActive('/settings')"
-                ></app-icon-lib>
-              </button>
-            </div>
+      <!-- Center: Search Bar (Desktop) -->
+      <div class="hidden lg:block flex-1 max-w-2xl mx-8">
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+          >
+            <app-icon-lib
+              ico="search"
+              class="h-5 w-5 text-gray-400"
+            ></app-icon-lib>
           </div>
+          <input
+            id="search"
+            type="text"
+            placeholder="Search movies, TV shows..."
+            [(ngModel)]="query"
+            (input)="searchMovies()"
+            (keydown.enter)="searchMovies()"
+            class="block w-full pl-10 pr-10 py-2 bg-gray-100 dark:bg-zinc-800 border-0 rounded-full text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-zinc-700"
+          />
+          <button
+            *ngIf="query.length > 0"
+            type="button"
+            (click)="clearSearch(); focusSearchInput()"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center"
+            aria-label="Clear search"
+          >
+            <app-icon-lib
+              ico="clear"
+              class="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            ></app-icon-lib>
+          </button>
         </div>
+      </div>
+
+      <!-- Right: Action Buttons -->
+      <div class="flex items-center gap-2">
+        <!-- Sources Button -->
+        <button
+          class="relative p-2 rounded-lg transition-colors outline-none focus:ring-2 focus:ring-blue-500"
+          routerLink="/table"
+          aria-label="Sources"
+          [ngClass]="{
+            'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950':
+              isActive('/table'),
+            'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800':
+              !isActive('/table')
+          }"
+        >
+          <app-icon-lib ico="sources" class="w-6 h-6"></app-icon-lib>
+          <span
+            *ngIf="sources.length > 0"
+            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 flex items-center justify-center text-xs font-medium text-white bg-blue-600 rounded-full"
+          >
+            {{ sources.length }}
+          </span>
+        </button>
+
+        <!-- Settings Button -->
+        <button
+          class="p-2 rounded-lg transition-all outline-none focus:ring-2 focus:ring-blue-500 group"
+          routerLink="/settings"
+          aria-label="Settings"
+          [ngClass]="{
+            'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950':
+              isActive('/settings'),
+            'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800':
+              !isActive('/settings')
+          }"
+        >
+          <app-icon-lib
+            ico="settings"
+            class="w-6 h-6 transition-transform group-hover:rotate-90"
+          ></app-icon-lib>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Search Bar -->
+    <div class="lg:hidden pb-3">
+      <div class="relative">
+        <div
+          class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+        >
+          <app-icon-lib
+            ico="search"
+            class="h-5 w-5 text-gray-400"
+          ></app-icon-lib>
+        </div>
+        <input
+          type="text"
+          placeholder="Search..."
+          [(ngModel)]="query"
+          (input)="searchMovies()"
+          (keydown.enter)="searchMovies()"
+          class="block w-full pl-10 pr-10 py-2 bg-gray-100 dark:bg-zinc-800 border-0 rounded-full text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          *ngIf="query.length > 0"
+          type="button"
+          (click)="clearSearch(); focusSearchInput()"
+          class="absolute inset-y-0 right-0 pr-3 flex items-center"
+        >
+          <app-icon-lib
+            ico="clear"
+            class="h-5 w-5 text-gray-400 hover:text-gray-600"
+          ></app-icon-lib>
+        </button>
       </div>
     </div>
   </div>
 </header>
 
-<!-- Mobile Dropdown Menu rendered outside nav-bar container -->
-<ng-container *ngIf="showMobileMenu">
+<!-- Mobile Menu Dropdown -->
+<div
+  *ngIf="showMobileMenu"
+  class="fixed inset-x-0 top-0 z-[60] lg:hidden"
+  (clickOutside)="closeMenu()"
+>
+  <!-- Backdrop -->
   <div
-    class="absolute left-0 right-0 mx-auto z-[100] flex justify-center items-start pt-24 w-full lg:hidden"
-    style="top: 0"
+    class="fixed inset-0 bg-black/20 dark:bg-black/40 -z-10"
+    (click)="closeMenu()"
+  ></div>
+
+  <!-- Menu Panel - positioned below navbar -->
+  <div
+    class="mt-[64px] bg-white dark:bg-zinc-900 shadow-lg border-b border-gray-200 dark:border-zinc-800"
   >
-    <div
-      class="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl p-2 flex flex-col gap-1 animate-fade-in-down"
-      [ngStyle]="{ width: navBarWidth }"
-      (clickOutside)="closeMenu()"
-    >
-      <ng-container *ngFor="let item of filteredMenuItems">
-        <a
-          routerLink="{{ item.route }}"
-          (click)="handleClick($event); closeMenu()"
-          class="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors text-gray-700 dark:text-gray-100 relative"
-          [ngClass]="{
-            'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900':
-              isActive(item.route)
-          }"
-        >
-          <app-icon-lib
-            ico="{{ item.svg }}"
-            class="w-5 h-5"
-            [class.text-blue-600]="isActive(item.route)"
-            [class.text-gray-700]="!isActive(item.route)"
-            [class.dark:text-blue-400]="isActive(item.route)"
-            [class.dark:text-gray-100]="!isActive(item.route)"
-          ></app-icon-lib>
-          <span class="text-sm font-medium">{{ item.label }}</span>
-        </a>
-      </ng-container>
-    </div>
+    <nav class="px-4 py-2 max-w-7xl mx-auto">
+      <ul class="space-y-1">
+        <li *ngFor="let item of filteredMenuItems">
+          <a
+            routerLink="{{ item.route }}"
+            (click)="handleClick($event); closeMenu()"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
+            [ngClass]="{
+              'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950':
+                isActive(item.route),
+              'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800':
+                !isActive(item.route)
+            }"
+          >
+            <app-icon-lib ico="{{ item.svg }}" class="w-5 h-5"></app-icon-lib>
+            <span>{{ item.label }}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
   </div>
-</ng-container>
+</div>
