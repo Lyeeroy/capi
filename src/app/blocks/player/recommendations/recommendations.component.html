@@ -140,7 +140,7 @@
     <!-- Recommendations List -->
     <div
       *ngIf="!isLoading && !error && recommendations.length > 0"
-      class="space-y-1.5 sm:space-y-2"
+      class="flex flex-col gap-1.5 sm:gap-2"
     >
       <div
         *ngFor="let item of recommendations; trackBy: trackByFn"
