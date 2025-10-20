@@ -70,15 +70,20 @@ export class ContentTabsComponent implements OnInit, OnDestroy, OnChanges {
 
     this.subscription?.unsubscribe();
 
-    const params: {
-      with_genres?: number;
-      sort_by?: string;
-      with_origin_country?: string;
-      with_original_language?: string;
-    } = {};
+    // Parse the sortBy parameter which contains multiple parameters in URL query format
+    const params: any = {};
 
-    if (this.genreId !== 0) params.with_genres = this.genreId;
-    if (this.sortBy) params.sort_by = this.sortBy;
+    if (this.sortBy) {
+      const searchParams = new URLSearchParams(this.sortBy);
+      searchParams.forEach((value, key) => {
+        params[key] = value;
+      });
+    }
+
+    // Add genre filter
+    if (this.genreId !== 0) {
+      params.with_genres = this.genreId;
+    }
 
     // Add anime-specific filters
     if (this.isAnime) {
