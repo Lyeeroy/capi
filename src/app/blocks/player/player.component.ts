@@ -287,10 +287,15 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
         if (this.sources && this.sources.length > 0) {
           // Try to load the last used source if the setting is enabled
           try {
-            const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
+            const settings = JSON.parse(
+              localStorage.getItem('appSettings') || '{}'
+            );
             if (settings.rememberLastSource) {
               const lastSource = localStorage.getItem('lastSource');
-              if (lastSource && this.sources.some(source => source.url === lastSource)) {
+              if (
+                lastSource &&
+                this.sources.some((source) => source.url === lastSource)
+              ) {
                 this.currentSourceUrl = lastSource;
                 this.reloadIframe();
                 return;
@@ -299,7 +304,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
           } catch (error) {
             console.warn('Failed to load last source:', error);
           }
-          
+
           // Fallback to first source if no remembered source or if loading fails
           this.currentSourceUrl = this.sources[0].url;
           this.reloadIframe();
@@ -773,7 +778,7 @@ export class PlayerComponent implements OnInit, OnDestroy, AfterViewInit {
   onSourceChange(newSourceUrl: string) {
     this.currentSourceUrl = newSourceUrl;
     this.reloadIframe();
-    
+
     // Save the selected source if rememberLastSource is enabled
     try {
       const settings = JSON.parse(localStorage.getItem('appSettings') || '{}');
