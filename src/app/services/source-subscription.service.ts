@@ -40,12 +40,6 @@ export class SourceSubscriptionService {
       url: 'https://vidsrc.xyz/embed/#type?tmdb=#id&season=#season&episode=#episode',
       enabled: true,
     },
-    {
-      id: 7,
-      name: 'mapple.uk',
-      url: 'https://mapple.uk/watch/#type/#id-#season-#episode',
-      enabled: true,
-    },
   ];
   private readonly sourcesKey = 'sources';
   private readonly isSubscribedKey = 'isSubscribed';
