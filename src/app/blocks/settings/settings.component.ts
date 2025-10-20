@@ -15,6 +15,7 @@ interface AppSettings {
   enableScrollToEpisode: boolean;
   enableWatchedEpisodes: boolean;
   enableWatchlist: boolean;
+  rememberLastSource: boolean;
   // Add more settings here (e.g., darkMode: boolean)
 }
 
@@ -44,6 +45,7 @@ export class SettingsComponent implements OnInit {
     enableScrollToEpisode: true,
     enableWatchedEpisodes: true,
     enableWatchlist: true,
+    rememberLastSource: false,
     // Add more defaults here
   };
 
