@@ -1,30 +1,18 @@
-<!-- Settings Content Wrapper (no sidebar) -->
-<div class="w-full max-w-3xl mx-auto mt-16">
+<!-- Settings Content Wrapper -->
+<div class="w-full max-w-4xl mx-auto mt-16 px-4">
   <!-- General Section -->
-  <div
-    id="general"
-    class="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-700 p-0 mb-8"
-  >
+  <div id="general" class="mb-12">
     <div
-      class="bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors w-full"
-      [ngClass]="{
-        'rounded-t-3xl': isGeneralExpanded,
-        'rounded-3xl': !isGeneralExpanded
-      }"
+      class="flex items-center justify-between py-4 cursor-pointer group"
       (click)="toggleSection('general')"
     >
-      <div class="flex items-center gap-3">
-        <div class="w-2 h-7 bg-blue-500 rounded-full"></div>
-        <div>
-          <h2
-            class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
-          >
-            General
-          </h2>
-          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
-            Basic app features and toggles
-          </div>
-        </div>
+      <div>
+        <h2 class="text-2xl font-normal text-gray-900 dark:text-gray-100">
+          General
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          Basic app features and toggles
+        </p>
       </div>
       <div
         class="transition-transform duration-200"
@@ -32,238 +20,185 @@
       >
         <app-icon-lib
           ico="chevronDown"
-          class="w-4 h-4 text-gray-500 dark:text-gray-300"
+          class="w-5 h-5 text-gray-500 dark:text-gray-400"
         ></app-icon-lib>
       </div>
     </div>
-    <div *ngIf="isGeneralExpanded" class="p-8 pt-6 animate-modal-slide-up">
-      <!-- Enable Continue Watching Section -->
+
+    <div
+      *ngIf="isGeneralExpanded"
+      class="border-t border-gray-200 dark:border-zinc-800"
+    >
+      <!-- Continue Watching -->
       <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-6 bg-gray-50 dark:bg-zinc-800"
+        class="py-6 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800"
       >
-        <div class="flex-1">
-          <div
-            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
-          >
-            <app-icon-lib
-              ico="play"
-              class="w-6 h-6 text-amber-500"
-            ></app-icon-lib>
-            Enable Continue Watching
+        <div class="flex-1 pr-8">
+          <div class="text-base text-gray-900 dark:text-gray-100 font-medium">
+            Continue Watching
           </div>
-          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
-            Toggle to enable or disable the Continue Watching feature. If
-            disabled, your progress will not be saved and the section will be
-            hidden from the home page.
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Save your progress and show Continue Watching section on the home
+            page
           </div>
         </div>
-        <div
-          class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
+        <label
+          class="relative inline-flex items-center cursor-pointer flex-shrink-0"
         >
-          <!-- Flowbite Switch -->
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              class="sr-only peer"
-              [(ngModel)]="settings.enableContinueWatching"
-              (change)="
-                onEnableContinueWatchingChange(settings.enableContinueWatching)
-              "
-            />
-            <div
-              class="w-11 h-6 bg-gray-200 dark:bg-zinc-800 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 dark:peer-checked:bg-blue-700 transition"
-            ></div>
-            <div
-              class="absolute left-1 top-1 bg-white dark:bg-zinc-900 w-4 h-4 rounded-full transition peer-checked:translate-x-5"
-            ></div>
-          </label>
-        </div>
+          <input
+            type="checkbox"
+            class="sr-only peer"
+            [(ngModel)]="settings.enableContinueWatching"
+            (change)="
+              onEnableContinueWatchingChange(settings.enableContinueWatching)
+            "
+          />
+          <div
+            class="w-12 h-7 bg-gray-300 dark:bg-zinc-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-zinc-900 rounded-full peer peer-checked:bg-blue-600 transition-colors"
+          ></div>
+          <div
+            class="absolute left-0.5 top-0.5 bg-white w-6 h-6 rounded-full shadow-sm transition-transform peer-checked:translate-x-5"
+          ></div>
+        </label>
       </div>
 
-      <!-- Enable Scroll to Episode Section -->
+      <!-- Auto Scroll to Episode -->
       <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-6 bg-gray-50 dark:bg-zinc-800"
+        class="py-6 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800"
       >
-        <div class="flex-1">
-          <div
-            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
-          >
-            <app-icon-lib
-              ico="chevronDown"
-              class="w-6 h-6 text-purple-500"
-            ></app-icon-lib>
-            Auto Scroll to Episode
+        <div class="flex-1 pr-8">
+          <div class="text-base text-gray-900 dark:text-gray-100 font-medium">
+            Auto scroll to episode
           </div>
-          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Automatically scroll to the currently playing episode in the
-            playlist.
+            playlist
           </div>
         </div>
-        <div
-          class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
+        <label
+          class="relative inline-flex items-center cursor-pointer flex-shrink-0"
         >
-          <!-- Flowbite Switch -->
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              class="sr-only peer"
-              [(ngModel)]="settings.enableScrollToEpisode"
-              (change)="
-                onEnableScrollToEpisodeChange(settings.enableScrollToEpisode)
-              "
-            />
-            <div
-              class="w-11 h-6 bg-gray-200 dark:bg-zinc-800 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 dark:peer-checked:bg-blue-700 transition"
-            ></div>
-            <div
-              class="absolute left-1 top-1 bg-white dark:bg-zinc-900 w-4 h-4 rounded-full transition peer-checked:translate-x-5"
-            ></div>
-          </label>
-        </div>
-      </div>
-
-      <!-- Enable Watched Episodes Section -->
-      <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-6 bg-gray-50 dark:bg-zinc-800"
-      >
-        <div class="flex-1">
+          <input
+            type="checkbox"
+            class="sr-only peer"
+            [(ngModel)]="settings.enableScrollToEpisode"
+            (change)="
+              onEnableScrollToEpisodeChange(settings.enableScrollToEpisode)
+            "
+          />
           <div
-            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
-          >
-            <app-icon-lib
-              ico="eye"
-              class="w-6 h-6 text-green-500"
-            ></app-icon-lib>
-            Watched Episodes Tracking
-          </div>
-          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
-            Track which episodes you've watched with blue indicators. When
-            enabled, episodes are automatically marked as watched when you
-            switch to a different episode.
-          </div>
-        </div>
-        <div
-          class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
-        >
-          <!-- Flowbite Switch -->
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              class="sr-only peer"
-              [(ngModel)]="settings.enableWatchedEpisodes"
-              (change)="
-                onEnableWatchedEpisodesChange(settings.enableWatchedEpisodes)
-              "
-            />
-            <div
-              class="w-11 h-6 bg-gray-200 dark:bg-zinc-800 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 dark:peer-checked:bg-blue-700 transition"
-            ></div>
-            <div
-              class="absolute left-1 top-1 bg-white dark:bg-zinc-900 w-4 h-4 rounded-full transition peer-checked:translate-x-5"
-            ></div>
-          </label>
-        </div>
+            class="w-12 h-7 bg-gray-300 dark:bg-zinc-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-zinc-900 rounded-full peer peer-checked:bg-blue-600 transition-colors"
+          ></div>
+          <div
+            class="absolute left-0.5 top-0.5 bg-white w-6 h-6 rounded-full shadow-sm transition-transform peer-checked:translate-x-5"
+          ></div>
+        </label>
       </div>
 
-      <!-- Watchlist Section -->
+      <!-- Watched Episodes -->
       <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col gap-6 bg-gray-50 dark:bg-zinc-800"
+        class="py-6 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800"
       >
-        <!-- Enable Watchlist Toggle -->
-        <div
-          class="flex flex-col md:flex-row items-center justify-between gap-6"
+        <div class="flex-1 pr-8">
+          <div class="text-base text-gray-900 dark:text-gray-100 font-medium">
+            Watched episodes tracking
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Track episodes with indicators and mark them as watched
+            automatically
+          </div>
+        </div>
+        <label
+          class="relative inline-flex items-center cursor-pointer flex-shrink-0"
         >
-          <div class="flex-1">
-            <div
-              class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
-            >
-              <app-icon-lib
-                ico="save"
-                class="w-6 h-6 text-blue-500"
-              ></app-icon-lib>
+          <input
+            type="checkbox"
+            class="sr-only peer"
+            [(ngModel)]="settings.enableWatchedEpisodes"
+            (change)="
+              onEnableWatchedEpisodesChange(settings.enableWatchedEpisodes)
+            "
+          />
+          <div
+            class="w-12 h-7 bg-gray-300 dark:bg-zinc-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-zinc-900 rounded-full peer peer-checked:bg-blue-600 transition-colors"
+          ></div>
+          <div
+            class="absolute left-0.5 top-0.5 bg-white w-6 h-6 rounded-full shadow-sm transition-transform peer-checked:translate-x-5"
+          ></div>
+        </label>
+      </div>
+
+      <!-- Watchlist -->
+      <div class="py-6 border-b border-gray-100 dark:border-zinc-800">
+        <div class="flex items-center justify-between">
+          <div class="flex-1 pr-8">
+            <div class="text-base text-gray-900 dark:text-gray-100 font-medium">
               Watchlist
             </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
-              Save movies and TV shows to watch later. Your watchlist is stored
-              locally in your browser.
+            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Save movies and TV shows to watch later
             </div>
           </div>
-          <div
-            class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
+          <label
+            class="relative inline-flex items-center cursor-pointer flex-shrink-0"
           >
-            <!-- Flowbite Switch -->
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                class="sr-only peer"
-                [(ngModel)]="settings.enableWatchlist"
-                (change)="onEnableWatchlistChange(settings.enableWatchlist)"
-              />
-              <div
-                class="w-11 h-6 bg-gray-200 dark:bg-zinc-800 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 dark:peer-checked:bg-blue-700 transition"
-              ></div>
-              <div
-                class="absolute left-1 top-1 bg-white dark:bg-zinc-900 w-4 h-4 rounded-full transition peer-checked:translate-x-5"
-              ></div>
-            </label>
-          </div>
+            <input
+              type="checkbox"
+              class="sr-only peer"
+              [(ngModel)]="settings.enableWatchlist"
+              (change)="onEnableWatchlistChange(settings.enableWatchlist)"
+            />
+            <div
+              class="w-12 h-7 bg-gray-300 dark:bg-zinc-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-zinc-900 rounded-full peer peer-checked:bg-blue-600 transition-colors"
+            ></div>
+            <div
+              class="absolute left-0.5 top-0.5 bg-white w-6 h-6 rounded-full shadow-sm transition-transform peer-checked:translate-x-5"
+            ></div>
+          </label>
         </div>
 
-        <!-- Clear Watchlist Button -->
+        <!-- Clear Watchlist (nested) -->
         <div
           *ngIf="settings.enableWatchlist && getWatchlistCount() > 0"
-          class="border-t border-gray-200 dark:border-zinc-600 pt-6"
+          class="mt-6 pl-0"
         >
-          <div
-            class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
-          >
-            <div>
-              <div class="font-medium text-gray-900 dark:text-gray-100">
-                Clear Watchlist
+          <div class="flex items-center justify-between">
+            <div class="flex-1 pr-8">
+              <div class="text-sm text-gray-900 dark:text-gray-100">
+                Clear watchlist
               </div>
-              <div class="text-sm text-gray-500 dark:text-gray-400">
-                You have {{ getWatchlistCount() }} item{{
+              <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {{ getWatchlistCount() }} item{{
                   getWatchlistCount() === 1 ? "" : "s"
                 }}
-                in your watchlist.
+                saved
               </div>
             </div>
             <button
               (click)="clearWatchlist()"
-              class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium"
+              class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
             >
-              Clear All
+              Clear
             </button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
   <!-- Playlist Section -->
-  <div
-    id="playlist"
-    class="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-700 p-0 mb-8"
-  >
+  <div id="playlist" class="mb-12">
     <div
-      class="bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors w-full"
-      [ngClass]="{
-        'rounded-t-3xl': isPlaylistExpanded,
-        'rounded-3xl': !isPlaylistExpanded
-      }"
+      class="flex items-center justify-between py-4 cursor-pointer group"
       (click)="toggleSection('playlist')"
     >
-      <div class="flex items-center gap-3">
-        <div class="w-2 h-7 bg-purple-500 rounded-full"></div>
-        <div>
-          <h2
-            class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
-          >
-            Playlist
-          </h2>
-          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
-            Playlist layout and display options
-          </div>
-        </div>
+      <div>
+        <h2 class="text-2xl font-normal text-gray-900 dark:text-gray-100">
+          Playlist
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          Playlist layout and display options
+        </p>
       </div>
       <div
         class="transition-transform duration-200"
@@ -271,71 +206,53 @@
       >
         <app-icon-lib
           ico="chevronDown"
-          class="w-4 h-4 text-gray-500 dark:text-gray-300"
+          class="w-5 h-5 text-gray-500 dark:text-gray-400"
         ></app-icon-lib>
       </div>
     </div>
-    <div *ngIf="isPlaylistExpanded" class="p-8 pt-6 animate-modal-slide-up">
+
+    <div
+      *ngIf="isPlaylistExpanded"
+      class="border-t border-gray-200 dark:border-zinc-800"
+    >
       <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50 dark:bg-zinc-800"
+        class="py-6 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800"
       >
-        <div class="flex-1">
-          <div
-            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
-          >
-            <app-icon-lib
-              ico="menu"
-              class="w-6 h-6 text-blue-500"
-            ></app-icon-lib>
-            Default Playlist Layout
+        <div class="flex-1 pr-8">
+          <div class="text-base text-gray-900 dark:text-gray-100 font-medium">
+            Default layout
           </div>
-          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
-            Choose how episodes are displayed by default in the playlist.
-            Options include List (simple), Grid (episode numbers), Poster
-            (thumbnails), and Compact (space-efficient thumbnails). You can
-            always change it temporarily in the player.
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Choose how episodes are displayed in the playlist
           </div>
         </div>
-        <div class="w-full md:w-auto mt-4 md:mt-0">
-          <select
-            class="w-full md:w-40 px-4 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100"
-            [(ngModel)]="settings.playlistLayout"
-            (change)="onPlaylistLayoutChange(settings.playlistLayout)"
-          >
-            <option value="list">List</option>
-            <option value="grid">Grid</option>
-            <option value="poster">Poster</option>
-            <option value="compact">Compact</option>
-          </select>
-        </div>
+        <select
+          class="px-3 py-2 text-sm border border-gray-300 dark:border-zinc-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 outline-none transition"
+          [(ngModel)]="settings.playlistLayout"
+          (change)="onPlaylistLayoutChange(settings.playlistLayout)"
+        >
+          <option value="list">List</option>
+          <option value="grid">Grid</option>
+          <option value="poster">Poster</option>
+          <option value="compact">Compact</option>
+        </select>
       </div>
     </div>
   </div>
+
   <!-- Theme Section -->
-  <div
-    id="theme"
-    class="bg-white dark:bg-zinc-900 rounded-3xl border border-gray-200 dark:border-zinc-700 p-0 mb-8"
-  >
+  <div id="theme" class="mb-12">
     <div
-      class="bg-gray-50 dark:bg-zinc-800 flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors w-full"
-      [ngClass]="{
-        'rounded-t-3xl': isThemeExpanded,
-        'rounded-3xl': !isThemeExpanded
-      }"
+      class="flex items-center justify-between py-4 cursor-pointer group"
       (click)="toggleSection('theme')"
     >
-      <div class="flex items-center gap-3">
-        <div class="w-2 h-7 bg-indigo-500 rounded-full"></div>
-        <div>
-          <h2
-            class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
-          >
-            Theme
-          </h2>
-          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
-            Appearance and color customization
-          </div>
-        </div>
+      <div>
+        <h2 class="text-2xl font-normal text-gray-900 dark:text-gray-100">
+          Appearance
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          Customize how the app looks
+        </p>
       </div>
       <div
         class="transition-transform duration-200"
@@ -343,117 +260,99 @@
       >
         <app-icon-lib
           ico="chevronDown"
-          class="w-4 h-4 text-gray-500 dark:text-gray-300"
+          class="w-5 h-5 text-gray-500 dark:text-gray-400"
         ></app-icon-lib>
       </div>
     </div>
-    <div *ngIf="isThemeExpanded" class="p-8 pt-6 animate-modal-slide-up">
-      <div
-        class="border border-gray-200 dark:border-zinc-700 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gray-50 dark:bg-zinc-800"
-      >
-        <div class="flex-1">
-          <div
-            class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
-          >
-            <app-icon-lib
-              ico="moon"
-              class="w-6 h-6 text-indigo-500"
-            ></app-icon-lib>
-            Dark Mode
-          </div>
-          <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
-            Choose your preferred appearance: Light, Dark, or System (auto).
+
+    <div
+      *ngIf="isThemeExpanded"
+      class="border-t border-gray-200 dark:border-zinc-800"
+    >
+      <div class="py-6 border-b border-gray-100 dark:border-zinc-800">
+        <div class="flex items-start justify-between">
+          <div class="flex-1 pr-8">
+            <div class="text-base text-gray-900 dark:text-gray-100 font-medium">
+              Theme
+            </div>
+            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              Choose light, dark, or automatic based on your system settings
+            </div>
           </div>
         </div>
-        <div
-          class="w-full md:w-auto mt-4 md:mt-0 flex items-center gap-3 justify-center"
-        >
-          <label class="inline-flex items-center cursor-pointer gap-2">
+
+        <div class="mt-4 flex flex-wrap gap-3">
+          <label class="flex-1 min-w-[100px] cursor-pointer">
             <input
               type="radio"
-              class="sr-only"
+              class="peer sr-only"
               name="themeMode"
               value="light"
               [checked]="currentTheme.mode === 'light'"
               (change)="onThemeModeChange('light')"
             />
-            <span
-              class="px-4 py-2 rounded-lg border font-medium transition cursor-pointer"
-              [class]="
-                currentTheme.mode === 'light'
-                  ? 'bg-blue-100 dark:bg-blue-900 border-blue-500 text-blue-700 dark:text-blue-300'
-                  : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100'
-              "
-              >Light</span
+            <div
+              class="px-4 py-3 text-center rounded-lg border-2 transition-all peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-zinc-600"
             >
+              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Light
+              </div>
+            </div>
           </label>
-          <label class="inline-flex items-center cursor-pointer gap-2">
+
+          <label class="flex-1 min-w-[100px] cursor-pointer">
             <input
               type="radio"
-              class="sr-only"
+              class="peer sr-only"
               name="themeMode"
               value="dark"
               [checked]="currentTheme.mode === 'dark'"
               (change)="onThemeModeChange('dark')"
             />
-            <span
-              class="px-4 py-2 rounded-lg border font-medium transition cursor-pointer"
-              [class]="
-                currentTheme.mode === 'dark'
-                  ? 'bg-blue-100 dark:bg-blue-900 border-blue-500 text-blue-700 dark:text-blue-300'
-                  : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100'
-              "
-              >Dark</span
+            <div
+              class="px-4 py-3 text-center rounded-lg border-2 transition-all peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-zinc-600"
             >
+              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Dark
+              </div>
+            </div>
           </label>
-          <label class="inline-flex items-center cursor-pointer gap-2">
+
+          <label class="flex-1 min-w-[100px] cursor-pointer">
             <input
               type="radio"
-              class="sr-only"
+              class="peer sr-only"
               name="themeMode"
               value="system"
               [checked]="currentTheme.mode === 'system'"
               (change)="onThemeModeChange('system')"
             />
-            <span
-              class="px-4 py-2 rounded-lg border font-medium transition cursor-pointer"
-              [class]="
-                currentTheme.mode === 'system'
-                  ? 'bg-blue-100 dark:bg-blue-900 border-blue-500 text-blue-700 dark:text-blue-300'
-                  : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100'
-              "
-              >System</span
+            <div
+              class="px-4 py-3 text-center rounded-lg border-2 transition-all peer-checked:border-blue-600 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:hover:border-zinc-600"
             >
+              <div class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                System
+              </div>
+            </div>
           </label>
         </div>
       </div>
     </div>
   </div>
-  <!-- Danger Zone Section -->
-  <div
-    id="danger"
-    class="bg-white dark:bg-zinc-900 rounded-3xl border border-red-200 dark:border-red-700 p-0"
-  >
+
+  <!-- Privacy & Data Section -->
+  <div id="danger" class="mb-12">
     <div
-      class="bg-red-50 dark:bg-red-900 flex items-center justify-between p-4 cursor-pointer hover:bg-red-100 dark:hover:bg-red-800 transition-colors w-full"
-      [ngClass]="{
-        'rounded-t-3xl': isDangerExpanded,
-        'rounded-3xl': !isDangerExpanded
-      }"
+      class="flex items-center justify-between py-4 cursor-pointer group"
       (click)="toggleSection('danger')"
     >
-      <div class="flex items-center gap-3">
-        <div class="w-2 h-7 bg-red-500 rounded-full"></div>
-        <div>
-          <h2
-            class="text-base font-bold text-gray-900 dark:text-gray-100 truncate"
-          >
-            Danger Zone
-          </h2>
-          <div class="text-sm text-gray-500 dark:text-gray-400 font-medium">
-            Reset or clear your data
-          </div>
-        </div>
+      <div>
+        <h2 class="text-2xl font-normal text-gray-900 dark:text-gray-100">
+          Privacy & data
+        </h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          Manage your local data and storage
+        </p>
       </div>
       <div
         class="transition-transform duration-200"
@@ -461,137 +360,102 @@
       >
         <app-icon-lib
           ico="chevronDown"
-          class="w-4 h-4 text-gray-500 dark:text-gray-300"
+          class="w-5 h-5 text-gray-500 dark:text-gray-400"
         ></app-icon-lib>
       </div>
     </div>
-    <div *ngIf="isDangerExpanded" class="p-8 pt-6 animate-modal-slide-up">
-      <!-- Clear Watched Episodes Section -->
+
+    <div
+      *ngIf="isDangerExpanded"
+      class="border-t border-gray-200 dark:border-zinc-800"
+    >
+      <!-- Clear Watched Episodes -->
       <div
-        class="border border-amber-200 dark:border-amber-700 rounded-xl p-6 mb-6 bg-amber-50 dark:bg-amber-900"
+        class="py-6 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800"
       >
-        <div
-          class="flex flex-col md:flex-row items-center justify-between gap-6"
-        >
-          <div class="flex-1">
-            <div
-              class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
-            >
-              <app-icon-lib
-                ico="trash"
-                class="w-6 h-6 text-amber-500"
-              ></app-icon-lib>
-              Clear Watched Episodes
-            </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
-              This will
-              <b class="text-amber-600 dark:text-amber-300">reset all</b>
-              blue indicators across all series.
-            </div>
+        <div class="flex-1 pr-8">
+          <div class="text-base text-gray-900 dark:text-gray-100 font-medium">
+            Clear watched episodes
           </div>
-          <div
-            class="w-full md:w-auto mt-4 md:mt-0 flex items-center justify-center"
-          >
-            <button
-              (click)="clearAllWatchedEpisodes()"
-              class="cursor-pointer w-full md:w-56 text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:outline-none focus:ring-amber-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
-            >
-              Clear Watched Episodes
-            </button>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Reset all watch indicators across all series
           </div>
         </div>
-      </div>
-      <!-- Clear Continue Watching Section -->
-      <div
-        class="border border-amber-200 dark:border-amber-700 rounded-xl p-6 mb-6 bg-amber-50 dark:bg-amber-900"
-      >
-        <div
-          class="flex flex-col md:flex-row items-center justify-between gap-6"
+        <button
+          (click)="clearAllWatchedEpisodes()"
+          class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors whitespace-nowrap"
         >
-          <div class="flex-1">
-            <div
-              class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
-            >
-              <app-icon-lib
-                ico="play"
-                class="w-6 h-6 text-amber-500"
-              ></app-icon-lib>
-              Clear Continue Watching
-            </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
-              This will
-              <span class="font-semibold text-amber-600 dark:text-amber-300"
-                >permanently delete</span
-              >
-              your Continue Watching list.
-            </div>
-          </div>
-          <button
-            type="button"
-            class="cursor-pointer w-full md:w-56 text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:outline-none focus:ring-amber-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
-            (click)="isUniversalOpenCW = true"
-          >
+          Clear
+        </button>
+      </div>
+
+      <!-- Clear Continue Watching -->
+      <div
+        class="py-6 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800"
+      >
+        <div class="flex-1 pr-8">
+          <div class="text-base text-gray-900 dark:text-gray-100 font-medium">
             Clear Continue Watching
-          </button>
-        </div>
-      </div>
-      <!-- Clear Cache Section -->
-      <div
-        class="border border-red-200 dark:border-red-700 rounded-xl p-6 bg-red-50 dark:bg-red-900"
-      >
-        <div
-          class="flex flex-col md:flex-row items-center justify-between gap-6"
-        >
-          <div class="flex-1">
-            <div
-              class="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-lg"
-            >
-              <app-icon-lib
-                ico="trash"
-                class="w-6 h-6 text-red-500"
-              ></app-icon-lib>
-              Clear Cache
-            </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-xl">
-              This will
-              <span class="font-semibold text-red-600 dark:text-red-300"
-                >permanently delete</span
-              >
-              all your local data (sources, continue watching, settings, etc).
-            </div>
           </div>
-          <button
-            type="button"
-            class="cursor-pointer w-full md:w-56 text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-semibold rounded-xl text-sm px-6 py-3 text-center transition"
-            (click)="isUniversalOpen = true"
-          >
-            Clear Cache
-          </button>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Remove all items from your Continue Watching list
+          </div>
         </div>
+        <button
+          (click)="isUniversalOpenCW = true"
+          class="px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors whitespace-nowrap"
+        >
+          Clear
+        </button>
+      </div>
+
+      <!-- Clear All Data -->
+      <div
+        class="py-6 flex items-center justify-between border-b border-gray-100 dark:border-zinc-800"
+      >
+        <div class="flex-1 pr-8">
+          <div class="text-base text-gray-900 dark:text-gray-100 font-medium">
+            Clear all data
+          </div>
+          <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Delete all local data including settings, watch history, and sources
+          </div>
+        </div>
+        <button
+          (click)="isUniversalOpen = true"
+          class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors whitespace-nowrap"
+        >
+          Clear
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- Footer spacing -->
+  <div class="h-20"></div>
 </div>
 
-<!-- Modals (unchanged) -->
+<!-- Modals -->
 <universal-modal
   [open]="isUniversalOpen"
-  title="Clear Cache?"
-  message="Are you sure you want to clear all local data? This cannot be undone."
+  title="Clear all data?"
+  message="This will delete all your local data including settings, watch history, and sources. This action cannot be undone."
   (confirm)="handleUniversalConfirm()"
   (cancel)="isUniversalOpen = false"
 ></universal-modal>
+
 <universal-modal
   [open]="isUniversalOpenCW"
   title="Clear Continue Watching?"
-  message="Are you sure you want to clear your Continue Watching list? This cannot be undone."
+  message="This will remove all items from your Continue Watching list. This action cannot be undone."
   (confirm)="handleUniversalConfirmCW()"
   (cancel)="isUniversalOpenCW = false"
 ></universal-modal>
+
 <universal-modal
   [open]="isUniversalOpenWatched"
-  title="Clear Watched Episodes?"
-  message="Are you sure you want to clear all watched episode data? This cannot be undone."
+  title="Clear watched episodes?"
+  message="This will reset all watch indicators across all series. This action cannot be undone."
   (confirm)="handleUniversalConfirmWatched()"
   (cancel)="isUniversalOpenWatched = false"
 ></universal-modal>
