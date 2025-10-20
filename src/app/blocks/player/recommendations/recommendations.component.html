@@ -1,9 +1,9 @@
 <!-- Recommendations Section -->
 <div
   [ngClass]="{
-    'bg-white dark:bg-zinc-900 shadow-sm': isExpanded,
+    'bg-white dark:bg-zinc-900': isExpanded,
     'bg-transparent shadow-none': !isExpanded,
-    'rounded-xl flex flex-col': true
+    'flex flex-col': true
   }"
   [style.height.px]="isExpanded ? panelHeight : null"
   [style.overflow]="isExpanded ? null : 'visible'"
@@ -57,7 +57,7 @@
   <div
     *ngIf="isExpanded"
     class="animate-modal-slide-up overflow-y-auto flex-1 min-h-0 pt-2 pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-zinc-700 scrollbar-track-gray-100 dark:scrollbar-track-zinc-900"
-    style="max-height: calc(85vh - 64px); margin-bottom: 2px"
+    style="max-height: calc(95vh - 64px); margin-bottom: 2px"
   >
     <!-- Loading State -->
     <div
