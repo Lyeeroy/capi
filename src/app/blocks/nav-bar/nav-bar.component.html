@@ -5,7 +5,7 @@
   <div class="mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <!-- Left: Mobile Menu, Logo and Navigation -->
-      <div class="flex items-center gap-3 lg:gap-8">
+      <div class="flex items-center gap-2 sm:gap-3 lg:gap-8">
         <!-- Mobile Menu Button (far left) -->
         <button
           type="button"
@@ -31,12 +31,12 @@
         <!-- Logo -->
         <a
           routerLink="/"
-          class="flex items-center outline-none focus:outline-none"
+          class="flex items-center outline-none focus:outline-none flex-shrink-0"
           tabindex="-1"
         >
           <img
             src="capi.ico"
-            class="w-16 h-8 sm:w-18 sm:h-10 rounded-lg dark:grayscale dark:invert"
+            class="w-14 h-7 sm:w-16 sm:h-8 lg:w-18 lg:h-10 rounded-lg dark:grayscale dark:invert"
             alt="Capi Logo"
           />
         </a>
@@ -68,9 +68,9 @@
       </div>
 
       <!-- Right: Search Bar (Desktop) + Action Buttons -->
-      <div class="flex items-center gap-3">
-        <!-- Search Bar (Desktop only) -->
-        <div class="hidden lg:block w-94">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Search Bar (Desktop only) - REDUCED WIDTH -->
+        <div class="hidden lg:block w-48 xl:w-64">
           <div class="relative">
             <div
               class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
@@ -83,7 +83,7 @@
             <input
               id="search"
               type="text"
-              placeholder="Search movies, TV shows..."
+              placeholder="Search..."
               [(ngModel)]="query"
               (input)="searchMovies()"
               (keydown.enter)="searchMovies()"
@@ -106,7 +106,7 @@
 
         <!-- Sources Button -->
         <button
-          class="relative p-2 rounded-lg transition-colors outline-none focus:ring-2 focus:ring-blue-500"
+          class="relative p-2 rounded-lg transition-colors outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0"
           routerLink="/table"
           aria-label="Sources"
           [ngClass]="{
@@ -127,7 +127,7 @@
 
         <!-- Settings Button -->
         <button
-          class="p-2 rounded-lg transition-all outline-none focus:ring-2 focus:ring-blue-500 group"
+          class="p-2 rounded-lg transition-all outline-none focus:ring-2 focus:ring-blue-500 group flex-shrink-0"
           routerLink="/settings"
           aria-label="Settings"
           [ngClass]="{
