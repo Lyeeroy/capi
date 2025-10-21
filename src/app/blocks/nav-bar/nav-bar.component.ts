@@ -1,13 +1,21 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  OnDestroy,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HighlightSlectedMenuRoute } from '../side-bar/side-bar.service';
 import { IconLibComponent } from '../../svg-icons/icon-lib.component';
-import { TmdbService } from '../../services/tmdb.service'; // Import TmdbService
-import { ClickOutsideDirective } from './click-outside.directive'; // Import ClickOutsideDirective
+import { TmdbService } from '../../services/tmdb.service';
+import { ClickOutsideDirective } from './click-outside.directive';
 import { WatchlistService } from '../../services/watchlist.service';
+import { Subject } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-nav-bar',
@@ -20,7 +28,8 @@ import { WatchlistService } from '../../services/watchlist.service';
     IconLibComponent,
     ClickOutsideDirective,
   ],
-  providers: [HighlightSlectedMenuRoute, TmdbService], // Add TmdbService to providers
+  providers: [HighlightSlectedMenuRoute, TmdbService],
+  changeDetection: ChangeDetectionStrategy.OnPush, // Enable OnPush strategy
 })
 export class NavBarComponent implements AfterViewInit, OnDestroy {
   query = '';
@@ -29,6 +38,15 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
   isMobile = false;
   navBarWidth = '250px';
 
+  // Cache sources to avoid repeated localStorage access
+  private _sources: any[] = [];
+
+  // Cleanup subject
+  private destroy$ = new Subject<void>();
+
+  // Resize subject for debouncing
+  private resize$ = new Subject<void>();
+
   menuItems = [
     { label: 'Home', route: '', svg: 'home' },
     { label: 'Discover', route: '/discover', svg: 'search' },
@@ -36,68 +54,123 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
     { label: 'History', route: '/history', svg: 'history' },
   ];
 
+  // Cache filtered menu items
+  private _filteredMenuItems: any[] = [];
+
   get filteredMenuItems() {
-    return this.menuItems.filter((item) => {
-      if (item.route === '/watchlist') {
-        return this.watchlistService.isEnabled();
-      }
-      return true;
-    });
+    if (this._filteredMenuItems.length === 0) {
+      this._filteredMenuItems = this.menuItems.filter((item) => {
+        if (item.route === '/watchlist') {
+          return this.watchlistService.isEnabled();
+        }
+        return true;
+      });
+    }
+    return this._filteredMenuItems;
   }
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private highlightSlectedMenuRoute: HighlightSlectedMenuRoute,
-    private tmdbService: TmdbService, // Inject TmdbService
-    public watchlistService: WatchlistService // Inject WatchlistService
-  ) {}
+    private tmdbService: TmdbService,
+    public watchlistService: WatchlistService,
+    private cdr: ChangeDetectorRef // Add ChangeDetectorRef
+  ) {
+    // Load sources once in constructor
+    this.loadSources();
+
+    // Set up debounced resize handler
+    this.resize$
+      .pipe(
+        debounceTime(150), // Debounce resize events
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.handleResize();
+      });
+  }
 
   ngAfterViewInit() {
     this.highlightSlectedMenuRoute.ngAfterViewInit();
     this.checkIsMobile();
-    this.updateNavBarWidth();
-    window.addEventListener('resize', this.checkIsMobile.bind(this));
-    window.addEventListener('resize', this.updateNavBarWidth.bind(this));
+
+    // Use single optimized resize listener
+    this.setupResizeListener();
   }
 
   ngOnDestroy() {
-    window.removeEventListener('resize', this.checkIsMobile.bind(this));
-    window.removeEventListener('resize', this.updateNavBarWidth.bind(this));
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  checkIsMobile() {
-    this.isMobile = window.innerWidth <= 768;
+  private setupResizeListener() {
+    // Use passive event listener for better performance
+    window.addEventListener('resize', this.onResize, { passive: true });
   }
 
-  updateNavBarWidth() {
-    // Get the actual navbar width to match it with the menu
-    setTimeout(() => {
-      const navBarElement = document.querySelector('header .w-full');
-      if (navBarElement) {
-        const width = navBarElement.getBoundingClientRect().width;
-        this.navBarWidth = `${width}px`;
-      } else {
-        // Fallback to previous logic
-        this.navBarWidth = this.isMobile ? '80vw' : '250px';
-      }
-    }, 0);
+  // Bound function for easier cleanup
+  private onResize = () => {
+    this.resize$.next();
+  };
+
+  private handleResize() {
+    this.checkIsMobile();
+    this.updateNavBarWidth();
+    this.cdr.markForCheck(); // Trigger change detection
+  }
+
+  private loadSources() {
+    try {
+      const storedData = localStorage.getItem('sources');
+      this._sources = storedData ? JSON.parse(storedData) : [];
+    } catch (e) {
+      console.error('Error loading sources:', e);
+      this._sources = [];
+    }
   }
 
   get sources() {
-    const storedData = localStorage.getItem('sources');
-    return storedData ? JSON.parse(storedData) : [];
+    return this._sources;
+  }
+
+  // Method to refresh sources if needed
+  refreshSources() {
+    this.loadSources();
+    this.cdr.markForCheck();
+  }
+
+  checkIsMobile() {
+    const wasMobile = this.isMobile;
+    this.isMobile = window.innerWidth <= 768;
+
+    // Only trigger change detection if value changed
+    if (wasMobile !== this.isMobile) {
+      this.cdr.markForCheck();
+    }
+  }
+
+  updateNavBarWidth() {
+    // Simplified without setTimeout
+    const navBarElement = document.querySelector('header .w-full');
+    if (navBarElement) {
+      const width = navBarElement.getBoundingClientRect().width;
+      this.navBarWidth = `${width}px`;
+    } else {
+      this.navBarWidth = this.isMobile ? '80vw' : '250px';
+    }
   }
 
   searchMovies() {
     if (!this.query.trim()) {
       this.searchResults = [];
+      this.cdr.markForCheck();
       return;
     }
 
-    // Use TmdbService's fetchFromTmdb instead of hardcoded fetch
     this.tmdbService
       .fetchFromTmdb('/search/multi', { query: this.query })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           this.searchResults = data.results.filter(
@@ -105,7 +178,7 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
               item.poster_path &&
               (item.media_type === 'movie' || item.media_type === 'tv')
           );
-          console.log(this.searchResults);
+          this.cdr.markForCheck(); // Trigger change detection
         },
         error: (err) => console.error('Error fetching search results:', err),
       });
@@ -118,8 +191,9 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
   }
 
   clearSearch() {
-    this.query = ''; // Clear query
-    this.searchResults = []; // Clear results
+    this.query = '';
+    this.searchResults = [];
+    this.cdr.markForCheck();
   }
 
   focusSearchInput() {
@@ -134,7 +208,6 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
   }
 
   isActive(route: string): boolean {
-    // Special handling for discover route to include legacy routes
     if (route === '/discover' || route === 'discover') {
       return (
         this.router.url.startsWith('/discover') ||
@@ -145,7 +218,6 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
       );
     }
 
-    // Use Angular's router.isActive for robust matching
     const normalizedRoute = route.startsWith('/') ? route : '/' + route;
     return this.router.isActive(normalizedRoute, {
       paths: 'exact',
@@ -156,21 +228,31 @@ export class NavBarComponent implements AfterViewInit, OnDestroy {
   }
 
   toggleMenu(event?: Event) {
-    // Prevent event propagation to avoid conflicts with click-outside directive
+    // Prevent any propagation immediately
     if (event) {
-      event.stopPropagation();
+      event.preventDefault();
+      event.stopImmediatePropagation();
     }
 
-    // Simple toggle - if open, close it; if closed, open it
+    // Toggle menu state
     this.showMobileMenu = !this.showMobileMenu;
 
-    // Update navbar width when opening menu to ensure they match
+    // Update navbar width when opening
     if (this.showMobileMenu) {
-      this.updateNavBarWidth();
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        this.updateNavBarWidth();
+        this.cdr.markForCheck();
+      });
+    } else {
+      this.cdr.markForCheck();
     }
   }
 
   closeMenu() {
-    this.showMobileMenu = false;
+    if (this.showMobileMenu) {
+      this.showMobileMenu = false;
+      this.cdr.markForCheck();
+    }
   }
 }
